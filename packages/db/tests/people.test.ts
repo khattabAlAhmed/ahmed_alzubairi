@@ -296,7 +296,7 @@ describe("profiles", () => {
   });
 });
 
-describe("a client can't write", () => {
+describe("a client has no write grant on", () => {
   it.each([
     [
       "their own profile",
