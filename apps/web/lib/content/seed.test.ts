@@ -16,7 +16,6 @@ const SEED = readFileSync(
 const TABLES = [
   ...CONTENT_TYPES,
   "site_settings",
-  "project_images",
   "project_services",
   "courses",
   "documents",
@@ -75,6 +74,10 @@ describe("dev seed", () => {
         expect(isAvailableIn("home_sections", camel(row), locale), `${row.key} ${locale}`).toBe(true);
       }
     }
+  });
+
+  it("adds no project images, since none would point to a real file", async () => {
+    expect(await rows("project_images")).toEqual([]);
   });
 
   it("has a draft in every table with a status", async () => {

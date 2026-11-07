@@ -81,9 +81,9 @@ insert into public.projects (id, slug, expertise_id, org_type, title_ar, title_e
   ('de5eed00-0000-4000-8000-000000000604', 'draft-project', 'de5eed00-0000-4000-8000-000000000402', 'company', 'مشروع مسودة', 'Draft project', 'جهة مثال', 'Example Org', null, null, false, 'هدف تجريبي للمشروع.', 'Placeholder project goal.', 'الدور (مثال).', 'Role (example).', 'ستة أشهر', 'Six months', 'أنشطة تجريبية.', 'Placeholder activities.', 'نتائج تجريبية بالأرقام.', 'Placeholder results in numbers.', 'تحسن بنسبة 30٪ (مثال)', '30% improvement (example)', false, 'draft')
 on conflict (id) do update set slug = excluded.slug, expertise_id = excluded.expertise_id, org_type = excluded.org_type, title_ar = excluded.title_ar, title_en = excluded.title_en, org_name_ar = excluded.org_name_ar, org_name_en = excluded.org_name_en, org_label_ar = excluded.org_label_ar, org_label_en = excluded.org_label_en, hide_org_name = excluded.hide_org_name, goal_ar = excluded.goal_ar, goal_en = excluded.goal_en, role_ar = excluded.role_ar, role_en = excluded.role_en, duration_ar = excluded.duration_ar, duration_en = excluded.duration_en, activities_ar = excluded.activities_ar, activities_en = excluded.activities_en, results_ar = excluded.results_ar, results_en = excluded.results_en, key_result_ar = excluded.key_result_ar, key_result_en = excluded.key_result_en, is_featured = excluded.is_featured, status = excluded.status;
 
-insert into public.project_images (id, project_id, path, alt_ar, alt_en, position) values
-  ('de5eed00-0000-4000-8000-000000000651', 'de5eed00-0000-4000-8000-000000000601', 'dev-seed/placeholder-project.jpg', 'صورة تجريبية', 'Placeholder photo', 0)
-on conflict (id) do update set project_id = excluded.project_id, path = excluded.path, alt_ar = excluded.alt_ar, alt_en = excluded.alt_en, position = excluded.position;
+-- No project_images: a row needs a real file, and the gallery is tested with fixtures.
+-- This removes the row an earlier version of the seed added.
+delete from public.project_images where id = 'de5eed00-0000-4000-8000-000000000651';
 
 insert into public.project_services (project_id, service_id) values
   ('de5eed00-0000-4000-8000-000000000601', 'de5eed00-0000-4000-8000-000000000501'),
