@@ -64,10 +64,43 @@
   },
   "Onboarding": {
     "title": "Complete your profile",
-    "empty": "This step is being prepared."
+    "intro": "One last step: add your details so we can serve you.",
+    "nameLegend": "Full name",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "phoneHint": "Preferably with the country code, for example +966501234567.",
+    "orgType": "Organization type",
+    "orgTypeNone": "Choose a type",
+    "orgTypes": {
+      "government": "Government",
+      "organization": "Organization",
+      "company": "Company",
+      "individual": "Individual"
+    },
+    "orgName": "Organization name",
+    "jobTitle": "Job title",
+    "locale": "Preferred language",
+    "locales": {
+      "ar": "العربية",
+      "en": "English"
+    },
+    "optional": "(optional)",
+    "terms": "I accept the <privacy>Privacy policy</privacy> and the <terms>Terms of use</terms>",
+    "submit": "Save and continue",
+    "saving": "Saving…",
+    "nameRequired": "Enter your first and last name.",
+    "phoneInvalid": "Enter a valid phone number of 7 to 15 digits.",
+    "termsRequired": "You must accept the Privacy policy and Terms of use to continue.",
+    "networkError": "We couldn't save. Check your connection and try again."
   },
   "Errors": {
-    "unauthenticated": "Please sign in to continue."
+    "unauthenticated": "Please sign in to continue.",
+    "validation_failed": "Some details aren't valid. Check them and try again.",
+    "email_not_verified": "Please verify your email first.",
+    "profile_incomplete": "Please add your full name.",
+    "conflict": "Your profile already exists.",
+    "internal_error": "Something went wrong on our side. Please try again."
   },
   "Clerk": {
     "emailPlaceholder": "Enter your email address",
