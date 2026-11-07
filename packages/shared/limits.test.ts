@@ -1,0 +1,22 @@
+import { describe, expect, it } from "vitest";
+import {
+  DOCUMENT_VIEW_COPY_TTL_HOURS,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS_PER_MESSAGE,
+  MEETING_REMINDER_HOURS_BEFORE,
+  PHONE_MAX_DIGITS,
+  PHONE_MIN_DIGITS,
+  SIGNED_URL_TTL_SECONDS,
+} from "./limits";
+
+describe("limits", () => {
+  it("holds the numbers §6 fixes", () => {
+    expect(MAX_ATTACHMENT_BYTES).toBe(10_485_760);
+    expect(MAX_ATTACHMENTS_PER_MESSAGE).toBe(5);
+    expect(SIGNED_URL_TTL_SECONDS).toBe(60);
+    expect(DOCUMENT_VIEW_COPY_TTL_HOURS).toBe(1);
+    expect(MEETING_REMINDER_HOURS_BEFORE).toBe(24);
+    expect(PHONE_MIN_DIGITS).toBe(7);
+    expect(PHONE_MAX_DIGITS).toBe(15);
+  });
+});
