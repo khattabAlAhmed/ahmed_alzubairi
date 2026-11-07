@@ -1,0 +1,62 @@
+{
+  "Common": {
+    "skipToContent": "انتقل إلى المحتوى",
+    "loading": "جارٍ التحميل…"
+  },
+  "Nav": {
+    "mainLabel": "القائمة الرئيسية",
+    "home": "الرئيسية",
+    "about": "من أنا",
+    "expertise": "مجالات الخبرة",
+    "services": "الخدمات",
+    "projects": "المشاريع السابقة",
+    "training": "التدريب",
+    "blog": "المدونة",
+    "resources": "مكتبة الموارد المجانية",
+    "media": "الظهور الإعلامي والفعاليات",
+    "clients": "الجهات وآراء العملاء",
+    "documents": "الوثائق والشهادات",
+    "faq": "الأسئلة الشائعة",
+    "contact": "تواصل معي",
+    "requestConsultation": "اطلب استشارة"
+  },
+  "Header": {
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "switchTheme": "تبديل الوضع الداكن والفاتح",
+    "switchLanguage": "English",
+    "switchLanguageShort": "EN",
+    "switchLanguageLabel": "التبديل إلى الإنجليزية"
+  },
+  "Footer": {
+    "sectionsLabel": "أقسام الموقع",
+    "legalLabel": "روابط قانونية",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام"
+  },
+  "Account": {
+    "navLabel": "قائمة الحساب",
+    "title": "حسابي",
+    "consultations": "استشاراتي",
+    "documents": "وثائقي المتاحة",
+    "courses": "دوراتي",
+    "profile": "الملف الشخصي",
+    "empty": "لا يوجد شيء هنا بعد.",
+    "consultationsEmpty": "لا توجد استشارات بعد."
+  },
+  "Dashboard": {
+    "navLabel": "قائمة لوحة التحكم",
+    "title": "لوحة التحكم",
+    "empty": "لا يوجد شيء هنا بعد."
+  },
+  "NotFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "قد يكون الرابط غير صحيح، أو لم تُنشر هذه الصفحة بعد.",
+    "backHome": "العودة إلى الرئيسية"
+  },
+  "Error": {
+    "title": "حدث خطأ غير متوقع",
+    "description": "لم نتمكن من عرض هذه الصفحة. حاول مرة أخرى.",
+    "retry": "إعادة المحاولة"
+  }
+}
