@@ -14,6 +14,8 @@ vi.mock("next-intl", async (original) => ({
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));
 vi.mock("next/image", () => ({
+  // A plain <img> stands in for next/image in tests.
+  // eslint-disable-next-line @next/next/no-img-element
   default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
 vi.mock("@/i18n/navigation", () => ({
