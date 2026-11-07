@@ -1,0 +1,33 @@
+{
+  "aboutCta": "Explore my expertise",
+  "photoAlt": "Photo of {name}",
+  "allExpertise": "All areas of expertise",
+  "allServices": "All services",
+  "allProjects": "All projects",
+  "allClients": "All organizations and testimonials",
+  "allMedia": "All media and events",
+  "allPosts": "All articles",
+  "allResources": "All resources",
+  "keyResult": "Key result",
+  "partnerLogo": "{name} logo",
+  "articles": "Articles",
+  "resources": "Resources",
+  "readingTime": "{minutes, plural, one {# min read} other {# min read}}",
+  "mediaCategory": {
+    "media": "Media appearance",
+    "events": "Event",
+    "conferences": "Conference"
+  },
+  "resourceKind": {
+    "guide": "Guide",
+    "template": "Template",
+    "working_paper": "Working paper"
+  },
+  "viewDetails": "View details",
+  "opensInNewTab": "(opens in a new tab)",
+  "email": "Email",
+  "whatsapp": "WhatsApp",
+  "linkedin": "LinkedIn",
+  "contactIntro": "Pick the channel that suits you, or send a message from the contact page.",
+  "sendMessage": "Send a message"
+}
