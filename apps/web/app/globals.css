@@ -64,18 +64,36 @@
   --shadow-tint: color-mix(in srgb, var(--color-background) 60%, transparent);
 }
 
-:root:lang(en) {
+/*
+ * The pair follows the language of the text, not only the page: an Arabic
+ * label on an English page (the language switch) gets the Arabic pair, and
+ * English text on an Arabic page gets the English pair.
+ */
+:lang(ar) {
+  --font-sans: var(--font-ibm-plex-sans-arabic), sans-serif;
+  --font-heading: var(--font-amiri), serif;
+}
+
+:lang(en) {
   --font-sans: var(--font-inter), sans-serif;
   --font-heading: var(--font-playfair-display), serif;
 }
 
 @layer base {
+  /* `font-family` is inherited as a resolved value, so each element with its
+     own `lang` sets it again from its own variables. `:where` keeps this
+     weaker than the heading rule below. */
+  :where([lang]) {
+    font-family: var(--font-sans);
+  }
+
   h1,
   h2,
   h3,
   h4,
   h5,
-  h6 {
+  h6,
+  :where(h1, h2, h3, h4, h5, h6) [lang] {
     font-family: var(--font-heading);
     font-weight: 700;
   }
