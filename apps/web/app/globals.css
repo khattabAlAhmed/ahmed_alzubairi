@@ -26,6 +26,11 @@
   --color-text-secondary: #4a5568;
   --color-on-primary: #f7f3ea;
   --color-on-accent: #0b1f3a;
+  /* Not in §13's table: errors need a color, and these match the red the
+     forms already used (red-700 / red-300). AA on background and surface. */
+  --color-danger: #b91c1c;
+  /* Focus rings. Gold fails 3:1 on ivory, so light uses navy. */
+  --color-ring: #0b1f3a;
 
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
@@ -60,6 +65,8 @@
   --color-text-secondary: #a9b4c6;
   --color-on-primary: #f7f3ea;
   --color-on-accent: #0b1f3a;
+  --color-danger: #fca5a5;
+  --color-ring: #d4b062;
 
   --shadow-tint: color-mix(in srgb, var(--color-background) 60%, transparent);
 }
