@@ -294,7 +294,7 @@ Categories: consultations, training, documents, account. Managed from the dashbo
 | Deleting an account | The account is **disabled, never deleted**: the client can't sign in (Clerk ban) and the data stays in the dashboard. An admin can reactivate it (Clerk unban). |
 | Open consultations on disable | Closed automatically and kept |
 | Errors | Clear messages in the selected language (email in use, weak password, and so on) |
-| Clerk settings | Password minimum 12 characters. New-device email verification on. Application name = `SITE_NAME`. The product owner decided these on 2026-11-07; the production instance must match at launch. |
+| Clerk settings | Password minimum 12 characters. First and last name required. New-device email verification on. Application name = `SITE_NAME`. The product owner decided these on 2026-11-07; the production instance must match at launch. |
 
 Account pages:
 
@@ -815,6 +815,7 @@ Don't guess these. If a task depends on one, stop and ask.
 | 9 | Timeline and budget | Ahmed and product owner | — |
 | 10 | Malware scanning of uploads. The PRD requires it (🔴), and no free option fits: Vercel can't run ClamAV, and public scanners share files with third parties, which breaks client confidentiality. | Product owner | §9 file rules only. Must be settled before launch. |
 | 11 | Production plans (table below) | Product owner | Free tiers during the build |
+| 12 | Clerk's auth emails in Arabic. They arrive in English only (Phase 1 check below). The likely fix is one bilingual template, if the plan allows editing it. | Product owner | English Clerk emails |
 
 **Paid plans production may need.** Prices were read in November 2026; confirm them before buying.
 
@@ -830,4 +831,4 @@ Don't guess these. If a task depends on one, stop and ask.
 | Check | Result |
 | --- | --- |
 | Clerk's components in RTL | The layout mirrors correctly at 375 px on sign-up, sign-in, password, email code, new-device code, forgot password and the error states. Fixed in the app: `arSA` gaps in placeholders and errors (filled from `messages/`), code boxes reversed (now LTR), long emails losing their start (direction follows the content), gold links on white (now the text color). Not fixable: the "Secured by" badge stays in English, and forgot-password's email-code button cuts off the address (Clerk's text, minor). |
-| Clerk's emails in Arabic | Mixed Arabic and English, details pending from the product owner. |
+| Clerk's emails in Arabic | English only. The verification and password reset emails arrived entirely in English, the same from `/ar` and `/en`; the new-device code email wasn't checked. Clerk sends one template per instance, with no language logic. Whether the free plan allows editing it is unconfirmed. See decision 12. |
