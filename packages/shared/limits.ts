@@ -19,3 +19,9 @@ export const PHONE_MAX_DIGITS = 15;
 
 /** Max length of the free-text profile fields: org name and job title. */
 export const MAX_PROFILE_TEXT_LENGTH = 200;
+
+/** Max length of names, titles, subjects and other one-line form fields. */
+export const MAX_SHORT_TEXT_LENGTH = 200;
+
+/** Max length of messages, descriptions, purposes and notes. */
+export const MAX_LONG_TEXT_LENGTH = 5000;
