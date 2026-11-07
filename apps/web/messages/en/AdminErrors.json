@@ -1,0 +1,11 @@
+{
+  "forbidden": "You don't have permission to do this.",
+  "notFound": "We couldn't find this item. It may have been deleted.",
+  "conflict": "Another item already uses this value. Choose a different one.",
+  "invalidReference": "A linked item doesn't exist. Check the linked area or service.",
+  "noPostCreate": "Home sections can't be added. Edit, hide or reorder the existing ones.",
+  "publishNoLanguage": "Fill in the required fields in Arabic or English before publishing.",
+  "publishNoValue": "Add the number before publishing.",
+  "publishNoConsent": "Confirm the organization's consent before publishing.",
+  "publishNotApproved": "This needs the admin's approval before it can be published."
+}
