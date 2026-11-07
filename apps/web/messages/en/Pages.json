@@ -1,0 +1,23 @@
+{
+  "career": "Career",
+  "qualifications": "Qualifications",
+  "downloadCv": "Download CV",
+  "ctaTitle": "Looking for advice?",
+  "ctaText": "Send your request, and I'll get back to you about the next step.",
+  "experience": "Experience",
+  "areaServices": "Services in this area",
+  "areaProjects": "Projects in this area",
+  "areaOrganizations": "Organizations I've worked with",
+  "allExpertise": "All areas of expertise",
+  "emptyExpertise": "No areas of expertise are published in this language yet.",
+  "area": "Area",
+  "audience": "Who it suits",
+  "deliverables": "What you get",
+  "stages": "Work stages",
+  "serviceProjects": "Related projects",
+  "serviceFaqs": "Questions about this service",
+  "requestService": "Request this service",
+  "allServices": "All services",
+  "emptyServices": "No services are published in this language yet.",
+  "keyResult": "Key result"
+}
