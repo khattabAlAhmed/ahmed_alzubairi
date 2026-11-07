@@ -155,12 +155,6 @@ describe("request config", () => {
       });
       const messages = config.messages as Messages;
       expect(messages.Common).toEqual(locale === "ar" ? ar.Common : en.Common);
-      // TEMPORARY (P2P-T01 done-when 5): remove with messages/*/T01Check.*.
-      expect(messages.T01Check.title).toBe(
-        locale === "ar" ? "فحص المساحات" : "Namespace check",
-      );
-      // @ts-expect-error A key the namespace file doesn't have.
-      expect(messages.T01Check.missing).toBeUndefined();
     },
   );
 });
