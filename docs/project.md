@@ -551,7 +551,7 @@ All content tables also have `id`, `created_at`, `updated_at`. `*_ar` / `*_en` m
 | `consultation_messages` | `id`, `consultation_id`, `sender_id`, `body`, `created_at` | |
 | `consultation_attachments` | `id`, `consultation_id`, `message_id`, `storage_key`, `file_name`, `mime`, `size_bytes`, `status` (`uploading`/`ready`), `uploaded_by`, `created_at` | |
 | `meetings` | `id`, `consultation_id`, `platform`, `url`, `starts_at`, `duration_minutes`, `reminder_sent_at`, `created_at` | |
-| `documents` | `id`, `category`, `title_*`, `storage_key`, `mime`, `access_mode` (`view`/`view_download`), `status` | |
+| `documents` | `id`, `category`, `title_*`, `storage_key`, `mime`, `access_mode` (`view`/`view_download`), `status` | `category`: `course_certificate`, `qualification_certificate`, `thank_you_letter`, `recommendation_letter`, `experience_certificate`, `project_photo`, `event_photo` |
 | `document_requests` | `id`, `client_id`, `document_id`, `purpose`, `status`, `consultation_id`, `decided_by`, `granted_at`, `expires_at`, `revoked_at`, `created_at` | Partial unique index on (`client_id`, `document_id`) while open or granted |
 | `document_recommendations` | `id`, `request_id`, `member_id`, `recommendation` (`approve`/`needs_clarification`), `note`, `created_at` | |
 | `document_access_log` | `id`, `request_id`, `document_id`, `client_id`, `action` (`view`/`download`), `created_at` | Append only |
@@ -615,7 +615,7 @@ Rules that must hold under concurrency run in Postgres functions only `service_r
 | `POST /api/consultations/:id/attachments/finalize` | Check the uploaded file → attach |
 | `GET /api/attachments/:id` | Signed download URL, after an access check |
 | `POST /api/document-requests` | Request one or more documents |
-| `GET /api/documents/:id/open` | Grant check → log → watermark → signed URL |
+| `GET /api/documents/:id/open` | Grant check → log → watermark → signed URL. Optional query `action`: `view` (default) or `download`. `download` is refused when `access_mode` is `view`. |
 | `POST /api/courses/:id/register` | Register |
 
 ### Team (Clerk session + permission)
@@ -624,17 +624,21 @@ Rules that must hold under concurrency run in Postgres functions only `service_r
 | --- | --- |
 | `PATCH /api/admin/consultations/:id` | Status: reply permission on an assigned one. Assign: `consultations.assign`. |
 | `POST/PATCH /api/admin/consultations/:id/meetings` | `consultations.reply` |
-| `GET/POST/PATCH/DELETE /api/admin/content/:type` | `content.manage` |
+| `GET/POST/PATCH /api/admin/content/:type` | `content.manage` |
 | `PATCH /api/admin/testimonials/:id/approve` | `testimonials.approve` |
+| `PATCH /api/admin/partners/:id/approve` | `testimonials.approve`. Body `{ approved: boolean }`. The server sets `approved_by`. |
 | `POST /api/admin/document-requests/:id/recommend` | `document_requests.recommend` |
 | `POST /api/admin/document-requests/:id/decide` | `document_requests.decide` |
 | `GET/POST/PATCH /api/admin/documents` | `documents.manage` |
+| `POST /api/admin/uploads/upload-url` | `documents.manage` for target `document`, `content.manage` for the others. Body: `target`, `fileName`, `mime`, `sizeBytes`. Returns the one-time URL and a key. Targets map to buckets: `document` → `documents`, `resource` → `resources`, `media` → `public-media`, `letter` → `internal`. |
+| `POST /api/admin/uploads/finalize` | Same as `upload-url`. Body: `target`, `key`. Checks the real size and file bytes (§9). Later content and document bodies carry the key. |
 | `GET/POST/PATCH /api/admin/courses` | `training.manage` |
-| `GET/PATCH /api/admin/clients` | `clients.view_all`, or the scoped rule in §5 |
+| `GET /api/admin/clients` | `clients.view_all`, or the scoped rule in §5 |
+| `PATCH /api/admin/clients` | `clients.view_all` only. Scoped access lets a team member see a client, never disable one. |
 | `GET/POST/PATCH /api/admin/team`, `/api/admin/roles` | `team.manage` |
 | `PATCH /api/admin/settings`, `/api/admin/email-templates` | `team.manage` |
 | `GET /api/admin/newsletter/export` | `content.manage` |
-| `DELETE /api/admin/:type/:id` | `data.delete`. Needs a confirmation token; writes `audit_log`. |
+| `DELETE /api/admin/:type/:id` | `data.delete`. Body `{ confirm: <row id> }`, checked against `:id`. The dashboard asks twice, and the second step needs a typed word. There is no token route. `:type` is a shared list: the content types except `home_sections` and `pages`, plus `documents`, `courses`, `consultations`. Never a log table, `profiles`, `email_outbox` or `roles`. Writes `audit_log`. |
 
 ### System
 
