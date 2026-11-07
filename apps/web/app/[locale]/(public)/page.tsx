@@ -78,6 +78,10 @@ type SectionData = Awaited<ReturnType<typeof loadSectionData>>;
 /** A section ready to render, or null when it has nothing to show. */
 type Planned = { key: HomeSectionKey; navy: boolean; render: (band: SectionBand) => ReactNode };
 
+/**
+ * Pick the renderer for one section. Navy sections keep their band; the others
+ * alternate later. Returns null when the section has no data to show.
+ */
 function plan(section: HomeSection, data: SectionData, locale: Locale): Planned | null {
   const fixed = (render: () => ReactNode): Planned => ({ key: section.key, navy: true, render });
   const banded = (render: (band: SectionBand) => ReactNode): Planned => ({

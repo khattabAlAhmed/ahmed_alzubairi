@@ -28,6 +28,7 @@ function toArabic(text: string) {
     .replace(/\./g, "٫");
 }
 
+/** Split a stat value into its number and surrounding text, or null when it has no single number. */
 export function parseStatValue(value: string): StatValue | null {
   const trimmed = value.trim();
   const arabicDigits = /[٠-٩]/.test(trimmed);
