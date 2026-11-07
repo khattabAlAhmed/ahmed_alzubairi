@@ -285,6 +285,11 @@ create policy documents_select on public.documents
   using (
     (select public.has_permission('documents.view'))
     or (select public.has_permission('documents.manage'))
+    or id in (
+      select dr.document_id
+      from public.document_requests dr
+      where dr.client_id = (select auth.jwt() ->> 'sub')
+    )
   );
 
 create policy document_requests_select on public.document_requests

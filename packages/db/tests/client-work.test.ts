@@ -21,6 +21,7 @@ const REQ_B = uuid(5);
 const COURSE = uuid(6);
 const MSG_A = uuid(7);
 const MSG_B = uuid(8);
+const UNREQUESTED_DOC = uuid(14);
 const NO_ACCESS = /permission denied/;
 const ALL_PERMISSIONS = Object.values(PERMISSIONS);
 
@@ -36,7 +37,10 @@ const TABLES: Record<string, { team: Permission[]; ownCount?: number }> = {
     ownCount: 1,
   },
   meetings: { team: [PERMISSIONS.CONSULTATIONS_VIEW_ALL], ownCount: 1 },
-  documents: { team: [PERMISSIONS.DOCUMENTS_VIEW, PERMISSIONS.DOCUMENTS_MANAGE] },
+  documents: {
+    team: [PERMISSIONS.DOCUMENTS_VIEW, PERMISSIONS.DOCUMENTS_MANAGE],
+    ownCount: 1,
+  },
   document_requests: {
     team: [
       PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
@@ -152,8 +156,9 @@ beforeAll(async () => {
     insert into public.meetings (id, consultation_id, platform, url, starts_at, duration_minutes) values
       ('${uuid(12)}', '${A}', 'Zoom', 'https://example.com/a', now(), 30),
       ('${uuid(13)}', '${B}', 'Zoom', 'https://example.com/b', now(), 30);
-    insert into public.documents (id, category, title_ar, title_en, storage_key, mime, access_mode)
-      values ('${DOC}', 'thank_you_letter', 'ش', 'T', 'documents/original', 'application/pdf', 'view');
+    insert into public.documents (id, category, title_ar, title_en, storage_key, mime, access_mode) values
+      ('${DOC}', 'thank_you_letter', 'ش', 'T', 'documents/original', 'application/pdf', 'view'),
+      ('${UNREQUESTED_DOC}', 'thank_you_letter', 'ش', 'T', 'documents/other', 'application/pdf', 'view');
     insert into public.document_requests (id, client_id, document_id, purpose) values
       ('${REQ_A}', 'client_a', '${DOC}', 'A'),
       ('${REQ_B}', 'client_b', '${DOC}', 'B');
@@ -578,6 +583,71 @@ describe("server-only tables", () => {
   });
 });
 
+describe("a client's requested documents", () => {
+  it("shows the metadata of a document they requested, and no other", async () => {
+    expect(await idsSeenBy("client_a", "documents")).toEqual([DOC]);
+  });
+
+  it("shows nothing to a client with no request", async () => {
+    expect(await idsSeenBy("client_c", "documents")).toEqual([]);
+  });
+
+  it.each(["pending_review", "in_contact", "granted", "expired", "revoked"])(
+    "keeps the title while the request is %s, for the client's history",
+    async (status) => {
+      await db.owner.query(
+        "update public.document_requests set status = $1 where id = $2",
+        [status, REQ_A],
+      );
+      try {
+        expect(await idsSeenBy("client_a", "documents")).toEqual([DOC]);
+      } finally {
+        await db.owner.query(
+          "update public.document_requests set status = 'pending_review' where id = $1",
+          [REQ_A],
+        );
+      }
+    },
+  );
+
+  it("doesn't show another client's request by way of the document", async () => {
+    expect(await idsSeenBy("client_a", "document_requests")).toEqual([REQ_A]);
+  });
+
+  it("still refuses storage_key, so opening needs the route's grant check", async () => {
+    await expect(
+      db.runAs(
+        "authenticated",
+        "client_a",
+        exec(`select storage_key from public.documents where id = '${DOC}'`),
+      ),
+    ).rejects.toThrow(NO_ACCESS);
+  });
+
+  it("gives a requester no document_access_log row and no write", async () => {
+    expect(await countSeenBy("client_a", "document_access_log")).toBe(0);
+    await expect(
+      db.runAs(
+        "authenticated",
+        "client_a",
+        exec("update public.documents set status = 'published'"),
+      ),
+    ).rejects.toThrow(NO_ACCESS);
+  });
+
+  it("doesn't recurse through RLS", async () => {
+    await expect(
+      db.runAs("authenticated", "client_a", async (tx) => {
+        const { rows } = await tx.query(
+          `select d.id, r.status from public.documents d
+           join public.document_requests r on r.document_id = d.id`,
+        );
+        return rows;
+      }),
+    ).resolves.toHaveLength(1);
+  });
+});
+
 describe("columns kept from authenticated", () => {
   it.each([
     ["consultation_attachments", "storage_key"],
@@ -602,7 +672,7 @@ describe("deleting", () => {
     });
     expect(rows).toHaveLength(1);
     const { rows: documents } = await db.owner.query(
-      "select id from public.documents",
+      `select id from public.documents where id = '${DOC}'`,
     );
     expect(documents).toHaveLength(1);
   });
