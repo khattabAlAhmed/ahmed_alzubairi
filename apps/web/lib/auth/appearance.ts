@@ -31,6 +31,14 @@ export const clerkAppearance = {
     otpCodeFieldInputs: {
       direction: "ltr",
     },
+    // Clerk paints the card footer with its own cool grey in the light theme,
+    // which looks off-palette next to the ivory page. Light uses our ivory
+    // instead. Dark already reads well, so it keeps Clerk's tint.
+    footer: {
+      "html:not(.dark) &": {
+        background: "var(--color-background)",
+      },
+    },
     formButtonPrimary: {
       backgroundColor: "var(--color-accent)",
       color: "var(--color-on-accent)",

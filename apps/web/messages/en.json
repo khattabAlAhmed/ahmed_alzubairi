@@ -121,7 +121,37 @@
       "codeIncorrect": "The code is incorrect.",
       "codeExpired": "This code has expired. Request a new one.",
       "invalidFormat": "The format is invalid.",
-      "tooManyRequests": "Too many attempts. Wait a moment and try again."
+      "tooManyRequests": "Too many attempts. Wait a moment and try again.",
+      "emailTaken": "This email address is already in use. Try another one.",
+      "emailInvalid": "Enter a valid email address.",
+      "firstNameTooLong": "First name must be 256 characters or fewer.",
+      "lastNameTooLong": "Last name must be 256 characters or fewer.",
+      "passwordPwned": "This password has been found as part of a breach and can not be used, please try another password instead.",
+      "passwordPwnedSignIn": "This password has been found as part of a breach and can not be used, please reset your password.",
+      "passwordTooLong": "Your password is too long. Use a shorter one, or remove some special characters."
+    },
+    "signUpTitle": "Create your account",
+    "useAnotherMethod": "Use another method",
+    "optional": "Optional",
+    "enterPassword": "Enter your password",
+    "forgotPasswordSubtitle": "to reset your password",
+    "resetPassword": {
+      "title": "Set new password",
+      "button": "Reset Password",
+      "required": "For security reasons, it is required to reset your password.",
+      "success": "Your password was successfully changed. Signing you in, please wait a moment.",
+      "verifyIdentity": "We need to verify your identity before resetting your password."
+    },
+    "passwordStrength": {
+      "couldBeStronger": "Your password works, but could be stronger. Try adding more characters.",
+      "good": "Your password meets all the necessary requirements.",
+      "allUppercase": "Capitalize some, but not all letters.",
+      "capitalization": "Capitalize more than the first letter.",
+      "longerKeyboardPattern": "Use longer keyboard patterns and change typing direction multiple times.",
+      "common": "This is a commonly used password.",
+      "namesByThemselves": "Single names or surnames are easy to guess.",
+      "pwned": "Your password was exposed by a data breach on the Internet.",
+      "similarToCommon": "This is similar to a commonly used password."
     }
   }
 }
