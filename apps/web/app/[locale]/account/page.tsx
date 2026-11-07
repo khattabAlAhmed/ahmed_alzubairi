@@ -1,0 +1,8 @@
+import { useTranslations } from "next-intl";
+import { EmptyState } from "@/components/empty-state";
+
+export default function AccountPage() {
+  const t = useTranslations("Account");
+
+  return <EmptyState title={t("title")} text={t("empty")} />;
+}

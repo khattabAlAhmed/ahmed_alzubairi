@@ -1,0 +1,62 @@
+{
+  "Common": {
+    "skipToContent": "Skip to content",
+    "loading": "Loading…"
+  },
+  "Nav": {
+    "mainLabel": "Main menu",
+    "home": "Home",
+    "about": "About",
+    "expertise": "Areas of expertise",
+    "services": "Services",
+    "projects": "Past projects",
+    "training": "Training",
+    "blog": "Blog",
+    "resources": "Free resources",
+    "media": "Media and events",
+    "clients": "Clients and testimonials",
+    "documents": "Documents and certificates",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "requestConsultation": "Request a consultation"
+  },
+  "Header": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "switchTheme": "Switch between dark and light",
+    "switchLanguage": "العربية",
+    "switchLanguageShort": "ع",
+    "switchLanguageLabel": "Switch to Arabic"
+  },
+  "Footer": {
+    "sectionsLabel": "Site sections",
+    "legalLabel": "Legal links",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  },
+  "Account": {
+    "navLabel": "Account menu",
+    "title": "My account",
+    "consultations": "My consultations",
+    "documents": "My available documents",
+    "courses": "My courses",
+    "profile": "Profile",
+    "empty": "Nothing here yet.",
+    "consultationsEmpty": "No consultations yet."
+  },
+  "Dashboard": {
+    "navLabel": "Dashboard menu",
+    "title": "Dashboard",
+    "empty": "Nothing here yet."
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The link may be wrong, or this page isn't published yet.",
+    "backHome": "Back to home"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "We couldn't show this page. Please try again.",
+    "retry": "Try again"
+  }
+}
