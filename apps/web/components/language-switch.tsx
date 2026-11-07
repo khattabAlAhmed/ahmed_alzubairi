@@ -33,7 +33,7 @@ function LanguageLinkWithQuery() {
   return <LanguageLink query={Object.fromEntries(search)} />;
 }
 
-/** Keeps the query too, or switching language on sign-in would lose `return_to`. */
+/** Keeps the query too, or switching language on sign-in would lose the return path. */
 export function LanguageSwitch() {
   return (
     <Suspense fallback={<LanguageLink />}>

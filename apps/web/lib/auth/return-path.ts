@@ -1,4 +1,7 @@
-export const RETURN_PARAM = "return_to";
+// Clerk's own parameter name, because Clerk keeps it across its steps, such as
+// email verification. It would drop any other name. Clerk never acts on it here:
+// the forms pass `forceRedirectUrl`, built from what `safeReturnPath` allows.
+export const RETURN_PARAM = "redirect_url";
 
 // Any real origin works: it only lets `URL` show where a value would land.
 const SITE = "https://site.invalid";

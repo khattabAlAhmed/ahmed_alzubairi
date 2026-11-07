@@ -52,7 +52,7 @@ describe("safeReturnPath", () => {
 describe("auth paths", () => {
   it("encodes the return path", () => {
     expect(signInPath("ar", "/ar/account?a=1&b=2")).toBe(
-      "/ar/sign-in?return_to=%2Far%2Faccount%3Fa%3D1%26b%3D2",
+      "/ar/sign-in?redirect_url=%2Far%2Faccount%3Fa%3D1%26b%3D2",
     );
   });
 
@@ -63,7 +63,7 @@ describe("auth paths", () => {
 
   it("carries the destination to onboarding", () => {
     expect(onboardingPath("ar", "/ar/account/consultations")).toBe(
-      "/ar/onboarding?return_to=%2Far%2Faccount%2Fconsultations",
+      "/ar/onboarding?redirect_url=%2Far%2Faccount%2Fconsultations",
     );
   });
 });

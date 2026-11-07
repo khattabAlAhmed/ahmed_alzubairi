@@ -59,14 +59,14 @@ describe("protected pages", () => {
     const response = await request(path);
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(
-      `${ORIGIN}/${locale}/sign-in?return_to=${encoded}`,
+      `${ORIGIN}/${locale}/sign-in?redirect_url=${encoded}`,
     );
   });
 
   it("keeps the query in the return path", async () => {
     const response = await request("/en/account?tab=open");
     expect(response.headers.get("location")).toBe(
-      `${ORIGIN}/en/sign-in?return_to=%2Fen%2Faccount%3Ftab%3Dopen`,
+      `${ORIGIN}/en/sign-in?redirect_url=%2Fen%2Faccount%3Ftab%3Dopen`,
     );
   });
 
