@@ -64,10 +64,43 @@
   },
   "Onboarding": {
     "title": "إكمال الملف الشخصي",
-    "empty": "هذه الخطوة قيد الإعداد."
+    "intro": "بقيت خطوة واحدة: أكمل بياناتك لنتمكن من خدمتك.",
+    "nameLegend": "الاسم الكامل",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "phone": "رقم الهاتف",
+    "phoneHint": "يُفضّل مع رمز الدولة، مثل <number>+966501234567</number>.",
+    "orgType": "نوع الجهة",
+    "orgTypeNone": "اختر نوع الجهة",
+    "orgTypes": {
+      "government": "حكومية",
+      "organization": "منظمة",
+      "company": "شركة",
+      "individual": "فرد"
+    },
+    "orgName": "اسم الجهة",
+    "jobTitle": "المسمى الوظيفي",
+    "locale": "اللغة المفضلة",
+    "locales": {
+      "ar": "العربية",
+      "en": "English"
+    },
+    "optional": "(اختياري)",
+    "terms": "أوافق على <privacy>سياسة الخصوصية</privacy> و<terms>شروط الاستخدام</terms>",
+    "submit": "حفظ ومتابعة",
+    "saving": "جارٍ الحفظ…",
+    "nameRequired": "أدخل الاسم الأول واسم العائلة.",
+    "phoneInvalid": "أدخل رقم هاتف صحيحًا من 7 إلى 15 رقمًا.",
+    "termsRequired": "يجب الموافقة على سياسة الخصوصية وشروط الاستخدام للمتابعة.",
+    "networkError": "تعذّر الحفظ. تحقق من اتصالك وحاول مرة أخرى."
   },
   "Errors": {
-    "unauthenticated": "يرجى تسجيل الدخول للمتابعة."
+    "unauthenticated": "يرجى تسجيل الدخول للمتابعة.",
+    "validation_failed": "بعض البيانات غير صحيحة. راجعها وحاول مرة أخرى.",
+    "email_not_verified": "يرجى تأكيد بريدك الإلكتروني أولًا.",
+    "profile_incomplete": "يرجى إدخال اسمك الكامل.",
+    "conflict": "ملفك الشخصي موجود بالفعل.",
+    "internal_error": "حدث خطأ من جهتنا. حاول مرة أخرى."
   },
   "Clerk": {
     "emailPlaceholder": "أدخل بريدك الإلكتروني",
