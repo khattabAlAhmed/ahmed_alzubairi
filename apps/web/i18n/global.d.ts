@@ -1,9 +1,9 @@
+import type { Locale } from "@repo/shared";
 import type messages from "../messages/ar.json";
-import type { routing } from "./routing";
 
 declare module "next-intl" {
   interface AppConfig {
-    Locale: (typeof routing.locales)[number];
+    Locale: Locale;
     Messages: typeof messages;
   }
 }

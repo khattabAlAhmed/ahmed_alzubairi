@@ -1,15 +1,14 @@
+import { LOCALES, type Locale } from "@repo/shared";
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["ar", "en"],
+  locales: LOCALES,
   defaultLocale: "ar",
   // `/` always goes to Arabic, whatever the browser asks for.
   localeDetection: false,
   // No cookie: public pages stay cacheable, and the URL alone sets the language.
   localeCookie: false,
 });
-
-export type Locale = (typeof routing.locales)[number];
 
 const DIRECTIONS = { ar: "rtl", en: "ltr" } as const satisfies Record<
   Locale,
