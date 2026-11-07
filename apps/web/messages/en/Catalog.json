@@ -1,0 +1,50 @@
+{
+  "filtersLabel": "Filter projects",
+  "filterArea": "Area of expertise",
+  "filterOrgType": "Organization type",
+  "filterAll": "All",
+  "resultCount": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+  "noProjects": "No projects match this choice.",
+  "clearFilters": "Clear filters",
+  "orgType": {
+    "government": "Government",
+    "organization": "Organization",
+    "company": "Company",
+    "individual": "Individual"
+  },
+  "allProjects": "All projects",
+  "goal": "Goal",
+  "organization": "Organization",
+  "role": "My role",
+  "duration": "Duration",
+  "activities": "Activities",
+  "results": "Results",
+  "keyResult": "Key result",
+  "photos": "Photos from the project",
+  "photoAlt": "Photo from the {title} project",
+  "logos": "Organizations I've worked with",
+  "testimonials": "Testimonials",
+  "partnerLogo": "{name} logo",
+  "noClients": "No organizations or testimonials are published yet.",
+  "documentsIntro": "A list of documents and certificates. You can request to view any of them after signing in.",
+  "requestAccess": "Request to view",
+  "requestAccessLabel": "Request to view: {title}",
+  "noDocuments": "No documents are published yet.",
+  "documentCategory": {
+    "course_certificate": "Course certificates",
+    "qualification_certificate": "Qualification certificates",
+    "thank_you_letter": "Thank-you letters",
+    "recommendation_letter": "Recommendation letters",
+    "experience_certificate": "Experience certificates",
+    "project_photo": "Project photos",
+    "event_photo": "Event photos"
+  },
+  "faqCategory": {
+    "consultations": "Consultations",
+    "training": "Training",
+    "documents": "Documents",
+    "account": "Account"
+  },
+  "faqSectionsLabel": "Question sections",
+  "noFaqs": "No questions are published yet."
+}

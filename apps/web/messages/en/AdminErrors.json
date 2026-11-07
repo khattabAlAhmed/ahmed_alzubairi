@@ -7,5 +7,8 @@
   "publishNoLanguage": "Fill in the required fields in Arabic or English before publishing.",
   "publishNoValue": "Add the number before publishing.",
   "publishNoConsent": "Confirm the organization's consent before publishing.",
-  "publishNotApproved": "This needs the admin's approval before it can be published."
+  "publishNotApproved": "This needs the admin's approval before it can be published.",
+  "fileTypeNotAllowed": "This file type isn't allowed here. Check the file and try again.",
+  "fileTooLarge": "This file is too large. Choose a smaller file.",
+  "uploadNotFound": "We couldn't find the uploaded file. Upload it again."
 }
