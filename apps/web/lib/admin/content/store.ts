@@ -101,17 +101,29 @@ export function createContentStore(
     },
 
     async replaceProjectImages(projectId, rows) {
+      // Add the new images before removing the old ones, so a failed insert
+      // leaves the project with its previous images, never with none.
+      const before = await service
+        .from("project_images")
+        .select("id")
+        .eq("project_id", projectId);
+      if (before.error) {
+        throw new Error(`project_images read failed: ${before.error.code}`);
+      }
+      if (rows.length > 0) {
+        const added = await service.from("project_images").insert(rows);
+        if (added.error) {
+          throw new Error(`project_images insert failed: ${added.error.code}`);
+        }
+      }
+      const oldIds = (before.data ?? []).map((row) => String(row.id));
+      if (oldIds.length === 0) return;
       const removed = await service
         .from("project_images")
         .delete()
-        .eq("project_id", projectId);
+        .in("id", oldIds);
       if (removed.error) {
         throw new Error(`project_images delete failed: ${removed.error.code}`);
-      }
-      if (rows.length === 0) return;
-      const added = await service.from("project_images").insert(rows);
-      if (added.error) {
-        throw new Error(`project_images insert failed: ${added.error.code}`);
       }
     },
 
@@ -131,6 +143,20 @@ export function createContentStore(
         if (added.error) return failure(added.error, "project_services insert");
       }
       return { ok: true, id: projectId };
+    },
+
+    async servicesExist(serviceIds) {
+      const { count, error } = await service
+        .from("services")
+        .select("id", { count: "exact", head: true })
+        .in("id", [...serviceIds]);
+      if (error) throw new Error(`services read failed: ${error.code}`);
+      return count === serviceIds.length;
+    },
+
+    async remove(type, id) {
+      const { error } = await service.from(type).delete().eq("id", id);
+      if (error) throw new Error(`${type} delete failed: ${error.code}`);
     },
 
     async audit(entry) {

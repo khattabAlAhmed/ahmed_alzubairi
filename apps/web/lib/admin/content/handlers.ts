@@ -54,6 +54,10 @@ export type ContentStore = {
     projectId: string,
     serviceIds: readonly string[],
   ) => Promise<WriteOutcome>;
+  /** Whether every id is an existing service. */
+  servicesExist: (serviceIds: readonly string[]) => Promise<boolean>;
+  /** Deletes a row by id; its child rows cascade. */
+  remove: (type: ContentType, id: string) => Promise<void>;
   audit: (entry: AuditEntry) => Promise<void>;
 };
 
@@ -105,6 +109,16 @@ function publishRefused(problems: PublishProblem[], locale: Locale): AdminError 
     PROBLEM_MESSAGES[problems[0]],
     locale,
   );
+}
+
+/** False when a body's `serviceIds` names a service that doesn't exist. */
+async function serviceIdsExist(
+  deps: ContentDeps,
+  body: ApiRow,
+): Promise<boolean> {
+  const serviceIds = body.serviceIds as string[] | undefined;
+  if (!serviceIds || serviceIds.length === 0) return true;
+  return deps.store.servicesExist([...new Set(serviceIds)]);
 }
 
 /** Writes `images` and `serviceIds` of a project body, when present. */
@@ -166,14 +180,33 @@ export async function createContent(
     fields.status === "published" ? publishProblems(type, fields) : [];
   if (problems.length > 0) return publishRefused(problems, locale);
 
+  // Check references before any write, so bad input leaves nothing behind.
+  if (!(await serviceIdsExist(deps, fields))) {
+    return writeFailure("invalid_reference", locale);
+  }
+
   const inserted = await deps.store.insert(type, toColumns(type, fields));
   if (!inserted.ok) return writeFailure(inserted.reason, locale);
-  // The row changed, so refresh the cache even if a later step fails.
-  deps.revalidate(contentCacheTag(type));
 
-  if (type === "projects") {
-    const children = await writeProjectChildren(deps, inserted.id, fields);
-    if (!children.ok) return writeFailure(children.reason, locale);
+  try {
+    if (type === "projects") {
+      // A project is not created without its images and services: undo the
+      // insert if they fail, so a retry with the same slug can succeed.
+      let children: WriteOutcome;
+      try {
+        children = await writeProjectChildren(deps, inserted.id, fields);
+      } catch (error) {
+        await deps.store.remove(type, inserted.id);
+        throw error;
+      }
+      if (!children.ok) {
+        await deps.store.remove(type, inserted.id);
+        return writeFailure(children.reason, locale);
+      }
+    }
+  } finally {
+    // After every write, so the cache never holds a half-written project.
+    deps.revalidate(contentCacheTag(type));
   }
 
   if (fields.status === "published") {
@@ -211,7 +244,10 @@ export async function updateContent(
 
   const body = contentUpdateBodySchemas[type].safeParse(rawBody);
   if (!body.success) return baseError("validation_failed", 400, locale);
-  const { id, key, ...changes } = body.data as ApiRow;
+  const { id, ...fields } = body.data as ApiRow;
+  // `key` finds a home section; on a resource it is the file, a field to change.
+  const { key, ...withoutKey } = fields;
+  const changes = type === "home_sections" ? withoutKey : fields;
   const ref: RowRef =
     type === "home_sections"
       ? { column: "key", value: String(key) }
@@ -229,13 +265,20 @@ export async function updateContent(
     return publishRefused(publishProblems(type, next), locale);
   }
 
+  if (!(await serviceIdsExist(deps, changes))) {
+    return writeFailure("invalid_reference", locale);
+  }
+
   const updated = await deps.store.update(type, ref, toColumns(type, changes));
   if (!updated.ok) return writeFailure(updated.reason, locale);
-  deps.revalidate(contentCacheTag(type));
 
-  if (type === "projects") {
-    const children = await writeProjectChildren(deps, ref.value, changes);
-    if (!children.ok) return writeFailure(children.reason, locale);
+  try {
+    if (type === "projects") {
+      const children = await writeProjectChildren(deps, ref.value, changes);
+      if (!children.ok) return writeFailure(children.reason, locale);
+    }
+  } finally {
+    deps.revalidate(contentCacheTag(type));
   }
 
   const action = auditAction(current.status === "published", isPublished);

@@ -19,6 +19,8 @@ function store(): ContentStore {
     update: vi.fn(async () => ({ ok: true as const, id: ID })),
     replaceProjectImages: vi.fn(async () => {}),
     replaceProjectServices: vi.fn(async () => ({ ok: true as const, id: ID })),
+    servicesExist: vi.fn(async () => true),
+    remove: vi.fn(async () => {}),
     audit: vi.fn(async () => {}),
   };
 }

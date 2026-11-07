@@ -34,6 +34,8 @@ function fakeStore(rows: Record<string, DbRow> = {}) {
         id: projectId,
       }),
     ),
+    servicesExist: vi.fn(async () => true),
+    remove: vi.fn(async () => {}),
     audit: vi.fn(async () => {}),
   } satisfies ContentStore;
   return store;
@@ -486,6 +488,63 @@ describe("successful writes", () => {
     expect(store.replaceProjectServices).toHaveBeenCalledWith(ID, [SERVICE_ID]);
   });
 
+  it("refuses an unknown service before writing anything", async () => {
+    const store = fakeStore();
+    store.servicesExist.mockResolvedValueOnce(false);
+    const d = deps(store);
+    const result = await createContent(
+      "projects",
+      { status: "draft", slug: "youth", serviceIds: [SERVICE_ID] },
+      d,
+    );
+    expect(result.status).toBe(400);
+    expect(store.insert).not.toHaveBeenCalled();
+    expect(d.revalidate).not.toHaveBeenCalled();
+  });
+
+  it("undoes the project insert when its services fail", async () => {
+    const store = fakeStore();
+    store.replaceProjectServices.mockResolvedValueOnce({
+      ok: false,
+      reason: "invalid_reference",
+    });
+    const d = deps(store);
+    const result = await createContent(
+      "projects",
+      { status: "draft", slug: "youth", serviceIds: [SERVICE_ID] },
+      d,
+    );
+    expect(result.status).toBe(400);
+    expect(store.remove).toHaveBeenCalledWith("projects", ID);
+    expect(d.revalidate).toHaveBeenCalledWith("content:projects");
+  });
+
+  it("undoes the project insert when its images fail", async () => {
+    const store = fakeStore();
+    store.replaceProjectImages.mockRejectedValueOnce(new Error("boom"));
+    await expect(
+      createContent(
+        "projects",
+        { status: "draft", slug: "youth", images: [{ key: "media/a.jpg" }] },
+        deps(store),
+      ),
+    ).rejects.toThrow("boom");
+    expect(store.remove).toHaveBeenCalledWith("projects", ID);
+  });
+
+  it("refreshes the cache only after the children are written", async () => {
+    const store = fakeStore();
+    const d = deps(store);
+    await createContent(
+      "projects",
+      { status: "draft", slug: "youth", serviceIds: [SERVICE_ID] },
+      d,
+    );
+    expect(store.replaceProjectServices.mock.invocationCallOrder[0]).toBeLessThan(
+      d.revalidate.mock.invocationCallOrder[0],
+    );
+  });
+
   it("a resource's key goes to storage_key", async () => {
     const store = fakeStore();
     await createContent(
@@ -496,6 +555,70 @@ describe("successful writes", () => {
     expect(store.insert).toHaveBeenCalledWith(
       "resources",
       expect.objectContaining({ storage_key: "resources/g.pdf" }),
+    );
+  });
+
+  const projectRow: DbRow = {
+    id: ID,
+    slug: "youth",
+    status: "draft",
+    project_images: [],
+    project_services: [],
+    created_at: NOW,
+    updated_at: NOW,
+  };
+
+  it("a project PATCH with an unknown service writes nothing", async () => {
+    const store = fakeStore({ [ID]: projectRow });
+    store.servicesExist.mockResolvedValueOnce(false);
+    const d = deps(store);
+    const result = await updateContent(
+      "projects",
+      { id: ID, serviceIds: [SERVICE_ID] },
+      d,
+    );
+    expect(result.status).toBe(400);
+    expect(store.update).not.toHaveBeenCalled();
+    expect(store.replaceProjectServices).not.toHaveBeenCalled();
+    expect(d.revalidate).not.toHaveBeenCalled();
+  });
+
+  it("a project PATCH refreshes the cache after its children", async () => {
+    const store = fakeStore({ [ID]: projectRow });
+    const d = deps(store);
+    const result = await updateContent(
+      "projects",
+      { id: ID, serviceIds: [SERVICE_ID] },
+      d,
+    );
+    expect(result.status).toBe(200);
+    expect(store.replaceProjectServices.mock.invocationCallOrder[0]).toBeLessThan(
+      d.revalidate.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("a resource PATCH changes its key in storage_key", async () => {
+    const store = fakeStore({
+      [ID]: {
+        id: ID,
+        kind: "guide",
+        storage_key: "resources/old.pdf",
+        access: "direct",
+        status: "draft",
+        created_at: NOW,
+        updated_at: NOW,
+      },
+    });
+    const result = await updateContent(
+      "resources",
+      { id: ID, key: "resources/new.pdf" },
+      deps(store),
+    );
+    expect(result.status).toBe(200);
+    expect(store.update).toHaveBeenCalledWith(
+      "resources",
+      { column: "id", value: ID },
+      { storage_key: "resources/new.pdf" },
     );
   });
 });
