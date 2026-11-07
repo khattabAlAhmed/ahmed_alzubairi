@@ -1,0 +1,50 @@
+{
+  "filtersLabel": "تصفية المشاريع",
+  "filterArea": "مجال الخبرة",
+  "filterOrgType": "نوع الجهة",
+  "filterAll": "الكل",
+  "resultCount": "{count, plural, zero {لا توجد مشاريع} one {مشروع واحد} two {مشروعان} few {# مشاريع} many {# مشروعًا} other {# مشروع}}",
+  "noProjects": "لا توجد مشاريع تطابق هذا الاختيار.",
+  "clearFilters": "إزالة التصفية",
+  "orgType": {
+    "government": "جهة حكومية",
+    "organization": "منظمة",
+    "company": "شركة",
+    "individual": "فرد"
+  },
+  "allProjects": "كل المشاريع",
+  "goal": "الهدف",
+  "organization": "الجهة",
+  "role": "دوري",
+  "duration": "المدة",
+  "activities": "الأنشطة",
+  "results": "النتائج",
+  "keyResult": "النتيجة الأبرز",
+  "photos": "صور من المشروع",
+  "photoAlt": "صورة من مشروع {title}",
+  "logos": "جهات عملت معها",
+  "testimonials": "آراء العملاء",
+  "partnerLogo": "شعار {name}",
+  "noClients": "لا توجد جهات أو آراء منشورة بعد.",
+  "documentsIntro": "هذه قائمة بالوثائق والشهادات. يمكنك طلب الاطلاع على أي منها بعد تسجيل الدخول.",
+  "requestAccess": "طلب الاطلاع",
+  "requestAccessLabel": "طلب الاطلاع على: {title}",
+  "noDocuments": "لا توجد وثائق منشورة بعد.",
+  "documentCategory": {
+    "course_certificate": "شهادات الدورات",
+    "qualification_certificate": "شهادات المؤهلات",
+    "thank_you_letter": "خطابات الشكر",
+    "recommendation_letter": "خطابات التوصية",
+    "experience_certificate": "شهادات الخبرة",
+    "project_photo": "صور المشاريع",
+    "event_photo": "صور الفعاليات"
+  },
+  "faqCategory": {
+    "consultations": "الاستشارات",
+    "training": "التدريب",
+    "documents": "الوثائق",
+    "account": "الحساب"
+  },
+  "faqSectionsLabel": "أقسام الأسئلة",
+  "noFaqs": "لا توجد أسئلة منشورة بعد."
+}
