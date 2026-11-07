@@ -268,6 +268,6 @@ describe("client access", () => {
       );
       return rows[0]?.count;
     });
-    expect(count).toBe(6);
+    expect(count).toBe(buckets.length);
   });
 });
