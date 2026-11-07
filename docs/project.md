@@ -536,7 +536,7 @@ All content tables also have `id`, `created_at`, `updated_at`. `*_ar` / `*_en` m
 | `project_images` | `project_id`, `path`, `alt_*`, `position` | |
 | `project_services` | `project_id`, `service_id` | Composite PK |
 | `faqs` | `category`, `service_id` (nullable), `question_*`, `answer_*`, `position` | |
-| `partners` | `name_*`, `logo_path`, `consent_confirmed`, `admin_approved`, `position` | Logos |
+| `partners` | `name_*`, `logo_path`, `consent_confirmed`, `admin_approved`, `approved_by`, `position` | Logos |
 | `testimonials` | `quote_*`, `author_*`, `partner_id`, `letter_path`, `consent_confirmed`, `admin_approved`, `approved_by`, `position` | `letter_path` is never returned to the public |
 | `posts` | `slug_*`, `expertise_id`, `title_*`, `excerpt_*`, `body_*`, `cover_path`, `reading_minutes_*`, `published_at` | |
 | `resources` | `expertise_id`, `kind`, `title_*`, `description_*`, `storage_key`, `access` (`direct`/`email`) | |
