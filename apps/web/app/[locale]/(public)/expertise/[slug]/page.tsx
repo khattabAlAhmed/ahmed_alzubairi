@@ -6,7 +6,7 @@ import { ExpertiseDetailPage } from "@/components/public/pages";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
 import { getExpertiseArea, getProjects, getServices } from "@/lib/content";
-import { routeSlug, staticSlugs } from "@/components/public/pages/static-slugs";
+import { routeSlug, staticSlugs } from "@/components/public/static-slugs";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 

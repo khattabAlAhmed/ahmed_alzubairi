@@ -145,3 +145,8 @@ export function ConsultationCta() {
     </section>
   );
 }
+
+/** What a list page shows when nothing is published in this language. */
+export function EmptyNote({ text }: { text: string }) {
+  return <p className="text-text-secondary">{text}</p>;
+}

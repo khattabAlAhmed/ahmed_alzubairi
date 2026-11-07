@@ -6,7 +6,7 @@ import type { ExpertiseArea, Project, ProjectDetail } from "@/lib/content";
 import { filterProjects, filterQuery, parseProjectFilters } from "./filters";
 import { ProjectDetailPage } from "./project-detail";
 import { ProjectsList } from "./projects-list";
-import { routeSlug, staticSlugs } from "./static-slugs";
+import { routeSlug, staticSlugs } from "../static-slugs";
 
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),

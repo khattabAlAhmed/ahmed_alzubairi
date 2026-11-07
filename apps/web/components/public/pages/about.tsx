@@ -3,7 +3,7 @@ import { buttonClasses } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import type { Page, TimelineItem } from "@/lib/content";
 import { RichText, splitLead } from "../rich-text";
-import { CONTAINER, ConsultationCta, PageHero, PageSection, RING_ON_NAVY } from "./parts";
+import { CONTAINER, ConsultationCta, PageHero, PageSection, RING_ON_NAVY } from "../parts";
 
 /**
  * §6.3. The title is the h1 and the body's first paragraph the short bio. The

@@ -14,7 +14,7 @@ import {
   ProjectCards,
   RING_ON_NAVY,
   TextBlock,
-} from "./parts";
+} from "../parts";
 import { RequestServiceButton } from "./request-service-button";
 
 /** `/services`: every service published in this language (§6.5). */

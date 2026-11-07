@@ -13,7 +13,7 @@ import {
   PageHero,
   PageSection,
   ProjectCards,
-} from "./parts";
+} from "../parts";
 
 /** `/expertise`: every area published in this language (§6.4). */
 export function ExpertiseListPage({ areas }: { areas: ExpertiseArea[] }) {
