@@ -49,14 +49,16 @@ export function LatestSection({
                     </Link>
                   </h4>
                   {post.excerpt && <p className="mt-2 text-pretty text-text-secondary">{post.excerpt}</p>}
-                  {(post.publishedAt || post.readingMinutes) && (
+                  {(post.publishedAt || post.readingMinutes) ? (
                     <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
                       {post.publishedAt && (
                         <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
                       )}
-                      {post.readingMinutes && <span>{t("readingTime", { minutes: post.readingMinutes })}</span>}
+                      {post.readingMinutes ? (
+                        <span>{t("readingTime", { minutes: post.readingMinutes })}</span>
+                      ) : null}
                     </p>
-                  )}
+                  ) : null}
                 </li>
               ))}
             </ul>

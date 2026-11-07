@@ -210,6 +210,24 @@ describe("LatestSection", () => {
     expect(screen.queryByText("resources")).toBeNull();
   });
 
+  it("never shows a bare 0 for a zero reading time", () => {
+    const { container, rerender } = render(
+      <LatestSection heading="Latest" band="plain" posts={[{ ...post, readingMinutes: 0 }]} resources={[]} locale="en" />,
+    );
+    expect(container.querySelector("li")?.textContent).not.toMatch(/0$/);
+    expect(screen.queryByText(/readingTime/)).toBeNull();
+    rerender(
+      <LatestSection
+        heading="Latest"
+        band="plain"
+        posts={[{ ...post, readingMinutes: 0, publishedAt: null }]}
+        resources={[]}
+        locale="en"
+      />,
+    );
+    expect(container.querySelector("li")?.textContent).toBe("Example article");
+  });
+
   it("lists resources by kind", () => {
     render(<LatestSection heading="Latest" band="plain" posts={[]} resources={[resource]} locale="en" />);
     expect(screen.getByText("resourceKind.guide")).toBeTruthy();
