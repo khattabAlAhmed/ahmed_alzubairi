@@ -342,14 +342,6 @@ export const updateRoleRequestSchema = z
 
 export type UpdateRoleRequest = z.infer<typeof updateRoleRequestSchema>;
 
-/** `PATCH /api/admin/settings`. Phase 2 narrows `value` per key. */
-export const updateSettingRequestSchema = z.strictObject({
-  key: shortTextSchema,
-  value: z.json(),
-});
-
-export type UpdateSettingRequest = z.infer<typeof updateSettingRequestSchema>;
-
 /** `PATCH /api/admin/email-templates` */
 export const updateEmailTemplateRequestSchema = z.strictObject({
   event: emailEventSchema,

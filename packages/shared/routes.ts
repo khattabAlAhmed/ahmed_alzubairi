@@ -64,9 +64,9 @@ import {
   updateEmailTemplateRequestSchema,
   updateMeetingRequestSchema,
   updateRoleRequestSchema,
-  updateSettingRequestSchema,
   updateTeamMemberRequestSchema,
 } from "./routes-team";
+import { updateSettingRequestSchema } from "./settings";
 import {
   adminUploadFinalizeRequestSchema,
   adminUploadUrlRequestSchema,
