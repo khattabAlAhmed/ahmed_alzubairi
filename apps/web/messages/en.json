@@ -69,7 +69,7 @@
     "firstName": "First name",
     "lastName": "Last name",
     "phone": "Phone",
-    "phoneHint": "Preferably with the country code, for example +966501234567.",
+    "phoneHint": "Preferably with the country code, for example <number>+966501234567</number>.",
     "orgType": "Organization type",
     "orgTypeNone": "Choose a type",
     "orgTypes": {

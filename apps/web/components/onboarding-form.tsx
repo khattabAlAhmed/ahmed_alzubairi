@@ -191,7 +191,9 @@ export function OnboardingForm({
           className={`${INPUT} text-start`}
         />
         <p id={`${id}-phone-hint`} className="mt-1 text-sm text-text-secondary">
-          {t("phoneHint")}
+          {t.rich("phoneHint", {
+            number: (chunks: ReactNode) => <bdi dir="ltr">{chunks}</bdi>,
+          })}
         </p>
         {fieldError("phone", t("phoneInvalid"))}
       </div>

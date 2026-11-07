@@ -294,7 +294,7 @@ Categories: consultations, training, documents, account. Managed from the dashbo
 | Deleting an account | The account is **disabled, never deleted**: the client can't sign in (Clerk ban) and the data stays in the dashboard. An admin can reactivate it (Clerk unban). |
 | Open consultations on disable | Closed automatically and kept |
 | Errors | Clear messages in the selected language (email in use, weak password, and so on) |
-| Clerk settings | Password minimum 12 characters. First and last name required. New-device email verification on. Application name = `SITE_NAME`. The product owner decided these on 2026-11-07; the production instance must match at launch. |
+| Clerk settings | Password minimum 12 characters. Name: Clerk's sign-up form doesn't ask for it, so onboarding asks for first and last name when Clerk has none and saves them to Clerk. New-device email verification on. Application name = `SITE_NAME`. The product owner decided these on 2026-11-07; the production instance must match at launch. |
 
 Account pages:
 
