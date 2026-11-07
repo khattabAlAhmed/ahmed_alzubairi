@@ -1,9 +1,9 @@
+import { SignOutButton } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import { LanguageSwitch } from "./language-switch";
+import { CompactHeader } from "./compact-header";
 import { NavLink } from "./nav-link";
-import { SiteLogo } from "./site-logo";
 import { MAIN_CONTENT_ID, SkipLink } from "./skip-link";
-import { ThemeSwitch } from "./theme-switch";
 
 export type AppShellLink = { href: string; label: string };
 
@@ -19,18 +19,21 @@ export function AppShell({
   links: readonly AppShellLink[];
   children: ReactNode;
 }) {
+  const t = useTranslations("Header");
+
   return (
     <>
       <SkipLink />
-      <header className="border-b border-text/10 bg-surface">
-        <div className="flex h-14 items-center gap-2 px-4">
-          <SiteLogo />
-          <div className="ms-auto flex shrink-0 items-center gap-1">
-            <LanguageSwitch />
-            <ThemeSwitch />
-          </div>
-        </div>
-      </header>
+      <CompactHeader>
+        <SignOutButton>
+          <button
+            type="button"
+            className="inline-flex h-9 items-center rounded-md px-2 text-sm font-semibold whitespace-nowrap hover:bg-text/10"
+          >
+            {t("signOut")}
+          </button>
+        </SignOutButton>
+      </CompactHeader>
       <div className="flex flex-1 flex-col md:flex-row">
         <aside className="border-b border-text/10 bg-surface p-4 md:w-60 md:shrink-0 md:border-e md:border-b-0">
           <p className="mb-3 font-semibold">{title}</p>

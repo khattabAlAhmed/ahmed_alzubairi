@@ -26,7 +26,10 @@
     "switchTheme": "تبديل الوضع الداكن والفاتح",
     "switchLanguage": "English",
     "switchLanguageShort": "EN",
-    "switchLanguageLabel": "التبديل إلى الإنجليزية"
+    "switchLanguageLabel": "التبديل إلى الإنجليزية",
+    "signIn": "تسجيل الدخول",
+    "account": "حسابي",
+    "signOut": "تسجيل الخروج"
   },
   "Footer": {
     "sectionsLabel": "أقسام الموقع",
@@ -58,5 +61,34 @@
     "title": "حدث خطأ غير متوقع",
     "description": "لم نتمكن من عرض هذه الصفحة. حاول مرة أخرى.",
     "retry": "إعادة المحاولة"
+  },
+  "Onboarding": {
+    "title": "إكمال الملف الشخصي",
+    "empty": "هذه الخطوة قيد الإعداد."
+  },
+  "Errors": {
+    "unauthenticated": "يرجى تسجيل الدخول للمتابعة."
+  },
+  "Clerk": {
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "newPasswordPlaceholder": "أنشئ كلمة مرور",
+    "firstNamePlaceholder": "الاسم الأول",
+    "lastNamePlaceholder": "اسم العائلة",
+    "emailFormat": "مثال: name@example.com",
+    "titleCombined": "المتابعة إلى {{applicationName}}",
+    "subtitleCombined": "مرحبًا! يرجى إدخال بياناتك للبدء.",
+    "passwordCompromised": "كلمة المرور مكشوفة",
+    "passwordUntrusted": "كلمة المرور غير موثوقة",
+    "errors": {
+      "passwordIncorrect": "كلمة المرور غير صحيحة. حاول مرة أخرى أو استخدم طريقة أخرى.",
+      "passwordTooShort": "كلمة المرور قصيرة جدًا.",
+      "passwordMatchesIdentifier": "لا يمكن أن تطابق كلمة المرور بريدك الإلكتروني.",
+      "passwordUntrusted": "قد تكون كلمة المرور مكشوفة. لحماية حسابك، تابع بطريقة دخول أخرى.",
+      "codeIncorrect": "الرمز غير صحيح.",
+      "codeExpired": "انتهت صلاحية الرمز. اطلب رمزًا جديدًا.",
+      "invalidFormat": "الصيغة غير صحيحة.",
+      "tooManyRequests": "محاولات كثيرة جدًا. انتظر قليلًا ثم حاول مرة أخرى."
+    }
   }
 }

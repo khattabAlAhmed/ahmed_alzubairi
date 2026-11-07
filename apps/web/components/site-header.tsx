@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { AuthLink } from "./auth-link";
 import { ConsultationButton } from "./consultation-button";
 import { LanguageSwitch } from "./language-switch";
 import { MobileMenu } from "./mobile-menu";
@@ -31,6 +32,7 @@ export function SiteHeader() {
         {/* On phones the button takes its own row, so it never squeezes the logo. */}
         <ConsultationButton className="order-last w-full justify-center sm:order-none sm:ms-auto sm:w-auto" />
         <div className="ms-auto flex shrink-0 items-center gap-1 sm:ms-0">
+          <AuthLink />
           <LanguageSwitch />
           <ThemeSwitch />
           <MobileMenu />

@@ -1,10 +1,12 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { otherLocale } from "@/i18n/routing";
 
-export function LanguageSwitch() {
+function LanguageLink({ query }: { query?: Record<string, string> }) {
   const t = useTranslations("Header");
   const locale = useLocale();
   const pathname = usePathname();
@@ -12,7 +14,7 @@ export function LanguageSwitch() {
 
   return (
     <Link
-      href={pathname}
+      href={{ pathname, query }}
       locale={target}
       hrefLang={target}
       lang={target}
@@ -22,5 +24,20 @@ export function LanguageSwitch() {
       <span className="lg:hidden">{t("switchLanguageShort")}</span>
       <span className="hidden lg:inline">{t("switchLanguage")}</span>
     </Link>
+  );
+}
+
+function LanguageLinkWithQuery() {
+  const search = useSearchParams();
+
+  return <LanguageLink query={Object.fromEntries(search)} />;
+}
+
+/** Keeps the query too, or switching language on sign-in would lose the return path. */
+export function LanguageSwitch() {
+  return (
+    <Suspense fallback={<LanguageLink />}>
+      <LanguageLinkWithQuery />
+    </Suspense>
   );
 }

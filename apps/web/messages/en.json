@@ -26,7 +26,10 @@
     "switchTheme": "Switch between dark and light",
     "switchLanguage": "العربية",
     "switchLanguageShort": "ع",
-    "switchLanguageLabel": "Switch to Arabic"
+    "switchLanguageLabel": "Switch to Arabic",
+    "signIn": "Sign in",
+    "account": "My account",
+    "signOut": "Sign out"
   },
   "Footer": {
     "sectionsLabel": "Site sections",
@@ -58,5 +61,34 @@
     "title": "Something went wrong",
     "description": "We couldn't show this page. Please try again.",
     "retry": "Try again"
+  },
+  "Onboarding": {
+    "title": "Complete your profile",
+    "empty": "This step is being prepared."
+  },
+  "Errors": {
+    "unauthenticated": "Please sign in to continue."
+  },
+  "Clerk": {
+    "emailPlaceholder": "Enter your email address",
+    "passwordPlaceholder": "Enter your password",
+    "newPasswordPlaceholder": "Create a password",
+    "firstNamePlaceholder": "First name",
+    "lastNamePlaceholder": "Last name",
+    "emailFormat": "Example format: name@example.com",
+    "titleCombined": "Continue to {{applicationName}}",
+    "subtitleCombined": "Welcome! Please fill in the details to get started.",
+    "passwordCompromised": "Password compromised",
+    "passwordUntrusted": "Password untrusted",
+    "errors": {
+      "passwordIncorrect": "Password is incorrect. Try again, or use another method.",
+      "passwordTooShort": "Your password is too short.",
+      "passwordMatchesIdentifier": "Your password can't match your email address.",
+      "passwordUntrusted": "Your password may be compromised. To protect your account, continue with another sign-in method.",
+      "codeIncorrect": "The code is incorrect.",
+      "codeExpired": "This code has expired. Request a new one.",
+      "invalidFormat": "The format is invalid.",
+      "tooManyRequests": "Too many attempts. Wait a moment and try again."
+    }
   }
 }

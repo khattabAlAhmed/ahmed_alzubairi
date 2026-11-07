@@ -19,5 +19,7 @@ export default defineConfig({
     environment: "node",
     include: ["**/*.test.{ts,tsx}"],
     exclude: ["node_modules/**", ".next/**"],
+    // next-intl imports `next/server` with no extension, which Node can't resolve.
+    server: { deps: { inline: ["next-intl"] } },
   },
 });

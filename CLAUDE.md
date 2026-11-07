@@ -33,7 +33,7 @@ Arabic text in the docs is exact UI copy or a domain term. Use it as written.
 ## Checking your change on a Vercel preview
 
 - Get the preview URL from the Deploy workflow's comment on your PR (`gh pr view <n> --comments`), never from the branch name. Wait until the Deploy workflow passes.
-- Previews are protected. Send the header `x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET` on every request. For browser tests, also send `x-vercel-set-bypass-cookie: true` on the first request.
+- Previews are protected. Send the header `x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET` on every request to the preview host, and never to any other host. In browser tests, scope it to that host: a setting that applies to all hosts leaks the secret. For browser tests, also send `x-vercel-set-bypass-cookie: true` on the first request.
 - If a preview URL is blocked by your sandbox, call `request_access` for `*.vercel.app` (all previews) rather than the single URL.
 
 ## When you must stop and ask
