@@ -79,6 +79,16 @@
     "titleCombined": "المتابعة إلى {{applicationName}}",
     "subtitleCombined": "مرحبًا! يرجى إدخال بياناتك للبدء.",
     "passwordCompromised": "كلمة المرور مكشوفة",
-    "passwordUntrusted": "كلمة المرور غير موثوقة"
+    "passwordUntrusted": "كلمة المرور غير موثوقة",
+    "errors": {
+      "passwordIncorrect": "كلمة المرور غير صحيحة. حاول مرة أخرى أو استخدم طريقة أخرى.",
+      "passwordTooShort": "كلمة المرور قصيرة جدًا.",
+      "passwordMatchesIdentifier": "لا يمكن أن تطابق كلمة المرور بريدك الإلكتروني.",
+      "passwordUntrusted": "قد تكون كلمة المرور مكشوفة. لحماية حسابك، تابع بطريقة دخول أخرى.",
+      "codeIncorrect": "الرمز غير صحيح.",
+      "codeExpired": "انتهت صلاحية الرمز. اطلب رمزًا جديدًا.",
+      "invalidFormat": "الصيغة غير صحيحة.",
+      "tooManyRequests": "محاولات كثيرة جدًا. انتظر قليلًا ثم حاول مرة أخرى."
+    }
   }
 }

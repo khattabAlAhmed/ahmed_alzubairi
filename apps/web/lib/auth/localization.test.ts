@@ -14,6 +14,14 @@ describe("clerkLocalization", () => {
     expect(result.signUp.start.title).toBeTruthy();
   });
 
+  it("fills the errors arSA lacks and keeps the ones it has", () => {
+    const errors = clerkLocalization("ar", ar.Clerk).unstable__errors;
+    expect(errors.form_password_incorrect).toBe(
+      ar.Clerk.errors.passwordIncorrect,
+    );
+    expect(errors.form_identifier_not_found).toBeTruthy();
+  });
+
   it("leaves out strings for components the site doesn't use", () => {
     const result = clerkLocalization("ar", ar.Clerk);
     expect(result).not.toHaveProperty("userProfile");

@@ -23,6 +23,14 @@ export const clerkAppearance = {
       unicodeBidi: "plaintext",
       textAlign: "start",
     },
+    // A long email in Clerk's identity line loses its start the same way.
+    identityPreviewText: {
+      unicodeBidi: "plaintext",
+    },
+    // A code is read left to right, even in Arabic. In RTL, 123 shows as 321.
+    otpCodeFieldInputs: {
+      direction: "ltr",
+    },
     formButtonPrimary: {
       backgroundColor: "var(--color-accent)",
       color: "var(--color-on-accent)",

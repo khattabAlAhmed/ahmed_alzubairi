@@ -27,6 +27,17 @@ export function clerkLocalization(locale: Locale, text: Messages["Clerk"]) {
     formFieldInputPlaceholder__firstName: text.firstNamePlaceholder,
     formFieldInputPlaceholder__lastName: text.lastNamePlaceholder,
     formFieldInput__emailAddress_format: text.emailFormat,
+    unstable__errors: {
+      ...base?.unstable__errors,
+      form_password_incorrect: text.errors.passwordIncorrect,
+      form_password_length_too_short: text.errors.passwordTooShort,
+      form_password_matches_identifier: text.errors.passwordMatchesIdentifier,
+      form_password_untrusted__sign_in: text.errors.passwordUntrusted,
+      form_code_incorrect: text.errors.codeIncorrect,
+      verification_expired: text.errors.codeExpired,
+      form_param_format_invalid: text.errors.invalidFormat,
+      too_many_requests: text.errors.tooManyRequests,
+    },
     signIn: {
       ...base?.signIn,
       start: { ...base?.signIn?.start, titleCombined: text.titleCombined },
