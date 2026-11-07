@@ -8,6 +8,17 @@ import {
   utcDatetimeSchema,
   uuidSchema,
 } from "./fields";
+import {
+  homeSectionContentSchemas,
+  type HomeSectionKey,
+} from "./home-sections";
+
+/** Kept here too: `packages/db` tests import the keys from this file. */
+export {
+  HOME_SECTION_KEYS,
+  homeSectionKeySchema,
+  type HomeSectionKey,
+} from "./home-sections";
 
 /**
  * The `:type` of `/api/admin/content/:type`. `site_settings` and `courses` have
@@ -65,26 +76,6 @@ export const pageKeySchema = z.enum(PAGE_KEYS);
 
 export type PageKey = z.infer<typeof pageKeySchema>;
 
-/** The 12 sections of §6.2, in default order. */
-export const HOME_SECTION_KEYS = [
-  "hero",
-  "stats",
-  "expertise",
-  "audiences",
-  "services",
-  "projects",
-  "partners",
-  "testimonials",
-  "media",
-  "latest",
-  "newsletter",
-  "contact",
-] as const;
-
-export const homeSectionKeySchema = z.enum(HOME_SECTION_KEYS);
-
-export type HomeSectionKey = z.infer<typeof homeSectionKeySchema>;
-
 export const TIMELINE_KINDS = ["career", "qualification"] as const;
 
 export const timelineKindSchema = z.enum(TIMELINE_KINDS);
@@ -138,7 +129,7 @@ const positionSchema = z.int().nonnegative();
 
 /**
  * Optional `<name>Ar` and `<name>En` fields. A row is available in a language
- * when that language is filled (§7), so the route checks fields at publish.
+ * when that language's required fields are filled (§7): see `isAvailableIn`.
  */
 function localized<Name extends string, Schema extends z.ZodType>(
   name: Name,
@@ -233,9 +224,9 @@ const faqBody = z.strictObject({
 });
 
 /**
- * The route must refuse `status: "published"` unless `consent_confirmed` and
- * `admin_approved` are both true (§6.11). `admin_approved` and `approved_by`
- * are set only by the approve routes.
+ * The route must refuse `status: "published"` unless `canPublish` passes:
+ * `consent_confirmed` and `admin_approved` are both true (§6.11).
+ * `admin_approved` and `approved_by` are set only by the approve routes.
  */
 const partnerBody = z.strictObject({
   ...shared,
@@ -246,9 +237,9 @@ const partnerBody = z.strictObject({
 });
 
 /**
- * The route must refuse `status: "published"` unless `consent_confirmed` and
- * `admin_approved` are both true (§6.11). `admin_approved` and `approved_by`
- * are set only by the approve routes.
+ * The route must refuse `status: "published"` unless `canPublish` passes:
+ * `consent_confirmed` and `admin_approved` are both true (§6.11).
+ * `admin_approved` and `approved_by` are set only by the approve routes.
  */
 const testimonialBody = z.strictObject({
   ...shared,
@@ -316,13 +307,61 @@ export type ContentCreateBody<Type extends CreatableContentType> = z.infer<
   (typeof contentCreateBodySchemas)[Type]
 >;
 
-const homeSectionFields = {
+/** One home section's editable fields, with `content_*` checked against that key's schema. */
+const homeSectionFieldsFor = <Key extends HomeSectionKey>(key: Key) => ({
   ...shared,
-  key: homeSectionKeySchema,
+  key: z.literal(key),
   position: positionSchema.optional(),
   isVisible: z.boolean().optional(),
-  ...localized("content", z.json()),
-};
+  ...localized("content", homeSectionContentSchemas[key]),
+});
+
+/** `PATCH` body for one home section. It goes by `key`, plus at least one field. */
+const homeSectionUpdate = <Key extends HomeSectionKey>(key: Key) =>
+  z
+    .strictObject(homeSectionFieldsFor(key))
+    .partial()
+    .required({ key: true })
+    .refine((fields) => hasAnyField(fields, ["key"]));
+
+/** Dashboard row for one home section. */
+const homeSectionRow = <Key extends HomeSectionKey>(key: Key) =>
+  z
+    .strictObject(homeSectionFieldsFor(key))
+    .partial()
+    .required({ key: true })
+    .extend({ updatedAt: utcDatetimeSchema });
+
+/** Listed one by one so each key keeps its own content type. */
+const homeSectionUpdateSchema = z.discriminatedUnion("key", [
+  homeSectionUpdate("hero"),
+  homeSectionUpdate("stats"),
+  homeSectionUpdate("expertise"),
+  homeSectionUpdate("audiences"),
+  homeSectionUpdate("services"),
+  homeSectionUpdate("projects"),
+  homeSectionUpdate("partners"),
+  homeSectionUpdate("testimonials"),
+  homeSectionUpdate("media"),
+  homeSectionUpdate("latest"),
+  homeSectionUpdate("newsletter"),
+  homeSectionUpdate("contact"),
+]);
+
+const homeSectionRowSchema = z.discriminatedUnion("key", [
+  homeSectionRow("hero"),
+  homeSectionRow("stats"),
+  homeSectionRow("expertise"),
+  homeSectionRow("audiences"),
+  homeSectionRow("services"),
+  homeSectionRow("projects"),
+  homeSectionRow("partners"),
+  homeSectionRow("testimonials"),
+  homeSectionRow("media"),
+  homeSectionRow("latest"),
+  homeSectionRow("newsletter"),
+  homeSectionRow("contact"),
+]);
 
 /** At least one field besides the identifier. */
 const updateBody = <Shape extends z.ZodRawShape>(
@@ -335,11 +374,7 @@ const updateBody = <Shape extends z.ZodRawShape>(
 
 /** `PATCH /api/admin/content/:type`. `home_sections` goes by `key`, and a page's `key` is fixed. */
 export const contentUpdateBodySchemas = {
-  home_sections: z
-    .strictObject(homeSectionFields)
-    .partial()
-    .required({ key: true })
-    .refine((fields) => hasAnyField(fields, ["key"])),
+  home_sections: homeSectionUpdateSchema,
   home_stats: updateBody(homeStatBody),
   pages: updateBody(pageBody.omit({ key: true })),
   timeline_items: updateBody(timelineItemBody),
@@ -376,11 +411,7 @@ const rowOf = <Shape extends z.ZodRawShape>(body: z.ZodObject<Shape>) =>
  * `imageKey` and `images[].key`: the dashboard needs them to show the file.
  */
 export const contentRowSchemas = {
-  home_sections: z
-    .strictObject(homeSectionFields)
-    .partial()
-    .required({ key: true })
-    .extend({ updatedAt: utcDatetimeSchema }),
+  home_sections: homeSectionRowSchema,
   home_stats: rowOf(homeStatBody),
   pages: rowOf(pageBody),
   timeline_items: rowOf(timelineItemBody),
