@@ -7,8 +7,9 @@ export type ApiRole = "anon" | "authenticated" | "service_role";
 
 /**
  * What a Supabase project has before any migration runs. It copies the roles,
- * the default privileges and `auth.jwt()` of the dev project, so a migration
- * that forgets to revoke access fails here too.
+ * the default privileges, `auth.jwt()` and the grants and RLS on Storage's
+ * tables from the dev project, so a migration that forgets to revoke access
+ * fails here too.
  */
 const SUPABASE_STUB = `
   create role anon nologin noinherit;
@@ -36,6 +37,30 @@ const SUPABASE_STUB = `
       nullif(current_setting('request.jwt.claims', true), '')
     )::jsonb
   $$;
+
+  create schema storage;
+  grant usage on schema storage to anon, authenticated, service_role;
+
+  create table storage.buckets (
+    id text primary key,
+    name text not null,
+    public boolean default false,
+    file_size_limit bigint,
+    allowed_mime_types text[]
+  );
+
+  create table storage.objects (
+    id uuid primary key default gen_random_uuid(),
+    bucket_id text references storage.buckets (id),
+    name text
+  );
+
+  alter table storage.buckets enable row level security;
+  alter table storage.objects enable row level security;
+
+  grant select, insert, update, delete on storage.buckets, storage.objects
+    to anon, authenticated;
+  grant all on storage.buckets, storage.objects to service_role;
 `;
 
 export type TestDb = {
