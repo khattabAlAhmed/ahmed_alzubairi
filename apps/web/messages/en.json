@@ -26,7 +26,10 @@
     "switchTheme": "Switch between dark and light",
     "switchLanguage": "العربية",
     "switchLanguageShort": "ع",
-    "switchLanguageLabel": "Switch to Arabic"
+    "switchLanguageLabel": "Switch to Arabic",
+    "signIn": "Sign in",
+    "account": "My account",
+    "signOut": "Sign out"
   },
   "Footer": {
     "sectionsLabel": "Site sections",
@@ -58,5 +61,24 @@
     "title": "Something went wrong",
     "description": "We couldn't show this page. Please try again.",
     "retry": "Try again"
+  },
+  "Onboarding": {
+    "title": "Complete your profile",
+    "empty": "This step is being prepared."
+  },
+  "Errors": {
+    "unauthenticated": "Please sign in to continue."
+  },
+  "Clerk": {
+    "emailPlaceholder": "Enter your email address",
+    "passwordPlaceholder": "Enter your password",
+    "newPasswordPlaceholder": "Create a password",
+    "firstNamePlaceholder": "First name",
+    "lastNamePlaceholder": "Last name",
+    "emailFormat": "Example format: name@example.com",
+    "titleCombined": "Continue to {{applicationName}}",
+    "subtitleCombined": "Welcome! Please fill in the details to get started.",
+    "passwordCompromised": "Password compromised",
+    "passwordUntrusted": "Password untrusted"
   }
 }
