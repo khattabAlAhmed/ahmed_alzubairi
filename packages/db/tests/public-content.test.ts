@@ -234,10 +234,21 @@ describe("seed", () => {
 });
 
 describe("shared keys match the constraints", () => {
-  const accepts = (sql: string) => db.owner.exec(`begin; ${sql}; rollback;`);
+  const accepts = async (sql: string) => {
+    try {
+      await db.owner.exec(`begin; ${sql};`);
+    } finally {
+      await db.owner.exec("rollback");
+    }
+  };
   const refuses = async (sql: string) => {
-    await expect(db.owner.exec(`begin; ${sql};`)).rejects.toThrow(/check constraint/);
-    await db.owner.exec("rollback");
+    try {
+      await expect(db.owner.exec(`begin; ${sql};`)).rejects.toThrow(
+        /check constraint/,
+      );
+    } finally {
+      await db.owner.exec("rollback");
+    }
   };
 
   it.each([
