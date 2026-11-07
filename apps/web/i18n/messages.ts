@@ -68,10 +68,18 @@ export function mergeMessages(
   return merged;
 }
 
-/** The glob keys of one locale's namespace files. */
+/** The glob keys of one locale's namespace files: `…/messages/<locale>/<file>.json`. */
 export function pathsForLocale(
   paths: readonly string[],
   locale: string,
 ): string[] {
-  return paths.filter((path) => path.includes(`/messages/${locale}/`));
+  return paths.filter((path) => {
+    const parts = path.split("/");
+    return (
+      parts.length >= 3 &&
+      parts[parts.length - 3] === "messages" &&
+      parts[parts.length - 2] === locale &&
+      parts[parts.length - 1].endsWith(".json")
+    );
+  });
 }

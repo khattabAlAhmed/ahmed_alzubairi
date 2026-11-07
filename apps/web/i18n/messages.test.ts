@@ -101,6 +101,18 @@ describe("pathsForLocale", () => {
     ]);
     expect(pathsForLocale(paths, "en")).toEqual(["../messages/en/A.json"]);
   });
+
+  it("matches the locale folder only as the file's parent", () => {
+    const paths = [
+      "../messages/ar/nested/messages/en/X.json",
+      "../messages/ar/en/Y.json",
+      "../messages/en-US/Z.json",
+    ];
+    expect(pathsForLocale(paths, "en")).toEqual([
+      "../messages/ar/nested/messages/en/X.json",
+    ]);
+    expect(pathsForLocale(paths, "ar")).toEqual([]);
+  });
 });
 
 describe("the namespace files in messages/", () => {
