@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Faq, Page, Project, ServiceDetail, TimelineItem } from "@/lib/content";
 
 const mocks = vi.hoisted(() => ({
+  connected: false,
+  connectedBeforeRead: false,
   signedIn: false,
   projects: [] as Project[],
   serviceIds: {} as Record<string, string[]>,
@@ -13,6 +15,12 @@ const mocks = vi.hoisted(() => ({
   services: [] as unknown[],
 }));
 
+// The pages wait for a request before reading content (the build never reads Supabase).
+vi.mock("next/server", () => ({
+  connection: async () => {
+    mocks.connected = true;
+  },
+}));
 vi.mock("@clerk/nextjs", () => ({ useAuth: () => ({ isSignedIn: mocks.signedIn }) }));
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
@@ -52,7 +60,10 @@ vi.mock("@/lib/content", () => ({
     const project = mocks.projects.find((item) => item.slug === slug);
     return project ? { ...project, serviceIds: mocks.serviceIds[project.id] ?? [] } : null;
   },
-  getService: async () => mocks.service,
+  getService: async () => {
+    mocks.connectedBeforeRead = mocks.connected;
+    return mocks.service;
+  },
   getServices: async () => mocks.services,
   getExpertiseAreas: async () => [],
   getFaqs: async () => [],
@@ -249,11 +260,14 @@ describe("service route", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Governance review");
   });
 
-  it("builds the services published in the language", async () => {
-    mocks.services = [{ slug: "governance-review" }, { slug: "strategic-planning" }];
-    expect(await servicePage.generateStaticParams({ params: { locale: "ar" } })).toEqual([
-      { slug: "governance-review" },
-      { slug: "strategic-planning" },
-    ]);
+  it("builds only the placeholder, without reading content", async () => {
+    expect(servicePage.generateStaticParams()).toEqual([{ slug: "-" }]);
+  });
+
+  it("waits for a request before reading content", async () => {
+    mocks.service = service;
+    mocks.connected = false;
+    await open("ar", "governance-review");
+    expect(mocks.connectedBeforeRead).toBe(true);
   });
 });
