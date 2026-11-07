@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import {
   createProfileRequestSchema,
   errorResponseSchema,
@@ -49,6 +49,7 @@ export function OnboardingForm({
   const tErrors = useTranslations("Errors");
   const router = useRouter();
   const { user } = useUser();
+  const { getToken } = useAuth();
   const id = useId();
   const [needsName, setNeedsName] = useState(askName);
   const [saving, setSaving] = useState(false);
@@ -90,6 +91,9 @@ export function OnboardingForm({
         if (!user) throw new Error("Clerk user not loaded");
         await user.update({ firstName, lastName });
       }
+      // The session cookie lasts a minute. A tab left in the background may not
+      // have refreshed it, and the server would answer 401; this refreshes it.
+      await getToken();
       const response = await fetch("/api/profile", {
         method: "POST",
         headers: { "content-type": "application/json" },
