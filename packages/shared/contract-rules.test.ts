@@ -78,6 +78,24 @@ describe("responses", () => {
   it.each(responses)("%s has no storage key", (_name, schema) => {
     expect(shapeOf(schema)).not.toMatch(/storage_?key/i);
   });
+
+  it("keep upload keys to the team rows that show the file", () => {
+    const withUploadKeys = Object.entries(contentRowSchemas)
+      .filter(([, schema]) =>
+        /"(logoKey|letterKey|coverKey|imageKey|key)"/.test(shapeOf(schema)),
+      )
+      .map(([type]) => type)
+      .toSorted();
+    expect(withUploadKeys).toEqual([
+      "home_sections",
+      "media_items",
+      "pages",
+      "partners",
+      "posts",
+      "projects",
+      "testimonials",
+    ]);
+  });
 });
 
 describe("content bodies", () => {

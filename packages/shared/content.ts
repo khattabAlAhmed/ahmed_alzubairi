@@ -370,8 +370,10 @@ const rowOf = <Shape extends z.ZodRawShape>(body: z.ZodObject<Shape>) =>
   body.partial().extend(rowFields);
 
 /**
- * One dashboard row of each type. Null columns are left out. `resources` has no
- * `key`: no response carries a `storage_key`.
+ * One dashboard row of each type, for the team only. Null columns are left out.
+ * `resources` has no `key`, because that's its `storage_key` and no response
+ * carries one. The `*_path` columns stay as `logoKey`, `letterKey`, `coverKey`,
+ * `imageKey` and `images[].key`: the dashboard needs them to show the file.
  */
 export const contentRowSchemas = {
   home_sections: z
