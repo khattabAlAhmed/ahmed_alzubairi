@@ -388,6 +388,7 @@ Covers course and qualification certificates, thank-you and recommendation lette
 | Invite | The admin invites by email (Clerk invitation), with a role |
 | Disable | The admin can disable a member at once |
 | Audit log | Who did what and when: reply, status change, publish, delete, document view |
+| First admin | The person signs up normally, then one SQL statement in Supabase sets `profiles.role_id` to the admin role. No code path grants admin. Same step at launch, and `docs/launch.md` must include it. |
 | 2FA 🟡 | Required for team accounts. Clerk's free plan doesn't include MFA, so it stays behind `REQUIRE_TEAM_2FA` until §14 is decided. |
 
 ### 6.20 Dashboard (لوحة التحكم) 🔴
@@ -720,6 +721,8 @@ GitHub Actions secrets, not app variables: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VER
 `.env.example` lists every app variable with no values. `.env` is never committed.
 
 Each Vercel environment gets its own Supabase and Clerk values: Production → the prod project and the Clerk production instance, Preview and Development → the dev project and the Clerk development instance.
+
+Until Phase 7, Vercel's Production environment holds the dev Supabase values and Clerk test keys, so staged builds keep working. Builds stay staged, so nothing goes live. `docs/launch.md` must replace them before promoting.
 
 ---
 
