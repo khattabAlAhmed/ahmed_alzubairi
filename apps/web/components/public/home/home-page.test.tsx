@@ -54,6 +54,8 @@ vi.mock("next/navigation", () => ({
     throw new Error("NOT_FOUND");
   },
 }));
+// The page waits for a request before reading content; tests have none.
+vi.mock("next/server", () => ({ connection: async () => {} }));
 vi.mock("next/image", () => ({
   default: ({ alt }: { alt: string }) => <span role="img" aria-label={alt} />,
 }));

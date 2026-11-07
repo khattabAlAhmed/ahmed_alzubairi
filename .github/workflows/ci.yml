@@ -26,7 +26,3 @@ jobs:
         env:
           # A dummy public value in Clerk's format. Never put a secret here.
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXkuY2xlcmsuYWNjb3VudHMuZGV2JA==
-          # Static public pages read content while prerendering (§13), so the
-          # build needs the dev project. Never production's values.
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

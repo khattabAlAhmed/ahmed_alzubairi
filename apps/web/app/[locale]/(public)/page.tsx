@@ -1,6 +1,7 @@
 import { SITE_NAME, type HomeSectionKey, type Locale } from "@repo/shared";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Fragment, type ReactNode } from "react";
 import {
   AudiencesSection,
@@ -136,10 +137,15 @@ function plan(section: HomeSection, data: SectionData, locale: Locale): Planned 
   }
 }
 
-// Static: lib/content reads are cached by tag, and nothing here reads the session.
+/**
+ * Renders on request, never at build: Vercel doesn't give Sensitive variables
+ * to an outside build, so the build can't read Supabase. The lib/content reads
+ * stay cached and are revalidated by tag (§9). Nothing here reads the session.
+ */
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  await connection();
 
   const sections = (await getHomeSections(locale)).filter(
     (section) => !NOT_YET_BUILT.includes(section.key),
