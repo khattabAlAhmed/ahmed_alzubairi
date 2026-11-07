@@ -1,0 +1,33 @@
+{
+  "aboutCta": "تعرّف على خبرتي",
+  "photoAlt": "صورة {name}",
+  "allExpertise": "كل مجالات الخبرة",
+  "allServices": "كل الخدمات",
+  "allProjects": "كل المشاريع",
+  "allClients": "كل الجهات وآراء العملاء",
+  "allMedia": "كل الظهور الإعلامي والفعاليات",
+  "allPosts": "كل المقالات",
+  "allResources": "كل الموارد",
+  "keyResult": "النتيجة الأبرز",
+  "partnerLogo": "شعار {name}",
+  "articles": "مقالات",
+  "resources": "موارد",
+  "readingTime": "وقت القراءة: {minutes, plural, one {دقيقة واحدة} two {دقيقتان} few {# دقائق} many {# دقيقة} other {# دقيقة}}",
+  "mediaCategory": {
+    "media": "ظهور إعلامي",
+    "events": "فعالية",
+    "conferences": "مؤتمر"
+  },
+  "resourceKind": {
+    "guide": "دليل",
+    "template": "نموذج",
+    "working_paper": "ورقة عمل"
+  },
+  "viewDetails": "عرض التفاصيل",
+  "opensInNewTab": "(تفتح في نافذة جديدة)",
+  "email": "البريد الإلكتروني",
+  "whatsapp": "واتساب",
+  "linkedin": "لينكدإن",
+  "contactIntro": "اختر الطريقة الأنسب لك، أو أرسل رسالة من صفحة التواصل.",
+  "sendMessage": "أرسل رسالة"
+}
