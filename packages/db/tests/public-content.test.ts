@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import type { Transaction } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -19,6 +18,7 @@ import {
   TIMELINE_KINDS,
 } from "../../shared/content";
 import { createTestDb, type ApiRole, type TestDb } from "../supabase-pglite";
+import { readSection7Columns } from "./section7";
 
 const ID = "123e4567-e89b-42d3-a456-426614174000";
 const ALL_PERMISSIONS = Object.values(PERMISSIONS);
@@ -140,32 +140,8 @@ afterAll(async () => {
   await db.close();
 });
 
-/** Reads the column lists from the §7 "Public content" table. */
-function readSection7Columns(): Record<string, string[]> {
-  const doc = readFileSync(
-    new URL("../../../docs/project.md", import.meta.url),
-    "utf8",
-  );
-  const section = doc.slice(
-    doc.indexOf("**Public content**"),
-    doc.indexOf("**Client work**"),
-  );
-  const tables: Record<string, string[]> = {};
-  for (const line of section.split(/\r?\n/)) {
-    if (!line.startsWith("| `")) continue;
-    const [, name = "", columns = ""] = line.split("|").map((cell) => cell.trim());
-    const listed = [...columns.replace(/\([^)]*\)/g, "").matchAll(/`([^`]+)`/g)];
-    tables[name.replaceAll("`", "")] = listed.flatMap(([, column = ""]) =>
-      column.endsWith("_*")
-        ? [column.replace("*", "ar"), column.replace("*", "en")]
-        : [column],
-    );
-  }
-  return tables;
-}
-
 describe("tables", () => {
-  const section7 = readSection7Columns();
+  const section7 = readSection7Columns("**Public content**", "**Client work**");
 
   it("covers every table in §7 Public content", () => {
     expect(TABLE_NAMES.toSorted()).toEqual(Object.keys(section7).toSorted());
