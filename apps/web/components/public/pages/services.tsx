@@ -177,6 +177,6 @@ export function Stages({ text }: { text: string }) {
 export function splitStages(text: string): string[] {
   return text
     .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*(?:[-•*]|\d+[.)-]|[٠-٩]+[.)-])\s*/, "").trim())
+    .map((line) => line.replace(/^\s*(?:[-•*]|\d+[.)-]|[٠-٩]+[.)-])\s+/, "").trim())
     .filter((line) => line !== "");
 }

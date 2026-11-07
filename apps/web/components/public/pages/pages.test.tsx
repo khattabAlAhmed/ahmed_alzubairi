@@ -13,7 +13,17 @@ const mocks = vi.hoisted(() => ({
   serviceIds: {} as Record<string, string[]>,
   service: null as unknown,
   services: [] as unknown[],
+  page: null as unknown,
+  area: null as unknown,
+  areas: [] as unknown[],
+  readBeforeConnection: false,
 }));
+
+/** Records a content read made before the page waited for a request. */
+function read<T>(value: T): T {
+  if (!mocks.connected) mocks.readBeforeConnection = true;
+  return value;
+}
 
 // The pages wait for a request before reading content (the build never reads Supabase).
 vi.mock("next/server", () => ({
@@ -64,17 +74,26 @@ vi.mock("@/lib/content", () => ({
     mocks.connectedBeforeRead = mocks.connected;
     return mocks.service;
   },
-  getServices: async () => mocks.services,
-  getExpertiseAreas: async () => [],
+  getServices: async () => read(mocks.services),
+  getExpertiseAreas: async () => read(mocks.areas),
+  getExpertiseArea: async () => read(mocks.area),
+  getPage: async () => read(mocks.page),
+  getTimeline: async () => read([]),
+  getSiteSettings: async () => read({ cvUrl: null }),
   getFaqs: async () => [],
 }));
 
 const { AboutPage } = await import("./about");
 const { ServiceDetailPage, splitStages } = await import("./services");
 const { RequestServiceButton, serviceRequestPath } = await import("./request-service-button");
-const { getServiceProjects, servedOrganizations } = await import("./related");
+const { servedOrganizations } = await import("./related");
+const { getServiceProjects } = await import("./service-projects");
 const { routeSlug, staticSlugs } = await import("./static-slugs");
 const servicePage = await import("@/app/[locale]/(public)/services/[slug]/page");
+const aboutRoute = await import("@/app/[locale]/(public)/about/page");
+const expertiseRoute = await import("@/app/[locale]/(public)/expertise/page");
+const expertiseAreaRoute = await import("@/app/[locale]/(public)/expertise/[slug]/page");
+const servicesRoute = await import("@/app/[locale]/(public)/services/page");
 
 const doc = (...paragraphs: string[]) =>
   ({
@@ -115,6 +134,8 @@ beforeEach(() => {
   mocks.signedIn = false;
   mocks.projects = [];
   mocks.serviceIds = {};
+  mocks.connected = false;
+  mocks.readBeforeConnection = false;
 });
 
 afterEach(cleanup);
@@ -211,6 +232,12 @@ describe("helpers", () => {
   it("splits stages by line and drops typed list markers", () => {
     expect(splitStages("1. One\n\n- Two\n٣) Three\n• Four")).toEqual(["One", "Two", "Three", "Four"]);
     expect(splitStages("A single paragraph.")).toEqual(["A single paragraph."]);
+    expect(splitStages("3-month audit\n10.5% reduction\n-5% fee\n*Important* step")).toEqual([
+      "3-month audit",
+      "10.5% reduction",
+      "-5% fee",
+      "*Important* step",
+    ]);
   });
 
   it("lists each organization once, skipping projects without one", () => {
@@ -269,5 +296,62 @@ describe("service route", () => {
     mocks.connected = false;
     await open("ar", "governance-review");
     expect(mocks.connectedBeforeRead).toBe(true);
+  });
+});
+
+describe("about, expertise and services routes", () => {
+  const params = (locale: string, slug = "governance") => ({ params: Promise.resolve({ locale, slug }) });
+  const area = { id: "area-1", slug: "governance", title: "Governance", summary: "Area summary", body: null };
+  const routes = [
+    ["about", () => aboutRoute.default, () => (mocks.page = { key: "about", title: "About", body: doc("Short bio"), availableIn: ["ar"] })],
+    ["expertise", () => expertiseRoute.default, () => (mocks.areas = [area])],
+    ["expertise area", () => expertiseAreaRoute.default, () => (mocks.area = { ...area, availableIn: ["ar"] })],
+    ["services", () => servicesRoute.default, () => (mocks.services = [service])],
+  ] as const;
+
+  beforeEach(() => {
+    mocks.page = null;
+    mocks.area = null;
+    mocks.areas = [];
+    mocks.services = [];
+  });
+
+  for (const [name, route, seed] of routes) {
+    it(`${name}: returns not-found for an unknown locale, without reading content`, async () => {
+      seed();
+      await expect(route()(params("fr"))).rejects.toThrow("NOT_FOUND");
+      expect(mocks.readBeforeConnection).toBe(false);
+    });
+
+    it(`${name}: renders one h1 and waits for a request before reading content`, async () => {
+      seed();
+      render(await route()(params("ar")));
+      expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      expect(mocks.connected).toBe(true);
+      expect(mocks.readBeforeConnection).toBe(false);
+    });
+  }
+
+  it("about: returns not-found when the page isn't published in this language", async () => {
+    await expect(aboutRoute.default(params("en"))).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("expertise area: returns not-found for an unpublished area", async () => {
+    await expect(expertiseAreaRoute.default(params("ar", "missing"))).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("expertise area: builds only the placeholder, without reading content", () => {
+    expect(expertiseAreaRoute.generateStaticParams()).toEqual([{ slug: "-" }]);
+    expect(mocks.readBeforeConnection).toBe(false);
+  });
+
+  it("lists the published content", async () => {
+    mocks.areas = [area];
+    render(await expertiseRoute.default(params("ar")));
+    expect(screen.getByText("Governance")).toBeTruthy();
+    cleanup();
+    mocks.services = [service];
+    render(await servicesRoute.default(params("ar")));
+    expect(screen.getByText("Governance review")).toBeTruthy();
   });
 });

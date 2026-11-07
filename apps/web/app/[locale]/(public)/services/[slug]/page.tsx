@@ -3,7 +3,7 @@ import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ServiceDetailPage } from "@/components/public/pages";
-import { getServiceProjects } from "@/components/public/pages/related";
+import { getServiceProjects } from "@/components/public/pages/service-projects";
 import { routeSlug, staticSlugs } from "@/components/public/pages/static-slugs";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
