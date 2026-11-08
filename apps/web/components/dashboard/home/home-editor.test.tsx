@@ -172,6 +172,14 @@ describe("HomeEditor", () => {
     expect(screen.getByText(content.editor.saved)).toBeTruthy();
   });
 
+  it("shows the Content-list note on list sections, but not on audiences, which edits its items here", () => {
+    renderHome({ kind: "section", key: "services" });
+    expect(screen.getByText(home.sections.rowsNote)).toBeTruthy();
+    cleanup();
+    renderHome({ kind: "section", key: "audiences" });
+    expect(screen.queryByText(home.sections.rowsNote)).toBeNull();
+  });
+
   it("won't publish a section with no complete language, and sends nothing", async () => {
     renderHome({ kind: "section", key: "media" });
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "published" } });
@@ -200,6 +208,27 @@ describe("HomeEditor", () => {
       },
     ]);
     expect(replace).toHaveBeenCalledWith("/dashboard/home?stat=new-id&created=1");
+  });
+
+  it("opens the new stat once the page moves to it after the create", () => {
+    const view = renderHome();
+    fireEvent.click(screen.getByRole("button", { name: home.stats.add }));
+    expect(screen.getByRole("heading", { name: home.stats.newTitle })).toBeTruthy();
+    const created = { id: "5f2c1a8e-0000-4000-8000-000000000003", labelEn: "Trainees", value: "1,200", position: 3, status: "draft" };
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardContent: content, DashboardHome: home }}>
+        <HomeEditor
+          sections={sections}
+          stats={[...stats, created]}
+          mediaBase="https://x.test/m/"
+          initialOpen={{ kind: "stat", id: created.id }}
+          justCreated
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("button", { name: "Close Trainees" }).getAttribute("aria-expanded")).toBe("true");
+    expect((screen.getByLabelText(/Value|Number/) as HTMLInputElement).value).toBe("1,200");
+    expect(screen.queryByRole("heading", { name: home.stats.newTitle })).toBeNull();
   });
 
   it("edits a stat's number", async () => {

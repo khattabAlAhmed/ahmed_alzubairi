@@ -95,6 +95,15 @@ export function HomeEditor({
   const locale = useLocale() as Locale;
   const router = useRouter();
   const [open, setOpen] = useState<OpenForm>(initialOpen);
+  // A create moves to `?stat=<id>&created=1`, which changes `initialOpen` without
+  // a remount. Open the new stat then, or the "new" form stays open and a second
+  // save would create a duplicate.
+  const openKey = JSON.stringify(initialOpen);
+  const [seenOpenKey, setSeenOpenKey] = useState(openKey);
+  if (openKey !== seenOpenKey) {
+    setSeenOpenKey(openKey);
+    setOpen(initialOpen);
+  }
   const [visibility, setVisibility] = useState<Partial<Record<HomeSectionKey, boolean>>>({});
   const [busyKey, setBusyKey] = useState<HomeSectionKey | null>(null);
   const [notice, setNotice] = useState<{ tone: "status" | "alert"; text: string } | null>(null);
