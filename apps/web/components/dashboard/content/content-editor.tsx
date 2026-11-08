@@ -24,6 +24,7 @@ import {
 } from "./form-values";
 import { CONTENT_CONFIG, editPath, type FieldDef } from "./registry";
 import { saveContent } from "./save";
+import { PreviewPanel } from "../preview/preview-panel";
 
 /** What every content editor gets from its page: the generic one and custom ones. */
 export type ContentEditorProps = {
@@ -226,6 +227,7 @@ export function EditorForm({
     <form noValidate onSubmit={(event) => void editor.save(event)} className="space-y-6">
       {children}
       <PublishPanel editor={editor} />
+      <PreviewPanel editor={editor} />
       <EditorActions editor={editor} />
     </form>
   );
