@@ -12,11 +12,14 @@ export function AppShell({
   title,
   navLabel,
   links,
+  menu,
   children,
 }: {
   title: string;
   navLabel: string;
   links: readonly AppShellLink[];
+  /** A menu built elsewhere, such as the dashboard's permission-based one. Shown after `links`. */
+  menu?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations("Header");
@@ -53,6 +56,7 @@ export function AppShell({
               </ul>
             </nav>
           )}
+          {menu}
         </aside>
         <main id={MAIN_CONTENT_ID} className="min-w-0 flex-1 p-4 md:p-6">
           {children}

@@ -1,0 +1,193 @@
+{
+  "navLabel": "قائمة لوحة التحكم",
+  "nav": {
+    "home": "نظرة عامة",
+    "content": "المحتوى"
+  },
+  "home": {
+    "title": "لوحة التحكم",
+    "intro": "اختر قسمًا من القائمة.",
+    "noSections": "لا توجد أقسام متاحة لك بعد. تواصل مع المدير إن احتجت إلى صلاحية.",
+    "sections": {
+      "content": "الصفحات والخدمات والمشاريع وبقية الموقع العام."
+    }
+  },
+  "refusal": {
+    "title": "لا يمكنك فتح هذا القسم",
+    "text": "ليست لدى حسابك صلاحية هذا القسم. تواصل مع المدير إن احتجت إليها.",
+    "back": "العودة إلى لوحة التحكم"
+  },
+  "types": {
+    "home_sections": "أقسام الصفحة الرئيسية",
+    "home_stats": "أرقام الصفحة الرئيسية",
+    "pages": "الصفحات",
+    "timeline_items": "المسيرة والمؤهلات",
+    "expertise_areas": "مجالات الخبرة",
+    "services": "الخدمات",
+    "projects": "المشاريع",
+    "faqs": "الأسئلة الشائعة",
+    "partners": "شعارات الجهات",
+    "testimonials": "آراء العملاء",
+    "posts": "مقالات المدونة",
+    "resources": "الموارد المجانية",
+    "media_items": "الظهور الإعلامي والفعاليات"
+  },
+  "status": {
+    "draft": "مسودة",
+    "published": "منشور"
+  },
+  "locales": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "list": {
+    "title": "المحتوى",
+    "intro": "حرّر كل أقسام الموقع العامة بالعربية والإنجليزية.",
+    "new": "إضافة",
+    "editItem": "تعديل {title}",
+    "untitled": "بلا عنوان",
+    "emptyTitle": "لا يوجد شيء هنا بعد",
+    "emptyText": "أضف أول عنصر. يبقى مسودة حتى تنشره.",
+    "emptyFixed": "يضيف النظام هذه العناصر.",
+    "languages": "اللغات",
+    "noLanguage": "لا توجد لغة بعد",
+    "comingSoon": "تحرير هذا النوع يصل في تحديث لاحق.",
+    "updated": "حُدّث {date}",
+    "counts": "{total, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}} · المنشور {published}",
+    "backToTypes": "كل المحتوى"
+  },
+  "editor": {
+    "newTitle": "إضافة: {type}",
+    "editTitle": "تعديل: {type}",
+    "back": "العودة إلى القائمة",
+    "languageTabs": "اللغة",
+    "invalidTab": "فيه أخطاء",
+    "otherFields": "تفاصيل أخرى",
+    "publishing": "النشر",
+    "statusLabel": "الحالة",
+    "availableIn": "سيظهر بـ: {languages}",
+    "availableNone": "غير متاح بأي لغة بعد.",
+    "cantPublish": "لا يمكن نشره بعد:",
+    "problems": {
+      "no_language": "املأ الحقول المطلوبة بالعربية أو الإنجليزية.",
+      "no_value": "أضف الرقم.",
+      "no_consent": "أكّد موافقة الجهة.",
+      "not_approved": "يحتاج إلى موافقة المدير."
+    },
+    "approved": "وافق عليه المدير",
+    "notApproved": "لم يوافق عليه المدير بعد",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم الحفظ.",
+    "created": "تمت الإضافة. يمكنك متابعة التحرير.",
+    "fixErrors": "راجع الحقول المحددة.",
+    "networkError": "تعذّر الحفظ. تحقق من اتصالك وحاول مرة أخرى.",
+    "notFoundTitle": "العنصر غير موجود",
+    "notFoundText": "ربما حُذف.",
+    "required": "مطلوب.",
+    "invalid": "هذه القيمة غير صحيحة.",
+    "cantClear": "لا يمكن إفراغ هذا الحقل بعد ملئه. أدخل قيمة.",
+    "none": "بلا",
+    "requiredMark": "(مطلوب)",
+    "laterField": "تحرير هذا الحقل يأتي في تحديث لاحق. يبقى نصه المحفوظ كما هو."
+  },
+  "fields": {
+    "label": "التسمية",
+    "value": "الرقم",
+    "position": "الترتيب",
+    "positionHint": "الأرقام الأصغر تظهر أولًا.",
+    "kind": "النوع",
+    "title": "العنوان",
+    "description": "الوصف",
+    "period": "الفترة",
+    "slug": "اسم الرابط (slug)",
+    "slugHint": "حروف وأرقام بينها شرطات، مثل strategic-planning.",
+    "expertiseId": "مجال الخبرة",
+    "summary": "الملخص",
+    "audience": "الفئة المستهدفة",
+    "deliverables": "المخرجات",
+    "stages": "المراحل",
+    "isFeatured": "إبرازه في الصفحة الرئيسية",
+    "orgType": "نوع الجهة",
+    "orgName": "اسم الجهة",
+    "orgLabel": "التسمية العامة",
+    "orgLabelHint": "تظهر بدل الاسم عند إخفائه، مثل \"منظمة دولية\".",
+    "hideOrgName": "إخفاء اسم الجهة",
+    "goal": "الهدف",
+    "role": "دوري",
+    "duration": "المدة",
+    "activities": "الأنشطة",
+    "results": "النتائج",
+    "keyResult": "أبرز نتيجة",
+    "images": "الصور",
+    "serviceIds": "الخدمات المرتبطة",
+    "category": "التصنيف",
+    "serviceId": "الخدمة المرتبطة",
+    "question": "السؤال",
+    "answer": "الإجابة",
+    "name": "الاسم",
+    "logoKey": "الشعار",
+    "consentConfirmed": "وافقت الجهة على الظهور",
+    "quote": "نص الرأي",
+    "author": "صاحب الرأي",
+    "partnerId": "الجهة",
+    "letterKey": "خطاب الشكر",
+    "key": "الملف",
+    "access": "طريقة الوصول",
+    "outlet": "الوسيلة أو الفعالية",
+    "date": "التاريخ",
+    "imageKey": "الصورة",
+    "url": "الرابط",
+    "videoUrl": "رابط الفيديو",
+    "body": "المحتوى",
+    "excerpt": "المقتطف",
+    "coverKey": "صورة الغلاف"
+  },
+  "options": {
+    "timelineKind": {
+      "career": "مسيرة مهنية",
+      "qualification": "مؤهل"
+    },
+    "orgType": {
+      "government": "حكومية",
+      "organization": "منظمة",
+      "company": "شركة",
+      "individual": "فرد"
+    },
+    "faqCategory": {
+      "consultations": "الاستشارات",
+      "training": "التدريب",
+      "documents": "الوثائق",
+      "account": "الحساب"
+    },
+    "mediaCategory": {
+      "media": "ظهور إعلامي",
+      "events": "فعاليات",
+      "conferences": "مؤتمرات"
+    },
+    "resourceKind": {
+      "guide": "دليل",
+      "template": "نموذج",
+      "working_paper": "ورقة عمل"
+    },
+    "resourceAccess": {
+      "direct": "تنزيل مباشر",
+      "email": "يُرسل بالبريد"
+    }
+  },
+  "upload": {
+    "choose": "اختر ملفًا",
+    "replace": "استبدال",
+    "remove": "إزالة",
+    "add": "إضافة صورة",
+    "uploading": "جارٍ الرفع…",
+    "imageHint": "JPG أو PNG، حتى 10 ميغابايت.",
+    "fileHint": "حتى 10 ميغابايت.",
+    "attached": "يوجد ملف مرفق.",
+    "failed": "فشل الرفع. حاول مرة أخرى.",
+    "preview": "معاينة الصورة",
+    "altAr": "وصف الصورة (بالعربية)",
+    "altEn": "وصف الصورة (بالإنجليزية)",
+    "imageNumber": "الصورة {number}"
+  }
+}
