@@ -96,8 +96,14 @@ export function DashboardNavMenu({
       >
         {/* The name keeps the visible text and adds which menu it opens. */}
         <span className="min-w-0 truncate">
-          <span className="sr-only">{label}: </span>
-          {current ?? label}
+          {current === null ? (
+            label
+          ) : (
+            <>
+              <span className="sr-only">{label}: </span>
+              {current}
+            </>
+          )}
         </span>
         <ChevronDownIcon
           className={cx(

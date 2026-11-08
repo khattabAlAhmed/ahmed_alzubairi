@@ -55,7 +55,7 @@ describe("DashboardNavMenu", () => {
   it("falls back to the menu name when no entry is current", () => {
     nav.pathname = "/dashboard/unknown";
     render(<Menu />);
-    expect(button().textContent).toBe("Dashboard menu: Dashboard menu");
+    expect(button().textContent).toBe("Dashboard menu");
   });
 
   it("marks only the current page, and the overview only on its own page", () => {
