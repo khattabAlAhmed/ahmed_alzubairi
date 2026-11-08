@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { isActivePath } from "@/components/nav-items";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 
 /**
  * A dashboard menu link. The overview (`exact`) is current only on its own
@@ -24,7 +25,12 @@ export function DashboardNavLink({
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className="block rounded-md px-3 py-2 text-sm whitespace-nowrap hover:bg-text/10 aria-[current=page]:bg-text/10 aria-[current=page]:font-semibold"
+      className={cx(
+        // Long Arabic labels wrap on a phone; the md column keeps one line as before.
+        "block rounded-md px-3 py-2.5 text-sm hover:bg-text/10 md:py-2 md:whitespace-nowrap",
+        "aria-[current=page]:bg-text/10 aria-[current=page]:font-semibold",
+        FOCUS_RING,
+      )}
     >
       {children}
     </Link>
