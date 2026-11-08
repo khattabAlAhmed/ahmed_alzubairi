@@ -1,0 +1,193 @@
+{
+  "navLabel": "Dashboard menu",
+  "nav": {
+    "home": "Overview",
+    "content": "Content"
+  },
+  "home": {
+    "title": "Dashboard",
+    "intro": "Choose a section from the menu.",
+    "noSections": "No sections are open to you yet. Ask the admin if you need access.",
+    "sections": {
+      "content": "Pages, services, projects and the rest of the public site."
+    }
+  },
+  "refusal": {
+    "title": "You can't open this section",
+    "text": "Your account doesn't have permission for this section. Ask the admin if you need access.",
+    "back": "Back to the dashboard"
+  },
+  "types": {
+    "home_sections": "Home sections",
+    "home_stats": "Home stats",
+    "pages": "Pages",
+    "timeline_items": "Career and qualifications",
+    "expertise_areas": "Areas of expertise",
+    "services": "Services",
+    "projects": "Projects",
+    "faqs": "FAQ",
+    "partners": "Partner logos",
+    "testimonials": "Testimonials",
+    "posts": "Blog posts",
+    "resources": "Free resources",
+    "media_items": "Media and events"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published"
+  },
+  "locales": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "list": {
+    "title": "Content",
+    "intro": "Edit every public section in Arabic and English.",
+    "new": "Add",
+    "editItem": "Edit {title}",
+    "untitled": "Untitled",
+    "emptyTitle": "Nothing here yet",
+    "emptyText": "Add the first item. It stays a draft until you publish it.",
+    "emptyFixed": "These items are added by the system.",
+    "languages": "Languages",
+    "noLanguage": "No language yet",
+    "comingSoon": "Editing for this type is coming in a later update.",
+    "updated": "Updated {date}",
+    "counts": "{total, plural, =0 {No items} one {# item} other {# items}} · {published} published",
+    "backToTypes": "All content"
+  },
+  "editor": {
+    "newTitle": "Add: {type}",
+    "editTitle": "Edit: {type}",
+    "back": "Back to the list",
+    "languageTabs": "Language",
+    "invalidTab": "has errors",
+    "otherFields": "Other details",
+    "publishing": "Publishing",
+    "statusLabel": "Status",
+    "availableIn": "Will be shown in: {languages}",
+    "availableNone": "Not available in any language yet.",
+    "cantPublish": "Can't be published yet:",
+    "problems": {
+      "no_language": "Fill in the required fields in Arabic or English.",
+      "no_value": "Add the number.",
+      "no_consent": "Confirm the organization's consent.",
+      "not_approved": "Needs the admin's approval."
+    },
+    "approved": "Approved by the admin",
+    "notApproved": "Not approved by the admin yet",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "created": "Created. You can keep editing.",
+    "fixErrors": "Check the highlighted fields.",
+    "networkError": "Couldn't save. Check your connection and try again.",
+    "notFoundTitle": "Item not found",
+    "notFoundText": "It may have been deleted.",
+    "required": "Required.",
+    "invalid": "This value isn't valid.",
+    "cantClear": "This field can't be emptied once filled. Enter a value.",
+    "none": "None",
+    "requiredMark": "(required)",
+    "laterField": "Editing this field is coming in a later update. Its saved text is kept."
+  },
+  "fields": {
+    "label": "Label",
+    "value": "Number",
+    "position": "Order",
+    "positionHint": "Lower numbers come first.",
+    "kind": "Type",
+    "title": "Title",
+    "description": "Description",
+    "period": "Period",
+    "slug": "Link name (slug)",
+    "slugHint": "Letters and numbers joined by hyphens, such as strategic-planning.",
+    "expertiseId": "Area of expertise",
+    "summary": "Summary",
+    "audience": "Who it's for",
+    "deliverables": "Deliverables",
+    "stages": "Stages",
+    "isFeatured": "Feature it on the home page",
+    "orgType": "Organization type",
+    "orgName": "Organization name",
+    "orgLabel": "General label",
+    "orgLabelHint": "Shown instead of the name when the name is hidden, such as \"an international organization\".",
+    "hideOrgName": "Hide the organization's name",
+    "goal": "Goal",
+    "role": "My role",
+    "duration": "Duration",
+    "activities": "Activities",
+    "results": "Results",
+    "keyResult": "Key result",
+    "images": "Images",
+    "serviceIds": "Related services",
+    "category": "Category",
+    "serviceId": "Related service",
+    "question": "Question",
+    "answer": "Answer",
+    "name": "Name",
+    "logoKey": "Logo",
+    "consentConfirmed": "The organization agreed to be shown",
+    "quote": "Quote",
+    "author": "Author",
+    "partnerId": "Organization",
+    "letterKey": "Thank-you letter",
+    "key": "File",
+    "access": "Access",
+    "outlet": "Outlet or event",
+    "date": "Date",
+    "imageKey": "Image",
+    "url": "Link",
+    "videoUrl": "Video link",
+    "body": "Body",
+    "excerpt": "Excerpt",
+    "coverKey": "Cover image"
+  },
+  "options": {
+    "timelineKind": {
+      "career": "Career",
+      "qualification": "Qualification"
+    },
+    "orgType": {
+      "government": "Government",
+      "organization": "Organization",
+      "company": "Company",
+      "individual": "Individual"
+    },
+    "faqCategory": {
+      "consultations": "Consultations",
+      "training": "Training",
+      "documents": "Documents",
+      "account": "Account"
+    },
+    "mediaCategory": {
+      "media": "Media",
+      "events": "Events",
+      "conferences": "Conferences"
+    },
+    "resourceKind": {
+      "guide": "Guide",
+      "template": "Template",
+      "working_paper": "Working paper"
+    },
+    "resourceAccess": {
+      "direct": "Direct download",
+      "email": "Sent by email"
+    }
+  },
+  "upload": {
+    "choose": "Choose a file",
+    "replace": "Replace",
+    "remove": "Remove",
+    "add": "Add an image",
+    "uploading": "Uploading…",
+    "imageHint": "JPG or PNG, up to 10 MB.",
+    "fileHint": "Up to 10 MB.",
+    "attached": "A file is attached.",
+    "failed": "The upload failed. Try again.",
+    "preview": "Preview of the image",
+    "altAr": "Image description (Arabic)",
+    "altEn": "Image description (English)",
+    "imageNumber": "Image {number}"
+  }
+}
