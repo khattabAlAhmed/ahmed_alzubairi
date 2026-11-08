@@ -1,0 +1,69 @@
+{
+  "eyebrow": "Content",
+  "title": "Home page",
+  "intro": "Edit, hide and reorder the home page sections, and keep the quick stats up to date.",
+  "back": "All content",
+  "sections": {
+    "heading": "Sections",
+    "intro": "The home page shows them in this order. A hidden or draft section doesn't appear.",
+    "position": "{position} of {total}",
+    "shown": "Shown on the home page",
+    "hiddenBadge": "Hidden",
+    "nowShown": "{name} is now shown on the home page.",
+    "nowHidden": "{name} is now hidden from the home page.",
+    "edit": "Edit",
+    "editLabel": "Edit {name}",
+    "close": "Close",
+    "closeLabel": "Close {name}",
+    "rowsNote": "The items themselves come from their own list in Content. Here you set the heading and introduction."
+  },
+  "keys": {
+    "hero": "Hero",
+    "stats": "Quick stats",
+    "expertise": "Expertise",
+    "audiences": "Who I work with",
+    "services": "Featured services",
+    "projects": "Selected projects",
+    "partners": "Organization logos",
+    "testimonials": "Testimonials",
+    "media": "Media",
+    "latest": "Latest articles and resources",
+    "newsletter": "Newsletter signup",
+    "contact": "Quick contact"
+  },
+  "fields": {
+    "heading": "Heading",
+    "intro": "Introduction",
+    "name": "Name and brand",
+    "title": "Professional title",
+    "valueStatement": "One-line value statement",
+    "photo": "Personal photo",
+    "photoHint": "One photo for both languages. It's saved with each language's text.",
+    "audience": "Audience {number}",
+    "audiencesHint": "Government, humanitarian, private, in this order.",
+    "itemTitle": "Title",
+    "itemDescription": "Description"
+  },
+  "order": {
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "drag": "Drag to reorder {name}. With a keyboard, use the move up and move down buttons.",
+    "moved": "{name} moved to position {position} of {total}.",
+    "saving": "Saving the new order…",
+    "saved": "New order saved.",
+    "failed": "The new order couldn't be saved, so it was put back. Try again."
+  },
+  "stats": {
+    "heading": "Quick stats",
+    "intro": "Years of experience, projects, organizations, trainees. Only published stats show on the home page.",
+    "empty": "No stats yet. Add the first one.",
+    "add": "Add a stat",
+    "newTitle": "New stat",
+    "cancel": "Cancel",
+    "untitled": "Untitled stat",
+    "noValue": "No number yet"
+  },
+  "errors": {
+    "visibility": "The change couldn't be saved. Try again."
+  }
+}

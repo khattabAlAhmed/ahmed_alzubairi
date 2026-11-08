@@ -60,4 +60,12 @@ describe("registry", () => {
     expect(newPath("services")).toBe("/dashboard/content/new?type=services");
     expect(editPath("services", "a b")).toBe("/dashboard/content/edit?type=services&id=a%20b");
   });
+
+  it("sends home sections and quick stats to the home page editor", () => {
+    expect(listPath("home_sections")).toBe("/dashboard/home");
+    expect(listPath("home_stats")).toBe("/dashboard/home");
+    expect(editPath("home_sections", "hero")).toBe("/dashboard/home?section=hero");
+    // The generic editor appends `&created=1` after a create, so a query must already be there.
+    expect(editPath("home_stats", "a b")).toBe("/dashboard/home?stat=a%20b");
+  });
 });
