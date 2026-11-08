@@ -42,8 +42,7 @@ export async function FooterChannels() {
             className={`${LINK} break-all`}
             {...(channel.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           >
-            {/* A Latin label ("X") on an Arabic page keeps its colon after it. */}
-            <bdi>{channel.label}</bdi>
+            {channel.label}
             {": "}
             {/* Numbers, addresses and links read left to right in both languages. */}
             <bdi dir="ltr">{channel.value}</bdi>
