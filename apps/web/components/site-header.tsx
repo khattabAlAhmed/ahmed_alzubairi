@@ -104,6 +104,7 @@ export async function QuickContact({ variant }: { variant: Variant }) {
   );
 }
 
+/** The public top bar: logo, main nav, consultation button, quick contact and switches (§6.1). */
 export function SiteHeader() {
   const t = useTranslations("Nav");
 

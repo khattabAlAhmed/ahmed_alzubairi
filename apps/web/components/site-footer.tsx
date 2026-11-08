@@ -55,6 +55,7 @@ export async function FooterChannels() {
   );
 }
 
+/** The public footer: brand and channels, section links, then the legal links (§6.1). */
 export function SiteFooter() {
   const t = useTranslations("Footer");
   const tNav = useTranslations("Nav");
