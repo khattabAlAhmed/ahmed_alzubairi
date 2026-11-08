@@ -173,7 +173,10 @@ export function SectionEditor({
 
   return (
     <form noValidate onSubmit={(event) => void editor.save(event)} className="mt-4 space-y-6">
-      {sectionKey !== "hero" && <p className="text-sm text-text-secondary">{t("sections.rowsNote")}</p>}
+      {/* Audiences edits its items here, so the note about the Content list doesn't apply. */}
+      {sectionKey !== "hero" && sectionKey !== "audiences" && (
+        <p className="text-sm text-text-secondary">{t("sections.rowsNote")}</p>
+      )}
       <LanguageTabs
         label={text.t("editor.languageTabs")}
         invalidLabel={text.t("editor.invalidTab")}
