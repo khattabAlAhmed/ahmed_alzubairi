@@ -9,6 +9,7 @@ import {
   type FieldRendererProps,
 } from "./field-text";
 import { OPTION_SETS, type FieldKind } from "./registry";
+import { RichTextField } from "../editor/rich-text-field";
 import { ImagesInput, UploadInput } from "./upload-input";
 
 function TextInput({ field, name, ctx }: FieldRendererProps) {
@@ -149,8 +150,7 @@ function UploadRenderer({ field, name, ctx }: FieldRendererProps) {
 }
 
 /**
- * One renderer per field kind. P2P-T13 adds `richtext` here; until then it
- * falls back to `LaterField`.
+ * One renderer per field kind. A kind without one falls back to `LaterField`.
  */
 export const FIELD_RENDERERS: Partial<Record<FieldKind, FieldRenderer>> = {
   text: TextInput,
@@ -166,6 +166,7 @@ export const FIELD_RENDERERS: Partial<Record<FieldKind, FieldRenderer>> = {
   image: UploadRenderer,
   file: UploadRenderer,
   images: UploadRenderer,
+  richtext: RichTextField,
 };
 
 /** A field whose kind has no renderer yet. Its saved value is sent back unchanged. */

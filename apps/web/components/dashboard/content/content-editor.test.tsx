@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { Editor } from "@tiptap/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import en from "@/messages/en/DashboardContent.json";
+import editorEn from "@/messages/en/DashboardEditor.json";
 import { GenericEditor, type ContentEditorProps } from "./content-editor";
 import { EditorHost } from "./editor-host";
 
@@ -120,12 +122,36 @@ describe("GenericEditor", () => {
     expect(label?.textContent).toBe(`\u2068Title ${en.editor.requiredMark}\u2069`);
   });
 
-  it("keeps a rich-text body as a note until its editor arrives", () => {
+  it("edits a rich-text body in each language and saves it as JSON", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ id: "new-id" }), { status: 201 }));
     render(
-      <NextIntlClientProvider locale="en" messages={{ DashboardContent: en }}>
+      <NextIntlClientProvider locale="en" messages={{ DashboardContent: en, DashboardEditor: editorEn }}>
         <EditorHost type="expertise_areas" row={null} refOptions={{}} mediaBase="" />
       </NextIntlClientProvider>,
     );
-    expect(screen.getAllByText(en.editor.laterField, { exact: false })).toHaveLength(2);
+    expect(screen.getAllByRole("toolbar", { name: editorEn.toolbar })).toHaveLength(2);
+    const areas = await waitFor(() => {
+      const found = document.querySelectorAll<HTMLElement & { editor?: Editor }>(".ProseMirror");
+      if (found.length !== 2) throw new Error("editors not ready");
+      return [...found];
+    });
+    expect(areas.map((area) => area.getAttribute("dir"))).toEqual(["rtl", "ltr"]);
+
+    act(() => {
+      areas[1].editor?.commands.setContent("<h2>About</h2><p><strong>Hello</strong></p>", { emitUpdate: true });
+    });
+    type(/Link name/, "governance");
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(body.bodyEn).toEqual({
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "About" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Hello", marks: [{ type: "bold" }] }] },
+      ],
+    });
+    expect(body.bodyAr).toBeUndefined();
   });
 });

@@ -18,7 +18,7 @@ export function RichTextField({ field, name, ctx }: FieldRendererProps) {
       lang={lang}
       value={isDoc(value) ? value : null}
       onChange={(doc) => ctx.setValue(name, doc)}
-      label={text.label(field) + text.required(ctx, field, name)}
+      label={text.requiredLabel(ctx, field, name)}
       hint={text.hint(field)}
       error={text.error(ctx, name)}
     />
