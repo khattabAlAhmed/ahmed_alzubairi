@@ -1,0 +1,20 @@
+{
+  "toolbar": "التنسيق",
+  "tools": {
+    "heading2": "عنوان",
+    "heading3": "عنوان فرعي",
+    "bold": "عريض",
+    "italic": "مائل",
+    "bulletList": "قائمة نقطية",
+    "orderedList": "قائمة مرقمة",
+    "blockquote": "اقتباس",
+    "link": "رابط"
+  },
+  "link": {
+    "address": "عنوان الرابط",
+    "hint": "يبدأ بـ https:// أو http:// أو mailto:. اتركه فارغًا لإزالة الرابط.",
+    "invalid": "استخدم عنوانًا يبدأ بـ https:// أو http:// أو mailto:.",
+    "apply": "تطبيق",
+    "cancel": "إلغاء"
+  }
+}
