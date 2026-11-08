@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { RETURN_PARAM } from "@/lib/auth/return-path";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { CONSULTATION_HREF } from "./nav-items";
 
 // `accent` with `on-accent`: `primary` would vanish on the dark background.
@@ -23,7 +24,11 @@ export function ConsultationButton({ className = "" }: { className?: string }) {
   return (
     <Link
       href={href}
-      className={`inline-flex h-9 items-center rounded-md bg-accent px-3 text-sm font-semibold whitespace-nowrap text-on-accent shadow-sm hover:opacity-90 ${className}`}
+      className={cx(
+        "inline-flex h-9 items-center rounded-md bg-accent px-3 text-sm font-semibold whitespace-nowrap text-on-accent shadow-sm hover:opacity-90",
+        FOCUS_RING,
+        className,
+      )}
     >
       {t("requestConsultation")}
     </Link>

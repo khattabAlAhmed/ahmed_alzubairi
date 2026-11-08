@@ -2,10 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { MoonIcon, SunIcon } from "./icons";
 
-const ICON_BUTTON =
-  "inline-flex size-9 items-center justify-center rounded-md hover:bg-text/10";
+const ICON_BUTTON = cx(
+  "inline-flex size-9 items-center justify-center rounded-md hover:bg-text/10",
+  FOCUS_RING,
+);
 
 export function ThemeSwitch() {
   const t = useTranslations("Header");

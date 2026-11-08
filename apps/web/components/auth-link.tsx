@@ -2,6 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 
 const CLASSES =
@@ -25,7 +26,7 @@ export function AuthLink() {
   return (
     <Link
       href={isSignedIn ? "/account" : "/sign-in"}
-      className={`${CLASSES} hover:bg-text/10`}
+      className={cx(CLASSES, "hover:bg-text/10", FOCUS_RING)}
     >
       {isSignedIn ? t("account") : t("signIn")}
     </Link>

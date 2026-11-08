@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { Link, usePathname } from "@/i18n/navigation";
 import { otherLocale } from "@/i18n/routing";
 
@@ -71,7 +72,10 @@ function LanguageLink({ query }: { query?: Record<string, string> }) {
       hrefLang={target}
       lang={target}
       aria-label={t("switchLanguageLabel")}
-      className="inline-flex h-9 min-w-9 items-center justify-center rounded-md px-1 text-sm font-semibold hover:bg-text/10"
+      className={cx(
+        "inline-flex h-9 min-w-9 items-center justify-center rounded-md px-1 text-sm font-semibold hover:bg-text/10",
+        FOCUS_RING,
+      )}
     >
       <span className="lg:hidden">{t("switchLanguageShort")}</span>
       <span className="hidden lg:inline">{t("switchLanguage")}</span>
