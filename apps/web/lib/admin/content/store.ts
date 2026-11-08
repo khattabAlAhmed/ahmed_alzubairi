@@ -8,10 +8,25 @@ import type { ContentStore, RowRef, WriteOutcome } from "./handlers";
 const UNIQUE_VIOLATION = "23505";
 const FOREIGN_KEY_VIOLATION = "23503";
 
-/** Projects read their images and linked services with the row. */
-const SELECT: Partial<Record<ContentType, string>> = {
+/**
+ * What each read asks for. Reads go through the user's client, and Postgres
+ * refuses a whole select that names a column outside the user's grant, so a
+ * table granted column by column needs an explicit list, never `*`.
+ *
+ * - `resources`: authenticated never reads `storage_key` (§9,
+ *   `20261107031900_storage.sql`). `columns.ts` strips it from API rows too.
+ * - `projects`: the row with its images and linked services.
+ */
+export const SELECT: Partial<Record<ContentType, string>> = {
   projects: "*, project_images(path, alt_ar, alt_en, position), project_services(service_id)",
+  resources:
+    "id, expertise_id, kind, title_ar, title_en, description_ar, description_en, access, status, created_at, updated_at",
 };
+
+/** The select for a type's reads: its list above, else every column. */
+export function selectFor(type: ContentType): string {
+  return SELECT[type] ?? "*";
+}
 
 /** Dashboard order: by position where the table has one, else newest first. */
 const ORDER: Record<ContentType, { column: string; ascending: boolean }> = {
@@ -61,7 +76,7 @@ export function createContentStore(
       const order = ORDER[type];
       const { data, error } = await user
         .from(type)
-        .select(SELECT[type] ?? "*")
+        .select(selectFor(type))
         .order(order.column, { ascending: order.ascending });
       if (error) throw new Error(`${type} list failed: ${error.code}`);
       return (data ?? []) as unknown as DbRow[];
@@ -70,7 +85,7 @@ export function createContentStore(
     async get(type, ref) {
       const { data, error } = await user
         .from(type)
-        .select(SELECT[type] ?? "*")
+        .select(selectFor(type))
         .eq(ref.column, ref.value)
         .maybeSingle();
       if (error) throw new Error(`${type} read failed: ${error.code}`);
