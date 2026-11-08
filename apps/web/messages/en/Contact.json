@@ -1,0 +1,39 @@
+{
+  "title": "Contact",
+  "intro": "Write to me through the form, or use one of the channels below.",
+  "channelsTitle": "Direct channels",
+  "email": "Email",
+  "whatsapp": "WhatsApp",
+  "linkedin": "LinkedIn",
+  "opensInNewTab": "(opens in a new tab)",
+  "formTitle": "Send a message",
+  "noAccount": "No account needed.",
+  "name": "Name",
+  "emailField": "Email",
+  "orgType": "Organization type",
+  "orgTypeChoose": "Choose one",
+  "orgTypes": {
+    "government": "Government",
+    "organization": "Organization",
+    "company": "Company",
+    "individual": "Individual"
+  },
+  "subject": "Subject",
+  "message": "Message",
+  "send": "Send message",
+  "sending": "Sending…",
+  "required": "Fill in this field.",
+  "emailInvalid": "Enter a valid email address.",
+  "tooLong": "This is too long. Keep it under {max} characters.",
+  "orgTypeRequired": "Choose an organization type.",
+  "networkError": "We couldn't send your message. Check your connection and try again.",
+  "sentTitle": "Your message was sent",
+  "sentText": "Thank you for writing. Your message has reached me.",
+  "sendAnother": "Send another message",
+  "errors": {
+    "validation_failed": "Some details aren't valid. Check them and try again.",
+    "rate_limited": "You've sent several messages in a short time. Please try again later.",
+    "forbidden": "We couldn't accept this message. Please use one of the direct channels instead.",
+    "internal_error": "Something went wrong on our side. Please try again."
+  }
+}
