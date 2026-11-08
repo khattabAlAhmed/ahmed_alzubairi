@@ -9,7 +9,7 @@ import {
   type JSONContent,
 } from "@tiptap/react";
 import { useTranslations } from "next-intl";
-import { Fragment, useId, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useState, type ReactNode } from "react";
 import { Button, TextField } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { cleanDoc } from "./allow-list";
@@ -134,7 +134,8 @@ function ToolDivider() {
 
 /**
  * An icon button. Its name is the tool's label, which also shows as a
- * tooltip on hover and on keyboard focus.
+ * tooltip on hover and on keyboard focus. The tooltip stays open while the
+ * pointer is on it, and Escape hides it (WCAG 1.4.13).
  */
 function ToolButton({
   label,
@@ -147,13 +148,41 @@ function ToolButton({
   onClick: () => void;
   children: ReactNode;
 }) {
+  const [active, setActive] = useState({ hover: false, focus: false });
+  const [dismissed, setDismissed] = useState(false);
+  const shown = active.hover || active.focus;
+
+  // Once the pointer and focus leave, the next hover shows it again.
+  if (!shown && dismissed) {
+    setDismissed(false);
+  }
+
+  useEffect(() => {
+    if (!shown) {
+      return;
+    }
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDismissed(true);
+    };
+    document.addEventListener("keydown", dismissOnEscape);
+    return () => document.removeEventListener("keydown", dismissOnEscape);
+  }, [shown]);
+
   return (
-    <span className="group relative inline-flex">
+    <span
+      className="group relative inline-flex"
+      onPointerEnter={() => setActive((state) => ({ ...state, hover: true }))}
+      onPointerLeave={() => setActive((state) => ({ ...state, hover: false }))}
+    >
       <button
         type="button"
         aria-label={label}
         aria-pressed={pressed}
         onClick={onClick}
+        onFocus={(event) =>
+          setActive((state) => ({ ...state, focus: event.currentTarget.matches(":focus-visible") }))
+        }
+        onBlur={() => setActive((state) => ({ ...state, focus: false }))}
         className={cx(
           "inline-flex size-8 items-center justify-center rounded",
           FOCUS_RING,
@@ -162,10 +191,17 @@ function ToolButton({
       >
         {children}
       </button>
-      {/* Centred under the button. Hidden with display, so it never widens the page while closed. */}
+      {/*
+        Centred under the button. The top padding bridges the gap, so the
+        pointer can move onto it. Hidden with display while closed, so it
+        never widens the page.
+      */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 hidden justify-center group-hover:flex group-has-[:focus-visible]:flex"
+        className={cx(
+          "absolute inset-x-0 top-full z-10 justify-center pt-1",
+          shown && !dismissed ? "flex" : "hidden",
+        )}
       >
         <span className="rounded bg-text px-2 py-1 text-xs font-semibold whitespace-nowrap text-background shadow-md">
           {label}

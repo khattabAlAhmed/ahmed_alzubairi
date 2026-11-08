@@ -72,12 +72,35 @@ describe("RichTextEditor", () => {
     setup("en");
     await editorElement();
     const bold = screen.getByRole("button", { name: en.tools.bold });
-    const tooltip = bold.nextElementSibling;
-    expect(tooltip?.getAttribute("aria-hidden")).toBe("true");
-    expect(tooltip?.textContent).toBe(en.tools.bold);
-    // Shown on hover and keyboard focus only; closed, it takes no space.
-    expect(tooltip?.className).toMatch(/(^| )hidden( |$)/);
-    expect(tooltip?.className).toContain("group-has-[:focus-visible]:flex");
+    const tooltip = () => bold.nextElementSibling as HTMLElement;
+    expect(tooltip().getAttribute("aria-hidden")).toBe("true");
+    expect(tooltip().textContent).toBe(en.tools.bold);
+    // Closed, it takes no space.
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+
+    fireEvent.pointerEnter(bold.parentElement as HTMLElement);
+    expect(tooltip().className).toMatch(/(^| )flex( |$)/);
+    // The tooltip sits inside the hovered group, so moving onto it keeps it open.
+    expect(tooltip().className).not.toContain("pointer-events-none");
+    expect(bold.parentElement?.contains(tooltip())).toBe(true);
+
+    fireEvent.pointerLeave(bold.parentElement as HTMLElement);
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+  });
+
+  it("hides an open tooltip on Escape, until the pointer leaves", async () => {
+    setup("en");
+    await editorElement();
+    const italic = screen.getByRole("button", { name: en.tools.italic });
+    const group = italic.parentElement as HTMLElement;
+    const tooltip = () => italic.nextElementSibling as HTMLElement;
+    fireEvent.pointerEnter(group);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+
+    fireEvent.pointerLeave(group);
+    fireEvent.pointerEnter(group);
+    expect(tooltip().className).toMatch(/(^| )flex( |$)/);
   });
 
   it("marks a tool as pressed once it applies to the selection", async () => {
