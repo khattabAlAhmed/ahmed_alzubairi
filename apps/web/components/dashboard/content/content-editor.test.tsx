@@ -51,10 +51,10 @@ describe("GenericEditor", () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ id: "new-id" }), { status: 201 }));
     renderEditor();
 
-    type(/^Link name/, "strategic-planning");
+    type(/Link name/, "strategic-planning");
     // Panels: Arabic first, English second.
-    type(/^Title/, "Strategic planning", 1);
-    type(/^Summary/, "Plans that work.", 1);
+    type(/Title/, "Strategic planning", 1);
+    type(/Summary/, "Plans that work.", 1);
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "published" } });
 
     expect(screen.getByText("Will be shown in: English")).toBeTruthy();
@@ -75,8 +75,8 @@ describe("GenericEditor", () => {
 
   it("shows why it can't be published, and doesn't send it", () => {
     renderEditor();
-    type(/^Link name/, "strategic-planning");
-    type(/^Title/, "تخطيط", 0);
+    type(/Link name/, "strategic-planning");
+    type(/Title/, "تخطيط", 0);
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "published" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -89,7 +89,7 @@ describe("GenericEditor", () => {
     renderEditor();
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(screen.getByText(en.editor.fixErrors)).toBeTruthy();
-    expect(screen.getByText(en.editor.required)).toBeTruthy();
+    expect(screen.getByText(en.editor.required, { exact: false })).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -113,12 +113,19 @@ describe("GenericEditor", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it("isolates labels, so English labels keep their punctuation in the RTL panel", () => {
+    renderEditor();
+    const arabicTitle = screen.getAllByLabelText(/Title/)[0];
+    const label = document.querySelector(`label[for="${arabicTitle.id}"]`);
+    expect(label?.textContent).toBe(`\u2068Title ${en.editor.requiredMark}\u2069`);
+  });
+
   it("keeps a rich-text body as a note until its editor arrives", () => {
     render(
       <NextIntlClientProvider locale="en" messages={{ DashboardContent: en }}>
         <EditorHost type="expertise_areas" row={null} refOptions={{}} mediaBase="" />
       </NextIntlClientProvider>,
     );
-    expect(screen.getAllByText(en.editor.laterField)).toHaveLength(2);
+    expect(screen.getAllByText(en.editor.laterField, { exact: false })).toHaveLength(2);
   });
 });
