@@ -103,6 +103,20 @@ describe("RichTextEditor", () => {
     expect(tooltip().className).toMatch(/(^| )flex( |$)/);
   });
 
+  it("survives a mouse click on a tool while the editor isn't focused", async () => {
+    setup("en");
+    await editorElement();
+    const bold = screen.getByRole("button", { name: en.tools.bold });
+    // A mouse click hovers, then focuses, in one batch: the focus update runs
+    // after React has cleared the event's currentTarget.
+    act(() => {
+      fireEvent.pointerEnter(bold.parentElement as HTMLElement);
+      fireEvent.focus(bold);
+      fireEvent.click(bold);
+    });
+    expect(screen.getByRole("button", { name: en.tools.bold })).toBe(bold);
+  });
+
   it("marks a tool as pressed once it applies to the selection", async () => {
     setup("en");
     const element = await editorElement();
