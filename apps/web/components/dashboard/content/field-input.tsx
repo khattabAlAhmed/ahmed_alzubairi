@@ -16,7 +16,7 @@ function TextInput({ field, name, ctx }: FieldRendererProps) {
   const value = String(ctx.values[name] ?? "");
   const common = {
     name,
-    label: text.label(field) + text.required(ctx, field, name),
+    label: text.requiredLabel(ctx, field, name),
     hint: text.hint(field),
     error: text.error(ctx, name),
     value,
@@ -77,13 +77,13 @@ function SelectInput({ field, name, ctx }: FieldRendererProps) {
   return (
     <Select
       name={name}
-      label={text.label(field) + text.required(ctx, field, name)}
+      label={text.requiredLabel(ctx, field, name)}
       hint={text.hint(field)}
       error={text.error(ctx, name)}
       value={String(ctx.values[name] ?? "")}
       onChange={(event) => ctx.setValue(name, event.target.value)}
     >
-      <option value="">{text.t("editor.none")}</option>
+      <option value="">{text.isolate(text.t("editor.none"))}</option>
       {options.map((option) => (
         <option key={option.id} value={option.id}>
           {option.title}
@@ -106,7 +106,7 @@ function ReferencesInput({ field, name, ctx }: FieldRendererProps) {
       <legend className="text-sm font-semibold">{text.label(field)}</legend>
       {options.length === 0 ? (
         <p className="mt-1 text-sm text-text-secondary">
-          {text.t("editor.none")}
+          {text.isolate(text.t("editor.none"))}
         </p>
       ) : (
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -174,7 +174,7 @@ function LaterField({ field }: FieldRendererProps) {
   return (
     <div>
       <p className="text-sm font-semibold">{text.label(field)}</p>
-      <p className="mt-1 text-sm text-text-secondary">{text.t("editor.laterField")}</p>
+      <p className="mt-1 text-sm text-text-secondary">{text.isolate(text.t("editor.laterField"))}</p>
     </div>
   );
 }

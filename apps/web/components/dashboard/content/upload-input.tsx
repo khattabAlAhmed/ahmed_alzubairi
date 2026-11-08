@@ -101,10 +101,10 @@ export function UploadInput({ field, name, ctx }: FieldRendererProps) {
   return (
     <div role="group" aria-labelledby={`${id}-label`}>
       <p id={`${id}-label`} className="text-sm font-semibold">
-        {text.label(field) + text.required(ctx, field, name)}
+        {text.requiredLabel(ctx, field, name)}
       </p>
       <p id={hintId} className="mt-1 text-sm text-text-secondary">
-        {isImage ? text.t("upload.imageHint") : text.t("upload.fileHint")}
+        {text.isolate(isImage ? text.t("upload.imageHint") : text.t("upload.fileHint"))}
       </p>
       {value !== "" && isImage && (
         <div className="mt-2">
@@ -112,7 +112,7 @@ export function UploadInput({ field, name, ctx }: FieldRendererProps) {
         </div>
       )}
       {(value !== "" && !isImage) || hasSavedFile ? (
-        <p className="mt-2 text-sm">{text.t("upload.attached")}</p>
+        <p className="mt-2 text-sm">{text.isolate(text.t("upload.attached"))}</p>
       ) : null}
       <div className="mt-2 flex flex-wrap gap-2">
         <UploadButton
@@ -159,7 +159,7 @@ export function ImagesInput({
   return (
     <fieldset>
       <legend className="text-sm font-semibold">{text.label(field)}</legend>
-      <p className="mt-1 text-sm text-text-secondary">{text.t("upload.imageHint")}</p>
+      <p className="mt-1 text-sm text-text-secondary">{text.isolate(text.t("upload.imageHint"))}</p>
       {images.length > 0 && (
         <ul className="mt-3 grid gap-4 md:grid-cols-2">
           {images.map((image, index) => (
