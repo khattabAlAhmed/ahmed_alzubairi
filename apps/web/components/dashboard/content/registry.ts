@@ -248,8 +248,12 @@ export function referenceTypes(type: ContentType): ContentType[] {
   return [...new Set(refs)];
 }
 
+/** Home sections and quick stats have their own page (P2P-T14). */
+export const HOME_EDITOR_PATH = "/dashboard/home";
+
 /** A type's list. */
 export function listPath(type: ContentType): string {
+  if (type === "home_sections" || type === "home_stats") return HOME_EDITOR_PATH;
   return `/dashboard/content?type=${type}`;
 }
 
@@ -258,7 +262,13 @@ export function newPath(type: ContentType): string {
   return `/dashboard/content/new?type=${type}`;
 }
 
-/** The edit page of a row, by id (or key for `home_sections`). */
+/**
+ * The edit page of a row, by id (or key for `home_sections`). Home sections
+ * and stats open on the home page editor, with that row's form open.
+ */
 export function editPath(type: ContentType, id: string): string {
-  return `/dashboard/content/edit?type=${type}&id=${encodeURIComponent(id)}`;
+  const ref = encodeURIComponent(id);
+  if (type === "home_sections") return `${HOME_EDITOR_PATH}?section=${ref}`;
+  if (type === "home_stats") return `${HOME_EDITOR_PATH}?stat=${ref}`;
+  return `/dashboard/content/edit?type=${type}&id=${ref}`;
 }
