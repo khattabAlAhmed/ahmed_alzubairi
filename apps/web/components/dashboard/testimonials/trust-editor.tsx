@@ -10,6 +10,7 @@ import { useFieldText, type RefOption } from "../content/field-text";
 import { inputNames, type Row } from "../content/form-values";
 import { CONTENT_CONFIG, type FieldDef } from "../content/registry";
 import { acceptFor, uploadFile, UploadError } from "../content/upload";
+import { PreviewPanel } from "../preview/preview-panel";
 import type { TrustType } from "./rows";
 
 function isLocalized(field: FieldDef): boolean {
@@ -169,6 +170,7 @@ export function TrustEditor({
         />
       </Card>
       <PublishPanel editor={editor} />
+      <PreviewPanel editor={editor} />
       <EditorActions editor={editor} />
     </form>
   );

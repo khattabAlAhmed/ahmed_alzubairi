@@ -1,0 +1,32 @@
+{
+  "heading": "Preview",
+  "intro": "Your unsaved changes, drawn with the public page's design. Nothing is saved or published from here.",
+  "show": "Show the preview",
+  "hide": "Hide the preview",
+  "language": "Language",
+  "languages": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "width": "Width",
+  "widths": {
+    "mobile": "Phone ({pixels} px)",
+    "desktop": "Desktop ({pixels} px)"
+  },
+  "frameTitle": "Preview of the public page in {language}",
+  "loading": "Loading the preview…",
+  "loadFailed": "The preview couldn't load. Close it and open it again.",
+  "draftNote": "Draft: visitors don't see it until it's published.",
+  "notPublicYet": "Won't appear publicly yet:",
+  "blockers": {
+    "no_consent": "The organization's consent isn't confirmed.",
+    "not_approved": "The admin hasn't approved it."
+  },
+  "hiddenName": "The organization's name is hidden, so visitors see the general label instead.",
+  "incomplete": "Not complete in {language}, so the public site won't show it in this language.",
+  "serviceLimits": "The public page also lists related projects and FAQs. They aren't shown in this preview.",
+  "expertiseLimits": "The public page also lists this area's services and projects. They aren't shown in this preview."
+}
