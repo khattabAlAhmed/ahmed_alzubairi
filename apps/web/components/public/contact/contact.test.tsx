@@ -52,6 +52,16 @@ describe("ContactForm", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("moves focus to the first invalid field, from this attempt's errors", () => {
+    render(<ContactForm />);
+    fill({ ...VALID, email: "nope", subject: "" });
+    submit();
+    expect(document.activeElement?.getAttribute("name")).toBe("email");
+    fill({ email: VALID.email });
+    submit();
+    expect(document.activeElement?.getAttribute("name")).toBe("subject");
+  });
+
   it("asks for an organization type", () => {
     render(<ContactForm />);
     fill({ ...VALID, orgType: "" });

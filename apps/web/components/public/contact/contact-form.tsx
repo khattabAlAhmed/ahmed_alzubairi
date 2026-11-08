@@ -15,6 +15,9 @@ import { Button, Select, TextArea, TextField } from "@/components/ui";
 type Field = keyof ContactRequest;
 type FieldErrors = Partial<Record<Field, string>>;
 
+/** The fields in the order they appear, so focus goes to the first invalid one. */
+const FIELD_ORDER: readonly Field[] = ["name", "email", "orgType", "subject", "message"];
+
 function value(form: FormData, name: Field) {
   const raw = form.get(name);
   return typeof raw === "string" ? raw : "";
@@ -73,7 +76,9 @@ export function ContactForm() {
     setErrors(found);
     setFormError(null);
     if (!body || Object.keys(found).length > 0) {
-      form.querySelector<HTMLElement>("[aria-invalid=true]")?.focus();
+      // From `found`, not the DOM: the new aria-invalid attributes aren't rendered yet.
+      const first = FIELD_ORDER.find((field) => found[field]);
+      if (first) form.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
       return;
     }
 
