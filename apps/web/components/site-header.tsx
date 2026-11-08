@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense, type SVGProps } from "react";
 import { contactChannels } from "@/components/public/contact";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { getSiteSettings } from "@/lib/content";
 import { AuthLink } from "./auth-link";
 import { ConsultationButton } from "./consultation-button";
@@ -73,7 +74,7 @@ export async function QuickContact({ variant }: { variant: Variant }) {
               <a
                 href={channel.href}
                 {...newTab}
-                className="inline-flex size-9 items-center justify-center rounded-md hover:bg-text/10"
+                className={cx("inline-flex size-9 items-center justify-center rounded-md hover:bg-text/10", FOCUS_RING)}
               >
                 <Icon />
                 <span className="sr-only">
@@ -85,7 +86,7 @@ export async function QuickContact({ variant }: { variant: Variant }) {
               <a
                 href={channel.href}
                 {...newTab}
-                className="flex items-center gap-3 rounded-md px-3 py-3 hover:bg-text/10"
+                className={cx("flex items-center gap-3 rounded-md px-3 py-3 hover:bg-text/10", FOCUS_RING, "focus-visible:-outline-offset-2")}
               >
                 <Icon />
                 <span>{channel.label}</span>
@@ -110,13 +111,18 @@ export function SiteHeader() {
     <header className="relative z-40 border-b border-text/10 bg-surface">
       <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center gap-x-2 gap-y-3 px-4 py-3">
         <SiteLogo />
-        <nav aria-label={t("mainLabel")} className="ms-4 hidden xl:block">
+        <nav aria-label={t("mainLabel")} className="ms-6 hidden xl:block">
           <ul className="flex items-center gap-1">
             {MAIN_NAV.map((item) => (
               <li key={item.href}>
                 <NavLink
                   href={item.href}
-                  className="rounded-md px-2 py-2 text-sm whitespace-nowrap hover:bg-text/10 aria-[current=page]:font-semibold"
+                  className={cx(
+                    "relative block rounded-md px-2.5 py-2 text-sm whitespace-nowrap hover:bg-text/10 aria-[current=page]:font-semibold",
+                    // A gold bar under the current page: gold as an accent, never as text (§13).
+                    "after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-accent after:opacity-0 aria-[current=page]:after:opacity-100",
+                    FOCUS_RING,
+                  )}
                 >
                   {t(item.label)}
                 </NavLink>

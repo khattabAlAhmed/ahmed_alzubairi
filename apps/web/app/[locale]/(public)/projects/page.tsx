@@ -4,6 +4,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ConsultationCta } from "@/components/public/parts";
 import { PageHero, parseProjectFilters, ProjectsList } from "@/components/public/projects";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { Skeleton } from "@/components/ui";
@@ -54,6 +55,7 @@ export default async function Projects({ params, searchParams }: Props) {
       <Suspense fallback={<ProjectsLoading />}>
         <ProjectsFromQuery locale={locale} searchParams={searchParams} />
       </Suspense>
+      <ConsultationCta />
     </main>
   );
 }

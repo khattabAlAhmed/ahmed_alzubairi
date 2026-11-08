@@ -71,7 +71,7 @@ export function ProjectsSection({
               {project.keyResult && (
                 <div className="mt-auto pt-5">
                   <p className="border-s-2 border-accent ps-3">
-                    <span className="block text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                    <span className="block text-xs font-semibold text-text-secondary">
                       {t("keyResult")}
                     </span>
                     <span className="mt-0.5 block text-lg font-semibold">{project.keyResult}</span>

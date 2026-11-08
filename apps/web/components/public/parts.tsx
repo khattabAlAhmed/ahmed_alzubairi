@@ -115,11 +115,14 @@ export function ProjectCards({ projects }: { projects: Project[] }) {
               {project.title}
             </Link>
           </h3>
+          {/* The padding sits outside the gold bar, so the bar spans the text only. */}
           {project.keyResult && (
-            <p className="mt-auto border-s-2 border-accent ps-3 pt-4">
-              <span className="block text-xs font-semibold text-text-secondary">{t("keyResult")}</span>
-              <span className="mt-0.5 block font-semibold">{project.keyResult}</span>
-            </p>
+            <div className="mt-auto pt-5">
+              <p className="border-s-2 border-accent ps-3">
+                <span className="block text-xs font-semibold text-text-secondary">{t("keyResult")}</span>
+                <span className="mt-0.5 block font-semibold">{project.keyResult}</span>
+              </p>
+            </div>
           )}
         </li>
       ))}
