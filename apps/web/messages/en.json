@@ -29,13 +29,15 @@
     "switchLanguageLabel": "Switch to Arabic",
     "signIn": "Sign in",
     "account": "My account",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "quickContact": "Quick contact"
   },
   "Footer": {
     "sectionsLabel": "Site sections",
     "legalLabel": "Legal links",
     "privacy": "Privacy policy",
-    "terms": "Terms of use"
+    "terms": "Terms of use",
+    "contactLabel": "Contact channels"
   },
   "Account": {
     "navLabel": "Account menu",

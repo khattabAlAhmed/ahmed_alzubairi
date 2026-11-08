@@ -5,8 +5,9 @@ import { connection } from "next/server";
 import { ServiceDetailPage } from "@/components/public/pages";
 import { getServiceProjects } from "@/components/public/pages/service-projects";
 import { routeSlug, staticSlugs } from "@/components/public/static-slugs";
+import { LanguageFallback } from "@/components/language-switch";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { routing } from "@/i18n/routing";
+import { otherLocale, routing } from "@/i18n/routing";
 import { getExpertiseAreas, getFaqs, getService } from "@/lib/content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -43,6 +44,8 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
+      {/* No translation: the switch goes to the services list instead (§6.1). */}
+      {!service.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/services" />}
       <ServiceDetailPage
         service={service}
         area={areas.find((area) => area.id === service.expertiseId) ?? null}
