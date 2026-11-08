@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { CARD, CONTAINER, EmptyNote, PageSection } from "@/components/public/projects/parts";
+import { CARD, CONTAINER, EmptyNote, PageSection } from "@/components/public/parts";
 import { cx } from "@/components/ui/cx";
 import type { Partner, Testimonial } from "@/lib/content";
 

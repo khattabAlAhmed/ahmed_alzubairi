@@ -4,7 +4,7 @@ import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, Project } from "@/lib/content";
 import { filterProjects, filterQuery, type ProjectFilters } from "./filters";
-import { CARD, CARD_LINK, CONTAINER, EmptyNote } from "./parts";
+import { CARD, CARD_LINK, CONTAINER, EmptyNote } from "../parts";
 
 const CHIP =
   "inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";

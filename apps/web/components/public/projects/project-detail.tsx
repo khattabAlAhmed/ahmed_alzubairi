@@ -4,7 +4,7 @@ import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, ProjectDetail } from "@/lib/content";
 import { AREA_PARAM } from "./filters";
-import { CONTAINER, PageHero, PageSection, TextBlock } from "./parts";
+import { CONTAINER, PageHero, PageSection, TextBlock } from "../parts";
 
 /** A fact in the side panel, shown only when it has a value. */
 function Fact({ label, value }: { label: string; value: string | null }) {
