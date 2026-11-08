@@ -1,22 +1,53 @@
 import { PERMISSIONS, type Permission } from "@repo/shared";
 import { describe, expect, it, vi } from "vitest";
 import { grantedPermissions } from "./access";
-import { DASHBOARD_SECTIONS, sectionPermissions, visibleSections } from "./sections";
+import { DASHBOARD_SECTIONS, sectionKeys, sectionPermissions, visibleSections } from "./sections";
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
 
 describe("dashboard menu", () => {
   it("checks each permission the menu uses once", () => {
-    expect(sectionPermissions()).toEqual([PERMISSIONS.CONTENT_MANAGE]);
+    expect(sectionPermissions()).toEqual([
+      PERMISSIONS.CONTENT_MANAGE,
+      PERMISSIONS.TESTIMONIALS_APPROVE,
+      PERMISSIONS.TEAM_MANAGE,
+    ]);
   });
 
-  it("shows Content to a member with content.manage", () => {
+  it("shows Content and Testimonials to a member with content.manage", () => {
     const keys = visibleSections(new Set([PERMISSIONS.CONTENT_MANAGE])).map((s) => s.key);
-    expect(keys).toEqual(["home", "content"]);
+    expect(keys).toEqual(["home", "content", "testimonials"]);
   });
 
-  it("hides Content from a member without content.manage", () => {
+  it("shows Testimonials to a member with only testimonials.approve", () => {
+    const keys = visibleSections(new Set([PERMISSIONS.TESTIMONIALS_APPROVE])).map((s) => s.key);
+    expect(keys).toEqual(["home", "testimonials"]);
+  });
+
+  it("shows Settings only with team.manage", () => {
+    expect(visibleSections(new Set([PERMISSIONS.TEAM_MANAGE])).map((s) => s.key)).toEqual([
+      "home",
+      "settings",
+    ]);
+    const withoutTeam = visibleSections(
+      new Set<Permission>([PERMISSIONS.CONTENT_MANAGE, PERMISSIONS.TESTIMONIALS_APPROVE]),
+    ).map((s) => s.key);
+    expect(withoutTeam).not.toContain("settings");
+  });
+
+  it("shows the admin every section", () => {
+    const keys = visibleSections(
+      new Set<Permission>([
+        PERMISSIONS.CONTENT_MANAGE,
+        PERMISSIONS.TESTIMONIALS_APPROVE,
+        PERMISSIONS.TEAM_MANAGE,
+      ]),
+    ).map((s) => s.key);
+    expect(keys).toEqual(["home", "content", "testimonials", "settings"]);
+  });
+
+  it("hides Content, Testimonials and Settings from a member with none of their permissions", () => {
     const keys = visibleSections(
       new Set<Permission>([PERMISSIONS.MESSAGES_VIEW, PERMISSIONS.DOCUMENTS_VIEW]),
     ).map((s) => s.key);
@@ -26,8 +57,12 @@ describe("dashboard menu", () => {
   it("gates every section but the overview with a permission key, never a role", () => {
     const values = new Set<string>(Object.values(PERMISSIONS));
     for (const section of DASHBOARD_SECTIONS) {
-      if (section.key === "home") expect(section.permission).toBeNull();
-      else expect(values.has(section.permission ?? "")).toBe(true);
+      const keys = sectionKeys(section);
+      if (section.key === "home") expect(keys).toEqual([]);
+      else {
+        expect(keys.length).toBeGreaterThan(0);
+        for (const key of keys) expect(values.has(key)).toBe(true);
+      }
     }
   });
 });

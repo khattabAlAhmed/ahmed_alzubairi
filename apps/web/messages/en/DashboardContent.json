@@ -2,14 +2,18 @@
   "navLabel": "Dashboard menu",
   "nav": {
     "home": "Overview",
-    "content": "Content"
+    "content": "Content",
+    "testimonials": "Testimonials and logos",
+    "settings": "Settings"
   },
   "home": {
     "title": "Dashboard",
     "intro": "Choose a section from the menu.",
     "noSections": "No sections are open to you yet. Ask the admin if you need access.",
     "sections": {
-      "content": "Pages, services, projects and the rest of the public site."
+      "content": "Pages, services, projects and the rest of the public site.",
+      "testimonials": "Testimonials and logos, with their letters, consent and the admin's approval.",
+      "settings": "Contact details, social links and the CV."
     }
   },
   "refusal": {
