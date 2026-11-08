@@ -7,13 +7,13 @@ import type { ReactNode } from "react";
  * browser gets only the dashboard namespaces.
  */
 export async function DashboardIntl({ children }: { children: ReactNode }) {
-  const [locale, { DashboardContent }] = await Promise.all([
+  const [locale, { DashboardContent, DashboardEditor }] = await Promise.all([
     getLocale(),
     getMessages(),
   ]);
 
   return (
-    <NextIntlClientProvider locale={locale} messages={{ DashboardContent }}>
+    <NextIntlClientProvider locale={locale} messages={{ DashboardContent, DashboardEditor }}>
       {children}
     </NextIntlClientProvider>
   );
