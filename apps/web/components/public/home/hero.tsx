@@ -3,11 +3,9 @@ import { useTranslations } from "next-intl";
 import { ConsultationButton } from "@/components/consultation-button";
 import { ButtonLink } from "@/components/ui";
 import type { HomeSection } from "@/lib/content";
+import { RING_ON_NAVY } from "../parts";
 
 type HeroContent = Extract<HomeSection, { key: "hero" }>["content"];
-
-// The shared buttons' focus ring is navy, which vanishes on the navy band.
-const RING_ON_NAVY = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent!";
 
 /** §6.2 #1. The page's only h1 is the name. */
 export function HeroSection({ content }: { content: HeroContent }) {

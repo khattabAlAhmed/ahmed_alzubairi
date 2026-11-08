@@ -46,11 +46,14 @@ export function ClientsContent({ partners, testimonials }: { partners: Partner[]
                   <blockquote className="whitespace-pre-line text-pretty text-lg leading-relaxed">
                     {testimonial.quote}
                   </blockquote>
-                  <figcaption className="mt-auto border-s-2 border-accent ps-3 pt-5">
-                    <span className="block font-semibold">{testimonial.author}</span>
-                    {testimonial.organization && (
-                      <span className="block text-sm text-text-secondary">{testimonial.organization}</span>
-                    )}
+                  <figcaption className="mt-auto pt-5">
+                    {/* The padding sits outside the gold bar, so the bar spans the name only. */}
+                    <span className="block border-s-2 border-accent ps-3">
+                      <span className="block font-semibold">{testimonial.author}</span>
+                      {testimonial.organization && (
+                        <span className="block text-sm text-text-secondary">{testimonial.organization}</span>
+                      )}
+                    </span>
                   </figcaption>
                 </figure>
               </li>

@@ -12,7 +12,8 @@ export type SectionBand = "plain" | "raised" | "navy";
 const BANDS: Record<SectionBand, string> = {
   plain: "bg-background text-text",
   raised: "bg-surface text-text",
-  navy: "bg-primary text-on-primary",
+  // The hairline keeps two navy sections in a row (hero, then stats) apart.
+  navy: "border-t border-on-primary/10 bg-primary text-on-primary",
 };
 
 /** A card that stands out from either band. */
@@ -23,10 +24,12 @@ export const CARD =
 export const CARD_LINK =
   "rounded-sm after:absolute after:inset-0 after:rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring hover:underline";
 
+/** The id a home section's h2 gets, for its `aria-labelledby`. */
 export function sectionHeadingId(key: string) {
   return `home-${key}-title`;
 }
 
+/** A home section: gold divider, h2, optional intro and "see all" link, then its content. */
 export function HomeSectionShell({
   sectionKey,
   heading,
