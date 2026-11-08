@@ -6,6 +6,7 @@ import { readOwnProfile } from "@/lib/auth/gates";
 import { canOpenDashboard } from "@/lib/auth/profile-access";
 import { grantedPermissions } from "./access";
 import { DashboardNavLink } from "./dashboard-nav-link";
+import { DashboardNavMenu } from "./dashboard-nav-menu";
 import { sectionPermissions, visibleSections } from "./sections";
 
 /**
@@ -33,26 +34,26 @@ export async function DashboardNav({
   const sections = visibleSections(granted);
 
   return (
-    <nav aria-label={t("navLabel")}>
-      <ul className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 md:flex-col md:overflow-visible md:pb-0">
-        {sections.map((section) => (
-          <li key={section.key}>
-            <DashboardNavLink href={section.href} exact={section.key === "home"}>
-              {t(`nav.${section.key}`)}
-            </DashboardNavLink>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <DashboardNavMenu label={t("navLabel")}>
+      {sections.map((section) => (
+        <li key={section.key}>
+          <DashboardNavLink href={section.href} exact={section.key === "home"}>
+            {t(`nav.${section.key}`)}
+          </DashboardNavLink>
+        </li>
+      ))}
+    </DashboardNavMenu>
   );
 }
 
 /** Shown while the menu's permissions are checked. */
 export function DashboardNavSkeleton() {
   return (
-    <div className="flex gap-2 md:flex-col" aria-hidden="true">
-      <Skeleton className="h-9 w-24 md:w-full" />
-      <Skeleton className="h-9 w-24 md:w-full" />
+    <div className="flex flex-col gap-2" aria-hidden="true">
+      {/* A phone shows the menu button; md and up show the column. */}
+      <Skeleton className="h-11 w-full md:hidden" />
+      <Skeleton className="hidden h-9 w-full md:block" />
+      <Skeleton className="hidden h-9 w-full md:block" />
     </div>
   );
 }
