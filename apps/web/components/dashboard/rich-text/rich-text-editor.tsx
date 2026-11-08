@@ -9,7 +9,7 @@ import {
   type JSONContent,
 } from "@tiptap/react";
 import { useTranslations } from "next-intl";
-import { useId, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useState, type ReactNode } from "react";
 import { Button, TextField } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { cleanDoc } from "./allow-list";
@@ -37,6 +37,8 @@ const TOOLS: readonly {
   key: ToolKey;
   active: (editor: Editor) => boolean;
   run: (editor: Editor) => void;
+  /** A divider goes before this tool, to group headings, marks and blocks. */
+  group?: boolean;
 }[] = [
   {
     key: "heading2",
@@ -48,10 +50,11 @@ const TOOLS: readonly {
     active: (e) => e.isActive("heading", { level: 3 }),
     run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
   },
-  { key: "bold", active: (e) => e.isActive("bold"), run: (e) => e.chain().focus().toggleBold().run() },
+  { key: "bold", group: true, active: (e) => e.isActive("bold"), run: (e) => e.chain().focus().toggleBold().run() },
   { key: "italic", active: (e) => e.isActive("italic"), run: (e) => e.chain().focus().toggleItalic().run() },
   {
     key: "bulletList",
+    group: true,
     active: (e) => e.isActive("bulletList"),
     run: (e) => e.chain().focus().toggleBulletList().run(),
   },
@@ -67,28 +70,144 @@ const TOOLS: readonly {
   },
 ];
 
+/**
+ * Toolbar icons, after Lucide (ISC). The list and quote icons are drawn for
+ * left-to-right text and mirror in an Arabic panel, where the bullets and
+ * the quote bar sit on the right.
+ */
+const ICONS: Record<ToolKey | "link", { paths: readonly string[]; mirror?: boolean }> = {
+  heading2: { paths: ["M4 12h8", "M4 18V6", "M12 18V6", "M21 18h-4c0-4 4-3 4-6 0-1.5-2-2.5-4-1"] },
+  heading3: {
+    paths: [
+      "M4 12h8",
+      "M4 18V6",
+      "M12 18V6",
+      "M17.5 10.5c1.7-1 3.5 0 3.5 1.5a2 2 0 0 1-2 2",
+      "M17 17.5c2 1.5 4 .3 4-1.5a2 2 0 0 0-2-2",
+    ],
+  },
+  bold: { paths: ["M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"] },
+  italic: { paths: ["M19 4h-9", "M14 20H5", "M15 4 9 20"] },
+  bulletList: {
+    paths: ["M3 6h.01", "M3 12h.01", "M3 18h.01", "M8 6h13", "M8 12h13", "M8 18h13"],
+    mirror: true,
+  },
+  orderedList: {
+    paths: ["M10 6h11", "M10 12h11", "M10 18h11", "M4 6h1v4", "M4 10h2", "M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"],
+    mirror: true,
+  },
+  blockquote: { paths: ["M17 6H3", "M21 12H8", "M21 18H8", "M3 12v6"], mirror: true },
+  link: {
+    paths: [
+      "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71",
+      "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71",
+    ],
+  },
+};
+
+function ToolIcon({ tool, lang }: { tool: ToolKey | "link"; lang: Locale }) {
+  const { paths, mirror } = ICONS[tool];
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={cx(mirror && lang === "ar" && "-scale-x-100")}
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  );
+}
+
+/** A thin line between tool groups. */
+function ToolDivider() {
+  return <span aria-hidden="true" className="mx-0.5 my-1 w-px self-stretch bg-text/20" />;
+}
+
+/**
+ * An icon button. Its name is the tool's label, which also shows as a
+ * tooltip on hover and on keyboard focus. The tooltip stays open while the
+ * pointer is on it, and Escape hides it (WCAG 1.4.13).
+ */
 function ToolButton({
+  label,
   pressed,
   onClick,
   children,
 }: {
+  label: string;
   pressed?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
+  const [active, setActive] = useState({ hover: false, focus: false });
+  const [dismissed, setDismissed] = useState(false);
+  const shown = active.hover || active.focus;
+
+  // Once the pointer and focus leave, the next hover shows it again.
+  if (!shown && dismissed) {
+    setDismissed(false);
+  }
+
+  useEffect(() => {
+    if (!shown) {
+      return;
+    }
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDismissed(true);
+    };
+    document.addEventListener("keydown", dismissOnEscape);
+    return () => document.removeEventListener("keydown", dismissOnEscape);
+  }, [shown]);
+
   return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      onClick={onClick}
-      className={cx(
-        "inline-flex h-8 items-center rounded px-2 text-xs font-semibold whitespace-nowrap",
-        FOCUS_RING,
-        pressed ? "bg-text text-background" : "hover:bg-text/10",
-      )}
+    <span
+      className="group relative inline-flex"
+      onPointerEnter={() => setActive((state) => ({ ...state, hover: true }))}
+      onPointerLeave={() => setActive((state) => ({ ...state, hover: false }))}
     >
-      {children}
-    </button>
+      <button
+        type="button"
+        aria-label={label}
+        aria-pressed={pressed}
+        onClick={onClick}
+        onFocus={(event) =>
+          setActive((state) => ({ ...state, focus: event.currentTarget.matches(":focus-visible") }))
+        }
+        onBlur={() => setActive((state) => ({ ...state, focus: false }))}
+        className={cx(
+          "inline-flex size-8 items-center justify-center rounded",
+          FOCUS_RING,
+          pressed ? "bg-text text-background" : "hover:bg-text/10",
+        )}
+      >
+        {children}
+      </button>
+      {/*
+        Centred under the button. The top padding bridges the gap, so the
+        pointer can move onto it. Hidden with display while closed, so it
+        never widens the page.
+      */}
+      <span
+        aria-hidden="true"
+        className={cx(
+          "absolute inset-x-0 top-full z-10 justify-center pt-1",
+          shown && !dismissed ? "flex" : "hidden",
+        )}
+      >
+        <span className="rounded bg-text px-2 py-1 text-xs font-semibold whitespace-nowrap text-background shadow-md">
+          {label}
+        </span>
+      </span>
+    </span>
   );
 }
 
@@ -218,19 +337,27 @@ export function RichTextEditor({
         role="toolbar"
         aria-label={t("toolbar")}
         aria-controls={`${id}-input`}
-        className="flex flex-wrap gap-1 rounded-t-md border border-text/30 bg-surface p-1"
+        className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-text/30 bg-surface p-1"
       >
         {TOOLS.map((tool) => (
-          <ToolButton
-            key={tool.key}
-            pressed={active?.[tool.key] ?? false}
-            onClick={() => editor && tool.run(editor)}
-          >
-            {t(`tools.${tool.key}`)}
-          </ToolButton>
+          <Fragment key={tool.key}>
+            {tool.group && <ToolDivider />}
+            <ToolButton
+              label={t(`tools.${tool.key}`)}
+              pressed={active?.[tool.key] ?? false}
+              onClick={() => editor && tool.run(editor)}
+            >
+              <ToolIcon tool={tool.key} lang={lang} />
+            </ToolButton>
+          </Fragment>
         ))}
-        <ToolButton pressed={active?.link ?? false} onClick={() => setLinking((open) => !open)}>
-          {t("tools.link")}
+        <ToolDivider />
+        <ToolButton
+          label={t("tools.link")}
+          pressed={active?.link ?? false}
+          onClick={() => setLinking((open) => !open)}
+        >
+          <ToolIcon tool="link" lang={lang} />
         </ToolButton>
       </div>
       {linking && editor && <LinkForm editor={editor} onDone={() => setLinking(false)} />}

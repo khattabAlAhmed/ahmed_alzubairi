@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { tiptapDocSchema, type TiptapDoc } from "@repo/shared";
 import type { Editor } from "@tiptap/react";
 import { NextIntlClientProvider } from "next-intl";
@@ -55,13 +55,92 @@ describe("RichTextEditor", () => {
     expect(english.getAttribute("lang")).toBe("en");
   });
 
-  it("names the editing area with its label, and shows every tool", async () => {
+  it("names the editing area with its label, and names every tool button", async () => {
     setup("en");
     expect(await screen.findByRole("textbox", { name: "Body" })).toBeTruthy();
     const toolbar = screen.getByRole("toolbar", { name: en.toolbar });
-    for (const label of Object.values(en.tools)) {
-      expect(toolbar.textContent).toContain(label);
+    const buttons = within(toolbar).getAllByRole("button");
+    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(Object.values(en.tools));
+    for (const button of buttons) {
+      expect(button.getAttribute("type")).toBe("button");
+      expect(button.getAttribute("aria-pressed")).toBe("false");
+      expect(button.className).toContain("focus-visible:outline-ring");
     }
+  });
+
+  it("shows each tool's label as a tooltip, hidden from screen readers", async () => {
+    setup("en");
+    await editorElement();
+    const bold = screen.getByRole("button", { name: en.tools.bold });
+    const tooltip = () => bold.nextElementSibling as HTMLElement;
+    expect(tooltip().getAttribute("aria-hidden")).toBe("true");
+    expect(tooltip().textContent).toBe(en.tools.bold);
+    // Closed, it takes no space.
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+
+    fireEvent.pointerEnter(bold.parentElement as HTMLElement);
+    expect(tooltip().className).toMatch(/(^| )flex( |$)/);
+    // The tooltip sits inside the hovered group, so moving onto it keeps it open.
+    expect(tooltip().className).not.toContain("pointer-events-none");
+    expect(bold.parentElement?.contains(tooltip())).toBe(true);
+
+    fireEvent.pointerLeave(bold.parentElement as HTMLElement);
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+  });
+
+  it("hides an open tooltip on Escape, until the pointer leaves", async () => {
+    setup("en");
+    await editorElement();
+    const italic = screen.getByRole("button", { name: en.tools.italic });
+    const group = italic.parentElement as HTMLElement;
+    const tooltip = () => italic.nextElementSibling as HTMLElement;
+    fireEvent.pointerEnter(group);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(tooltip().className).toMatch(/(^| )hidden( |$)/);
+
+    fireEvent.pointerLeave(group);
+    fireEvent.pointerEnter(group);
+    expect(tooltip().className).toMatch(/(^| )flex( |$)/);
+  });
+
+  it("marks a tool as pressed once it applies to the selection", async () => {
+    setup("en");
+    const element = await editorElement();
+    act(() => {
+      element.editor?.commands.selectAll();
+    });
+    const bold = screen.getByRole("button", { name: en.tools.bold });
+    fireEvent.click(bold);
+    await waitFor(() => expect(bold.getAttribute("aria-pressed")).toBe("true"));
+    fireEvent.click(bold);
+    await waitFor(() => expect(bold.getAttribute("aria-pressed")).toBe("false"));
+  });
+
+  it("opens the link form from the keyboard, as a native button", async () => {
+    setup("en");
+    await editorElement();
+    const link = screen.getByRole("button", { name: en.tools.link });
+    link.focus();
+    expect(document.activeElement).toBe(link);
+    // A native <button> turns Enter and Space into a click.
+    fireEvent.click(link);
+    expect(screen.getByLabelText(en.link.address)).toBeTruthy();
+    expect(link.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("mirrors the list and quote icons in the Arabic panel only", async () => {
+    setup("ar");
+    await editorElement();
+    const mirrored = (name: string) =>
+      screen.getByRole("button", { name }).querySelector("svg")?.getAttribute("class") ?? "";
+    expect(mirrored(en.tools.bulletList)).toContain("-scale-x-100");
+    expect(mirrored(en.tools.blockquote)).toContain("-scale-x-100");
+    expect(mirrored(en.tools.bold)).not.toContain("-scale-x-100");
+    cleanup();
+
+    setup("en");
+    await editorElement();
+    expect(mirrored(en.tools.bulletList)).not.toContain("-scale-x-100");
   });
 
   it("refuses a javascript: link in the link form", async () => {
