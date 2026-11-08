@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ProjectDetailPage, routeSlug, staticSlugs } from "@/components/public/projects";
 import { LanguageFallback } from "@/components/language-switch";
-import { ConsultationCta } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { otherLocale, routing } from "@/i18n/routing";
 import { getExpertiseAreas, getProject } from "@/lib/content";
@@ -42,8 +41,6 @@ export default async function ProjectPage({ params }: Props) {
       {/* No translation: the switch goes to the projects list instead (§6.1). */}
       {!project.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/projects" />}
       <ProjectDetailPage project={project} area={areas.find((area) => area.id === project.expertiseId) ?? null} />
-      {/* Every section page ends with the way to a consultation, like expertise and services. */}
-      <ConsultationCta />
     </main>
   );
 }
