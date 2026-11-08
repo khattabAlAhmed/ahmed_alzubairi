@@ -1,14 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { CloseIcon, MenuIcon } from "./icons";
 import { MAIN_NAV } from "./nav-items";
 import { NavLink } from "./nav-link";
 
 const PANEL_ID = "mobile-menu";
 
-export function MobileMenu() {
+/** `extra` holds what the header row hides on small screens: sign-in and quick contact. */
+export function MobileMenu({ extra }: { extra?: ReactNode }) {
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const [open, setOpen] = useState(false);
@@ -38,26 +39,32 @@ export function MobileMenu() {
       >
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>
-      <nav
+      <div
         id={PANEL_ID}
-        aria-label={tNav("mainLabel")}
         hidden={!open}
         className="absolute inset-x-0 top-full border-b border-text/10 bg-surface shadow-md"
       >
-        <ul className="mx-auto max-w-7xl px-4 py-2">
-          {MAIN_NAV.map((item) => (
-            <li key={item.href}>
-              <NavLink
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-3 hover:bg-text/10 aria-[current=page]:font-semibold"
-              >
-                {tNav(item.label)}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+        <nav aria-label={tNav("mainLabel")}>
+          <ul className="mx-auto max-w-7xl px-4 py-2">
+            {MAIN_NAV.map((item) => (
+              <li key={item.href}>
+                <NavLink
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-3 hover:bg-text/10 aria-[current=page]:font-semibold"
+                >
+                  {tNav(item.label)}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        {extra && (
+          <div className="mx-auto max-w-7xl px-4">
+            {extra}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

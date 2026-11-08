@@ -3,8 +3,9 @@ import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ExpertiseDetailPage } from "@/components/public/pages";
+import { LanguageFallback } from "@/components/language-switch";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { routing } from "@/i18n/routing";
+import { otherLocale, routing } from "@/i18n/routing";
 import { getExpertiseArea, getProjects, getServices } from "@/lib/content";
 import { routeSlug, staticSlugs } from "@/components/public/static-slugs";
 
@@ -38,6 +39,8 @@ export default async function ExpertiseArea({ params }: Props) {
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
+      {/* No translation: the switch goes to the expertise list instead (§6.1). */}
+      {!area.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/expertise" />}
       <ExpertiseDetailPage
         area={area}
         services={services.filter((service) => service.expertiseId === area.id)}

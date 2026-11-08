@@ -42,6 +42,10 @@ vi.mock("next/navigation", () => ({
     throw new Error("NOT_FOUND");
   },
 }));
+// Shows where a page sends the language switch when it has no translation (§6.1).
+vi.mock("@/components/language-switch", () => ({
+  LanguageFallback: ({ href }: { href: string }) => <span data-testid="language-fallback">{href}</span>,
+}));
 vi.mock("@/components/consultation-button", () => ({
   ConsultationButton: () => <button type="button">requestConsultation</button>,
 }));
@@ -334,6 +338,18 @@ describe("about, expertise and services routes", () => {
 
   it("about: returns not-found when the page isn't published in this language", async () => {
     await expect(aboutRoute.default(params("en"))).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("expertise area: an Arabic-only area sends the language switch to the expertise list", async () => {
+    mocks.area = { ...area, availableIn: ["ar"] };
+    render(await expertiseAreaRoute.default(params("ar")));
+    expect(screen.getByTestId("language-fallback").textContent).toBe("/expertise");
+  });
+
+  it("expertise area: an area in both languages keeps the normal language switch", async () => {
+    mocks.area = { ...area, availableIn: ["ar", "en"] };
+    render(await expertiseAreaRoute.default(params("ar")));
+    expect(screen.queryByTestId("language-fallback")).toBeNull();
   });
 
   it("expertise area: returns not-found for an unpublished area", async () => {

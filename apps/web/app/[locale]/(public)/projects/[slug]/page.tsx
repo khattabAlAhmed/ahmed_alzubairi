@@ -3,8 +3,9 @@ import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ProjectDetailPage, routeSlug, staticSlugs } from "@/components/public/projects";
+import { LanguageFallback } from "@/components/language-switch";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { routing } from "@/i18n/routing";
+import { otherLocale, routing } from "@/i18n/routing";
 import { getExpertiseAreas, getProject } from "@/lib/content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -37,6 +38,8 @@ export default async function ProjectPage({ params }: Props) {
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
+      {/* No translation: the switch goes to the projects list instead (§6.1). */}
+      {!project.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/projects" />}
       <ProjectDetailPage project={project} area={areas.find((area) => area.id === project.expertiseId) ?? null} />
     </main>
   );

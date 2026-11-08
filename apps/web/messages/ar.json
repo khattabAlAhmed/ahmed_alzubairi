@@ -29,13 +29,15 @@
     "switchLanguageLabel": "التبديل إلى الإنجليزية",
     "signIn": "تسجيل الدخول",
     "account": "حسابي",
-    "signOut": "تسجيل الخروج"
+    "signOut": "تسجيل الخروج",
+    "quickContact": "تواصل سريع"
   },
   "Footer": {
     "sectionsLabel": "أقسام الموقع",
     "legalLabel": "روابط قانونية",
     "privacy": "سياسة الخصوصية",
-    "terms": "شروط الاستخدام"
+    "terms": "شروط الاستخدام",
+    "contactLabel": "قنوات التواصل"
   },
   "Account": {
     "navLabel": "قائمة الحساب",
