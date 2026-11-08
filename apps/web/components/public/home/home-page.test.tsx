@@ -122,20 +122,74 @@ describe("home page", () => {
     expect(shownSections()).toEqual(["hero", "contact"]);
   });
 
-  it("leaves out media and latest when they have nothing published", async () => {
-    content.sections = [section("media", 1), section("latest", 2), section("contact", 3)];
-    await renderPage();
-    expect(shownSections()).toEqual(["contact"]);
-  });
-
-  it("shows media and latest when they have published content", async () => {
-    content.sections = [section("media", 1), section("latest", 2)];
+  it("never reads or shows media and latest, whose pages come in Phase 5", async () => {
+    // Seed-like data: every section is visible and media, posts and resources exist.
+    content.sections = [
+      "hero",
+      "stats",
+      "expertise",
+      "audiences",
+      "services",
+      "projects",
+      "partners",
+      "testimonials",
+      "media",
+      "latest",
+      "newsletter",
+      "contact",
+    ].map((key, index) => section(key as HomeSection["key"], index + 1));
+    content.projects = [
+      {
+        id: "j1",
+        slug: "example-project",
+        expertiseId: null,
+        orgType: null,
+        title: "Example project",
+        organization: null,
+        goal: "Goal",
+        keyResult: null,
+        isFeatured: true,
+        coverUrl: null,
+      },
+    ];
     content.media = [
       { id: "m1", category: "events", title: "Talk", outlet: null, date: null, imageUrl: null, url: null, videoUrl: null },
     ];
+    content.posts = [
+      {
+        id: "b1",
+        slug: "example-article",
+        title: "Example article",
+        excerpt: null,
+        coverUrl: null,
+        readingMinutes: 4,
+        publishedAt: "2026-10-01T09:00:00Z",
+      },
+    ];
     content.resources = [{ id: "r1", kind: "guide", title: "Guide", description: null, access: "direct" }];
-    await renderPage();
-    expect(shownSections()).toEqual(["media", "latest"]);
+
+    for (const locale of ["ar", "en"]) {
+      content.calls = [];
+      await renderPage(locale);
+      expect(shownSections()).toEqual([
+        "hero",
+        "stats",
+        "expertise",
+        "audiences",
+        "services",
+        "projects",
+        "partners",
+        "testimonials",
+        "contact",
+      ]);
+      const hrefs = [...document.querySelectorAll("a[href]")].map((link) => link.getAttribute("href") ?? "");
+      expect(hrefs.length).toBeGreaterThan(0);
+      expect(hrefs.filter((href) => /(^|\/)(media|blog|resources)(\/|$)/.test(href))).toEqual([]);
+      expect(content.calls).not.toContain("media");
+      expect(content.calls).not.toContain("posts");
+      expect(content.calls).not.toContain("resources");
+      cleanup();
+    }
   });
 
   it("leaves out a list section with no rows, and stats with no values", async () => {
@@ -163,7 +217,7 @@ describe("home page", () => {
     content.sections = [
       section("hero", 1),
       section("expertise", 2),
-      section("media", 3), // left out: no media
+      section("media", 3), // left out: waits for its Phase 5 page
       section("partners", 4),
       section("testimonials", 5),
       section("contact", 6),
