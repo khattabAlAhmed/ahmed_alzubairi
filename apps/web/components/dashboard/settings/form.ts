@@ -69,6 +69,8 @@ export function buildChanges(
 
   // Rows left fully empty are dropped; a half-filled row needs its other side.
   const links: SocialLinkInput[] = [];
+  // The form row of each kept link, so schema issues land on the right row.
+  const rowOf: number[] = [];
   values.socialLinks.forEach((link, index) => {
     const platform = link.platform.trim();
     const url = link.url.trim();
@@ -76,6 +78,7 @@ export function buildChanges(
     if (platform === "") errors[`social.${index}.platform`] = "required";
     if (url === "") errors[`social.${index}.url`] = "required";
     links.push({ platform, url });
+    rowOf.push(index);
   });
   if (links.length > MAX_SOCIAL_LINKS) errors.socialLinks = "tooMany";
   const linksHaveErrors = Object.keys(errors).some(
@@ -88,9 +91,10 @@ export function buildChanges(
     } else {
       // Point at the row and side the schema refused.
       for (const issue of parsed.error.issues) {
-        const [, index, side] = issue.path;
-        if (typeof index === "number" && (side === "platform" || side === "url")) {
-          errors[`social.${index}.${side}`] = "invalid";
+        const [, position, side] = issue.path;
+        const row = typeof position === "number" ? rowOf[position] : undefined;
+        if (row !== undefined && (side === "platform" || side === "url")) {
+          errors[`social.${row}.${side}`] = "invalid";
         } else {
           errors.socialLinks = "invalid";
         }

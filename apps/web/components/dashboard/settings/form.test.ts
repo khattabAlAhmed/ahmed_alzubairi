@@ -55,6 +55,17 @@ describe("buildChanges", () => {
     ).toEqual({ "social.0.url": "invalid" });
   });
 
+  it("puts a schema error on the right row when an empty row comes first", () => {
+    const values = {
+      ...toValues(saved),
+      socialLinks: [
+        { platform: "", url: "" },
+        { platform: "Bad", url: "javascript:alert(1)" },
+      ],
+    };
+    expect(buildChanges(values, saved).errors).toEqual({ "social.1.url": "invalid" });
+  });
+
   it("can remove every social link", () => {
     expect(buildChanges({ ...toValues(saved), socialLinks: [] }, saved).changes).toEqual([
       { key: "social_links", value: [] },
