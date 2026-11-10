@@ -39,10 +39,15 @@ function images(row: ProjectRow, locale: Locale): ProjectImage[] {
     });
 }
 
+/** The one rule for "public in this language", shared by every read below. */
+function isListed(row: Record<string, unknown>, locale: Locale) {
+  return isPublicIn("projects", row, locale);
+}
+
 function toProject(row: ProjectRow, locale: Locale): Project | null {
   const title = text(row, "title", locale);
   const goal = text(row, "goal", locale);
-  if (!isPublicIn("projects", row, locale) || !title || !goal) return null;
+  if (!isListed(row, locale) || !title || !goal) return null;
   const orgType = orgTypeSchema.safeParse(row.org_type);
   return {
     id: row.id,
@@ -96,4 +101,22 @@ export async function getProject(slug: string, locale: Locale): Promise<ProjectD
     serviceIds: (row.project_services ?? []).map((link) => link.service_id),
     availableIn: publicLocales("projects", row),
   };
+}
+
+/**
+ * True when `getProject` would return this slug in this language. Not cached,
+ * so the proxy can call it: a `"use cache"` function throws there. It reads
+ * one row and only the columns the rule needs: no images, no organization name.
+ */
+export async function hasProject(slug: string, locale: Locale): Promise<boolean> {
+  const rows = rowsOrThrow<Record<string, unknown>>(
+    await createServiceClient()
+      .from("projects")
+      .select(`slug, status, title_${locale}, goal_${locale}, hide_org_name, org_label_${locale}`)
+      .eq("slug", slug)
+      .eq("status", "published")
+      .limit(1),
+    "projects",
+  );
+  return rows.some((row) => row.slug === slug && isListed(row, locale));
 }

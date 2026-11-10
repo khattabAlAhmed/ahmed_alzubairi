@@ -21,10 +21,15 @@ type ExpertiseRow = {
   status: string;
 };
 
+/** The one rule for "public in this language", shared by every read below. */
+function isListed(row: Record<string, unknown>, locale: Locale) {
+  return isPublicIn("expertise_areas", row, locale);
+}
+
 function toArea(row: ExpertiseRow, locale: Locale): ExpertiseArea | null {
   const title = text(row, "title", locale);
   const summary = text(row, "summary", locale);
-  if (!isPublicIn("expertise_areas", row, locale) || !title || !summary) return null;
+  if (!isListed(row, locale) || !title || !summary) return null;
   return { id: row.id, slug: row.slug, title, summary };
 }
 
@@ -71,4 +76,22 @@ export async function getExpertiseArea(
     body: richText(row, "body", locale),
     availableIn: publicLocales("expertise_areas", row),
   };
+}
+
+/**
+ * True when `getExpertiseArea` would return this slug in this language. Not
+ * cached, so the proxy can call it: a `"use cache"` function throws there. It
+ * reads one row and only the columns the rule needs.
+ */
+export async function hasExpertiseArea(slug: string, locale: Locale): Promise<boolean> {
+  const rows = rowsOrThrow<Record<string, unknown>>(
+    await createServiceClient()
+      .from("expertise_areas")
+      .select(`slug, status, title_${locale}, summary_${locale}`)
+      .eq("slug", slug)
+      .eq("status", "published")
+      .limit(1),
+    "expertise_areas",
+  );
+  return rows.some((row) => row.slug === slug && isListed(row, locale));
 }

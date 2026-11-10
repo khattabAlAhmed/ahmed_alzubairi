@@ -15,6 +15,27 @@ vi.mock("@clerk/nextjs/server", () => ({
       handler(async () => session, request),
 }));
 
+/** Each check answers from this list of public "type/locale/slug" keys, or throws. */
+const lookup = vi.hoisted(() => ({
+  public: new Set<string>(),
+  fails: false,
+  calls: [] as string[],
+}));
+
+vi.mock("./lib/content", () => {
+  const check = (type: string) => async (slug: string, locale: string) => {
+    const key = `${type}/${locale}/${slug}`;
+    lookup.calls.push(key);
+    if (lookup.fails) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set.");
+    return lookup.public.has(key);
+  };
+  return {
+    hasService: check("services"),
+    hasProject: check("projects"),
+    hasExpertiseArea: check("expertise"),
+  };
+});
+
 const { default: proxy } = await import("./proxy");
 
 const ORIGIN = "http://localhost:3000";
@@ -28,7 +49,20 @@ function request(path: string, headers?: HeadersInit) {
 
 beforeEach(() => {
   session.isAuthenticated = false;
+  lookup.public = new Set([
+    "services/en/governance-review",
+    "services/ar/governance-review",
+    "services/en/english-only",
+    "projects/ar/school-program",
+    "expertise/en/governance",
+    "services/ar/حوكمة",
+  ]);
+  lookup.fails = false;
+  lookup.calls = [];
 });
+
+/** How Next reports a rewrite: the target URL in this header. */
+const rewrittenTo = (response: Response) => response.headers.get("x-middleware-rewrite");
 
 describe("language routing", () => {
   it("redirects / to /ar, whatever the browser asks for", async () => {
@@ -104,5 +138,83 @@ describe("API routes", () => {
 
   it("leaves public routes public", async () => {
     expect((await request("/api/contact")).status).toBe(200);
+  });
+});
+
+describe("detail pages", () => {
+  it.each([
+    ["/en/services/no-such-service", "en"],
+    ["/ar/services/no-such-service", "ar"],
+    ["/en/projects/no-such-project", "en"],
+    ["/ar/projects/no-such-project", "ar"],
+    ["/en/expertise/no-such-area", "en"],
+    ["/ar/expertise/no-such-area", "ar"],
+  ])("answers a missing or unpublished %s with a 404", async (path, locale) => {
+    const response = await request(path);
+    expect(response.status).toBe(404);
+    expect(rewrittenTo(response)).toBe(`${ORIGIN}/${locale}/not-found`);
+  });
+
+  it("answers a page that isn't in this language the same way", async () => {
+    const missing = await request("/ar/services/no-such-service");
+    const otherLanguage = await request("/ar/services/english-only");
+    expect(otherLanguage.status).toBe(404);
+    expect(rewrittenTo(otherLanguage)).toBe(rewrittenTo(missing));
+    expect([...otherLanguage.headers.keys()].sort()).toEqual([...missing.headers.keys()].sort());
+  });
+
+  it.each([
+    "/en/services/governance-review",
+    "/ar/services/governance-review",
+    "/en/services/english-only",
+    "/ar/projects/school-program",
+    "/en/expertise/governance",
+  ])("serves the published %s as it is", async (path) => {
+    const response = await request(path);
+    expect(response.status).toBe(200);
+    expect(rewrittenTo(response)).toBeNull();
+  });
+
+  it("looks up the slug decoded, as the page reads it", async () => {
+    const response = await request(`/ar/services/${encodeURIComponent("حوكمة")}`);
+    expect(response.status).toBe(200);
+    expect(lookup.calls).toEqual(["services/ar/حوكمة"]);
+  });
+
+  it.each([
+    "/en/services",
+    "/ar/projects",
+    "/en/expertise",
+    "/en",
+    "/en/about",
+    "/en/no-such-page",
+    "/en/services/governance-review/extra",
+    "/en/faq/no-such-service",
+    "/services/no-such-service",
+    "/api/contact",
+    "/api/services/no-such-service",
+  ])("does no lookup for %s", async (path) => {
+    const response = await request(path);
+    expect(response.status).not.toBe(404);
+    expect(lookup.calls).toEqual([]);
+  });
+
+  it("does no lookup for a protected page", async () => {
+    const response = await request("/en/dashboard/services/no-such-service");
+    expect(response.status).toBe(307);
+    expect(lookup.calls).toEqual([]);
+  });
+
+  it.each([
+    "/en/services/no-such-service",
+    "/ar/projects/no-such-project",
+    "/en/expertise/no-such-area",
+    "/en/services/governance-review",
+  ])("passes %s on when the lookup fails", async (path) => {
+    lookup.fails = true;
+    const response = await request(path);
+    expect(lookup.calls).toHaveLength(1);
+    expect(response.status).toBe(200);
+    expect(rewrittenTo(response)).toBeNull();
   });
 });
