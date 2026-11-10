@@ -207,6 +207,38 @@ describe("RichTextEditor", () => {
     }
   });
 
+  it.each([
+    ["ar", "en", ar, "rtl"],
+    ["en", "ar", en, "ltr"],
+  ] as const)(
+    "gives the link form the %s UI's direction on the %s content tab",
+    async (ui, tab, messages, direction) => {
+      // The language tab panel sets the content's direction around the editor.
+      const onChange = vi.fn<(doc: TiptapDoc) => void>();
+      render(
+        <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: messages }}>
+          <div lang={tab} dir={tab === "ar" ? "rtl" : "ltr"}>
+            <RichTextEditor lang={tab} value={doc} onChange={onChange} label="Body" />
+          </div>
+        </NextIntlClientProvider>,
+      );
+      const content = await editorElement();
+      fireEvent.click(screen.getByRole("button", { name: messages.tools.link }));
+      const address = screen.getByLabelText(messages.link.address);
+      const hint = document.getElementById(`${address.id}-hint`) as HTMLElement;
+
+      // The nearest direction and language above the hint are the UI's.
+      expect(hint.closest("[dir]")?.getAttribute("dir")).toBe(direction);
+      expect(hint.closest("[lang]")?.getAttribute("lang")).toBe(ui);
+      // The address stays left to right, and the content keeps its tab's direction.
+      expect(address.getAttribute("dir")).toBe("ltr");
+      expect(content.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+      // The toolbar isn't part of the form: it still follows the tab.
+      const toolbar = screen.getByRole("toolbar", { name: messages.toolbar });
+      expect(toolbar.closest("[dir]")?.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+    },
+  );
+
   it("saves pasted HTML as clean JSON", async () => {
     const { onChange } = setup("en", null);
     const element = await editorElement();

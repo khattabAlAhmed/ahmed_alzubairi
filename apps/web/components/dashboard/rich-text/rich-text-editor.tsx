@@ -8,10 +8,11 @@ import {
   type Editor,
   type JSONContent,
 } from "@tiptap/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useId, useState, type ReactNode } from "react";
 import { Button, FieldError, FieldHint, TextField } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { localeDirection } from "@/i18n/routing";
 import { cleanDoc } from "./allow-list";
 import { isAllowedLink, richTextExtensions } from "./extensions";
 
@@ -221,9 +222,14 @@ const LTR_TOKENS = {
   ltr: (chunks: ReactNode) => <bdi dir="ltr">{chunks}</bdi>,
 };
 
-/** The link form under the toolbar: add, change or remove the selection's link. */
+/**
+ * The link form under the toolbar: add, change or remove the selection's link.
+ * Its text is in the UI language, so it takes the UI's language and direction,
+ * not the content panel's.
+ */
 function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
   const t = useTranslations("DashboardEditor");
+  const locale = useLocale();
   const id = useId();
   const [href, setHref] = useState<string>(() => editor.getAttributes("link").href ?? "");
   const [error, setError] = useState(false);
@@ -244,7 +250,11 @@ function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 border-x border-text/30 p-2 sm:flex-row sm:items-end">
+    <div
+      lang={locale}
+      dir={localeDirection(locale)}
+      className="flex flex-col gap-2 border-x border-text/30 p-2 sm:flex-row sm:items-end"
+    >
       {/* The hint and error carry markup, so they sit here, not in TextField's text props. */}
       <div className="min-w-0 flex-1">
         <TextField
