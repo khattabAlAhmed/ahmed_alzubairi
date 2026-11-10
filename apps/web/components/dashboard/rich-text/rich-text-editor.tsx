@@ -179,9 +179,11 @@ function ToolButton({
         aria-label={label}
         aria-pressed={pressed}
         onClick={onClick}
-        onFocus={(event) =>
-          setActive((state) => ({ ...state, focus: event.currentTarget.matches(":focus-visible") }))
-        }
+        onFocus={(event) => {
+          // Read it now: React clears currentTarget before the updater runs.
+          const visible = event.currentTarget.matches(":focus-visible");
+          setActive((state) => ({ ...state, focus: visible }));
+        }}
         onBlur={() => setActive((state) => ({ ...state, focus: false }))}
         className={cx(
           "inline-flex size-8 items-center justify-center rounded",

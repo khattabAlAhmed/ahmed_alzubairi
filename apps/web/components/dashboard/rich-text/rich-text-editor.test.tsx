@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { tiptapDocSchema, type TiptapDoc } from "@repo/shared";
 import type { Editor } from "@tiptap/react";
 import { NextIntlClientProvider } from "next-intl";
@@ -101,6 +102,21 @@ describe("RichTextEditor", () => {
     fireEvent.pointerLeave(group);
     fireEvent.pointerEnter(group);
     expect(tooltip().className).toMatch(/(^| )flex( |$)/);
+  });
+
+  it("survives a mouse click on a tool while the editor isn't focused", async () => {
+    setup("en");
+    const element = await editorElement();
+    act(() => {
+      element.editor?.commands.selectAll();
+    });
+    expect(document.activeElement).not.toBe(element);
+    const bold = screen.getByRole("button", { name: en.tools.bold });
+    // A real click: the pointer moves onto the button, then mouse-down focuses
+    // it. The focus update runs after React has cleared currentTarget.
+    await userEvent.click(bold);
+    expect(screen.getByRole("toolbar", { name: en.toolbar })).toBeTruthy();
+    await waitFor(() => expect(bold.getAttribute("aria-pressed")).toBe("true"));
   });
 
   it("marks a tool as pressed once it applies to the selection", async () => {
