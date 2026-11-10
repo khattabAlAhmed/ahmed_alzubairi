@@ -1,6 +1,6 @@
 import { errorResponseSchema } from "@repo/shared";
 import { NextRequest, type NextFetchEvent } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const session = vi.hoisted(() => ({ isAuthenticated: false }));
 
@@ -19,6 +19,9 @@ vi.mock("@clerk/nextjs/server", () => ({
 const lookup = vi.hoisted(() => ({
   public: new Set<string>(),
   fails: false,
+  /** When set, the check never answers until `release` is called. */
+  hangs: false,
+  release: [] as Array<(outcome: boolean | Error) => void>,
   calls: [] as string[],
 }));
 
@@ -26,6 +29,13 @@ vi.mock("./lib/content", () => {
   const check = (type: string) => async (slug: string, locale: string) => {
     const key = `${type}/${locale}/${slug}`;
     lookup.calls.push(key);
+    if (lookup.hangs) {
+      return new Promise<boolean>((resolve, reject) => {
+        lookup.release.push((outcome) =>
+          typeof outcome === "boolean" ? resolve(outcome) : reject(outcome),
+        );
+      });
+    }
     if (lookup.fails) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set.");
     return lookup.public.has(key);
   };
@@ -36,7 +46,7 @@ vi.mock("./lib/content", () => {
   };
 });
 
-const { default: proxy } = await import("./proxy");
+const { default: proxy, DETAIL_LOOKUP_TIMEOUT_MS } = await import("./proxy");
 
 const ORIGIN = "http://localhost:3000";
 
@@ -58,7 +68,13 @@ beforeEach(() => {
     "services/ar/حوكمة",
   ]);
   lookup.fails = false;
+  lookup.hangs = false;
+  lookup.release = [];
   lookup.calls = [];
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 /** How Next reports a rewrite: the target URL in this header. */
@@ -216,5 +232,69 @@ describe("detail pages", () => {
     expect(lookup.calls).toHaveLength(1);
     expect(response.status).toBe(200);
     expect(rewrittenTo(response)).toBeNull();
+  });
+
+  it.each([
+    "/en/services/no-such-service",
+    "/ar/projects/no-such-project",
+    "/en/expertise/no-such-area",
+    "/en/services/governance-review",
+  ])("passes %s on when the lookup outlasts the timeout", async (path) => {
+    vi.useFakeTimers();
+    lookup.hangs = true;
+    let settled = false;
+    const pending = request(path).finally(() => {
+      settled = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS - 1);
+    expect(settled).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(1);
+    const response = await pending;
+    expect(lookup.calls).toHaveLength(1);
+    expect(response.status).toBe(200);
+    expect(rewrittenTo(response)).toBeNull();
+  });
+
+  it.each([
+    ["answers", false],
+    ["fails", new Error("late")],
+  ])("ignores a lookup that %s after the timeout", async (_name, outcome) => {
+    vi.useFakeTimers();
+    lookup.hangs = true;
+    const pending = request("/en/services/no-such-service");
+    await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS);
+    const response = await pending;
+
+    lookup.release.forEach((release) => release(outcome));
+    await vi.runAllTimersAsync();
+    expect(response.status).toBe(200);
+    expect(rewrittenTo(response)).toBeNull();
+  });
+
+  it("still answers 404 when the lookup answers just inside the timeout", async () => {
+    vi.useFakeTimers();
+    lookup.hangs = true;
+    const pending = request("/en/services/no-such-service");
+    await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS - 1);
+    lookup.release.forEach((release) => release(false));
+    expect((await pending).status).toBe(404);
+  });
+
+  it.each(["/en/services/governance-review", "/en/services/no-such-service"])(
+    "leaves no timer running after the lookup for %s",
+    async (path) => {
+      vi.useFakeTimers();
+      await request(path);
+      expect(vi.getTimerCount()).toBe(0);
+    },
+  );
+
+  it("leaves no timer running when the lookup fails", async () => {
+    vi.useFakeTimers();
+    lookup.fails = true;
+    await request("/en/services/no-such-service");
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
