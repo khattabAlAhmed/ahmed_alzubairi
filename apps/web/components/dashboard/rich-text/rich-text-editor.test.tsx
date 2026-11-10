@@ -33,6 +33,19 @@ function setup(lang: "ar" | "en", value: TiptapDoc | null = doc, ui: "ar" | "en"
   return { onChange };
 }
 
+/** The editor inside a language tab panel, which sets the content's language and direction around it. */
+function setupOnTab(ui: "ar" | "en", tab: "ar" | "en") {
+  const onChange = vi.fn<(doc: TiptapDoc) => void>();
+  render(
+    <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: ui === "ar" ? ar : en }}>
+      <div lang={tab} dir={tab === "ar" ? "rtl" : "ltr"}>
+        <RichTextEditor lang={tab} value={doc} onChange={onChange} label="Body" hint="Hint" error="Error" />
+      </div>
+    </NextIntlClientProvider>,
+  );
+  return { onChange };
+}
+
 async function editorElement() {
   return waitFor(() => {
     const element = document.querySelector<HTMLElement & { editor?: Editor }>(".ProseMirror");
@@ -213,15 +226,7 @@ describe("RichTextEditor", () => {
   ] as const)(
     "gives the link form the %s UI's direction on the %s content tab",
     async (ui, tab, messages, direction) => {
-      // The language tab panel sets the content's direction around the editor.
-      const onChange = vi.fn<(doc: TiptapDoc) => void>();
-      render(
-        <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: messages }}>
-          <div lang={tab} dir={tab === "ar" ? "rtl" : "ltr"}>
-            <RichTextEditor lang={tab} value={doc} onChange={onChange} label="Body" />
-          </div>
-        </NextIntlClientProvider>,
-      );
+      setupOnTab(ui, tab);
       const content = await editorElement();
       fireEvent.click(screen.getByRole("button", { name: messages.tools.link }));
       const address = screen.getByLabelText(messages.link.address);
@@ -233,9 +238,42 @@ describe("RichTextEditor", () => {
       // The address stays left to right, and the content keeps its tab's direction.
       expect(address.getAttribute("dir")).toBe("ltr");
       expect(content.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
-      // The toolbar isn't part of the form: it still follows the tab.
+    },
+  );
+
+  it.each([
+    ["ar", "en", ar, "rtl"],
+    ["en", "ar", en, "ltr"],
+    ["ar", "ar", ar, "rtl"],
+    ["en", "en", en, "ltr"],
+  ] as const)(
+    "gives the toolbar the %s UI's language and direction on the %s content tab",
+    async (ui, tab, messages, direction) => {
+      setupOnTab(ui, tab);
+      const content = await editorElement();
       const toolbar = screen.getByRole("toolbar", { name: messages.toolbar });
-      expect(toolbar.closest("[dir]")?.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+      expect(toolbar.getAttribute("lang")).toBe(ui);
+      expect(toolbar.getAttribute("dir")).toBe(direction);
+
+      // Each button's name and tooltip are UI text, and nothing between them
+      // and the toolbar sets another language or direction.
+      const buttons = within(toolbar).getAllByRole("button");
+      expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(Object.values(messages.tools));
+      for (const button of buttons) {
+        const tooltip = button.nextElementSibling as HTMLElement;
+        expect(tooltip.textContent).toBe(button.getAttribute("aria-label"));
+        for (const element of [button, tooltip]) {
+          expect(element.closest("[lang]")).toBe(toolbar);
+          expect(element.closest("[dir]")).toBe(toolbar);
+        }
+      }
+
+      // The editing area keeps its tab's language and direction.
+      expect(content.getAttribute("lang")).toBe(tab);
+      expect(content.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+      // The icons still mirror for the content, not for the UI.
+      const bullets = screen.getByRole("button", { name: messages.tools.bulletList }).querySelector("svg");
+      expect((bullets?.getAttribute("class") ?? "").includes("-scale-x-100")).toBe(tab === "ar");
     },
   );
 

@@ -74,7 +74,8 @@ const TOOLS: readonly {
 /**
  * Toolbar icons, after Lucide (ISC). The list and quote icons are drawn for
  * left-to-right text and mirror in an Arabic panel, where the bullets and
- * the quote bar sit on the right.
+ * the quote bar sit on the right. They follow the content language, not the
+ * UI's: they show what the tool does to the text.
  */
 const ICONS: Record<ToolKey | "link", { paths: readonly string[]; mirror?: boolean }> = {
   heading2: { paths: ["M4 12h8", "M4 18V6", "M12 18V6", "M21 18h-4c0-4 4-3 4-6 0-1.5-2-2.5-4-1"] },
@@ -312,6 +313,7 @@ export function RichTextEditor({
   error?: string;
 }) {
   const t = useTranslations("DashboardEditor");
+  const locale = useLocale();
   const id = useId();
   const [linking, setLinking] = useState(false);
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ");
@@ -359,8 +361,15 @@ export function RichTextEditor({
           {hint}
         </p>
       )}
+      {/*
+        The toolbar is UI chrome: its names and tooltips are in the UI language,
+        so it takes the UI's language and direction, not the content panel's.
+        The tooltips sit inside it and inherit both.
+      */}
       <div
         role="toolbar"
+        lang={locale}
+        dir={localeDirection(locale)}
         aria-label={t("toolbar")}
         aria-controls={`${id}-input`}
         className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-text/30 bg-surface p-1"
