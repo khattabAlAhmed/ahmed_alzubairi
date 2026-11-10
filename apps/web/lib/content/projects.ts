@@ -107,15 +107,21 @@ export async function getProject(slug: string, locale: Locale): Promise<ProjectD
  * True when `getProject` would return this slug in this language. Not cached,
  * so the proxy can call it: a `"use cache"` function throws there. It reads
  * one row and only the columns the rule needs: no images, no organization name.
+ * A given `signal` cancels the query, and the call then throws.
  */
-export async function hasProject(slug: string, locale: Locale): Promise<boolean> {
+export async function hasProject(
+  slug: string,
+  locale: Locale,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const query = createServiceClient()
+    .from("projects")
+    .select(`slug, status, title_${locale}, goal_${locale}, hide_org_name, org_label_${locale}`)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .limit(1);
   const rows = rowsOrThrow<Record<string, unknown>>(
-    await createServiceClient()
-      .from("projects")
-      .select(`slug, status, title_${locale}, goal_${locale}, hide_org_name, org_label_${locale}`)
-      .eq("slug", slug)
-      .eq("status", "published")
-      .limit(1),
+    await (signal ? query.abortSignal(signal) : query),
     "projects",
   );
   return rows.some((row) => row.slug === slug && isListed(row, locale));

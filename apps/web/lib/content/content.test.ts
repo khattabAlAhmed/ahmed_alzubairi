@@ -5,7 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * table, ignoring filters. So each rule below must hold in `lib/content`'s own
  * code, not only in the query: remove a rule and its test fails.
  */
-type Query = { table: string; columns: string; filters: [string, unknown][] };
+type Query = {
+  table: string;
+  columns: string;
+  filters: [string, unknown][];
+  signal?: AbortSignal;
+};
 
 const db = vi.hoisted(() => ({
   rows: {} as Record<string, Record<string, unknown>[]>,
@@ -29,9 +34,13 @@ vi.mock("@/lib/supabase/service", () => ({
         },
         order: () => builder,
         limit: () => builder,
+        abortSignal: (signal: AbortSignal) => {
+          query.signal = signal;
+          return builder;
+        },
         then: (resolve: (value: unknown) => unknown, reject?: (reason: unknown) => unknown) =>
           Promise.resolve(
-            db.fail
+            db.fail || query.signal?.aborted
               ? { data: null, error: { code: "PGRST000" } }
               : { data: db.rows[table] ?? [], error: null },
           ).then(resolve, reject),
@@ -392,6 +401,21 @@ describe("slug checks for the proxy", () => {
       expect(query.filters, query.table).toContainEqual(["status", "published"]);
       expect(query.filters.map(([column]) => column), query.table).toContain("slug");
     }
+  });
+
+  it("hand a given signal to the query, and throw when it is aborted", async () => {
+    const live = new AbortController();
+    expect(await content.hasService("both", "ar", live.signal)).toBe(true);
+    expect(await content.hasProject("hidden", "ar", live.signal)).toBe(true);
+    expect(await content.hasExpertiseArea("governance", "ar", live.signal)).toBe(true);
+    expect(db.queries.map((query) => query.signal)).toEqual([live.signal, live.signal, live.signal]);
+
+    const aborted = AbortSignal.abort();
+    await expect(content.hasService("both", "ar", aborted)).rejects.toThrow("services failed");
+    await expect(content.hasProject("hidden", "ar", aborted)).rejects.toThrow("projects failed");
+    await expect(content.hasExpertiseArea("governance", "ar", aborted)).rejects.toThrow(
+      "expertise_areas failed",
+    );
   });
 
   it("throw when the query fails, so the proxy can pass the request on", async () => {

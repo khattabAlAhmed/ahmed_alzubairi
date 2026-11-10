@@ -38,14 +38,21 @@ const NOT_FOUND_PATH = "not-found";
 /** The longest a request waits for the slug lookup before it passes on. */
 export const DETAIL_LOOKUP_TIMEOUT_MS = 1500;
 
-/** The lookup's answer, or `true` when it takes longer than the timeout. */
-async function withinTimeout(lookup: Promise<boolean>): Promise<boolean> {
+/**
+ * The lookup's answer, or `true` when it takes longer than the timeout. The
+ * lookup is then cancelled through its signal, so no query is left running.
+ */
+async function withinTimeout(lookup: (signal: AbortSignal) => Promise<boolean>): Promise<boolean> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const expired = new Promise<boolean>((resolve) => {
-    timer = setTimeout(() => resolve(true), DETAIL_LOOKUP_TIMEOUT_MS);
+    timer = setTimeout(() => {
+      resolve(true);
+      controller.abort();
+    }, DETAIL_LOOKUP_TIMEOUT_MS);
   });
   try {
-    return await Promise.race([lookup, expired]);
+    return await Promise.race([lookup(controller.signal), expired]);
   } finally {
     clearTimeout(timer);
   }
@@ -63,7 +70,8 @@ async function detailPageExists(path: string): Promise<{ locale: Locale; exists:
   const locale = match[1] as Locale;
   const check = DETAIL_CHECKS[match[2] as keyof typeof DETAIL_CHECKS];
   try {
-    return { locale, exists: await withinTimeout(check(decodedSlug(match[3] as string), locale)) };
+    const slug = decodedSlug(match[3] as string);
+    return { locale, exists: await withinTimeout((signal) => check(slug, locale, signal)) };
   } catch {
     return { locale, exists: true };
   }

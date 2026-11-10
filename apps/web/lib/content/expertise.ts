@@ -82,15 +82,21 @@ export async function getExpertiseArea(
  * True when `getExpertiseArea` would return this slug in this language. Not
  * cached, so the proxy can call it: a `"use cache"` function throws there. It
  * reads one row and only the columns the rule needs.
+ * A given `signal` cancels the query, and the call then throws.
  */
-export async function hasExpertiseArea(slug: string, locale: Locale): Promise<boolean> {
+export async function hasExpertiseArea(
+  slug: string,
+  locale: Locale,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const query = createServiceClient()
+    .from("expertise_areas")
+    .select(`slug, status, title_${locale}, summary_${locale}`)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .limit(1);
   const rows = rowsOrThrow<Record<string, unknown>>(
-    await createServiceClient()
-      .from("expertise_areas")
-      .select(`slug, status, title_${locale}, summary_${locale}`)
-      .eq("slug", slug)
-      .eq("status", "published")
-      .limit(1),
+    await (signal ? query.abortSignal(signal) : query),
     "expertise_areas",
   );
   return rows.some((row) => row.slug === slug && isListed(row, locale));

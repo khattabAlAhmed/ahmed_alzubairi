@@ -83,15 +83,21 @@ export async function getService(slug: string, locale: Locale): Promise<ServiceD
  * True when `getService` would return this slug in this language. Not cached,
  * so the proxy can call it: a `"use cache"` function throws there. It reads
  * one row and only the columns the rule needs.
+ * A given `signal` cancels the query, and the call then throws.
  */
-export async function hasService(slug: string, locale: Locale): Promise<boolean> {
+export async function hasService(
+  slug: string,
+  locale: Locale,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const query = createServiceClient()
+    .from("services")
+    .select(`slug, status, title_${locale}, summary_${locale}`)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .limit(1);
   const rows = rowsOrThrow<Record<string, unknown>>(
-    await createServiceClient()
-      .from("services")
-      .select(`slug, status, title_${locale}, summary_${locale}`)
-      .eq("slug", slug)
-      .eq("status", "published")
-      .limit(1),
+    await (signal ? query.abortSignal(signal) : query),
     "services",
   );
   return rows.some((row) => row.slug === slug && isListed(row, locale));

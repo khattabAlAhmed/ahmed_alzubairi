@@ -23,12 +23,14 @@ const lookup = vi.hoisted(() => ({
   hangs: false,
   release: [] as Array<(outcome: boolean | Error) => void>,
   calls: [] as string[],
+  signals: [] as AbortSignal[],
 }));
 
 vi.mock("./lib/content", () => {
-  const check = (type: string) => async (slug: string, locale: string) => {
+  const check = (type: string) => async (slug: string, locale: string, signal?: AbortSignal) => {
     const key = `${type}/${locale}/${slug}`;
     lookup.calls.push(key);
+    if (signal) lookup.signals.push(signal);
     if (lookup.hangs) {
       return new Promise<boolean>((resolve, reject) => {
         lookup.release.push((outcome) =>
@@ -71,6 +73,7 @@ beforeEach(() => {
   lookup.hangs = false;
   lookup.release = [];
   lookup.calls = [];
+  lookup.signals = [];
 });
 
 afterEach(() => {
@@ -252,10 +255,13 @@ describe("detail pages", () => {
 
     await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS - 1);
     expect(settled).toBe(false);
+    expect(lookup.signals.map((signal) => signal.aborted)).toEqual([false]);
 
     await vi.advanceTimersByTimeAsync(1);
     const response = await pending;
     expect(lookup.calls).toHaveLength(1);
+    // The slow query is cancelled, not left running.
+    expect(lookup.signals.map((signal) => signal.aborted)).toEqual([true]);
     expect(response.status).toBe(200);
     expect(rewrittenTo(response)).toBeNull();
   });
@@ -291,6 +297,9 @@ describe("detail pages", () => {
       vi.useFakeTimers();
       await request(path);
       expect(vi.getTimerCount()).toBe(0);
+      // A lookup that answered in time is never cancelled.
+      await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS * 2);
+      expect(lookup.signals.map((signal) => signal.aborted)).toEqual([false]);
     },
   );
 
