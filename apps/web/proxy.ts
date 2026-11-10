@@ -29,7 +29,9 @@ const DETAIL_CHECKS = {
 /**
  * No page has this path, so the catch-all answers it with the not-found page
  * and a real 404. A detail page can't set that status itself: Cache Components
- * sends its shell with a 200 before the page reads the slug.
+ * sends its shell with a 200 before the page reads the slug. The rewrite sets
+ * no status of its own: Vercel answers a 404 rewrite with its own bare 404
+ * page, not the page the rewrite points to.
  */
 const NOT_FOUND_PATH = "not-found";
 
@@ -106,9 +108,7 @@ export default clerkMiddleware(async (auth, request) => {
 
   const detail = await detailPageExists(path);
   if (detail && !detail.exists) {
-    return NextResponse.rewrite(new URL(`/${detail.locale}/${NOT_FOUND_PATH}`, request.url), {
-      status: 404,
-    });
+    return NextResponse.rewrite(new URL(`/${detail.locale}/${NOT_FOUND_PATH}`, request.url));
   }
 
   return handleLocale(request);

@@ -165,17 +165,20 @@ describe("detail pages", () => {
     ["/ar/projects/no-such-project", "ar"],
     ["/en/expertise/no-such-area", "en"],
     ["/ar/expertise/no-such-area", "ar"],
-  ])("answers a missing or unpublished %s with a 404", async (path, locale) => {
+  ])("sends a missing or unpublished %s to the not-found page", async (path, locale) => {
     const response = await request(path);
-    expect(response.status).toBe(404);
+    // The page it rewrites to sets the 404. A status set here would make
+    // Vercel answer with its own bare 404 page.
+    expect(response.status).toBe(200);
     expect(rewrittenTo(response)).toBe(`${ORIGIN}/${locale}/not-found`);
   });
 
   it("answers a page that isn't in this language the same way", async () => {
     const missing = await request("/ar/services/no-such-service");
     const otherLanguage = await request("/ar/services/english-only");
-    expect(otherLanguage.status).toBe(404);
+    expect(rewrittenTo(missing)).toBe(`${ORIGIN}/ar/not-found`);
     expect(rewrittenTo(otherLanguage)).toBe(rewrittenTo(missing));
+    expect(otherLanguage.status).toBe(missing.status);
     expect([...otherLanguage.headers.keys()].sort()).toEqual([...missing.headers.keys()].sort());
   });
 
@@ -211,7 +214,7 @@ describe("detail pages", () => {
     "/api/services/no-such-service",
   ])("does no lookup for %s", async (path) => {
     const response = await request(path);
-    expect(response.status).not.toBe(404);
+    expect(rewrittenTo(response) ?? "").not.toMatch(/\/not-found$/);
     expect(lookup.calls).toEqual([]);
   });
 
@@ -273,13 +276,13 @@ describe("detail pages", () => {
     expect(rewrittenTo(response)).toBeNull();
   });
 
-  it("still answers 404 when the lookup answers just inside the timeout", async () => {
+  it("still sends a missing page to the not-found page when the lookup answers just inside the timeout", async () => {
     vi.useFakeTimers();
     lookup.hangs = true;
     const pending = request("/en/services/no-such-service");
     await vi.advanceTimersByTimeAsync(DETAIL_LOOKUP_TIMEOUT_MS - 1);
     lookup.release.forEach((release) => release(false));
-    expect((await pending).status).toBe(404);
+    expect(rewrittenTo(await pending)).toBe(`${ORIGIN}/en/not-found`);
   });
 
   it.each(["/en/services/governance-review", "/en/services/no-such-service"])(
