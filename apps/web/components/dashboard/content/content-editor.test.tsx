@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import type { Editor } from "@tiptap/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import ar from "@/messages/ar/DashboardContent.json";
 import en from "@/messages/en/DashboardContent.json";
 import editorEn from "@/messages/en/DashboardEditor.json";
 import { GenericEditor, type ContentEditorProps } from "./content-editor";
@@ -73,6 +74,30 @@ describe("GenericEditor", () => {
       summaryEn: "Plans that work.",
       isFeatured: false,
     });
+  });
+
+  it("names the languages in the UI language inside the publishing sentence", () => {
+    // Panels: Arabic first, English second.
+    const fill = (messages: typeof en, index: number, title: string, summary: string) => {
+      type(new RegExp(messages.fields.title), title, index);
+      type(new RegExp(messages.fields.summary), summary, index);
+    };
+    renderEditor();
+    fill(en, 0, "تخطيط", "خطط ناجحة.");
+    expect(screen.getByText("Will be shown in: Arabic")).toBeTruthy();
+    fill(en, 1, "Strategic planning", "Plans that work.");
+    expect(screen.getByText("Will be shown in: Arabic and English")).toBeTruthy();
+    cleanup();
+
+    render(
+      <NextIntlClientProvider locale="ar" messages={{ DashboardContent: ar }}>
+        <GenericEditor type="services" row={null} refOptions={{}} mediaBase="https://x.test/m/" />
+      </NextIntlClientProvider>,
+    );
+    fill(ar, 0, "تخطيط", "خطط ناجحة.");
+    fill(ar, 1, "Strategic planning", "Plans that work.");
+    const sentence = screen.getByText("سيظهر بـ: العربية والإنجليزية");
+    expect(sentence.textContent).not.toMatch(/[A-Za-z]/);
   });
 
   it("shows why it can't be published, and doesn't send it", () => {

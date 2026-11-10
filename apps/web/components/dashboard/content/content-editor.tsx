@@ -22,6 +22,7 @@ import {
   type FieldErrors,
   type Row,
 } from "./form-values";
+import { languageList } from "./language-list";
 import { CONTENT_CONFIG, editPath, type FieldDef } from "./registry";
 import { saveContent } from "./save";
 import { PreviewPanel } from "../preview/preview-panel";
@@ -132,9 +133,7 @@ export function PublishPanel({ editor }: { editor: ContentEditorState }) {
   const text = useFieldText();
   const pageLocale = useLocale() as Locale;
   const { ctx, publish, values } = editor;
-  const languages = new Intl.ListFormat(pageLocale, { type: "conjunction" }).format(
-    publish.locales.map((locale) => text.t(`locales.${locale}`)),
-  );
+  const languages = languageList(pageLocale, publish.locales);
   const needsApproval = (CONSENT_CONTENT_TYPES as readonly string[]).includes(ctx.type);
   const approved = ctx.original?.adminApproved === true;
   const wantsPublish = values.status === "published";
