@@ -23,10 +23,10 @@ const doc: TiptapDoc = {
   content: [{ type: "paragraph", content: [{ type: "text", text: "Hello" }] }],
 };
 
-function setup(lang: "ar" | "en", value: TiptapDoc | null = doc) {
+function setup(lang: "ar" | "en", value: TiptapDoc | null = doc, ui: "ar" | "en" = "en") {
   const onChange = vi.fn<(doc: TiptapDoc) => void>();
   render(
-    <NextIntlClientProvider locale="en" messages={{ DashboardEditor: en }}>
+    <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: ui === "ar" ? ar : en }}>
       <RichTextEditor lang={lang} value={value} onChange={onChange} label="Body" />
     </NextIntlClientProvider>,
   );
@@ -40,6 +40,16 @@ async function editorElement() {
     return element;
   });
 }
+
+/** A message as read, without its `<ltr>` tags. */
+const plain = (message: string) => message.replace(/<\/?ltr>/g, "");
+
+/** The text a screen reader reads with the control. */
+const describedBy = (control: HTMLElement) =>
+  (control.getAttribute("aria-describedby") ?? "")
+    .split(" ")
+    .map((id) => document.getElementById(id)?.textContent)
+    .join(" ");
 
 describe("RichTextEditor", () => {
   it("types RTL in the Arabic panel and LTR in the English one", async () => {
@@ -165,7 +175,36 @@ describe("RichTextEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: en.tools.link }));
     fireEvent.change(screen.getByLabelText(en.link.address), { target: { value: "javascript:alert(1)" } });
     fireEvent.click(screen.getByRole("button", { name: en.link.apply }));
-    expect(screen.getByText(en.link.invalid)).toBeTruthy();
+    const address = screen.getByLabelText(en.link.address);
+    expect(address.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByRole("alert").textContent).toBe(plain(en.link.invalid));
+    expect(describedBy(address)).toContain(plain(en.link.invalid));
+  });
+
+  it.each([
+    ["ar", ar],
+    ["en", en],
+  ] as const)("isolates https://, http:// and mailto: in the %s link hint and error", async (ui, messages) => {
+    setup("ar", doc, ui);
+    await editorElement();
+    fireEvent.click(screen.getByRole("button", { name: messages.tools.link }));
+    const address = screen.getByLabelText(messages.link.address);
+    fireEvent.change(address, { target: { value: "javascript:alert(1)" } });
+    fireEvent.click(screen.getByRole("button", { name: messages.link.apply }));
+
+    const hint = document.getElementById(`${address.id}-hint`) as HTMLElement;
+    const error = screen.getByRole("alert");
+    // The wording is the message's, with no tag left in it.
+    expect(hint.textContent).toBe(plain(messages.link.hint));
+    expect(error.textContent).toBe(plain(messages.link.invalid));
+    expect(describedBy(address)).toBe(`${plain(messages.link.hint)} ${plain(messages.link.invalid)}`);
+    for (const sentence of [hint, error]) {
+      const tokens = [...sentence.querySelectorAll("bdi")];
+      expect(tokens.map((token) => token.textContent)).toEqual(["https://", "http://", "mailto:"]);
+      for (const token of tokens) {
+        expect(token.getAttribute("dir")).toBe("ltr");
+      }
+    }
   });
 
   it("saves pasted HTML as clean JSON", async () => {
