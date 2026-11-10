@@ -12,8 +12,8 @@
   },
   "link": {
     "address": "Link address",
-    "hint": "Starts with https://, http:// or mailto:. Leave it empty to remove the link.",
-    "invalid": "Use an address that starts with https://, http:// or mailto:.",
+    "hint": "Starts with <ltr>https://</ltr>, <ltr>http://</ltr> or <ltr>mailto:</ltr>. Leave it empty to remove the link.",
+    "invalid": "Use an address that starts with <ltr>https://</ltr>, <ltr>http://</ltr> or <ltr>mailto:</ltr>.",
     "apply": "Apply",
     "cancel": "Cancel"
   }

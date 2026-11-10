@@ -23,10 +23,10 @@ const doc: TiptapDoc = {
   content: [{ type: "paragraph", content: [{ type: "text", text: "Hello" }] }],
 };
 
-function setup(lang: "ar" | "en", value: TiptapDoc | null = doc) {
+function setup(lang: "ar" | "en", value: TiptapDoc | null = doc, ui: "ar" | "en" = "en") {
   const onChange = vi.fn<(doc: TiptapDoc) => void>();
   render(
-    <NextIntlClientProvider locale="en" messages={{ DashboardEditor: en }}>
+    <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: ui === "ar" ? ar : en }}>
       <RichTextEditor lang={lang} value={value} onChange={onChange} label="Body" />
     </NextIntlClientProvider>,
   );
@@ -40,6 +40,16 @@ async function editorElement() {
     return element;
   });
 }
+
+/** A message as read, without its `<ltr>` tags. */
+const plain = (message: string) => message.replace(/<\/?ltr>/g, "");
+
+/** The text a screen reader reads with the control. */
+const describedBy = (control: HTMLElement) =>
+  (control.getAttribute("aria-describedby") ?? "")
+    .split(" ")
+    .map((id) => document.getElementById(id)?.textContent)
+    .join(" ");
 
 describe("RichTextEditor", () => {
   it("types RTL in the Arabic panel and LTR in the English one", async () => {
@@ -165,8 +175,69 @@ describe("RichTextEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: en.tools.link }));
     fireEvent.change(screen.getByLabelText(en.link.address), { target: { value: "javascript:alert(1)" } });
     fireEvent.click(screen.getByRole("button", { name: en.link.apply }));
-    expect(screen.getByText(en.link.invalid)).toBeTruthy();
+    const address = screen.getByLabelText(en.link.address);
+    expect(address.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByRole("alert").textContent).toBe(plain(en.link.invalid));
+    expect(describedBy(address)).toContain(plain(en.link.invalid));
   });
+
+  it.each([
+    ["ar", ar],
+    ["en", en],
+  ] as const)("isolates https://, http:// and mailto: in the %s link hint and error", async (ui, messages) => {
+    setup("ar", doc, ui);
+    await editorElement();
+    fireEvent.click(screen.getByRole("button", { name: messages.tools.link }));
+    const address = screen.getByLabelText(messages.link.address);
+    fireEvent.change(address, { target: { value: "javascript:alert(1)" } });
+    fireEvent.click(screen.getByRole("button", { name: messages.link.apply }));
+
+    const hint = document.getElementById(`${address.id}-hint`) as HTMLElement;
+    const error = screen.getByRole("alert");
+    // The wording is the message's, with no tag left in it.
+    expect(hint.textContent).toBe(plain(messages.link.hint));
+    expect(error.textContent).toBe(plain(messages.link.invalid));
+    expect(describedBy(address)).toBe(`${plain(messages.link.hint)} ${plain(messages.link.invalid)}`);
+    for (const sentence of [hint, error]) {
+      const tokens = [...sentence.querySelectorAll("bdi")];
+      expect(tokens.map((token) => token.textContent)).toEqual(["https://", "http://", "mailto:"]);
+      for (const token of tokens) {
+        expect(token.getAttribute("dir")).toBe("ltr");
+      }
+    }
+  });
+
+  it.each([
+    ["ar", "en", ar, "rtl"],
+    ["en", "ar", en, "ltr"],
+  ] as const)(
+    "gives the link form the %s UI's direction on the %s content tab",
+    async (ui, tab, messages, direction) => {
+      // The language tab panel sets the content's direction around the editor.
+      const onChange = vi.fn<(doc: TiptapDoc) => void>();
+      render(
+        <NextIntlClientProvider locale={ui} messages={{ DashboardEditor: messages }}>
+          <div lang={tab} dir={tab === "ar" ? "rtl" : "ltr"}>
+            <RichTextEditor lang={tab} value={doc} onChange={onChange} label="Body" />
+          </div>
+        </NextIntlClientProvider>,
+      );
+      const content = await editorElement();
+      fireEvent.click(screen.getByRole("button", { name: messages.tools.link }));
+      const address = screen.getByLabelText(messages.link.address);
+      const hint = document.getElementById(`${address.id}-hint`) as HTMLElement;
+
+      // The nearest direction and language above the hint are the UI's.
+      expect(hint.closest("[dir]")?.getAttribute("dir")).toBe(direction);
+      expect(hint.closest("[lang]")?.getAttribute("lang")).toBe(ui);
+      // The address stays left to right, and the content keeps its tab's direction.
+      expect(address.getAttribute("dir")).toBe("ltr");
+      expect(content.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+      // The toolbar isn't part of the form: it still follows the tab.
+      const toolbar = screen.getByRole("toolbar", { name: messages.toolbar });
+      expect(toolbar.closest("[dir]")?.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
+    },
+  );
 
   it("saves pasted HTML as clean JSON", async () => {
     const { onChange } = setup("en", null);
