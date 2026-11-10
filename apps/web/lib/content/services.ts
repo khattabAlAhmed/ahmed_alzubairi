@@ -16,10 +16,15 @@ type ServiceRow = Record<string, unknown> & {
   status: string;
 };
 
+/** The one rule for "public in this language", shared by every read below. */
+function isListed(row: Record<string, unknown>, locale: Locale) {
+  return isPublicIn("services", row, locale);
+}
+
 function toService(row: ServiceRow, locale: Locale): Service | null {
   const title = text(row, "title", locale);
   const summary = text(row, "summary", locale);
-  if (!isPublicIn("services", row, locale) || !title || !summary) return null;
+  if (!isListed(row, locale) || !title || !summary) return null;
   return {
     id: row.id,
     slug: row.slug,
@@ -72,4 +77,28 @@ export async function getService(slug: string, locale: Locale): Promise<ServiceD
     stages: text(row, "stages", locale),
     availableIn: publicLocales("services", row),
   };
+}
+
+/**
+ * True when `getService` would return this slug in this language. Not cached,
+ * so the proxy can call it: a `"use cache"` function throws there. It reads
+ * one row and only the columns the rule needs.
+ * A given `signal` cancels the query, and the call then throws.
+ */
+export async function hasService(
+  slug: string,
+  locale: Locale,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const query = createServiceClient()
+    .from("services")
+    .select(`slug, status, title_${locale}, summary_${locale}`)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .limit(1);
+  const rows = rowsOrThrow<Record<string, unknown>>(
+    await (signal ? query.abortSignal(signal) : query),
+    "services",
+  );
+  return rows.some((row) => row.slug === slug && isListed(row, locale));
 }

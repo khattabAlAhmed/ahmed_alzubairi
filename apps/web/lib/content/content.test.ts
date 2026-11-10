@@ -5,11 +5,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * table, ignoring filters. So each rule below must hold in `lib/content`'s own
  * code, not only in the query: remove a rule and its test fails.
  */
-type Query = { table: string; columns: string; filters: [string, unknown][] };
+type Query = {
+  table: string;
+  columns: string;
+  filters: [string, unknown][];
+  signal?: AbortSignal;
+};
 
 const db = vi.hoisted(() => ({
   rows: {} as Record<string, Record<string, unknown>[]>,
   queries: [] as Query[],
+  fail: false,
 }));
 
 vi.mock("@/lib/supabase/service", () => ({
@@ -28,8 +34,16 @@ vi.mock("@/lib/supabase/service", () => ({
         },
         order: () => builder,
         limit: () => builder,
+        abortSignal: (signal: AbortSignal) => {
+          query.signal = signal;
+          return builder;
+        },
         then: (resolve: (value: unknown) => unknown, reject?: (reason: unknown) => unknown) =>
-          Promise.resolve({ data: db.rows[table] ?? [], error: null }).then(resolve, reject),
+          Promise.resolve(
+            db.fail || query.signal?.aborted
+              ? { data: null, error: { code: "PGRST000" } }
+              : { data: db.rows[table] ?? [], error: null },
+          ).then(resolve, reject),
       };
       return builder;
     },
@@ -55,6 +69,7 @@ const both = (field: string, value: string) => ({
 
 function seed() {
   db.queries = [];
+  db.fail = false;
   db.rows = {
     home_sections: [
       {
@@ -316,6 +331,96 @@ describe("storage keys and letters", () => {
     expect((await content.getSiteSettings()).cvUrl).toBe(
       "https://example.supabase.co/storage/v1/object/public/public-media/media/cv.pdf",
     );
+  });
+});
+
+describe("slug checks for the proxy", () => {
+  it("say yes only for a slug its detail read returns", async () => {
+    expect(await content.hasService("both", "ar")).toBe(true);
+    expect(await content.hasProject("hidden", "en")).toBe(true);
+    expect(await content.hasExpertiseArea("governance", "ar")).toBe(true);
+  });
+
+  it("refuse a missing slug", async () => {
+    expect(await content.hasService("no-such-slug", "en")).toBe(false);
+    expect(await content.hasProject("no-such-slug", "en")).toBe(false);
+    expect(await content.hasExpertiseArea("no-such-slug", "en")).toBe(false);
+  });
+
+  it("refuse a draft", async () => {
+    expect(await content.hasService("draft", "en")).toBe(false);
+    expect(await content.hasProject("draft", "en")).toBe(false);
+    expect(await content.hasExpertiseArea("draft-area", "en")).toBe(false);
+  });
+
+  it("refuse a row that isn't in this language", async () => {
+    expect(await content.hasService("english-only", "ar")).toBe(false);
+    expect(await content.hasService("english-only", "en")).toBe(true);
+    expect(await content.hasService("arabic-only", "en")).toBe(false);
+  });
+
+  it("refuse a hidden-organization project with no label in this language", async () => {
+    db.rows.projects = db.rows.projects!.map((row) =>
+      row.slug === "hidden" ? { ...row, org_label_en: null } : row,
+    );
+    expect(await content.hasProject("hidden", "en")).toBe(false);
+    expect(await content.getProject("hidden", "en")).toBeNull();
+    expect(await content.hasProject("hidden", "ar")).toBe(true);
+  });
+
+  it("agree with the detail reads for every fixture row", async () => {
+    for (const locale of ["ar", "en"] as const) {
+      for (const { slug } of db.rows.services!) {
+        expect(await content.hasService(String(slug), locale), `service ${slug} ${locale}`).toBe(
+          (await content.getService(String(slug), locale)) !== null,
+        );
+      }
+      for (const { slug } of db.rows.projects!) {
+        expect(await content.hasProject(String(slug), locale), `project ${slug} ${locale}`).toBe(
+          (await content.getProject(String(slug), locale)) !== null,
+        );
+      }
+      for (const { slug } of db.rows.expertise_areas!) {
+        expect(await content.hasExpertiseArea(String(slug), locale), `area ${slug} ${locale}`).toBe(
+          (await content.getExpertiseArea(String(slug), locale)) !== null,
+        );
+      }
+    }
+  });
+
+  it("read one language's rule columns, by slug and status, and nothing else", async () => {
+    await content.hasService("both", "ar");
+    await content.hasProject("hidden", "en");
+    await content.hasExpertiseArea("governance", "ar");
+    expect(db.queries.map((query) => query.columns)).toEqual([
+      "slug, status, title_ar, summary_ar",
+      "slug, status, title_en, goal_en, hide_org_name, org_label_en",
+      "slug, status, title_ar, summary_ar",
+    ]);
+    for (const query of db.queries) {
+      expect(query.filters, query.table).toContainEqual(["status", "published"]);
+      expect(query.filters.map(([column]) => column), query.table).toContain("slug");
+    }
+  });
+
+  it("hand a given signal to the query, and throw when it is aborted", async () => {
+    const live = new AbortController();
+    expect(await content.hasService("both", "ar", live.signal)).toBe(true);
+    expect(await content.hasProject("hidden", "ar", live.signal)).toBe(true);
+    expect(await content.hasExpertiseArea("governance", "ar", live.signal)).toBe(true);
+    expect(db.queries.map((query) => query.signal)).toEqual([live.signal, live.signal, live.signal]);
+
+    const aborted = AbortSignal.abort();
+    await expect(content.hasService("both", "ar", aborted)).rejects.toThrow("services failed");
+    await expect(content.hasProject("hidden", "ar", aborted)).rejects.toThrow("projects failed");
+    await expect(content.hasExpertiseArea("governance", "ar", aborted)).rejects.toThrow(
+      "expertise_areas failed",
+    );
+  });
+
+  it("throw when the query fails, so the proxy can pass the request on", async () => {
+    db.fail = true;
+    await expect(content.hasService("both", "ar")).rejects.toThrow("lib/content services failed");
   });
 });
 

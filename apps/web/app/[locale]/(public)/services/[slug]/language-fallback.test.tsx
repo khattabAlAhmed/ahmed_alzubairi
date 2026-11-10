@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 // The detail pages tell the language switch where to go when their item has
 // no translation (§6.1). Their own content is covered by the pages' tests.
-const mocks = vi.hoisted(() => ({ availableIn: ["ar", "en"] as string[] }));
-const item = () => ({ id: "id-1", slug: "x", expertiseId: null, availableIn: mocks.availableIn });
+const mocks = vi.hoisted(() => ({ availableIn: ["ar", "en"] as string[], missing: false }));
+const item = () =>
+  mocks.missing ? null : { id: "id-1", slug: "x", expertiseId: null, availableIn: mocks.availableIn };
 
 vi.mock("next/server", () => ({ connection: async () => {} }));
 vi.mock("next/navigation", () => ({
@@ -51,6 +52,7 @@ const params = (locale: string) => ({ params: Promise.resolve({ locale, slug: "x
 afterEach(() => {
   cleanup();
   mocks.availableIn = ["ar", "en"];
+  mocks.missing = false;
 });
 
 describe.each(routes)("%s detail page", (section, route) => {
@@ -69,5 +71,13 @@ describe.each(routes)("%s detail page", (section, route) => {
   it("keeps the normal switch when the item has both languages", async () => {
     render(await route.default(params("en")));
     expect(screen.queryByTestId("fallback")).toBeNull();
+  });
+
+  // The proxy gives a missing slug its 404 status; the page still refuses it
+  // by itself, so it never depends on the proxy.
+  it.each(["ar", "en"])("shows the not-found page for a missing slug in %s", async (locale) => {
+    mocks.missing = true;
+    await expect(route.default(params(locale))).rejects.toThrow("NOT_FOUND");
+    expect(await route.generateMetadata(params(locale))).toEqual({});
   });
 });
