@@ -1,6 +1,14 @@
 "use client";
 
-import { useId, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useId,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { cx, FOCUS_RING } from "./cx";
 
 export type LanguagePanel = {
@@ -10,6 +18,24 @@ export type LanguagePanel = {
   /** A field in this panel has an error. Marks the tab, so it isn't missed. */
   invalid?: boolean;
 };
+
+/** The language and direction of the content typed in a panel. */
+export type PanelLanguage = { lang: "ar" | "en"; dir: "rtl" | "ltr" };
+
+const PanelLanguageContext = createContext<PanelLanguage | null>(null);
+
+/**
+ * The language of the `LanguageTabs` panel around a field, or null outside
+ * one. Content controls (inputs, text areas, the rich-text editing area) put
+ * it on themselves; labels, hints and errors don't, so they stay in the UI's.
+ */
+export function usePanelLanguage(): PanelLanguage | null {
+  return useContext(PanelLanguageContext);
+}
+
+// Fixed objects, so a render of the tabs doesn't re-render every field.
+const ARABIC: PanelLanguage = { lang: "ar", dir: "rtl" };
+const ENGLISH: PanelLanguage = { lang: "en", dir: "ltr" };
 
 const WIDE = "(min-width: 64rem)"; // Tailwind's `lg`.
 
@@ -21,8 +47,11 @@ function subscribe(onChange: () => void) {
 
 /**
  * Arabic and English versions of the same content. Side by side from `lg`
- * up, tabs below it. Each panel has its own `lang` and `dir`, whatever the
- * page language, so Arabic is always RTL and English always LTR.
+ * up, tabs below it. The content typed in a panel has the panel's `lang` and
+ * `dir`, whatever the page language, so Arabic is always RTL and English
+ * always LTR: the content controls read them from `usePanelLanguage`. The
+ * text around them (labels, hints, errors) is UI text, so the panel itself
+ * keeps the page's language and direction.
  *
  * Both panels stay in the DOM, so a form posts both languages.
  */
@@ -48,8 +77,8 @@ export function LanguageTabs({
   const wide = useSyncExternalStore(subscribe, () => window.matchMedia(WIDE).matches, () => false);
 
   const panels = [
-    { lang: "ar" as const, dir: "rtl" as const, ...arabic },
-    { lang: "en" as const, dir: "ltr" as const, ...english },
+    { ...arabic, ...ARABIC, language: ARABIC },
+    { ...english, ...ENGLISH, language: ENGLISH },
   ];
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -108,8 +137,6 @@ export function LanguageTabs({
           <section
             key={panel.lang}
             id={`${id}-panel-${panel.lang}`}
-            lang={panel.lang}
-            dir={panel.dir}
             {...(wide
               ? { "aria-labelledby": `${id}-heading-${panel.lang}` }
               : { role: "tabpanel", "aria-labelledby": `${id}-tab-${panel.lang}` })}
@@ -119,8 +146,10 @@ export function LanguageTabs({
               panel.invalid && "lg:border-danger",
             )}
           >
+            {/* The language's own name: its own `lang`, on the UI's start side. */}
             <h3
               id={`${id}-heading-${panel.lang}`}
+              lang={panel.lang}
               className="mb-4 hidden items-center gap-2 text-lg lg:flex"
             >
               {panel.label}
@@ -132,7 +161,9 @@ export function LanguageTabs({
                 </>
               )}
             </h3>
-            <div className="space-y-4">{panel.content}</div>
+            <PanelLanguageContext.Provider value={panel.language}>
+              <div className="space-y-4">{panel.content}</div>
+            </PanelLanguageContext.Provider>
           </section>
         ))}
       </div>

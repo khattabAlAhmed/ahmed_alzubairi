@@ -33,7 +33,11 @@ function setup(lang: "ar" | "en", value: TiptapDoc | null = doc, ui: "ar" | "en"
   return { onChange };
 }
 
-/** The editor inside a language tab panel, which sets the content's language and direction around it. */
+/**
+ * The editor with the content's language and direction set around it. A
+ * language tab panel no longer does that, so this is the harder case: the
+ * editor's UI text must not take them.
+ */
 function setupOnTab(ui: "ar" | "en", tab: "ar" | "en") {
   const onChange = vi.fn<(doc: TiptapDoc) => void>();
   render(
@@ -252,19 +256,21 @@ describe("RichTextEditor", () => {
       setupOnTab(ui, tab);
       const content = await editorElement();
       const toolbar = screen.getByRole("toolbar", { name: messages.toolbar });
-      expect(toolbar.getAttribute("lang")).toBe(ui);
-      expect(toolbar.getAttribute("dir")).toBe(direction);
+      // The editor's root carries the UI's language and direction, inside the tab's.
+      const root = toolbar.parentElement as HTMLElement;
+      expect(root.getAttribute("lang")).toBe(ui);
+      expect(root.getAttribute("dir")).toBe(direction);
 
       // Each button's name and tooltip are UI text, and nothing between them
-      // and the toolbar sets another language or direction.
+      // and the root sets another language or direction.
       const buttons = within(toolbar).getAllByRole("button");
       expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(Object.values(messages.tools));
       for (const button of buttons) {
         const tooltip = button.nextElementSibling as HTMLElement;
         expect(tooltip.textContent).toBe(button.getAttribute("aria-label"));
-        for (const element of [button, tooltip]) {
-          expect(element.closest("[lang]")).toBe(toolbar);
-          expect(element.closest("[dir]")).toBe(toolbar);
+        for (const element of [toolbar, button, tooltip]) {
+          expect(element.closest("[lang]")).toBe(root);
+          expect(element.closest("[dir]")).toBe(root);
         }
       }
 
@@ -274,6 +280,32 @@ describe("RichTextEditor", () => {
       // The icons still mirror for the content, not for the UI.
       const bullets = screen.getByRole("button", { name: messages.tools.bulletList }).querySelector("svg");
       expect((bullets?.getAttribute("class") ?? "").includes("-scale-x-100")).toBe(tab === "ar");
+    },
+  );
+
+  it.each([
+    ["ar", "en", "rtl"],
+    ["en", "ar", "ltr"],
+    ["ar", "ar", "rtl"],
+    ["en", "en", "ltr"],
+  ] as const)(
+    "gives the label, hint and error the %s UI's language and direction on the %s content tab",
+    async (ui, tab, direction) => {
+      setupOnTab(ui, tab);
+      const content = await editorElement();
+      const label = screen.getByText("Body");
+      const hint = screen.getByText("Hint");
+      const error = screen.getByRole("alert");
+      expect(error.textContent).toBe("Error");
+      for (const text of [label, hint, error]) {
+        expect(text.closest("[lang]")?.getAttribute("lang")).toBe(ui);
+        expect(text.closest("[dir]")?.getAttribute("dir")).toBe(direction);
+      }
+      // They still name and describe the editing area, which keeps the tab's.
+      expect(content.getAttribute("aria-labelledby")).toBe(label.id);
+      expect(describedBy(content)).toBe("Hint Error");
+      expect(content.getAttribute("lang")).toBe(tab);
+      expect(content.getAttribute("dir")).toBe(tab === "ar" ? "rtl" : "ltr");
     },
   );
 
