@@ -16,7 +16,11 @@ import {
   utcDatetimeSchema,
   uuidSchema,
 } from "./fields";
-import { MAX_ATTACHMENTS_PER_MESSAGE, SIGNED_URL_TTL_SECONDS } from "./limits";
+import {
+  MAX_ATTACHMENTS_PER_MESSAGE,
+  MAX_NOTIFICATION_IDS,
+  SIGNED_URL_TTL_SECONDS,
+} from "./limits";
 import { createProfileRequestSchema } from "./profile";
 
 /**
@@ -41,6 +45,35 @@ export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
 export const disableAccountRequestSchema = z.strictObject({});
 
 export type DisableAccountRequest = z.infer<typeof disableAccountRequestSchema>;
+
+/** `closedConsultations`: how many open consultations the disable closed (§6.16). */
+export const disableAccountResponseSchema = z.strictObject({
+  ok: z.literal(true),
+  closedConsultations: z.int().min(0),
+});
+
+export type DisableAccountResponse = z.infer<
+  typeof disableAccountResponseSchema
+>;
+
+/**
+ * `POST /api/notifications/read`. Marks the caller's own notifications read:
+ * the ones in `ids`, or all of them when `ids` is left out.
+ */
+export const readNotificationsRequestSchema = z.strictObject({
+  ids: z.array(uuidSchema).min(1).max(MAX_NOTIFICATION_IDS).optional(),
+});
+
+export type ReadNotificationsRequest = z.infer<
+  typeof readNotificationsRequestSchema
+>;
+
+/** The dashboard counter (§6.21): the caller's unread notifications. */
+export const notificationCounterSchema = z.strictObject({
+  unread: z.int().min(0),
+});
+
+export type NotificationCounter = z.infer<typeof notificationCounterSchema>;
 
 /** `POST /api/consultations` */
 export const createConsultationRequestSchema = z.strictObject({

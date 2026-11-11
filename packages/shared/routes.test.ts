@@ -208,7 +208,14 @@ const CASES: Record<
   },
   "POST /api/account/disable": {
     body: { ok: {}, bad: { reason: "x" } },
-    response: OK_RESPONSE,
+    response: {
+      ok: { ok: true, closedConsultations: 2 },
+      bad: { ok: true, closedConsultations: -1 },
+    },
+  },
+  "POST /api/notifications/read": {
+    body: { ok: { ids: [ID] }, bad: { ids: [] } },
+    response: { ok: { unread: 0 }, bad: { unread: -1 } },
   },
   "GET /api/consultations": {
     response: {
@@ -409,9 +416,13 @@ const CASES: Record<
     response: OK_RESPONSE,
   },
   "GET /api/admin/clients": {
+    query: {
+      ok: { page: "2", pageSize: "50", search: "name", status: "disabled" },
+      bad: { status: "banned" },
+    },
     response: {
-      ok: { clients: [client] },
-      bad: { clients: [{ ...client, status: "banned" }] },
+      ok: { clients: [client], total: 1 },
+      bad: { clients: [{ ...client, status: "banned" }], total: 1 },
     },
   },
   "PATCH /api/admin/clients": {
@@ -422,9 +433,14 @@ const CASES: Record<
     response: OK_RESPONSE,
   },
   "GET /api/admin/team": {
+    query: { ok: { status: "active" }, bad: { pageSize: "101" } },
     response: {
-      ok: { members: [member] },
-      bad: { members: [{ ...member, roleId: null }] },
+      ok: {
+        members: [member],
+        total: 1,
+        invitations: [{ email: "b@example.com", roleId: ID, createdAt: NOW }],
+      },
+      bad: { members: [member], total: 1, invitations: [{ email: "b" }] },
     },
   },
   "POST /api/admin/team": {
@@ -491,6 +507,10 @@ const CASES: Record<
     },
     response: OK_RESPONSE,
   },
+  "PATCH /api/admin/messages": {
+    body: { ok: { id: ID, read: true }, bad: { id: ID, read: "yes" } },
+    response: OK_RESPONSE,
+  },
   "GET /api/admin/newsletter/export": {
     response: { ok: "email\na@example.com\n", bad: { rows: [] } },
   },
@@ -510,7 +530,12 @@ const CASES: Record<
     body: { ok: resendEvent, bad: { ...resendEvent, data: { email: "x" } } },
     response: OK_RESPONSE,
   },
-  "POST /api/cron/hourly": { response: OK_RESPONSE },
+  "POST /api/cron/hourly": {
+    response: {
+      ok: { retried: 3, sent: 2, failed: 1 },
+      bad: { retried: 3, sent: 2 },
+    },
+  },
   "GET /api/posthog-config": {
     response: {
       ok: { key: "phc_1", host: "https://eu.i.posthog.com" },
