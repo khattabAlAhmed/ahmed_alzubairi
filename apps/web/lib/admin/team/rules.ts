@@ -15,9 +15,14 @@ export const INVITED_ROLE_METADATA_KEY = "roleId";
 
 export type RoleRef = { id: string; key: string };
 
+/** True for the admin role. */
+export function isAdminRole(role: RoleRef | null): boolean {
+  return role?.key === ADMIN_ROLE_KEY;
+}
+
 /** True for a role that exists and may be granted by invite or role change. */
 export function isGrantableRole(role: RoleRef | null): role is RoleRef {
-  return role !== null && role.key !== ADMIN_ROLE_KEY;
+  return role !== null && !isAdminRole(role);
 }
 
 /** The role id in a Clerk user's or invitation's public metadata, or null. */

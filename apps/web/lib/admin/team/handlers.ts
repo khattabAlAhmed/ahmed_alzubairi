@@ -14,7 +14,12 @@ import {
 import { signUpPath } from "@/lib/auth/return-path";
 import type { AuditEntry } from "../audit";
 import { adminError, baseError, type AdminError } from "../permissions";
-import { invitedRoleId, isGrantableRole, type RoleRef } from "./rules";
+import {
+  invitedRoleId,
+  isAdminRole,
+  isGrantableRole,
+  type RoleRef,
+} from "./rules";
 
 /**
  * The database, behind an interface so tests can replace it. Created only
@@ -187,8 +192,9 @@ async function changeStatus(
 
 /**
  * `PATCH /api/admin/team`, after the permission check: a member's role, their
- * status, or both. Refused: a change to yourself, the admin role, and a
- * profile with no role (a client becomes a member through an invitation only).
+ * status, or both. Refused: a change to yourself, the admin role as the new
+ * role, any change to a member who holds the admin role, and a profile with no
+ * role (a client becomes a member through an invitation only).
  */
 export async function updateMember(
   rawBody: unknown,
@@ -208,6 +214,11 @@ export async function updateMember(
   if (!member) return notFound;
   if (member.roleId === null) {
     return adminError("forbidden", 403, "teamNotMember", locale);
+  }
+  // No code path grants admin (§6.19), so none takes it away or disables it
+  // either: only SQL could undo that.
+  if (isAdminRole(await store.getRole(member.roleId))) {
+    return adminError("forbidden", 403, "teamAdminRole", locale);
   }
 
   // Check the role before any write, so a refused role changes nothing.

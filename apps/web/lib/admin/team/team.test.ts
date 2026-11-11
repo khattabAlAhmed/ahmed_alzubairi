@@ -14,7 +14,7 @@ import {
   type TeamStore,
 } from "./handlers";
 import { handleTeamRequest, type TeamRouteDeps } from "./route";
-import { invitedRoleId, isGrantableRole } from "./rules";
+import { invitedRoleId, isAdminRole, isGrantableRole } from "./rules";
 import { searchPattern } from "./store";
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: vi.fn(), clerkClient: vi.fn() }));
@@ -22,6 +22,7 @@ vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: vi.fn() }));
 
 const ADMIN = "user_admin";
+const OTHER_ADMIN = "user_admin_2";
 const MEMBER = "user_member";
 const CLIENT = "user_client";
 
@@ -37,6 +38,7 @@ type Profile = { roleId: string | null; status: ProfileStatus };
 function world() {
   const profiles = new Map<string, Profile>([
     [ADMIN, { roleId: ADMIN_ROLE, status: "active" }],
+    [OTHER_ADMIN, { roleId: ADMIN_ROLE, status: "active" }],
     [MEMBER, { roleId: EDITOR_ROLE, status: "active" }],
     [CLIENT, { roleId: null, status: "active" }],
   ]);
@@ -122,6 +124,12 @@ describe("rules", () => {
     expect(isGrantableRole({ id: EDITOR_ROLE, key: "content_editor" })).toBe(true);
     expect(isGrantableRole({ id: ADMIN_ROLE, key: "admin" })).toBe(false);
     expect(isGrantableRole(null)).toBe(false);
+  });
+
+  it("only the role with key admin is the admin role", () => {
+    expect(isAdminRole({ id: ADMIN_ROLE, key: "admin" })).toBe(true);
+    expect(isAdminRole({ id: EDITOR_ROLE, key: "content_editor" })).toBe(false);
+    expect(isAdminRole(null)).toBe(false);
   });
 
   it.each([
@@ -337,6 +345,28 @@ describe("updateMember", () => {
     });
     expect(profiles.get(CLIENT)).toEqual({ roleId: null, status: "active" });
     expect(clerk.ban).not.toHaveBeenCalled();
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["demoting an admin", { id: OTHER_ADMIN, roleId: EDITOR_ROLE }],
+    ["disabling an admin", { id: OTHER_ADMIN, status: "disabled" }],
+    [
+      "demoting and disabling an admin together",
+      { id: OTHER_ADMIN, roleId: EDITOR_ROLE, status: "disabled" },
+    ],
+  ])("refuses %s: no write, no Clerk call, no audit row", async (_name, body) => {
+    const { deps, profiles, store, clerk, audit } = world();
+    const result = await updateMember(body, deps);
+    expect(result).toEqual({
+      status: 403,
+      body: { error: { code: "forbidden", message: adminEn.teamAdminRole } },
+    });
+    expect(profiles.get(OTHER_ADMIN)).toEqual({ roleId: ADMIN_ROLE, status: "active" });
+    expect(store.setRole).not.toHaveBeenCalled();
+    expect(store.setStatus).not.toHaveBeenCalled();
+    expect(clerk.ban).not.toHaveBeenCalled();
+    expect(clerk.unban).not.toHaveBeenCalled();
     expect(audit).not.toHaveBeenCalled();
   });
 

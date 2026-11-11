@@ -12,7 +12,7 @@
   "fileTooLarge": "This file is too large. Choose a smaller file.",
   "uploadNotFound": "We couldn't find the uploaded file. Upload it again.",
   "teamSelfChange": "You can't change your own role or disable your own account.",
-  "teamAdminRole": "The admin role can't be given from here.",
+  "teamAdminRole": "The admin role can't be given from here, and an admin's account can't be changed from here.",
   "teamRoleUnknown": "This role doesn't exist. Choose another role.",
   "teamNotMember": "This account isn't a team member. To add someone to the team, send an invitation.",
   "teamInviteExists": "This email already has an account or a pending invitation.",
