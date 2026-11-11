@@ -38,6 +38,9 @@ export type UpdateConsultationRequest = z.infer<
   typeof updateConsultationRequestSchema
 >;
 
+/** The rows a paged list has in all, across every page. */
+const totalSchema = z.int().min(0);
+
 const meetingFields = {
   platform: shortTextSchema,
   url: httpsUrlSchema,
@@ -237,6 +240,7 @@ export type AdminClient = z.infer<typeof adminClientSchema>;
 /** `GET /api/admin/clients`. `clients.view_all`, or the §5 scoped rule. */
 export const adminClientListResponseSchema = z.strictObject({
   clients: z.array(adminClientSchema),
+  total: totalSchema,
 });
 
 export type AdminClientListResponse = z.infer<
@@ -262,9 +266,20 @@ export const adminTeamMemberSchema = z.strictObject({
 
 export type AdminTeamMember = z.infer<typeof adminTeamMemberSchema>;
 
-/** `GET /api/admin/team` */
+/** An invitation Clerk has sent that nobody has accepted yet. */
+export const adminTeamInvitationSchema = z.strictObject({
+  email: emailSchema,
+  roleId: uuidSchema,
+  createdAt: utcDatetimeSchema,
+});
+
+export type AdminTeamInvitation = z.infer<typeof adminTeamInvitationSchema>;
+
+/** `GET /api/admin/team`. `total` counts the members; invitations aren't paged. */
 export const adminTeamListResponseSchema = z.strictObject({
   members: z.array(adminTeamMemberSchema),
+  total: totalSchema,
+  invitations: z.array(adminTeamInvitationSchema),
 });
 
 export type AdminTeamListResponse = z.infer<typeof adminTeamListResponseSchema>;
@@ -354,6 +369,80 @@ export const updateEmailTemplateRequestSchema = z.strictObject({
 export type UpdateEmailTemplateRequest = z.infer<
   typeof updateEmailTemplateRequestSchema
 >;
+
+/** A row of `email_templates`, for the dashboard's template editor. */
+export const emailTemplateSchema = z.strictObject({
+  event: emailEventSchema,
+  subjectAr: z.string(),
+  subjectEn: z.string(),
+  bodyAr: z.string(),
+  bodyEn: z.string(),
+});
+
+export type EmailTemplate = z.infer<typeof emailTemplateSchema>;
+
+/** The dashboard's template list (a server read). `team.manage`. */
+export const emailTemplateListSchema = z.strictObject({
+  templates: z.array(emailTemplateSchema),
+});
+
+export type EmailTemplateList = z.infer<typeof emailTemplateListSchema>;
+
+/** A row of `contact_messages`. */
+export const contactMessageSchema = z.strictObject({
+  id: uuidSchema,
+  name: z.string(),
+  email: z.string(),
+  orgType: orgTypeSchema,
+  subject: z.string(),
+  message: z.string(),
+  readAt: utcDatetimeSchema.nullable(),
+  createdAt: utcDatetimeSchema,
+});
+
+export type ContactMessage = z.infer<typeof contactMessageSchema>;
+
+/** The dashboard's messages list (a server read). `messages.view`. */
+export const contactMessageListSchema = z.strictObject({
+  messages: z.array(contactMessageSchema),
+  total: totalSchema,
+});
+
+export type ContactMessageList = z.infer<typeof contactMessageListSchema>;
+
+/** `PATCH /api/admin/messages`. `messages.view`. Marks one message read or unread. */
+export const updateMessageRequestSchema = z.strictObject({
+  id: uuidSchema,
+  read: z.boolean(),
+});
+
+export type UpdateMessageRequest = z.infer<typeof updateMessageRequestSchema>;
+
+/**
+ * A row of `audit_log`. `action` and `entity` are plain strings here: the log
+ * is permanent, so it may hold a value the lists in `audit.ts` no longer name.
+ * `actorName` is null when the actor's profile isn't readable.
+ */
+export const auditLogEntrySchema = z.strictObject({
+  id: uuidSchema,
+  actorId: clerkUserIdSchema.nullable(),
+  actorName: z.string().nullable(),
+  action: z.string(),
+  entity: z.string(),
+  entityId: z.string().nullable(),
+  metadata: z.record(z.string(), z.unknown()),
+  createdAt: utcDatetimeSchema,
+});
+
+export type AuditLogEntry = z.infer<typeof auditLogEntrySchema>;
+
+/** The dashboard's audit log (a server read). `team.manage`. */
+export const auditLogListSchema = z.strictObject({
+  entries: z.array(auditLogEntrySchema),
+  total: totalSchema,
+});
+
+export type AuditLogList = z.infer<typeof auditLogListSchema>;
 
 /** `GET /api/admin/newsletter/export`. The response is CSV text. */
 export const newsletterExportResponseSchema = z.string();

@@ -37,6 +37,18 @@ export type ResendContactUpdatedEvent = z.infer<
   typeof resendContactUpdatedEventSchema
 >;
 
+/**
+ * `POST /api/cron/hourly`. What the run did to `email_outbox`: rows it tried
+ * again, and how those ended.
+ */
+export const cronHourlyResponseSchema = z.strictObject({
+  retried: z.int().min(0),
+  sent: z.int().min(0),
+  failed: z.int().min(0),
+});
+
+export type CronHourlyResponse = z.infer<typeof cronHourlyResponseSchema>;
+
 /** `GET /api/posthog-config` */
 export const posthogConfigResponseSchema = z.strictObject({
   key: z.string().min(1),

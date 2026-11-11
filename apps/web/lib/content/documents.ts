@@ -1,16 +1,17 @@
 import "server-only";
-import { documentCategorySchema, type DocumentCategory, type Locale } from "@repo/shared";
+import {
+  DOCUMENTS_CACHE_TAG,
+  documentCategorySchema,
+  type DocumentCategory,
+  type Locale,
+} from "@repo/shared";
 import { cacheLife, cacheTag } from "next/cache";
 import { createServiceClient } from "@/lib/supabase/service";
 import { rowsOrThrow, text } from "./rows";
 import type { PublicDocument } from "./types";
 
-/**
- * `documents` isn't a `ContentType`, so `packages/shared` has no tag for it.
- * The documents admin routes (Phase 3) must refresh this one. Until it moves
- * into the shared tags, it lives here.
- */
-export const DOCUMENTS_CACHE_TAG = "content:documents";
+/** Kept here too: `lib/content` re-exports the tag from this file. */
+export { DOCUMENTS_CACHE_TAG };
 
 /**
  * The public list: titles and categories only, never the file (§6.12). A row

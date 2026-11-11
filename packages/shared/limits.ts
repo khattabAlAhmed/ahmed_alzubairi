@@ -25,3 +25,15 @@ export const MAX_SHORT_TEXT_LENGTH = 200;
 
 /** Max length of messages, descriptions, purposes and notes. */
 export const MAX_LONG_TEXT_LENGTH = 5000;
+
+/** Rows on one page of a dashboard list, when the request doesn't say. */
+export const DEFAULT_PAGE_SIZE = 20;
+
+/** The most rows one page of a dashboard list may ask for. */
+export const MAX_PAGE_SIZE = 100;
+
+/** The most notifications one `POST /api/notifications/read` may name. */
+export const MAX_NOTIFICATION_IDS = 100;
+
+/** Sends tried for one `email_outbox` row before the hourly job stops (§6.21). */
+export const EMAIL_MAX_ATTEMPTS = 5;

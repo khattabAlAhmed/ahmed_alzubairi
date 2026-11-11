@@ -1644,6 +1644,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      disable_client: { Args: { client_id: string }; Returns: number }
       has_permission: { Args: { key: string }; Returns: boolean }
       scoped_client_ids: { Args: never; Returns: string[] }
       visible_consultation_ids: { Args: never; Returns: string[] }

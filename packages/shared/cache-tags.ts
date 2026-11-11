@@ -18,3 +18,9 @@ export function contentCacheTag<Type extends ContentType>(
 ): `content:${Type}` {
   return CONTENT_CACHE_TAGS[type];
 }
+
+/**
+ * `documents` isn't a `ContentType`, so it has its own tag. The public list in
+ * `lib/content` carries it, and the documents admin routes refresh it.
+ */
+export const DOCUMENTS_CACHE_TAG = "content:documents";

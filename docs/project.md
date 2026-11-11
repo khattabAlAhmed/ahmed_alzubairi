@@ -618,6 +618,7 @@ Rules that must hold under concurrency run in Postgres functions only `service_r
 | `POST /api/document-requests` | Request one or more documents |
 | `GET /api/documents/:id/open` | Grant check → log → watermark → signed URL. Optional query `action`: `view` (default) or `download`. `download` is refused when `access_mode` is `view`. |
 | `POST /api/courses/:id/register` | Register |
+| `POST /api/notifications/read` | Mark the caller's own notifications read. Body `{ ids? }`: no `ids` means all of them. Returns the unread count. |
 
 ### Team (Clerk session + permission)
 
@@ -638,6 +639,7 @@ Rules that must hold under concurrency run in Postgres functions only `service_r
 | `PATCH /api/admin/clients` | `clients.view_all` only. Scoped access lets a team member see a client, never disable one. |
 | `GET/POST/PATCH /api/admin/team`, `/api/admin/roles` | `team.manage` |
 | `PATCH /api/admin/settings`, `/api/admin/email-templates` | `team.manage` |
+| `PATCH /api/admin/messages` | `messages.view`. Body `{ id, read: boolean }`: marks a contact message read or unread. |
 | `GET /api/admin/newsletter/export` | `content.manage` |
 | `DELETE /api/admin/:type/:id` | `data.delete`. Body `{ confirm: <row id> }`, checked against `:id`. The dashboard asks twice, and the second step needs a typed word. There is no token route. `:type` is a shared list: the content types except `home_sections` and `pages`, plus `documents`, `courses`, `consultations`. Never a log table, `profiles`, `email_outbox` or `roles`. Writes `audit_log`. |
 

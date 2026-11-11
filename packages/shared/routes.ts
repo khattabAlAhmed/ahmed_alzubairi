@@ -25,8 +25,11 @@ import {
   createDocumentRequestResponseSchema,
   createDocumentRequestSchema,
   disableAccountRequestSchema,
+  disableAccountResponseSchema,
   documentOpenQuerySchema,
   documentOpenResponseSchema,
+  notificationCounterSchema,
+  readNotificationsRequestSchema,
   sendMessageRequestSchema,
   updateProfileRequestSchema,
 } from "./routes-client";
@@ -37,8 +40,10 @@ import {
   newsletterSubscribeRequestSchema,
   resourceDownloadRequestSchema,
 } from "./routes-public";
+import { clientListParamsSchema, teamListParamsSchema } from "./lists";
 import {
   clerkUserUpdatedEventSchema,
+  cronHourlyResponseSchema,
   posthogConfigResponseSchema,
   resendContactUpdatedEventSchema,
 } from "./routes-system";
@@ -63,6 +68,7 @@ import {
   updateDocumentSchema,
   updateEmailTemplateRequestSchema,
   updateMeetingRequestSchema,
+  updateMessageRequestSchema,
   updateRoleRequestSchema,
   updateTeamMemberRequestSchema,
 } from "./routes-team";
@@ -125,7 +131,7 @@ export const ROUTES = {
   },
   "POST /api/account/disable": {
     body: disableAccountRequestSchema,
-    response: okResponseSchema,
+    response: disableAccountResponseSchema,
   },
   "GET /api/consultations": { response: consultationListResponseSchema },
   "POST /api/consultations": {
@@ -167,6 +173,10 @@ export const ROUTES = {
   "POST /api/courses/:id/register": {
     params: idParamsSchema,
     response: okResponseSchema,
+  },
+  "POST /api/notifications/read": {
+    body: readNotificationsRequestSchema,
+    response: notificationCounterSchema,
   },
 
   // Team
@@ -246,12 +256,18 @@ export const ROUTES = {
     body: updateCourseSchema,
     response: okResponseSchema,
   },
-  "GET /api/admin/clients": { response: adminClientListResponseSchema },
+  "GET /api/admin/clients": {
+    query: clientListParamsSchema,
+    response: adminClientListResponseSchema,
+  },
   "PATCH /api/admin/clients": {
     body: updateClientRequestSchema,
     response: okResponseSchema,
   },
-  "GET /api/admin/team": { response: adminTeamListResponseSchema },
+  "GET /api/admin/team": {
+    query: teamListParamsSchema,
+    response: adminTeamListResponseSchema,
+  },
   "POST /api/admin/team": {
     body: inviteTeamMemberRequestSchema,
     response: okResponseSchema,
@@ -277,6 +293,10 @@ export const ROUTES = {
     body: updateEmailTemplateRequestSchema,
     response: okResponseSchema,
   },
+  "PATCH /api/admin/messages": {
+    body: updateMessageRequestSchema,
+    response: okResponseSchema,
+  },
   "GET /api/admin/newsletter/export": {
     response: newsletterExportResponseSchema,
   },
@@ -295,7 +315,7 @@ export const ROUTES = {
     body: resendContactUpdatedEventSchema,
     response: okResponseSchema,
   },
-  "POST /api/cron/hourly": { response: okResponseSchema },
+  "POST /api/cron/hourly": { response: cronHourlyResponseSchema },
   "GET /api/posthog-config": { response: posthogConfigResponseSchema },
 } as const satisfies Record<string, RouteContract>;
 
