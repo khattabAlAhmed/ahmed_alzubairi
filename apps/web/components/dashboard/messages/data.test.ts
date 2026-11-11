@@ -34,7 +34,10 @@ describe("parseMessageParams", () => {
 
 describe("messagesPath", () => {
   it("leaves out the defaults and encodes the search", () => {
-    expect(messagesPath({ page: 1 })).toBe("/dashboard/messages");
+    expect(messagesPath({ page: 1, pageSize: 20 })).toBe("/dashboard/messages");
+    expect(messagesPath({ page: 2, pageSize: 50 })).toBe(
+      "/dashboard/messages?pageSize=50&page=2",
+    );
     expect(messagesPath({ page: 2, search: "a&b", read: "unread" })).toBe(
       "/dashboard/messages?search=a%26b&read=unread&page=2",
     );

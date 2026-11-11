@@ -1,6 +1,7 @@
-import { PERMISSIONS } from "@repo/shared";
+import { DEFAULT_PAGE_SIZE, PERMISSIONS } from "@repo/shared";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { sectionAccess } from "@/components/dashboard/gate";
 import {
   loadMessages,
@@ -47,7 +48,14 @@ export default async function MessagesPage({
   const filtered = Boolean(list.search || list.read);
   const pages = Math.max(1, Math.ceil(total / list.pageSize));
   const link = (page: number) =>
-    messagesPath({ page, search: list.search, read: list.read });
+    messagesPath({
+      page,
+      pageSize: list.pageSize,
+      search: list.search,
+      read: list.read,
+    });
+  // A page past the end (an old link, or fewer matches now): the last page.
+  if (list.page > pages) redirect(`/${access.locale}${link(pages)}`);
 
   return (
     <div className="space-y-6">
@@ -60,6 +68,9 @@ export default async function MessagesPage({
         aria-label={t("filters.label")}
         className="flex flex-wrap items-end gap-3"
       >
+        {list.pageSize !== DEFAULT_PAGE_SIZE && (
+          <input type="hidden" name="pageSize" value={list.pageSize} />
+        )}
         <TextField
           label={t("filters.search")}
           hint={t("filters.searchHint")}
@@ -127,7 +138,7 @@ export default async function MessagesPage({
             <span />
           )}
           <p className="text-sm text-text-secondary">
-            {t("paging.position", { page: Math.min(list.page, pages), pages })}
+            {t("paging.position", { page: list.page, pages })}
           </p>
           {list.page < pages ? (
             <ButtonLink href={link(list.page + 1)} variant="secondary" size="sm">

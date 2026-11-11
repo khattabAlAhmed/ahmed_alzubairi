@@ -1,5 +1,6 @@
 import "server-only";
 import {
+  DEFAULT_PAGE_SIZE,
   messageListParamsSchema,
   type ContactMessageList,
   type MessageListParams,
@@ -43,12 +44,16 @@ export function loadMessages(params: MessageListParams): Promise<ContactMessageL
 /** The list's address with these params; defaults are left out. */
 export function messagesPath(params: {
   page?: number;
+  pageSize?: number;
   search?: string;
   read?: MessageListParams["read"];
 }): string {
   const query = new URLSearchParams();
   if (params.search) query.set("search", params.search);
   if (params.read) query.set("read", params.read);
+  if (params.pageSize && params.pageSize !== DEFAULT_PAGE_SIZE) {
+    query.set("pageSize", String(params.pageSize));
+  }
   if (params.page && params.page > 1) query.set("page", String(params.page));
   const text = query.toString();
   return text ? `/dashboard/messages?${text}` : "/dashboard/messages";

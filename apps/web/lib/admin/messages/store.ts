@@ -36,7 +36,29 @@ export async function listMessages(
   params: MessageListParams,
 ): Promise<ContactMessageList> {
   const { from, to } = pageRange(params);
-  let query = user.from("contact_messages").select("*", { count: "exact" });
+  const { data, error, count } = await filtered(
+    user.from("contact_messages").select("*", { count: "exact" }),
+    params,
+  )
+    .order("created_at", { ascending: false })
+    .order("id")
+    .range(from, to);
+  // Past the last page PostgREST answers "range not satisfiable", with no
+  // count: an empty page, and the total from a count of its own.
+  if (error?.code === "PGRST103") {
+    return { messages: [], total: await countMessages(user, params) };
+  }
+  if (error) throw new Error(`messages list failed: ${error.code}`);
+  return { messages: data.map(toMessage), total: count ?? data.length };
+}
+
+/** The read filter and the search, on a list or a count query. */
+function filtered<Query extends {
+  is: (column: string, value: null) => Query;
+  not: (column: string, operator: string, value: null) => Query;
+  or: (filters: string) => Query;
+}>(start: Query, params: MessageListParams): Query {
+  let query = start;
   if (params.read === "unread") query = query.is("read_at", null);
   if (params.read === "read") query = query.not("read_at", "is", null);
   if (params.search) {
@@ -47,14 +69,19 @@ export async function listMessages(
         .join(","),
     );
   }
-  const { data, error, count } = await query
-    .order("created_at", { ascending: false })
-    .order("id")
-    .range(from, to);
-  // Past the last page PostgREST answers "range not satisfiable": an empty page.
-  if (error?.code === "PGRST103") return { messages: [], total: count ?? 0 };
-  if (error) throw new Error(`messages list failed: ${error.code}`);
-  return { messages: data.map(toMessage), total: count ?? data.length };
+  return query;
+}
+
+async function countMessages(
+  user: Client,
+  params: MessageListParams,
+): Promise<number> {
+  const { count, error } = await filtered(
+    user.from("contact_messages").select("id", { count: "exact", head: true }),
+    params,
+  );
+  if (error) throw new Error(`messages count failed: ${error.code}`);
+  return count ?? 0;
 }
 
 /**

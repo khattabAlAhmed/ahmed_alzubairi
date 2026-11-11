@@ -6,7 +6,12 @@ const mocks = vi.hoisted(() => ({
   requireTeamMember: vi.fn(),
   sectionAccess: vi.fn(),
   loadMessages: vi.fn(),
+  redirect: vi.fn((path: string) => {
+    throw new Error(`redirect:${path}`);
+  }),
 }));
+
+vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 
 vi.mock("@/lib/auth/gates", () => ({ requireTeamMember: mocks.requireTeamMember }));
 vi.mock("@/components/dashboard/gate", () => ({ sectionAccess: mocks.sectionAccess }));
@@ -45,6 +50,7 @@ describe("/dashboard/messages", () => {
 
   it("reads the asked page for a member with messages.view", async () => {
     mocks.sectionAccess.mockResolvedValue({ locale: "en", allowed: true });
+    mocks.loadMessages.mockResolvedValue({ messages: [], total: 30 });
     const page = await MessagesPage({
       params,
       searchParams: Promise.resolve({ page: "2", read: "unread", search: "budget" }),
@@ -56,5 +62,22 @@ describe("/dashboard/messages", () => {
       read: "unread",
       search: "budget",
     });
+  });
+
+  it("sends a page past the end to the last page, keeping the filter and page size", async () => {
+    mocks.sectionAccess.mockResolvedValue({ locale: "en", allowed: true });
+    mocks.loadMessages.mockResolvedValue({ messages: [], total: 12 });
+    await expect(
+      MessagesPage({
+        params,
+        searchParams: Promise.resolve({ page: "7", pageSize: "5", read: "unread" }),
+      }),
+    ).rejects.toThrow("redirect:/en/dashboard/messages?read=unread&pageSize=5&page=3");
+
+    // No match at all: page 1 is the last page.
+    mocks.loadMessages.mockResolvedValue({ messages: [], total: 0 });
+    await expect(
+      MessagesPage({ params, searchParams: Promise.resolve({ page: "4" }) }),
+    ).rejects.toThrow("redirect:/en/dashboard/messages");
   });
 });

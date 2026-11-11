@@ -225,12 +225,32 @@ describe("the messages store", () => {
     ]);
   });
 
-  it("gives an empty page past the last one, and throws on any other error", async () => {
-    const past = fakeClient({ data: null, error: { code: "PGRST103" }, count: 3 });
-    expect(await listMessages(past.client, params({ page: 9 }))).toEqual({
-      messages: [],
-      total: 3,
-    });
+  it("gives an empty page past the last one, with the total from a count", async () => {
+    // PostgREST refuses the range and sends no count; the count query answers.
+    const results = [
+      { data: null, error: { code: "PGRST103" }, count: null },
+      { data: null, error: null, count: 3 },
+    ];
+    const calls: unknown[][] = [];
+    const query: Record<string, unknown> = {
+      then: (resolve: (value: unknown) => void) => resolve(results.shift()),
+    };
+    for (const method of ["select", "is", "not", "or", "order", "range"]) {
+      query[method] = (...args: unknown[]) => {
+        calls.push([method, ...args]);
+        return query;
+      };
+    }
+    const client = { from: () => query } as unknown as SupabaseClient<Database>;
+    expect(
+      await listMessages(client, params({ page: 9, read: "unread" })),
+    ).toEqual({ messages: [], total: 3 });
+    expect(calls).toContainEqual(["select", "id", { count: "exact", head: true }]);
+    // The count uses the same filter as the list.
+    expect(calls.filter(([method]) => method === "is")).toHaveLength(2);
+  });
+
+  it("throws on any other error", async () => {
     const broken = fakeClient({ data: null, error: { code: "42501" }, count: null });
     await expect(listMessages(broken.client, params({ page: 1 }))).rejects.toThrow(
       "messages list failed: 42501",
