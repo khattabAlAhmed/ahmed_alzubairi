@@ -428,6 +428,7 @@ describe("queueEmailForPermission", () => {
         queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload),
       ).resolves.toBe(false);
       expect(tables.email_outbox).toEqual([]);
+      expect(tables.notifications).toEqual([]);
       expect(loggedText()).toContain("57014");
       expect(loggedText()).not.toMatch(/@example|Client Name/);
     },

@@ -213,25 +213,28 @@ export async function queueEmailForPermission<Event extends EmailEvent>(
     const recipients = members.data.filter(
       (member) => !optional || member.notify_optional,
     );
+    const rows = recipients.map((member): OutboxRow => {
+      const locale = localeSchema.safeParse(member.locale);
+      return {
+        event,
+        to_email: member.email,
+        locale: locale.success ? locale.data : "ar",
+        payload:
+          hasTimezone && isIanaTimeZone(member.timezone)
+            ? { ...checked, timezone: member.timezone }
+            : checked,
+        status: "pending",
+      };
+    });
+    if (!(await insertRows(event, rows))) return false;
+    // After the emails, so a failed queue leaves no notification behind and a
+    // caller's retry can't write a second one.
     await insertNotifications(
       event,
       recipients.map((member) => member.clerk_user_id),
       checked,
     );
-    const rows = recipients.map((member): OutboxRow => {
-        const locale = localeSchema.safeParse(member.locale);
-        return {
-          event,
-          to_email: member.email,
-          locale: locale.success ? locale.data : "ar",
-          payload:
-            hasTimezone && isIanaTimeZone(member.timezone)
-              ? { ...checked, timezone: member.timezone }
-              : checked,
-          status: "pending",
-        };
-      });
-    return await insertRows(event, rows);
+    return true;
   } catch (error) {
     logFailure(event, reasonOf(error));
     return false;
