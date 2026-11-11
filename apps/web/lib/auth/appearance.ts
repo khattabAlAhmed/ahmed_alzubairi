@@ -3,6 +3,14 @@
 // Clerk colors its links with `colorPrimary`, and gold text on white fails the
 // §13 gold rule. So `colorPrimary` is the text color, and only the main button
 // is gold, with navy text.
+
+// The main button stays gold in every state and dims a little. Without the
+// background here, Clerk paints its own hover shade of `colorPrimary`.
+const primaryButtonState = {
+  backgroundColor: "var(--color-accent)",
+  opacity: 0.9,
+};
+
 export const clerkAppearance = {
   variables: {
     colorPrimary: "var(--color-text)",
@@ -39,13 +47,15 @@ export const clerkAppearance = {
         background: "var(--color-background)",
       },
     },
+    // One key per state. Clerk reads a space inside a nested selector as a
+    // descendant combinator and logs its "Structural CSS" warning, so the
+    // comma list "&:hover, &:focus, &:active" trips it. A single state doesn't.
     formButtonPrimary: {
       backgroundColor: "var(--color-accent)",
       color: "var(--color-on-accent)",
-      "&:hover, &:focus, &:active": {
-        backgroundColor: "var(--color-accent)",
-        opacity: 0.9,
-      },
+      "&:hover": primaryButtonState,
+      "&:focus": primaryButtonState,
+      "&:active": primaryButtonState,
     },
   },
 };
