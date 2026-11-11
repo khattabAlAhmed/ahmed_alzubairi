@@ -58,5 +58,9 @@ export function createTeamClerk(): TeamClerk {
     async unban(userId) {
       await (await clerkClient()).users.unbanUser(userId);
     },
+
+    async isBanned(userId) {
+      return (await (await clerkClient()).users.getUser(userId)).banned;
+    },
   };
 }

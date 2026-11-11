@@ -85,23 +85,26 @@ export function createTeamStore(user: Client, service: Client): TeamStore {
       };
     },
 
-    // `role_id is not null` on both writes: this API never touches a client.
-    async setRole(id, roleId) {
+    // Each write is a compare-and-set, so two requests can't both apply. A
+    // client's `role_id` is null and never equals `from`, and the status write
+    // says `role_id is not null`: this API never touches a client.
+    async setRole(id, from, to) {
       const { data, error } = await service
         .from("profiles")
-        .update({ role_id: roleId })
+        .update({ role_id: to })
         .eq("clerk_user_id", id)
-        .not("role_id", "is", null)
+        .eq("role_id", from)
         .select("clerk_user_id");
       if (error) throw new Error(`role change failed: ${error.code}`);
       return data.length > 0;
     },
 
-    async setStatus(id, status) {
+    async setStatus(id, from, to) {
       const { data, error } = await service
         .from("profiles")
-        .update({ status })
+        .update({ status: to })
         .eq("clerk_user_id", id)
+        .eq("status", from)
         .not("role_id", "is", null)
         .select("clerk_user_id");
       if (error) throw new Error(`status change failed: ${error.code}`);

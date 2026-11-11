@@ -16,5 +16,6 @@
   "teamRoleUnknown": "This role doesn't exist. Choose another role.",
   "teamNotMember": "This account isn't a team member. To add someone to the team, send an invitation.",
   "teamInviteExists": "This email already has an account or a pending invitation.",
-  "teamSyncFailed": "We couldn't update this member's sign-in. Nothing was changed. Try again."
+  "teamSyncFailed": "We couldn't update this member's sign-in, so their status wasn't changed. Try again.",
+  "teamChangedMeanwhile": "Someone else just changed this member. Refresh the page and try again."
 }

@@ -71,17 +71,17 @@ function world() {
       const profile = profiles.get(id);
       return profile ? { ...profile } : null;
     }),
-    // Like the real writes: only a profile that has a role.
-    setRole: vi.fn(async (id: string, roleId: string) => {
+    // Like the real writes: compare-and-set, and only a profile with a role.
+    setRole: vi.fn(async (id: string, from: string, to: string) => {
       const profile = profiles.get(id);
-      if (!profile || profile.roleId === null) return false;
-      profile.roleId = roleId;
+      if (!profile || profile.roleId !== from) return false;
+      profile.roleId = to;
       return true;
     }),
-    setStatus: vi.fn(async (id: string, status: ProfileStatus) => {
+    setStatus: vi.fn(async (id: string, from: ProfileStatus, to: ProfileStatus) => {
       const profile = profiles.get(id);
-      if (!profile || profile.roleId === null) return false;
-      profile.status = status;
+      if (!profile || profile.roleId === null || profile.status !== from) return false;
+      profile.status = to;
       return true;
     }),
   } satisfies TeamStore;
@@ -108,6 +108,7 @@ function world() {
     unban: vi.fn(async (id: string) => {
       banned.delete(id);
     }),
+    isBanned: vi.fn(async (id: string) => banned.has(id)),
   } satisfies TeamClerk;
 
   const audit = vi.fn<(entry: AuditEntry) => Promise<void>>(async () => {});
@@ -418,12 +419,73 @@ describe("updateMember", () => {
   });
 
   it("a failed unban leaves the member disabled", async () => {
-    const { deps, profiles, clerk, audit } = world();
+    const { deps, profiles, banned, clerk, audit } = world();
     profiles.set(MEMBER, { roleId: EDITOR_ROLE, status: "disabled" });
+    banned.add(MEMBER);
     clerk.unban.mockRejectedValue(new Error("clerk down"));
     const result = await updateMember({ id: MEMBER, status: "active" }, deps);
     expect(result.status).toBe(502);
     expect(profiles.get(MEMBER)?.status).toBe("disabled");
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it("keeps the disable when Clerk applied the ban but its answer was lost", async () => {
+    const { deps, profiles, banned, clerk, audit } = world();
+    clerk.ban.mockImplementation(async (id: string) => {
+      banned.add(id);
+      throw new Error("timeout");
+    });
+    const result = await updateMember({ id: MEMBER, status: "disabled" }, deps);
+    expect(result.status).toBe(200);
+    expect(profiles.get(MEMBER)?.status).toBe("disabled");
+    expect(audit).toHaveBeenCalledWith(expect.objectContaining({ action: "team.disable" }));
+  });
+
+  it("puts the status back when Clerk can't say whether the ban applied", async () => {
+    const { deps, profiles, clerk } = world();
+    clerk.ban.mockRejectedValue(new Error("clerk down"));
+    clerk.isBanned.mockRejectedValue(new Error("clerk down"));
+    const result = await updateMember({ id: MEMBER, status: "disabled" }, deps);
+    expect(result.status).toBe(502);
+    expect(profiles.get(MEMBER)?.status).toBe("active");
+  });
+
+  it("answers 409 and calls nothing when someone else changed the status first", async () => {
+    const { deps, profiles, store, clerk, audit } = world();
+    store.getProfile.mockResolvedValueOnce({ roleId: EDITOR_ROLE, status: "active" });
+    profiles.set(MEMBER, { roleId: EDITOR_ROLE, status: "disabled" });
+    const result = await updateMember({ id: MEMBER, status: "disabled" }, deps);
+    expect(result).toEqual({
+      status: 409,
+      body: { error: { code: "conflict", message: adminEn.teamChangedMeanwhile } },
+    });
+    expect(clerk.ban).not.toHaveBeenCalled();
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it("leaves Clerk matching the profile when a disable lands during an enable", async () => {
+    const { deps, profiles, banned, clerk } = world();
+    profiles.set(MEMBER, { roleId: EDITOR_ROLE, status: "disabled" });
+    banned.add(MEMBER);
+    // While Clerk answers the unban, another request disables the member.
+    clerk.unban.mockImplementation(async (id: string) => {
+      profiles.set(MEMBER, { roleId: EDITOR_ROLE, status: "disabled" });
+      banned.delete(id);
+    });
+    await updateMember({ id: MEMBER, status: "active" }, deps);
+    expect(profiles.get(MEMBER)?.status).toBe("disabled");
+    expect(banned.has(MEMBER)).toBe(true);
+  });
+
+  it("a failed ban in a combined request puts the role back too", async () => {
+    const { deps, profiles, clerk, audit } = world();
+    clerk.ban.mockRejectedValue(new Error("clerk down"));
+    const result = await updateMember(
+      { id: MEMBER, roleId: TRAINER_ROLE, status: "disabled" },
+      deps,
+    );
+    expect(result.status).toBe(502);
+    expect(profiles.get(MEMBER)).toEqual({ roleId: EDITOR_ROLE, status: "active" });
     expect(audit).not.toHaveBeenCalled();
   });
 

@@ -36,9 +36,16 @@ export type TeamStore = {
   getProfile: (
     id: string,
   ) => Promise<{ roleId: string | null; status: ProfileStatus } | null>;
-  /** Both writes touch a profile only while it has a role. False when none did. */
-  setRole: (id: string, roleId: string) => Promise<boolean>;
-  setStatus: (id: string, status: ProfileStatus) => Promise<boolean>;
+  /**
+   * Both writes change a value only while it is still `from`, and only on a
+   * profile that has a role. False when nothing was written.
+   */
+  setRole: (id: string, from: string, to: string) => Promise<boolean>;
+  setStatus: (
+    id: string,
+    from: ProfileStatus,
+    to: ProfileStatus,
+  ) => Promise<boolean>;
 };
 
 export type PendingInvitation = {
@@ -60,6 +67,7 @@ export type TeamClerk = {
   /** Signs the user out everywhere and refuses sign-in. */
   ban: (userId: string) => Promise<void>;
   unban: (userId: string) => Promise<void>;
+  isBanned: (userId: string) => Promise<boolean>;
 };
 
 export type TeamDeps = {
@@ -165,27 +173,48 @@ export async function inviteMember(
   return OK;
 }
 
+function setClerkStatus(
+  id: string,
+  status: ProfileStatus,
+  clerk: TeamClerk,
+): Promise<void> {
+  return status === "disabled" ? clerk.ban(id) : clerk.unban(id);
+}
+
 /**
- * Writes the status, then tells Clerk. When Clerk fails, the status goes back
- * to what it was, so the two never disagree.
+ * Writes the status, then tells Clerk, so the two agree when it returns.
+ * `changed`: someone else changed the status first, and nothing was written.
+ * `clerk_failed`: Clerk didn't take the change, and the status is back to
+ * what it was.
  */
 async function changeStatus(
   id: string,
   from: ProfileStatus,
   to: ProfileStatus,
   { store, clerk }: Pick<TeamDeps, "store" | "clerk">,
-): Promise<"done" | "gone" | "clerk_failed"> {
-  if (!(await store.setStatus(id, to))) return "gone";
+): Promise<"done" | "changed" | "clerk_failed"> {
+  if (!(await store.setStatus(id, from, to))) return "changed";
   try {
-    if (to === "disabled") await clerk.ban(id);
-    else await clerk.unban(id);
+    await setClerkStatus(id, to, clerk);
   } catch (error) {
-    await store.setStatus(id, from);
-    console.error(
-      `team: Clerk ${to === "disabled" ? "ban" : "unban"} failed`,
-      (error as { status?: unknown } | null)?.status ?? "error",
-    );
-    return "clerk_failed";
+    // The call may have reached Clerk although its answer didn't reach us, so
+    // ask Clerk what it holds before undoing anything.
+    const banned = await clerk.isBanned(id).catch(() => null);
+    if (banned !== (to === "disabled")) {
+      await store.setStatus(id, to, from);
+      console.error(
+        `team: Clerk ${to === "disabled" ? "ban" : "unban"} failed`,
+        (error as { status?: unknown } | null)?.status ?? "error",
+      );
+      return "clerk_failed";
+    }
+  }
+
+  // Another request may have changed the status while Clerk was answering.
+  // The profile decides: Clerk is set to match what it says now.
+  const current = await store.getProfile(id);
+  if (current && current.status !== to) {
+    await setClerkStatus(id, current.status, clerk);
   }
   return "done";
 }
@@ -229,12 +258,31 @@ export async function updateMember(
     newRoleId = role.id;
   }
 
-  if (status !== undefined && status !== member.status) {
+  const changed = adminError("conflict", 409, "teamChangedMeanwhile", locale);
+  const statusChange = status !== undefined && status !== member.status;
+
+  // The role first: it is one database write, and it is put back when the
+  // status change after it fails. So a request is applied whole or not at all.
+  if (
+    newRoleId !== null &&
+    !(await store.setRole(id, member.roleId, newRoleId))
+  ) {
+    return changed;
+  }
+
+  if (statusChange) {
     const outcome = await changeStatus(id, member.status, status, deps);
-    if (outcome === "gone") return notFound;
-    if (outcome === "clerk_failed") {
-      return adminError("internal_error", 502, "teamSyncFailed", locale);
+    if (outcome !== "done") {
+      if (newRoleId !== null) {
+        await store.setRole(id, newRoleId, member.roleId);
+      }
+      return outcome === "changed"
+        ? changed
+        : adminError("internal_error", 502, "teamSyncFailed", locale);
     }
+  }
+
+  if (statusChange) {
     await deps.audit({
       actorId: userId,
       action: status === "disabled" ? "team.disable" : "team.enable",
@@ -242,9 +290,7 @@ export async function updateMember(
       entityId: id,
     });
   }
-
   if (newRoleId !== null) {
-    if (!(await store.setRole(id, newRoleId))) return notFound;
     await deps.audit({
       actorId: userId,
       action: "team.role_change",
