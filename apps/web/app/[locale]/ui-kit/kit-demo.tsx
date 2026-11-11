@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { ArrowForwardIcon } from "@/components/icons";
 import {
@@ -28,16 +29,20 @@ function Block({ title, intro, children, aside }: { title: string; intro?: strin
   );
 }
 
+/**
+ * A panel's fields. The labels and the error are UI text, in the page's
+ * language; the sample value is content, in the panel's.
+ */
 function PanelFields({ lang, showErrors }: { lang: "ar" | "en"; showErrors: boolean }) {
-  const p = PANEL_TEXT[lang];
+  const ui = PANEL_TEXT[useLocale() === "ar" ? "ar" : "en"];
   return (
     <>
-      <TextField label={p.title} name={`title_${lang}`} defaultValue={p.titleValue} />
+      <TextField label={ui.title} name={`title_${lang}`} defaultValue={PANEL_TEXT[lang].titleValue} />
       <TextArea
-        label={p.summary}
+        label={ui.summary}
         name={`summary_${lang}`}
         rows={3}
-        error={showErrors && lang === "en" ? p.summaryError : undefined}
+        error={showErrors && lang === "en" ? ui.summaryError : undefined}
       />
     </>
   );

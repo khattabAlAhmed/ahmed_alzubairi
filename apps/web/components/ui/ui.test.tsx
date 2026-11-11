@@ -119,12 +119,17 @@ describe("LanguageTabs", () => {
     />
   );
 
-  it("makes the Arabic panel RTL and the English panel LTR", () => {
+  it("leaves the panels in the page's language and direction, with each heading in its own language", () => {
     render(tabs);
-    const arabic = screen.getByText("نص").closest("section");
-    const english = screen.getByText("Text").closest("section");
-    expect([arabic?.getAttribute("lang"), arabic?.getAttribute("dir")]).toEqual(["ar", "rtl"]);
-    expect([english?.getAttribute("lang"), english?.getAttribute("dir")]).toEqual(["en", "ltr"]);
+    for (const [text, lang] of [["نص", "ar"], ["Text", "en"]] as const) {
+      const panel = screen.getByText(text).closest("section") as HTMLElement;
+      expect(panel.getAttribute("lang")).toBeNull();
+      expect(panel.getAttribute("dir")).toBeNull();
+      const heading = panel.querySelector("h3") as HTMLElement;
+      expect(heading.getAttribute("lang")).toBe(lang);
+      // It sits on the UI's start side, with the labels under it.
+      expect(heading.getAttribute("dir")).toBeNull();
+    }
   });
 
   it("starts on Arabic and moves with the arrow keys", () => {
@@ -146,5 +151,89 @@ describe("LanguageTabs", () => {
     render(tabs);
     expect(screen.getByText("نص")).toBeTruthy();
     expect(screen.getByText("Text")).toBeTruthy();
+  });
+});
+
+/** The language and direction an element resolves to: its own, or the nearest above it. */
+const resolved = (element: Element | null | undefined) => [
+  element?.closest("[lang]")?.getAttribute("lang"),
+  element?.closest("[dir]")?.getAttribute("dir"),
+];
+
+const DIRECTION = { ar: "rtl", en: "ltr" } as const;
+
+describe("fields in a language panel", () => {
+  /** One of each field in both panels, on a page in the `ui` language. */
+  function renderPanels(ui: "ar" | "en") {
+    const fields = (panel: "ar" | "en") => (
+      <>
+        <TextField label={`title ${panel}`} hint={`title hint ${panel}`} error={`title error ${panel}`} />
+        <TextArea label={`summary ${panel}`} hint={`summary hint ${panel}`} error={`summary error ${panel}`} />
+        <Checkbox label={`featured ${panel}`} hint={`featured hint ${panel}`} error={`featured error ${panel}`} />
+        <TextField label={`address ${panel}`} type="url" dir="ltr" />
+        <Select label={`kind ${panel}`}>
+          <option>A</option>
+        </Select>
+      </>
+    );
+    render(
+      <div lang={ui} dir={DIRECTION[ui]}>
+        <LanguageTabs
+          label="Language"
+          arabic={{ label: "العربية", content: fields("ar") }}
+          english={{ label: "English", content: fields("en") }}
+        />
+      </div>,
+    );
+  }
+
+  describe.each([
+    ["ar", "en"],
+    ["en", "ar"],
+    ["ar", "ar"],
+    ["en", "en"],
+  ] as const)("%s UI, %s panel", (ui, panel) => {
+    it.each(["title", "summary", "featured"])(
+      "gives the %s field's label, hint and error the UI's language and direction, and its input the panel's",
+      (name) => {
+        renderPanels(ui);
+        const input = screen.getByLabelText(`${name} ${panel}`);
+        expect([input.getAttribute("lang"), input.getAttribute("dir")]).toEqual([panel, DIRECTION[panel]]);
+
+        const label = document.querySelector(`label[for="${input.id}"]`);
+        const hint = screen.getByText(`${name} hint ${panel}`);
+        const error = screen.getByText(`${name} error ${panel}`);
+        for (const text of [label, hint, error]) {
+          expect(resolved(text)).toEqual([ui, DIRECTION[ui]]);
+          // Nothing of the panel's sits between the text and the page.
+          expect(text?.closest("section")?.contains(text.closest("[dir]") ?? null)).toBe(false);
+        }
+      },
+    );
+
+    it("keeps a field's own direction, and leaves a select in the UI's", () => {
+      renderPanels(ui);
+      const address = screen.getByLabelText(`address ${panel}`);
+      expect([address.getAttribute("lang"), address.getAttribute("dir")]).toEqual([panel, "ltr"]);
+      // A select's options are UI text.
+      expect(resolved(screen.getByLabelText(`kind ${panel}`))).toEqual([ui, DIRECTION[ui]]);
+    });
+  });
+
+  it("leaves a field outside a panel as it was: no language or direction of its own", () => {
+    render(
+      <div lang="ar" dir="rtl">
+        <TextField label="title" hint="hint" error="error" />
+        <TextArea label="summary" />
+        <Checkbox label="featured" />
+        <TextField label="address" type="url" dir="ltr" />
+      </div>,
+    );
+    for (const name of ["title", "summary", "featured"]) {
+      const input = screen.getByLabelText(name);
+      expect(input.getAttribute("lang")).toBeNull();
+      expect(input.getAttribute("dir")).toBeNull();
+    }
+    expect(screen.getByLabelText("address").getAttribute("dir")).toBe("ltr");
   });
 });

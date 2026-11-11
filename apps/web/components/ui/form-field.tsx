@@ -9,6 +9,7 @@ import {
 } from "react";
 import { cx } from "./cx";
 import { ChevronDownIcon } from "./icons";
+import { usePanelLanguage } from "./language-tabs";
 
 // The border is 50% text so the field's edge passes 3:1 against the surface.
 // `unicode-bidi: plaintext` lays each line out from its own text, so an email
@@ -62,9 +63,17 @@ type FieldText = {
   error?: string;
 };
 
-/** Ties the label, hint and error to the control. */
+/**
+ * Ties the label, hint and error to the control.
+ *
+ * Inside a `LanguageTabs` panel, `content` gives a control that holds content
+ * the panel's language and direction, unless the field sets its own (a slug
+ * or a URL is always `ltr`). The label, hint and error are UI text and take
+ * nothing, so they stay in the UI's. Outside a panel `content` is empty.
+ */
 function useField(idProp: string | undefined, { hint, error }: FieldText) {
   const generated = useId();
+  const panel = usePanelLanguage();
   const id = idProp ?? generated;
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
@@ -77,6 +86,10 @@ function useField(idProp: string | undefined, { hint, error }: FieldText) {
       "aria-invalid": error ? true : undefined,
       "aria-describedby": describedBy,
     },
+    content: (own: { lang?: string; dir?: string }) => ({
+      lang: own.lang ?? panel?.lang,
+      dir: own.dir ?? panel?.dir,
+    }),
     after: (
       <>
         {hint && <FieldHint id={hintId}>{hint}</FieldHint>}
@@ -90,13 +103,19 @@ type TextFieldProps = FieldText & Omit<InputHTMLAttributes<HTMLInputElement>, "t
   type?: "text" | "email" | "tel" | "url" | "password" | "search" | "number" | "date";
 };
 
-export function TextField({ label, hint, error, id: idProp, className, type = "text", ...props }: TextFieldProps) {
+export function TextField({ label, hint, error, id: idProp, className, type = "text", lang, dir, ...props }: TextFieldProps) {
   const field = useField(idProp, { label, hint, error });
 
   return (
     <div className={className}>
       <Label htmlFor={field.id}>{label}</Label>
-      <input type={type} className={cx(TEXT_CONTROL, "mt-1 h-11")} {...field.controlProps} {...props} />
+      <input
+        type={type}
+        className={cx(TEXT_CONTROL, "mt-1 h-11")}
+        {...field.controlProps}
+        {...field.content({ lang, dir })}
+        {...props}
+      />
       {field.after}
     </div>
   );
@@ -104,13 +123,19 @@ export function TextField({ label, hint, error, id: idProp, className, type = "t
 
 type TextAreaProps = FieldText & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-export function TextArea({ label, hint, error, id: idProp, className, rows = 5, ...props }: TextAreaProps) {
+export function TextArea({ label, hint, error, id: idProp, className, rows = 5, lang, dir, ...props }: TextAreaProps) {
   const field = useField(idProp, { label, hint, error });
 
   return (
     <div className={className}>
       <Label htmlFor={field.id}>{label}</Label>
-      <textarea rows={rows} className={cx(TEXT_CONTROL, "mt-1 min-h-24 py-2 leading-relaxed")} {...field.controlProps} {...props} />
+      <textarea
+        rows={rows}
+        className={cx(TEXT_CONTROL, "mt-1 min-h-24 py-2 leading-relaxed")}
+        {...field.controlProps}
+        {...field.content({ lang, dir })}
+        {...props}
+      />
       {field.after}
     </div>
   );
@@ -143,7 +168,7 @@ type CheckboxProps = Omit<FieldText, "label"> & Omit<InputHTMLAttributes<HTMLInp
   label: ReactNode;
 };
 
-export function Checkbox({ label, hint, error, id: idProp, className, ...props }: CheckboxProps) {
+export function Checkbox({ label, hint, error, id: idProp, className, lang, dir, ...props }: CheckboxProps) {
   const field = useField(idProp, { label: "", hint, error });
 
   return (
@@ -158,6 +183,7 @@ export function Checkbox({ label, hint, error, id: idProp, className, ...props }
             "disabled:cursor-not-allowed disabled:opacity-60",
           )}
           {...field.controlProps}
+          {...field.content({ lang, dir })}
           {...props}
         />
         <label htmlFor={field.id} className="text-sm text-text">

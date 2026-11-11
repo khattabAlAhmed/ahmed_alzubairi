@@ -225,12 +225,11 @@ const LTR_TOKENS = {
 
 /**
  * The link form under the toolbar: add, change or remove the selection's link.
- * Its text is in the UI language, so it takes the UI's language and direction,
- * not the content panel's.
+ * Its text is in the UI language. It sits inside the editor's root, which has
+ * the UI's language and direction, not the content panel's.
  */
 function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
   const t = useTranslations("DashboardEditor");
-  const locale = useLocale();
   const id = useId();
   const [href, setHref] = useState<string>(() => editor.getAttributes("link").href ?? "");
   const [error, setError] = useState(false);
@@ -251,11 +250,7 @@ function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
   }
 
   return (
-    <div
-      lang={locale}
-      dir={localeDirection(locale)}
-      className="flex flex-col gap-2 border-x border-text/30 p-2 sm:flex-row sm:items-end"
-    >
+    <div className="flex flex-col gap-2 border-x border-text/30 p-2 sm:flex-row sm:items-end">
       {/* The hint and error carry markup, so they sit here, not in TextField's text props. */}
       <div className="min-w-0 flex-1">
         <TextField
@@ -295,7 +290,8 @@ function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
 /**
  * A Tiptap editor for one language of a rich-text field. It saves Tiptap JSON
  * only (§9 XSS), reduced to the allow-list. The editing area types in the
- * panel's language and direction: RTL for Arabic, LTR for English.
+ * content's language and direction: RTL for Arabic, LTR for English. The rest
+ * follows the UI.
  */
 export function RichTextEditor({
   value,
@@ -352,7 +348,11 @@ export function RichTextEditor({
   });
 
   return (
-    <div>
+    // Everything but the editing area is UI text: the label, hint and error,
+    // the toolbar with its tooltips, and the link form. The root gives them the
+    // UI's language and direction, whatever is around the editor. The editing
+    // area sets its own, the content's.
+    <div lang={locale} dir={localeDirection(locale)}>
       <p id={`${id}-label`} className="mb-1 text-sm font-semibold">
         {label}
       </p>
@@ -361,15 +361,8 @@ export function RichTextEditor({
           {hint}
         </p>
       )}
-      {/*
-        The toolbar is UI chrome: its names and tooltips are in the UI language,
-        so it takes the UI's language and direction, not the content panel's.
-        The tooltips sit inside it and inherit both.
-      */}
       <div
         role="toolbar"
-        lang={locale}
-        dir={localeDirection(locale)}
         aria-label={t("toolbar")}
         aria-controls={`${id}-input`}
         className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-text/30 bg-surface p-1"
