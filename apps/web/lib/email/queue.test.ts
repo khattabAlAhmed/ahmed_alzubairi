@@ -1,13 +1,28 @@
 import { PERMISSIONS } from "@repo/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createServiceClient } from "@/lib/supabase/service";
+import { fakeService, type Failures, type Row, type Tables } from "./fake-db";
 import { queueEmail, queueEmailForPermission } from "./queue";
+import { resetMailerWarning } from "./resend";
+
+const { resendSend, afterMock, background } = vi.hoisted(() => {
+  const background: Promise<unknown>[] = [];
+  return {
+    background,
+    resendSend: vi.fn(),
+    afterMock: vi.fn((task: () => Promise<unknown>) => {
+      background.push(task());
+    }),
+  };
+});
 
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: vi.fn() }));
-
-type Row = Record<string, unknown>;
-type DbError = { code: string; message: string };
-type Tables = Record<string, Row[]>;
+vi.mock("next/server", () => ({ after: afterMock }));
+vi.mock("resend", () => ({
+  Resend: class {
+    emails = { send: resendSend };
+  },
+}));
 
 const ADMIN_ROLE = "role-admin";
 const EXTRA_ADMIN_ROLE = "role-extra";
@@ -19,6 +34,7 @@ const member = (
   role_id: string | null,
   rest: Partial<Row> = {},
 ): Row => ({
+  clerk_user_id: `user_${email.split("@")[0]}`,
   email,
   role_id,
   locale: "ar",
@@ -52,42 +68,27 @@ function seed(): Tables {
       member("client@example.invalid", null),
     ],
     email_outbox: [],
-  };
-}
-
-/**
- * A supabase-js stand-in over in-memory tables. It answers the calls the queue
- * makes: `select().eq().in()` and `insert()`. `fail` makes a table's calls
- * answer with an error, the way PostgREST does.
- */
-function fakeService(tables: Tables, fail: Partial<Record<string, DbError>> = {}) {
-  return {
-    from(table: string) {
-      const error = fail[table] ?? null;
-      const query = (rows: Row[]) => ({
-        eq: (column: string, value: unknown) =>
-          query(rows.filter((row) => row[column] === value)),
-        in: (column: string, values: unknown[]) =>
-          query(rows.filter((row) => values.includes(row[column]))),
-        then: (resolve: (result: { data: Row[] | null; error: DbError | null }) => void) =>
-          resolve(error ? { data: null, error } : { data: rows, error: null }),
-      });
-      return {
-        select: () => query(tables[table] ?? []),
-        insert: async (rows: Row[]) => {
-          if (error) return { error };
-          tables[table]?.push(...rows);
-          return { error: null };
-        },
-      };
-    },
+    notifications: [],
   };
 }
 
 let tables: Tables;
 let logged: ReturnType<typeof vi.spyOn>;
+let warned: ReturnType<typeof vi.spyOn>;
 
-function useService(fail: Partial<Record<string, DbError>> = {}) {
+/** Waits for the sends the queue started after the response. */
+async function settled() {
+  await Promise.all(background.splice(0));
+  // A send started without `after` has no handle: let its steps run.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function withKeys() {
+  vi.stubEnv("RESEND_API_KEY", "re_test_key");
+  vi.stubEnv("EMAIL_FROM", "Site <no-reply@example.invalid>");
+}
+
+function useService(fail: Failures = {}) {
   vi.mocked(createServiceClient).mockReturnValue(
     fakeService(tables, fail) as unknown as ReturnType<typeof createServiceClient>,
   );
@@ -98,11 +99,20 @@ const loggedText = () => logged.mock.calls.flat().map(String).join("\n");
 beforeEach(() => {
   tables = seed();
   logged = vi.spyOn(console, "error").mockImplementation(() => {});
+  warned = vi.spyOn(console, "warn").mockImplementation(() => {});
+  // No email keys unless a test adds them: rows stay pending.
+  vi.stubEnv("RESEND_API_KEY", "");
+  vi.stubEnv("EMAIL_FROM", "");
+  resetMailerWarning();
+  resendSend.mockReset().mockResolvedValue({ data: { id: "email_1" }, error: null });
   useService();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  await settled();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
+  afterMock.mockClear();
   vi.mocked(createServiceClient).mockReset();
 });
 
@@ -115,16 +125,82 @@ describe("queueEmail", () => {
 
   it("writes one pending row", async () => {
     expect(await queueEmail(input)).toBe(true);
-    expect(tables.email_outbox).toEqual([
-      {
-        event: "contact_message",
-        to_email: "someone@example.invalid",
-        locale: "en",
-        payload: { name: "Sender Name", subject: "A question" },
-        status: "pending",
-      },
-    ]);
+    expect(tables.email_outbox).toHaveLength(1);
+    expect(tables.email_outbox[0]).toMatchObject({
+      event: "contact_message",
+      to_email: "someone@example.invalid",
+      locale: "en",
+      payload: { name: "Sender Name", subject: "A question" },
+      status: "pending",
+      attempts: 0,
+    });
     expect(logged).not.toHaveBeenCalled();
+  });
+
+  it("leaves the row pending and warns once when the email keys are missing", async () => {
+    expect(await queueEmail(input)).toBe(true);
+    expect(await queueEmail(input)).toBe(true);
+    await settled();
+    expect(resendSend).not.toHaveBeenCalled();
+    expect(tables.email_outbox.map((row) => [row.status, row.attempts])).toEqual([
+      ["pending", 0],
+      ["pending", 0],
+    ]);
+    expect(warned).toHaveBeenCalledTimes(1);
+    expect(String(warned.mock.calls[0]?.[0])).toContain("RESEND_API_KEY");
+  });
+
+  it("leaves the row pending when only one key is set", async () => {
+    vi.stubEnv("RESEND_API_KEY", "re_test_key");
+    await queueEmail(input);
+    await settled();
+    expect(resendSend).not.toHaveBeenCalled();
+    expect(tables.email_outbox[0]?.status).toBe("pending");
+  });
+
+  it("sends the new row after the response, and marks it sent", async () => {
+    withKeys();
+    expect(await queueEmail(input)).toBe(true);
+    expect(afterMock).toHaveBeenCalledTimes(1);
+    await settled();
+    expect(resendSend).toHaveBeenCalledTimes(1);
+    expect(resendSend.mock.calls[0]?.[0]).toMatchObject({
+      from: "Site <no-reply@example.invalid>",
+      to: "someone@example.invalid",
+    });
+    expect(tables.email_outbox[0]).toMatchObject({ status: "sent", attempts: 1 });
+  });
+
+  it("doesn't make the caller wait for the send", async () => {
+    withKeys();
+    let finish: (value: unknown) => void = () => {};
+    resendSend.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    expect(await queueEmail(input)).toBe(true);
+    expect(tables.email_outbox[0]?.status).toBe("pending");
+    finish({ data: { id: "email_1" }, error: null });
+    await settled();
+    expect(tables.email_outbox[0]?.status).toBe("sent");
+  });
+
+  it.each([
+    ["Resend refuses", () => resendSend.mockResolvedValue({ data: null, error: { name: "rate_limit_exceeded", message: "Too many requests" } })],
+    ["Resend can't be reached", () => resendSend.mockRejectedValue(new Error("fetch failed"))],
+  ])("still answers true when %s, and keeps the row for the retry", async (_name, arrange) => {
+    withKeys();
+    arrange();
+    await expect(queueEmail(input)).resolves.toBe(true);
+    await settled();
+    expect(tables.email_outbox[0]).toMatchObject({ status: "failed", attempts: 1 });
+  });
+
+  it("sends in the background when there is no request to wait for", async () => {
+    withKeys();
+    afterMock.mockImplementationOnce(() => {
+      throw new Error("`after` was called outside a request scope.");
+    });
+    await expect(queueEmail(input)).resolves.toBe(true);
+    await settled();
+    expect(tables.email_outbox[0]?.status).toBe("sent");
   });
 
   it("stores the payload as its schema reads it, trimmed", async () => {
@@ -166,7 +242,9 @@ describe("queueEmail", () => {
 
   it("returns false when the insert rejects", async () => {
     vi.mocked(createServiceClient).mockReturnValue({
-      from: () => ({ insert: () => Promise.reject(new Error("fetch failed")) }),
+      from: () => ({
+        insert: () => ({ select: () => Promise.reject(new Error("fetch failed")) }),
+      }),
     } as unknown as ReturnType<typeof createServiceClient>);
     await expect(queueEmail(input)).resolves.toBe(false);
   });
@@ -214,6 +292,65 @@ describe("queueEmailForPermission", () => {
     expect(sentTo).not.toContain("disabled-admin@example.invalid");
     expect(sentTo).not.toContain("client@example.invalid");
     expect(sentTo).not.toContain("editor@example.invalid");
+  });
+
+  it("writes one notification row per recipient, with the event and its entity", async () => {
+    await queueEmailForPermission("consultation_new", PERMISSIONS.TEAM_MANAGE, {
+      consultationId: CONSULTATION,
+      title: "T",
+      clientName: "Client Name",
+    });
+    expect(
+      tables.notifications.map(({ user_id, type, entity, entity_id }) => ({
+        user_id,
+        type,
+        entity,
+        entity_id,
+      })),
+    ).toEqual(
+      ["user_admin-ar", "user_admin-en", "user_quiet-admin"].map((user_id) => ({
+        user_id,
+        type: "consultation_new",
+        entity: "consultations",
+        entity_id: CONSULTATION,
+      })),
+    );
+  });
+
+  it("writes a notification with no entity when the payload names none", async () => {
+    await queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload);
+    expect(tables.notifications).toHaveLength(3);
+    for (const row of tables.notifications) {
+      expect(row).toMatchObject({ type: "account_new" });
+      expect(row).not.toHaveProperty("entity");
+      expect(row).not.toHaveProperty("entity_id");
+    }
+  });
+
+  it("writes no notification for a member an optional event skips", async () => {
+    await queueEmailForPermission("course_registration", PERMISSIONS.TRAINING_MANAGE, {
+      courseTitle: { ar: "دورة", en: "Course" },
+      traineeName: "Trainee",
+    });
+    expect(tables.notifications.map((row) => row.user_id)).toEqual(["user_admin-ar"]);
+  });
+
+  it("still queues the emails when the notifications can't be written", async () => {
+    useService({ notifications: { code: "23503", message: "Key (user_id)=(user_admin-ar)" } });
+    await expect(
+      queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload),
+    ).resolves.toBe(true);
+    expect(tables.email_outbox).toHaveLength(3);
+    expect(loggedText()).toContain("notifications_23503");
+    expect(loggedText()).not.toMatch(/user_admin|@example|Client Name/);
+  });
+
+  it("sends every recipient's row after the response", async () => {
+    withKeys();
+    await queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload);
+    await settled();
+    expect(resendSend).toHaveBeenCalledTimes(3);
+    expect(tables.email_outbox.map((row) => row.status)).toEqual(["sent", "sent", "sent"]);
   });
 
   it("goes by the permission, not the role", async () => {
@@ -291,6 +428,7 @@ describe("queueEmailForPermission", () => {
         queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload),
       ).resolves.toBe(false);
       expect(tables.email_outbox).toEqual([]);
+      expect(tables.notifications).toEqual([]);
       expect(loggedText()).toContain("57014");
       expect(loggedText()).not.toMatch(/@example|Client Name/);
     },
