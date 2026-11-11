@@ -3,38 +3,48 @@ import { clerkUserUpdatedEventSchema } from "@repo/shared";
 /** The only columns the webhook writes. Never `role_id`, `status` or the key. */
 export type ProfileSync = { full_name?: string; email?: string };
 
-export type SyncPlan =
+export type EventTarget =
   | { kind: "ignored" }
   | { kind: "invalid" }
-  | { kind: "update"; userId: string; values: ProfileSync };
+  | { kind: "user"; userId: string };
 
 /**
- * What a verified Clerk event changes on a profile. Only `user.updated` counts:
+ * Whose profile a verified Clerk event is about. Only `user.updated` counts:
  * no profile exists at `user.created`, and onboarding reads Clerk itself.
  *
- * The values come from the event alone, so the same event always gives the
- * same row. A name is skipped when Clerk has none, and an email when the user
- * has no primary address: both columns are required, so we keep what we have.
+ * Only the user id leaves the event. Clerk can deliver an older event after a
+ * newer one, so the name and email are read from Clerk when the event arrives,
+ * never from the event.
  */
-export function planProfileSync(event: { type?: unknown; data?: unknown }): SyncPlan {
+export function userFromEvent(event: { type?: unknown; data?: unknown }): EventTarget {
   if (event.type !== "user.updated") return { kind: "ignored" };
-
   const parsed = clerkUserUpdatedEventSchema.safeParse(event);
   if (!parsed.success) return { kind: "invalid" };
-  const user = parsed.data.data;
+  return { kind: "user", userId: parsed.data.data.id };
+}
 
+/** The part of Clerk's user we read. */
+export type ClerkUserIdentity = {
+  firstName: string | null;
+  lastName: string | null;
+  primaryEmailAddress: { emailAddress: string } | null;
+};
+
+/**
+ * What Clerk's user sets on the profile. A name is skipped when Clerk has
+ * none, and an email when the user has no primary address: both columns are
+ * required, so we keep what we have. Null when there is nothing to write.
+ */
+export function profileValues(user: ClerkUserIdentity): ProfileSync | null {
   const values: ProfileSync = {};
-  const fullName = [user.first_name, user.last_name]
+  const fullName = [user.firstName, user.lastName]
     .map((part) => part?.trim())
     .filter(Boolean)
     .join(" ");
   if (fullName) values.full_name = fullName;
 
-  const primary = user.email_addresses.find(
-    (address) => address.id === user.primary_email_address_id,
-  );
-  if (primary) values.email = primary.email_address;
+  const email = user.primaryEmailAddress?.emailAddress;
+  if (email) values.email = email;
 
-  if (Object.keys(values).length === 0) return { kind: "ignored" };
-  return { kind: "update", userId: user.id, values };
+  return Object.keys(values).length > 0 ? values : null;
 }

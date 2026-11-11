@@ -39,6 +39,33 @@ vi.mock("@/lib/supabase/service", () => ({
   },
 }));
 
+type ClerkUser = {
+  firstName: string | null;
+  lastName: string | null;
+  primaryEmailAddress: { emailAddress: string } | null;
+};
+
+/** What Clerk's Backend API holds now, whatever an event says. */
+const clerk = vi.hoisted(() => ({
+  users: new Map<string, ClerkUser>(),
+  error: null as Error | null,
+  reads: [] as string[],
+}));
+
+vi.mock("@clerk/nextjs/server", () => ({
+  clerkClient: async () => ({
+    users: {
+      getUser: async (id: string) => {
+        clerk.reads.push(id);
+        if (clerk.error) throw clerk.error;
+        const user = clerk.users.get(id);
+        if (!user) throw Object.assign(new Error(`Not Found: ${id}`), { status: 404 });
+        return user;
+      },
+    },
+  }),
+}));
+
 // Clerk's real `verifyWebhook` runs: requests are signed here the way Svix does.
 const { POST } = await import("./route");
 
@@ -105,6 +132,12 @@ beforeEach(() => {
   db.writes = 0;
   db.clients = 0;
   db.error = null;
+  clerk.users = new Map([
+    ["user_1", { firstName: "New", lastName: "Name", primaryEmailAddress: { emailAddress: "new@example.com" } }],
+    ["user_new", { firstName: "No", lastName: "Profile", primaryEmailAddress: { emailAddress: "none@example.com" } }],
+  ]);
+  clerk.error = null;
+  clerk.reads = [];
   errors = vi.spyOn(console, "error").mockImplementation(() => {});
   warnings = vi.spyOn(console, "warn").mockImplementation(() => {});
 });
@@ -130,10 +163,11 @@ describe("POST /api/clerk/webhook", () => {
     ["unsigned", { secret: null }],
     ["signed with another secret", { secret: OTHER_SECRET }],
     ["changed after signing", { tamper: true }],
-  ])("refuses a request that is %s, and never opens the database", async (_name, options) => {
+  ])("refuses a request that is %s, and never reads Clerk or the database", async (_name, options) => {
     const response = await post(EVENT, options);
     expect(response.status).toBe(400);
     expect((await response.json()).error.code).toBe("validation_failed");
+    expect(clerk.reads).toEqual([]);
     expect(db.clients).toBe(0);
     expect(db.rows[0]).toEqual(START);
   });
@@ -144,6 +178,7 @@ describe("POST /api/clerk/webhook", () => {
     vi.useRealTimers();
     // Signed ten minutes ago: built under the fake clock, verified under the real one.
     expect((await request).status).toBe(400);
+    expect(clerk.reads).toEqual([]);
     expect(db.clients).toBe(0);
   });
 
@@ -155,6 +190,7 @@ describe("POST /api/clerk/webhook", () => {
     expect(errors).toHaveBeenCalledWith(
       expect.stringContaining("CLERK_WEBHOOK_SIGNING_SECRET is not set"),
     );
+    expect(clerk.reads).toEqual([]);
     expect(db.clients).toBe(0);
   });
 
@@ -171,6 +207,7 @@ describe("POST /api/clerk/webhook", () => {
       const response = await post({ ...EVENT, type });
       expect(response.status).toBe(200);
       expect(await response.json()).toEqual({ ok: true });
+      expect(clerk.reads).toEqual([]);
       expect(db.clients).toBe(0);
     },
   );
@@ -183,14 +220,64 @@ describe("POST /api/clerk/webhook", () => {
     expect(db.rows).toEqual(once);
   });
 
+  it("writes what Clerk holds now, not what the event carries", async () => {
+    const stale = { ...EVENT.data, first_name: "Stale", email_addresses: [{ id: "idn_2", email_address: "stale@example.com" }] };
+    await post({ ...EVENT, data: stale });
+    expect(clerk.reads).toEqual(["user_1"]);
+    expect(db.rows[0]).toEqual({ ...START, full_name: "New Name", email: "new@example.com" });
+  });
+
+  it("leaves the newer values when an older event is delivered after a newer one", async () => {
+    const older = { ...EVENT, data: { ...EVENT.data, first_name: "Older", last_name: "Value" } };
+    const newer = { ...EVENT, data: { ...EVENT.data, first_name: "Newer", last_name: "Value" } };
+    // Clerk already holds the newer change when either event arrives.
+    clerk.users.set("user_1", {
+      firstName: "Newer",
+      lastName: "Value",
+      primaryEmailAddress: { emailAddress: "newer@example.com" },
+    });
+    await post(newer);
+    const response = await post(older);
+    expect(response.status).toBe(200);
+    expect(db.rows[0]).toEqual({ ...START, full_name: "Newer Value", email: "newer@example.com" });
+  });
+
+  it("answers 500 and writes nothing when the Clerk read fails, so Clerk sends the event again", async () => {
+    clerk.error = Object.assign(new Error("user_1 new@example.com: upstream down"), { status: 503 });
+    const response = await post(EVENT);
+    expect(response.status).toBe(500);
+    expect((await response.json()).error.code).toBe("internal_error");
+    expect(db.clients).toBe(0);
+    expect(db.rows[0]).toEqual(START);
+    expect(logged()).not.toContain("user_1");
+    expect(logged()).not.toContain("new@example.com");
+  });
+
+  it("answers 200 and writes nothing for a user Clerk no longer has", async () => {
+    clerk.users.delete("user_1");
+    const response = await post(EVENT);
+    expect(response.status).toBe(200);
+    expect(db.clients).toBe(0);
+    expect(db.rows[0]).toEqual(START);
+    expect(errors).not.toHaveBeenCalled();
+  });
+
   it("keeps the stored name when Clerk has none", async () => {
-    await post({ ...EVENT, data: { ...EVENT.data, first_name: null, last_name: null } });
+    clerk.users.set("user_1", { firstName: null, lastName: " ", primaryEmailAddress: { emailAddress: "new@example.com" } });
+    await post(EVENT);
     expect(db.rows[0]).toEqual({ ...START, email: "new@example.com" });
+  });
+
+  it("keeps the stored email when the user has no primary address", async () => {
+    clerk.users.set("user_1", { firstName: "New", lastName: "Name", primaryEmailAddress: null });
+    await post(EVENT);
+    expect(db.rows[0]).toEqual({ ...START, full_name: "New Name" });
   });
 
   it("refuses a signed user.updated it can't read, without writing", async () => {
     const response = await post({ type: "user.updated", data: { id: "user_1" } });
     expect(response.status).toBe(400);
+    expect(clerk.reads).toEqual([]);
     expect(db.clients).toBe(0);
   });
 
@@ -206,8 +293,11 @@ describe("POST /api/clerk/webhook", () => {
     await post(EVENT);
     await post(EVENT, { secret: OTHER_SECRET });
     await post({ type: "user.updated", data: { ...EVENT.data, id: "" } });
+    db.error = null;
+    clerk.error = new Error("user_1 New Name new@example.com");
+    await post(EVENT);
     const output = logged();
-    expect(errors.mock.calls.length + warnings.mock.calls.length).toBe(3);
+    expect(errors.mock.calls.length + warnings.mock.calls.length).toBe(4);
     for (const value of ["new@example.com", "old@example.com", "New", "Name", "user_1", "idn_2"]) {
       expect(output).not.toContain(value);
     }

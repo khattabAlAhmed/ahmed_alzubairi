@@ -1,7 +1,8 @@
+import { clerkClient } from "@clerk/nextjs/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import type { ErrorCode, ErrorResponse, OkResponse } from "@repo/shared";
 import { NextResponse, type NextRequest } from "next/server";
-import { planProfileSync } from "@/lib/clerk-webhook/sync";
+import { profileValues, userFromEvent } from "@/lib/clerk-webhook/sync";
 import { createServiceClient } from "@/lib/supabase/service";
 import ar from "@/messages/ar.json";
 
@@ -24,13 +25,22 @@ function ok() {
   return NextResponse.json(body);
 }
 
+/** Clerk's Backend API answers 404 for a user it no longer has. */
+function isNotFound(error: unknown) {
+  return typeof error === "object" && error !== null && "status" in error && error.status === 404;
+}
+
 /**
  * `POST /api/clerk/webhook` (§8 System): keeps `profiles.email` and
  * `full_name` in step with Clerk. The signature is the route's only
  * protection (§9), so it is checked before anything is read or written. No
  * Arcjet here: a bot rule would refuse Clerk's servers.
  *
- * Nothing from the payload is ever logged: it holds names and emails.
+ * The event only says which user changed. The name and email are read from
+ * Clerk itself, so events that arrive twice or out of order all write Clerk's
+ * current values.
+ *
+ * Nothing from the payload or the user is ever logged: names, emails, ids.
  */
 export async function POST(request: NextRequest) {
   // Read at request time, so the build passes without it. Never a pass.
@@ -47,20 +57,34 @@ export async function POST(request: NextRequest) {
     return fail("validation_failed");
   }
 
-  const plan = planProfileSync(event);
-  if (plan.kind === "ignored") return ok();
-  if (plan.kind === "invalid") {
+  const target = userFromEvent(event);
+  if (target.kind === "ignored") return ok();
+  if (target.kind === "invalid") {
     console.error(`${ROUTE}: unreadable user.updated event`);
     return fail("validation_failed");
   }
 
+  let user;
+  try {
+    user = await (await clerkClient()).users.getUser(target.userId);
+  } catch (error) {
+    // Deleted since the event was sent: nothing to sync.
+    if (isNotFound(error)) return ok();
+    // A 500 makes Clerk send the event again. The error may name the user.
+    console.error(`${ROUTE}: reading the user from Clerk failed`);
+    return fail("internal_error");
+  }
+
+  const values = profileValues(user);
+  if (!values) return ok();
+
   // The signature proves Clerk sent this, so the service client writes (§9).
-  // A plain overwrite from the event: safe to receive twice. A user with no
-  // profile matches no row; onboarding creates it from Clerk later.
+  // A plain overwrite with Clerk's current values. A user with no profile
+  // matches no row; onboarding creates it from Clerk later.
   const { error } = await createServiceClient()
     .from("profiles")
-    .update(plan.values)
-    .eq("clerk_user_id", plan.userId);
+    .update(values)
+    .eq("clerk_user_id", target.userId);
   if (error) {
     // A 500 makes Clerk send the event again.
     console.error(`${ROUTE}: update failed`, error.code);
