@@ -1,8 +1,8 @@
 import type { Tables as DbTables } from "@repo/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { EMAIL_DEFAULTS, GENERIC_TEMPLATE } from "@/emails/defaults";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fakeService, outboxRow, type Row, type Tables } from "./fake-db";
-import { FALLBACK_TEMPLATE } from "./fallback";
 import { renderOutboxRow, TemplateReadError } from "./render";
 
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: vi.fn() }));
@@ -23,6 +23,7 @@ function useTemplate(event: string, text: Partial<Record<string, string>>) {
 }
 
 beforeEach(() => {
+  vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
   tables = { email_templates: [] };
   vi.mocked(createServiceClient).mockImplementation(
     () => fakeService(tables) as unknown as ReturnType<typeof createServiceClient>,
@@ -31,14 +32,122 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.mocked(createServiceClient).mockReset();
+  vi.unstubAllEnvs();
 });
 
 describe("renderOutboxRow", () => {
-  it.each(["ar", "en"] as const)("uses the built-in copy in %s when no template is saved", async (locale) => {
+  it.each(["ar", "en"] as const)("uses the default copy in %s when no template is saved", async (locale) => {
     const email = await renderOutboxRow(row({ locale }));
-    expect(email.subject).toBe(FALLBACK_TEMPLATE[locale].subject);
-    expect(email.text).toBe(FALLBACK_TEMPLATE[locale].body);
-    expect(email.html).toContain(`lang="${locale}" dir="${locale === "ar" ? "rtl" : "ltr"}"`);
+    const tag = locale === "ar" ? "[رسالة تواصل]" : "[Contact message]";
+    expect(email.subject).toBe(`${tag} A question`);
+    expect(email.text).toContain("Sender Name");
+    expect(email.text).not.toContain("{{");
+    expect(email.html).toMatch(new RegExp(`<html[^>]*\\slang="${locale}"`));
+    expect(email.html).toMatch(
+      new RegExp(`<html[^>]*\\sdir="${locale === "ar" ? "rtl" : "ltr"}"`),
+    );
+    // The title inside the email is the subject without its tag.
+    expect(email.html.match(/<h1[\s\S]*?<\/h1>/)?.[0]).toContain("A question");
+    expect(email.html.match(/<h1[\s\S]*?<\/h1>/)?.[0]).not.toContain(tag);
+  });
+
+  it.each(Object.keys(EMAIL_DEFAULTS))("renders the default copy of %s in both languages", async (event) => {
+    for (const locale of ["ar", "en"] as const) {
+      const email = await renderOutboxRow(
+        row({
+          event,
+          locale,
+          payload: {
+            consultationId: "123e4567-e89b-42d3-a456-426614174000",
+            title: "T",
+            clientName: "C",
+            memberName: "M",
+            traineeName: "R",
+            orgName: "O",
+            topic: "P",
+            name: "N",
+            subject: "S",
+            platform: "Meet",
+            url: "https://meet.example/abc",
+            startsAt: "2026-11-12T22:30:00.000Z",
+            timezone: "Asia/Riyadh",
+            documentTitle: { ar: "وثيقة", en: "Document" },
+            courseTitle: { ar: "دورة", en: "Course" },
+          },
+        }),
+      );
+      expect(email.subject.startsWith("[")).toBe(true);
+      expect(`${email.subject}${email.text}`).not.toContain("{{");
+      expect(email.html).toContain(`dir="${locale === "ar" ? "rtl" : "ltr"}"`);
+    }
+  });
+
+  it("links to the site in the recipient's language, in the HTML and the text part", async () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://site.example/");
+    const arabic = await renderOutboxRow(row({ locale: "ar" }));
+    expect(arabic.html).toContain('href="https://site.example/ar/dashboard/messages"');
+    expect(arabic.text.endsWith("عرض الرسائل: https://site.example/ar/dashboard/messages")).toBe(true);
+    const english = await renderOutboxRow(row({ locale: "en" }));
+    expect(english.html).toContain('href="https://site.example/en/dashboard/messages"');
+    expect(english.text.endsWith("View messages: https://site.example/en/dashboard/messages")).toBe(true);
+  });
+
+  it("sends without a button when the site's address is missing or isn't a web link", async () => {
+    for (const value of ["", "not a url", "javascript:alert(1)"]) {
+      vi.stubEnv("NEXT_PUBLIC_APP_URL", value);
+      const email = await renderOutboxRow(row());
+      expect(email.html).not.toContain("<a ");
+      expect(email.text).not.toContain("View messages");
+    }
+  });
+
+  it("doesn't repeat a meeting link the body already shows", async () => {
+    const email = await renderOutboxRow(
+      row({
+        event: "meeting",
+        payload: {
+          title: "T",
+          platform: "Meet",
+          url: "https://meet.example/abc",
+          startsAt: "2026-11-12T22:30:00.000Z",
+          timezone: "Asia/Riyadh",
+        },
+      }),
+    );
+    expect(email.text.split("https://meet.example/abc")).toHaveLength(2);
+  });
+
+  it("an event for both sides has no button", async () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://site.example");
+    const email = await renderOutboxRow(
+      row({
+        event: "consultation_reply",
+        payload: { consultationId: "123e4567-e89b-42d3-a456-426614174000", title: "T" },
+      }),
+    );
+    expect(email.html).not.toContain("<a ");
+  });
+
+  it("a meeting's button is its own https link, and nothing else", async () => {
+    const meeting = (url: string) =>
+      renderOutboxRow(
+        row({
+          event: "meeting",
+          payload: {
+            title: "T",
+            platform: "Meet",
+            url,
+            startsAt: "2026-11-12T22:30:00.000Z",
+            timezone: "Asia/Riyadh",
+          },
+        }),
+      );
+    expect((await meeting("https://meet.example/abc")).html).toContain(
+      'href="https://meet.example/abc"',
+    );
+    for (const url of ["javascript:alert(1)", "http://meet.example/abc", "nope"]) {
+      expect((await meeting(url)).html).not.toContain("<a ");
+    }
   });
 
   it("uses the saved template of the row's event, not another event's", async () => {
@@ -79,7 +188,8 @@ describe("renderOutboxRow", () => {
     expect(en.text).toContain("Friday, November 13, 2026");
     expect(en.text).toContain("1:30");
     const ar = await renderOutboxRow(row({ event: "meeting", locale: "ar", payload }));
-    expect(ar.text).toBe(
+    // The date is the first line; the meeting link follows it.
+    expect(ar.text.split("\n")[0]).toBe(
       new Intl.DateTimeFormat("ar", {
         dateStyle: "full",
         timeStyle: "short",
@@ -141,8 +251,8 @@ describe("renderOutboxRow", () => {
     useTemplate("contact_message", { body_en: "One\ntwo\n\n\nThree" });
     const email = await renderOutboxRow(row());
     expect(email.text).toBe("One\ntwo\n\n\nThree");
-    expect(email.html.match(/<p /g)).toHaveLength(2);
-    expect(email.html).toContain("One<br>two</p>");
+    expect(email.html.match(/<p [^>]*class="em-text"/g)).toHaveLength(2);
+    expect(email.html).toMatch(/One<br\s*\/?>two<\/p>/);
   });
 
   it("leaves an unknown placeholder empty", async () => {
@@ -152,7 +262,7 @@ describe("renderOutboxRow", () => {
 
   it("uses the built-in copy for an event it doesn't know, without a read", async () => {
     const email = await renderOutboxRow(row({ event: "not_an_event" }));
-    expect(email.subject).toBe(FALLBACK_TEMPLATE.en.subject);
+    expect(email.subject).toBe(GENERIC_TEMPLATE.en.subject);
     expect(createServiceClient).not.toHaveBeenCalled();
   });
 

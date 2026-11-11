@@ -1,21 +1,31 @@
 import "server-only";
 import type { Tables } from "@repo/db";
+import { render } from "@react-email/render";
 import {
   emailEventSchema,
   emailValues,
   fillTemplate,
   isIanaTimeZone,
   localeSchema,
+  type EmailEvent,
   type EmailValues,
   type Locale,
 } from "@repo/shared";
+import { createElement } from "react";
+import {
+  EMAIL_ACTIONS,
+  EMAIL_DEFAULTS,
+  GENERIC_TEMPLATE,
+  type TemplateText,
+} from "@/emails/defaults";
+import { NotificationEmail } from "@/emails/notification";
 import { createServiceClient } from "@/lib/supabase/service";
-import { FALLBACK_TEMPLATE, type TemplateText } from "./fallback";
 
 /**
  * Turns an `email_outbox` row into the email to send (§6.21): the template of
- * its event in the recipient's language, with the payload filled in. Templates
- * and payload values are plain text. Nothing here reads either as HTML.
+ * its event in the recipient's language, with the payload filled in, inside
+ * the shared layout. Templates and payload values are plain text. Nothing here
+ * reads either as HTML.
  */
 
 export type OutboxRow = Tables<"email_outbox">;
@@ -29,20 +39,29 @@ export class TemplateReadError extends Error {
   }
 }
 
+/** The event when this build knows it, else null. */
+function knownEvent(event: string): EmailEvent | null {
+  const parsed = emailEventSchema.safeParse(event);
+  return parsed.success ? parsed.data : null;
+}
+
 /**
  * The template for an event and a language: the `email_templates` row when the
- * dashboard saved one, else the built-in copy. A failed read throws, so a
- * passing database error never sends the wrong copy.
+ * dashboard saved one, else the default copy in `emails/defaults.ts`. A failed
+ * read throws, so a passing database error never sends the wrong copy.
  */
-async function loadTemplate(event: string, locale: Locale): Promise<TemplateText> {
-  if (!emailEventSchema.safeParse(event).success) return FALLBACK_TEMPLATE[locale];
+async function loadTemplate(
+  event: EmailEvent | null,
+  locale: Locale,
+): Promise<TemplateText> {
+  if (!event) return GENERIC_TEMPLATE[locale];
   const { data, error } = await createServiceClient()
     .from("email_templates")
     .select("subject_ar, subject_en, body_ar, body_en")
     .eq("event", event)
     .maybeSingle();
   if (error) throw new TemplateReadError(error.code || "error");
-  if (!data) return FALLBACK_TEMPLATE[locale];
+  if (!data) return EMAIL_DEFAULTS[event][locale];
   return locale === "ar"
     ? { subject: data.subject_ar, body: data.body_ar }
     : { subject: data.subject_en, body: data.body_en };
@@ -70,52 +89,63 @@ function placeholderValues(payload: unknown, locale: Locale): EmailValues {
   return values;
 }
 
-const HTML_ESCAPES: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;",
-};
+/** An absolute http(s) link, normalized, or null for anything else. */
+function webLink(value: unknown, protocols: readonly string[]): string | null {
+  if (typeof value !== "string" || !URL.canParse(value)) return null;
+  const url = new URL(value);
+  return protocols.includes(url.protocol) ? url.href : null;
+}
 
-function escapeHtml(text: string): string {
-  return text.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char] ?? char);
+/** The site's address from `NEXT_PUBLIC_APP_URL`, without a trailing slash. */
+function appUrl(): string | null {
+  // Read by name at send time, so the build doesn't fix its value.
+  const link = webLink(process.env["NEXT_PUBLIC_APP_URL"], ["https:", "http:"]);
+  return link ? link.replace(/\/+$/, "") : null;
 }
 
 /**
- * The plain layout: the text, escaped, one paragraph per blank-line block, in
- * the language's direction. P3T-T12 swaps in the designed layout.
+ * The email's button: a page of the site in the recipient's language, or the
+ * meeting's own link. None when the event has no button, the site's address
+ * isn't set, or the meeting link isn't https: the email is still sent.
  */
-function plainLayout(text: string, locale: Locale): string {
-  const dir = locale === "ar" ? "rtl" : "ltr";
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .map(
-      (block) =>
-        `<p style="margin:0 0 16px">${escapeHtml(block).replace(/\n/g, "<br>")}</p>`,
-    )
-    .join("");
-  return (
-    `<!doctype html><html lang="${locale}" dir="${dir}">` +
-    `<head><meta charset="utf-8"></head>` +
-    `<body style="margin:0;padding:24px;font-family:Tahoma,Arial,sans-serif;font-size:16px;line-height:1.7;color:#1a1a1a">` +
-    `<div dir="${dir}" style="max-width:560px;margin:0 auto;text-align:start">${paragraphs}</div>` +
-    `</body></html>`
-  );
+function actionOf(
+  event: EmailEvent | null,
+  payload: unknown,
+  locale: Locale,
+): { href: string; label: string } | undefined {
+  const action = event ? EMAIL_ACTIONS[event] : null;
+  if (!action) return undefined;
+  const href =
+    action.kind === "meeting"
+      ? webLink((payload as { url?: unknown } | null)?.url, ["https:"])
+      : (() => {
+          const base = appUrl();
+          return base ? `${base}/${locale}${action.path}` : null;
+        })();
+  return href ? { href, label: action.label[locale] } : undefined;
 }
 
 /** Renders a row. Throws `TemplateReadError` when the template can't be read. */
 export async function renderOutboxRow(row: OutboxRow): Promise<RenderedEmail> {
   const parsedLocale = localeSchema.safeParse(row.locale);
   const locale = parsedLocale.success ? parsedLocale.data : "ar";
-  const template = await loadTemplate(row.event, locale);
+  const event = knownEvent(row.event);
+  const template = await loadTemplate(event, locale);
   const values = placeholderValues(row.payload, locale);
   // A subject is one line: a line break in a value must not start a header.
   const subject = fillTemplate(template.subject, values)
     .replace(/\s+/g, " ")
     .trim();
-  const text = fillTemplate(template.body, values).replace(/\r\n?/g, "\n").trim();
-  return { subject, text, html: plainLayout(text, locale) };
+  const body = fillTemplate(template.body, values).replace(/\r\n?/g, "\n").trim();
+  const action = actionOf(event, row.payload, locale);
+  const html = await render(
+    createElement(NotificationEmail, { locale, subject, body, action }),
+  );
+  // The plain-text part: the same words, with the button as a line of its own
+  // unless the body already spells the link out (a meeting's does).
+  const text =
+    action && !body.includes(action.href)
+      ? `${body}\n\n${action.label}: ${action.href}`
+      : body;
+  return { subject, text, html };
 }

@@ -44,6 +44,7 @@ beforeEach(() => {
   warned = vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.stubEnv("RESEND_API_KEY", "re_test_key");
   vi.stubEnv("EMAIL_FROM", "Site <no-reply@example.invalid>");
+  vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
   resetMailerWarning();
   resendSend.mockReset().mockResolvedValue({ data: { id: "email_1" }, error: null });
   useService();
@@ -66,8 +67,8 @@ describe("sendOutboxRow", () => {
       {
         from: "Site <no-reply@example.invalid>",
         to: "someone@example.invalid",
-        subject: "New notification",
-        text: expect.stringContaining("new notification"),
+        subject: "[Contact message] A question",
+        text: expect.stringContaining("Sender Name sent a new message"),
         html: expect.stringContaining('dir="ltr"'),
       },
       { idempotencyKey: `email-outbox/${row.id}` },
