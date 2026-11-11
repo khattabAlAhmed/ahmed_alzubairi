@@ -8,7 +8,11 @@ const mocks = vi.hoisted(() => ({
       emailAddress: "test@example.com",
       verification: { status: "verified" },
     } as { emailAddress: string; verification: { status: string } | null } | null,
+    publicMetadata: {} as Record<string, unknown>,
   },
+  roles: [] as { id: string; key: string }[],
+  admins: [] as { email: string; locale: string; timezone: string; notify_optional: boolean }[],
+  outbox: vi.fn(),
   insert: vi.fn(),
   upsert: vi.fn(),
   update: vi.fn(),
@@ -22,13 +26,44 @@ vi.mock("@clerk/nextjs/server", () => ({
 vi.mock("@/lib/supabase/service", () => ({
   createServiceClient: () => ({
     from: (table: string) => {
+      if (table === "roles") {
+        return {
+          select: () => ({
+            eq: (_column: string, id: string) => ({
+              maybeSingle: async () => ({
+                data: mocks.roles.find((role) => role.id === id) ?? null,
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      // The email queue: who holds the admin permission, then the outbox.
+      if (table === "role_permissions") {
+        return {
+          select: () => ({
+            eq: async () => ({ data: [{ role_id: ADMIN_ROLE }], error: null }),
+          }),
+        };
+      }
+      if (table === "email_outbox") return { insert: mocks.outbox };
       expect(table).toBe("profiles");
-      return { insert: mocks.insert, upsert: mocks.upsert, update: mocks.update };
+      return {
+        insert: mocks.insert,
+        upsert: mocks.upsert,
+        update: mocks.update,
+        select: () => ({
+          eq: () => ({ in: async () => ({ data: mocks.admins, error: null }) }),
+        }),
+      };
     },
   }),
 }));
 
 const { POST } = await import("./route");
+
+const EDITOR_ROLE = "11111111-1111-4111-8111-111111111111";
+const ADMIN_ROLE = "22222222-2222-4222-8222-222222222222";
 
 const VALID = { phone: "+966501234567", termsAccepted: true, timezone: "Asia/Riyadh" };
 
@@ -49,6 +84,16 @@ beforeEach(() => {
     emailAddress: "test@example.com",
     verification: { status: "verified" },
   };
+  mocks.user.publicMetadata = {};
+  mocks.roles = [
+    { id: EDITOR_ROLE, key: "content_editor" },
+    { id: ADMIN_ROLE, key: "admin" },
+  ];
+  mocks.admins = [
+    { email: "admin1@example.com", locale: "ar", timezone: "Asia/Aden", notify_optional: true },
+    { email: "admin2@example.com", locale: "en", timezone: "UTC", notify_optional: false },
+  ];
+  mocks.outbox.mockReset().mockResolvedValue({ error: null });
   mocks.insert.mockReset().mockResolvedValue({ error: null });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -66,7 +111,7 @@ describe("POST /api/profile", () => {
       email: "test@example.com",
       locale: "en",
     });
-    expect(row).not.toHaveProperty("role_id");
+    expect(row.role_id).toBeNull();
     expect(row).not.toHaveProperty("status");
     expect(Date.parse(row.terms_accepted_at)).not.toBeNaN();
     expect(mocks.upsert).not.toHaveBeenCalled();
@@ -118,5 +163,56 @@ describe("POST /api/profile", () => {
     const response = await post(VALID);
     expect(response.status).toBe(500);
     expect((await response.json()).error.code).toBe("internal_error");
+  });
+
+  it("gives an invited member the role in Clerk's public metadata", async () => {
+    mocks.user.publicMetadata = { roleId: EDITOR_ROLE };
+    expect((await post(VALID)).status).toBe(201);
+    expect(mocks.insert.mock.calls[0]?.[0].role_id).toBe(EDITOR_ROLE);
+    expect(mocks.outbox).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["an unknown role id", "33333333-3333-4333-8333-333333333333"],
+    ["the admin role id", ADMIN_ROLE],
+    ["a value that isn't an id", "admin"],
+  ])("creates a client profile for %s in the metadata", async (_name, roleId) => {
+    mocks.user.publicMetadata = { roleId };
+    expect((await post(VALID)).status).toBe(201);
+    expect(mocks.insert.mock.calls[0]?.[0].role_id).toBeNull();
+  });
+
+  it("refuses a body field named roleId", async () => {
+    const response = await post({ ...VALID, roleId: EDITOR_ROLE });
+    expect(response.status).toBe(400);
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+
+  it("queues one account_new row per admin for a new client", async () => {
+    expect((await post(VALID)).status).toBe(201);
+    expect(mocks.outbox).toHaveBeenCalledTimes(1);
+    expect(mocks.outbox.mock.calls[0]?.[0]).toEqual([
+      {
+        event: "account_new",
+        to_email: "admin1@example.com",
+        locale: "ar",
+        payload: { clientName: "Test Person" },
+        status: "pending",
+      },
+      {
+        event: "account_new",
+        to_email: "admin2@example.com",
+        locale: "en",
+        payload: { clientName: "Test Person" },
+        status: "pending",
+      },
+    ]);
+  });
+
+  it("still returns success when the queue fails", async () => {
+    mocks.outbox.mockResolvedValue({ error: { code: "XX000" } });
+    const response = await post(VALID);
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual({ ok: true });
   });
 });

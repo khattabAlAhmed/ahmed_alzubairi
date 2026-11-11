@@ -15,6 +15,21 @@ const VALID = {
 
 const NOW = new Date("2026-11-07T10:00:00.000Z");
 
+const EDITOR_ROLE = "11111111-1111-4111-8111-111111111111";
+const ADMIN_ROLE = "22222222-2222-4222-8222-222222222222";
+const UNKNOWN_ROLE = "33333333-3333-4333-8333-333333333333";
+
+const ROLES: Record<string, string> = {
+  [EDITOR_ROLE]: "content_editor",
+  [ADMIN_ROLE]: "admin",
+};
+
+const identity = (invitedRoleId: string | null = null) => ({
+  fullName: "Test Person",
+  verifiedEmail: "test@example.com",
+  invitedRoleId,
+});
+
 function setup(overrides: Partial<CreateProfileDeps> = {}, body: unknown = VALID) {
   const rows: NewProfileRow[] = [];
   const insertProfile = vi.fn(async (row: NewProfileRow) => {
@@ -28,11 +43,13 @@ function setup(overrides: Partial<CreateProfileDeps> = {}, body: unknown = VALID
     userId: "user_1",
     locale: "ar",
     readBody: async () => body,
-    getIdentity: async () => ({
-      fullName: "Test Person",
-      verifiedEmail: "test@example.com",
-    }),
+    getIdentity: async () => identity(),
     insertProfile,
+    getRole: vi.fn(async (id: string) => {
+      const key = ROLES[id];
+      return key ? { id, key } : null;
+    }),
+    queueNewClientEmail: vi.fn(async () => true),
     now: () => NOW,
     ...overrides,
   };
@@ -57,9 +74,9 @@ describe("createProfile", () => {
         locale: "en",
         timezone: "Asia/Riyadh",
         terms_accepted_at: NOW.toISOString(),
+        role_id: null,
       },
     ]);
-    expect(rows[0]).not.toHaveProperty("role_id");
     expect(rows[0]).not.toHaveProperty("status");
   });
 
@@ -114,6 +131,7 @@ describe("createProfile", () => {
 
   it.each([
     ["role", { role_id: "00000000-0000-0000-0000-000000000001" }],
+    ["roleId", { roleId: EDITOR_ROLE }],
     ["role key", { role: "admin" }],
     ["email", { email: "attacker@example.com" }],
     ["status", { status: "active" }],
@@ -144,7 +162,7 @@ describe("createProfile", () => {
 
   it("refuses an unverified email with 403", async () => {
     const { deps, insertProfile } = setup({
-      getIdentity: async () => ({ fullName: "Test Person", verifiedEmail: null }),
+      getIdentity: async () => ({ ...identity(), verifiedEmail: null }),
     });
     expect(await createProfile(deps)).toMatchObject({
       status: 403,
@@ -155,12 +173,69 @@ describe("createProfile", () => {
 
   it.each([null, "  "])("asks for a name when Clerk has %j", async (fullName) => {
     const { deps, insertProfile } = setup({
-      getIdentity: async () => ({ fullName, verifiedEmail: "test@example.com" }),
+      getIdentity: async () => ({ ...identity(), fullName }),
     });
     expect(await createProfile(deps)).toMatchObject({
       status: 422,
       body: { error: { code: "profile_incomplete" } },
     });
     expect(insertProfile).not.toHaveBeenCalled();
+  });
+
+  describe("invited team member", () => {
+    it("sets role_id from the invitation's metadata and queues no email", async () => {
+      const { deps, rows } = setup({ getIdentity: async () => identity(EDITOR_ROLE) });
+      expect((await createProfile(deps)).status).toBe(201);
+      expect(rows[0]?.role_id).toBe(EDITOR_ROLE);
+      expect(deps.queueNewClientEmail).not.toHaveBeenCalled();
+    });
+
+    it("creates a client profile when the role id is unknown", async () => {
+      const { deps, rows } = setup({ getIdentity: async () => identity(UNKNOWN_ROLE) });
+      expect((await createProfile(deps)).status).toBe(201);
+      expect(deps.getRole).toHaveBeenCalledWith(UNKNOWN_ROLE);
+      expect(rows[0]?.role_id).toBeNull();
+    });
+
+    it("never grants admin: an admin role id creates a client profile", async () => {
+      const { deps, rows } = setup({ getIdentity: async () => identity(ADMIN_ROLE) });
+      expect((await createProfile(deps)).status).toBe(201);
+      expect(rows[0]?.role_id).toBeNull();
+    });
+
+    it("refuses a body field named roleId, and the role still comes from Clerk", async () => {
+      const { deps, insertProfile } = setup(
+        { getIdentity: async () => identity() },
+        { ...VALID, roleId: EDITOR_ROLE },
+      );
+      expect((await createProfile(deps)).status).toBe(400);
+      expect(insertProfile).not.toHaveBeenCalled();
+      expect(deps.getRole).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("new client email", () => {
+    it("queues account_new once, with the client's name", async () => {
+      const { deps } = setup();
+      expect((await createProfile(deps)).status).toBe(201);
+      expect(deps.queueNewClientEmail).toHaveBeenCalledExactlyOnceWith("Test Person");
+    });
+
+    it.each([
+      ["rejects", () => Promise.reject(new Error("queue down"))],
+      ["reports false", async () => false],
+    ])("still succeeds when the queue %s", async (_name, queueNewClientEmail) => {
+      const { deps, rows } = setup({ queueNewClientEmail });
+      expect(await createProfile(deps)).toEqual({ status: 201, body: { ok: true } });
+      expect(rows).toHaveLength(1);
+    });
+
+    it("queues nothing when the profile already exists", async () => {
+      const { deps } = setup();
+      await createProfile(deps);
+      const second = setup();
+      await createProfile({ ...second.deps, insertProfile: deps.insertProfile });
+      expect(second.deps.queueNewClientEmail).not.toHaveBeenCalled();
+    });
   });
 });
