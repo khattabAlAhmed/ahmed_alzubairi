@@ -22,6 +22,7 @@ const member = (
   email,
   role_id,
   locale: "ar",
+  timezone: "Asia/Riyadh",
   status: "active",
   notify_optional: true,
   ...rest,
@@ -37,7 +38,10 @@ function seed(): Tables {
     ],
     profiles: [
       member("admin-ar@example.invalid", ADMIN_ROLE),
-      member("admin-en@example.invalid", EXTRA_ADMIN_ROLE, { locale: "en" }),
+      member("admin-en@example.invalid", EXTRA_ADMIN_ROLE, {
+        locale: "en",
+        timezone: "Europe/London",
+      }),
       member("quiet-admin@example.invalid", ADMIN_ROLE, {
         notify_optional: false,
       }),
@@ -223,6 +227,42 @@ describe("queueEmailForPermission", () => {
       traineeName: "Trainee",
     });
     expect(recipients()).toEqual([["admin-ar@example.invalid", "ar"]]);
+  });
+
+  it("writes a meeting email with each member's own time zone", async () => {
+    const meeting = {
+      consultationId: CONSULTATION,
+      title: "T",
+      platform: "Zoom",
+      url: "https://example.com/meet",
+      startsAt: "2026-11-12T10:00:00.000Z",
+      timezone: "America/New_York",
+    };
+    tables.profiles.push(
+      member("odd-zone@example.invalid", ADMIN_ROLE, { timezone: "+03:00" }),
+    );
+    await queueEmailForPermission("meeting", PERMISSIONS.TEAM_MANAGE, meeting);
+    expect(
+      tables.email_outbox.map((row) => [
+        row.to_email,
+        (row.payload as { timezone: string }).timezone,
+      ]),
+    ).toEqual([
+      ["admin-ar@example.invalid", "Asia/Riyadh"],
+      ["admin-en@example.invalid", "Europe/London"],
+      ["quiet-admin@example.invalid", "Asia/Riyadh"],
+      // A stored zone that isn't a zone name keeps the caller's.
+      ["odd-zone@example.invalid", "America/New_York"],
+    ]);
+    expect(tables.email_outbox[0]?.payload).toMatchObject({
+      title: "T",
+      startsAt: meeting.startsAt,
+    });
+  });
+
+  it("leaves a payload with no time zone as it is", async () => {
+    await queueEmailForPermission("account_new", PERMISSIONS.TEAM_MANAGE, payload);
+    expect(tables.email_outbox[0]?.payload).toEqual(payload);
   });
 
   it("writes nothing, and succeeds, when nobody holds the permission", async () => {

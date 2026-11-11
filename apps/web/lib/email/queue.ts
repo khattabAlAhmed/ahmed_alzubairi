@@ -2,6 +2,7 @@ import "server-only";
 import type { Json } from "@repo/db";
 import {
   EMAIL_PAYLOADS,
+  isIanaTimeZone,
   isOptionalEmailEvent,
   localeSchema,
   type EmailEvent,
@@ -33,6 +34,7 @@ function logFailure(event: EmailEvent, reason: string) {
   console.error(`email queue: ${event} not queued (${reason})`);
 }
 
+/** A database error's code, or `error` when it has none. Never its message. */
 function reasonOf(error: unknown): string {
   const code = (error as { code?: unknown } | null)?.code;
   return typeof code === "string" && code ? code : "error";
@@ -48,6 +50,7 @@ function checkedPayload(event: EmailEvent, payload: unknown): Json | null {
   return parsed.data as Json;
 }
 
+/** Writes the rows in one insert. False, with a log line, when it fails. */
 async function insertRows(event: EmailEvent, rows: OutboxRow[]): Promise<boolean> {
   if (rows.length === 0) return true;
   const { error } = await createServiceClient().from("email_outbox").insert(rows);
@@ -61,7 +64,9 @@ async function insertRows(event: EmailEvent, rows: OutboxRow[]): Promise<boolean
 /**
  * Queues one email to one address, in that recipient's language. False when
  * the payload doesn't match `EMAIL_PAYLOADS[event]` or the row can't be
- * written.
+ * written. It takes an address, not a profile, so it can't read a preference:
+ * for an optional event (`isOptionalEmailEvent`), the caller checks the
+ * recipient's `notify_optional` first and doesn't call this when it is off.
  */
 export async function queueEmail<Event extends EmailEvent>(input: {
   event: Event;
@@ -89,7 +94,9 @@ export async function queueEmail<Event extends EmailEvent>(input: {
 /**
  * Queues one email to every active member whose role holds `permission`, each
  * in their own `locale`. A member who turned optional notifications off gets
- * no optional event. True when every row was written, or nobody qualifies.
+ * no optional event. A payload with a `timezone` (the meeting events) is
+ * written with each member's own time zone, so the date reads right for them.
+ * True when every row was written, or nobody qualifies.
  */
 export async function queueEmailForPermission<Event extends EmailEvent>(
   event: Event,
@@ -114,7 +121,7 @@ export async function queueEmailForPermission<Event extends EmailEvent>(
 
     const members = await service
       .from("profiles")
-      .select("email, locale, notify_optional")
+      .select("email, locale, timezone, notify_optional")
       .eq("status", "active")
       .in("role_id", roleIds);
     if (members.error) {
@@ -123,6 +130,11 @@ export async function queueEmailForPermission<Event extends EmailEvent>(
     }
 
     const optional = isOptionalEmailEvent(event);
+    const hasTimezone =
+      typeof checked === "object" &&
+      checked !== null &&
+      !Array.isArray(checked) &&
+      "timezone" in checked;
     const rows = members.data
       .filter((member) => !optional || member.notify_optional)
       .map((member): OutboxRow => {
@@ -131,7 +143,10 @@ export async function queueEmailForPermission<Event extends EmailEvent>(
           event,
           to_email: member.email,
           locale: locale.success ? locale.data : "ar",
-          payload: checked,
+          payload:
+            hasTimezone && isIanaTimeZone(member.timezone)
+              ? { ...checked, timezone: member.timezone }
+              : checked,
           status: "pending",
         };
       });

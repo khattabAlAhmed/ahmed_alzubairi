@@ -7,6 +7,7 @@ import {
   uuidSchema,
 } from "./fields";
 import { PERMISSIONS } from "./permissions";
+import { isIanaTimeZone } from "./profile";
 
 /**
  * A value with one text per language, such as a document's title. The sender
@@ -32,7 +33,7 @@ const meetingPayloadSchema = z.strictObject({
   /** UTC. The sender formats it in the row's `locale` and this `timezone`. */
   startsAt: utcDatetimeSchema,
   /** The recipient's IANA time zone, from their profile. */
-  timezone: shortTextSchema,
+  timezone: shortTextSchema.refine(isIanaTimeZone),
 });
 
 /**
@@ -94,6 +95,7 @@ export const OPTIONAL_EMAIL_EVENTS = [
   "course_registration",
 ] as const satisfies readonly EmailEvent[];
 
+/** True for an event `notify_optional = false` turns off. */
 export function isOptionalEmailEvent(event: EmailEvent): boolean {
   return (OPTIONAL_EMAIL_EVENTS as readonly EmailEvent[]).includes(event);
 }
@@ -110,11 +112,22 @@ export const EMAIL_ADMIN_PERMISSION = PERMISSIONS.TEAM_MANAGE;
  */
 export const EMAIL_PLACEHOLDER_PATTERN = /\{\{\s*([A-Za-z][A-Za-z0-9]*)\s*\}\}/g;
 
+/**
+ * A fresh copy of the pattern. The exported one is global, so a `test` or
+ * `exec` elsewhere could leave its `lastIndex` mid-text.
+ */
+function placeholderPattern(): RegExp {
+  return new RegExp(
+    EMAIL_PLACEHOLDER_PATTERN.source,
+    EMAIL_PLACEHOLDER_PATTERN.flags,
+  );
+}
+
 /** The placeholder names a template text uses, each once, in order. */
 export function templatePlaceholders(text: string): string[] {
   return [
     ...new Set(
-      [...text.matchAll(EMAIL_PLACEHOLDER_PATTERN)].map(([, name = ""]) => name),
+      [...text.matchAll(placeholderPattern())].map(([, name = ""]) => name),
     ),
   ];
 }
@@ -150,7 +163,7 @@ export function fillTemplate(
   text: string,
   payload: Record<string, unknown>,
 ): string {
-  return text.replace(EMAIL_PLACEHOLDER_PATTERN, (_match, name: string) => {
+  return text.replace(placeholderPattern(), (_match, name: string) => {
     const value = Object.hasOwn(payload, name) ? payload[name] : undefined;
     if (typeof value === "string") return value;
     if (typeof value === "number") return String(value);

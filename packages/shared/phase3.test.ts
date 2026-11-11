@@ -277,6 +277,15 @@ describe("email contract", () => {
     expectPair(EMAIL_PAYLOADS[event as EmailEvent], pair);
   });
 
+  it.each(["+03:00", "Riyadh time", "Asia/Nowhere"])(
+    "refuses %s as a meeting time zone",
+    (timezone) => {
+      expect(
+        EMAIL_PAYLOADS.meeting.safeParse({ ...meeting, timezone }).success,
+      ).toBe(false);
+    },
+  );
+
   it("lists each event's placeholders", () => {
     expect(EMAIL_PLACEHOLDERS.contact_message).toEqual(["name", "subject"]);
     expect(EMAIL_PLACEHOLDERS.account_new).toEqual(["clientName"]);
@@ -375,6 +384,21 @@ describe("fillTemplate", () => {
     expect(fillTemplate("{{name}} {{name}}", values)).toBe("N N");
     expect(fillTemplate("{{name}} {{name}}", values)).toBe("N N");
     expect(EMAIL_PLACEHOLDER_PATTERN.global).toBe(true);
+  });
+});
+
+describe("the exported pattern's lastIndex", () => {
+  it("doesn't change what the helpers find", () => {
+    const text = "{{a}} {{b}}";
+    EMAIL_PLACEHOLDER_PATTERN.lastIndex = 0;
+    EMAIL_PLACEHOLDER_PATTERN.exec(text);
+    expect(EMAIL_PLACEHOLDER_PATTERN.lastIndex).toBeGreaterThan(0);
+    try {
+      expect(templatePlaceholders(text)).toEqual(["a", "b"]);
+      expect(fillTemplate(text, { a: "1", b: "2" })).toBe("1 2");
+    } finally {
+      EMAIL_PLACEHOLDER_PATTERN.lastIndex = 0;
+    }
   });
 });
 
