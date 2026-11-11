@@ -327,6 +327,42 @@ describe("queueEmailForPermission", () => {
     }
   });
 
+  it("points the notifications at the target when one is given", async () => {
+    const MESSAGE = "223e4567-e89b-42d3-a456-426614174001";
+    expect(
+      await queueEmailForPermission(
+        "contact_message",
+        PERMISSIONS.TEAM_MANAGE,
+        { name: "Sender Name", subject: "A question" },
+        { entity: "contact_messages", entityId: MESSAGE },
+      ),
+    ).toBe(true);
+    expect(tables.notifications).toHaveLength(3);
+    for (const row of tables.notifications) {
+      expect(row).toMatchObject({
+        type: "contact_message",
+        entity: "contact_messages",
+        entity_id: MESSAGE,
+      });
+    }
+    // The target is for the counter only: the email's payload stays as given.
+    for (const row of tables.email_outbox) {
+      expect(row.payload).toEqual({ name: "Sender Name", subject: "A question" });
+    }
+  });
+
+  it("uses a given target over the payload's consultation", async () => {
+    await queueEmailForPermission(
+      "consultation_new",
+      PERMISSIONS.TEAM_MANAGE,
+      { consultationId: CONSULTATION, title: "T", clientName: "Client Name" },
+      { entity: "contact_messages", entityId: "other-id" },
+    );
+    for (const row of tables.notifications) {
+      expect(row).toMatchObject({ entity: "contact_messages", entity_id: "other-id" });
+    }
+  });
+
   it("writes no notification for a member an optional event skips", async () => {
     await queueEmailForPermission("course_registration", PERMISSIONS.TRAINING_MANAGE, {
       courseTitle: { ar: "دورة", en: "Course" },
