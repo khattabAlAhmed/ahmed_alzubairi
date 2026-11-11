@@ -6,6 +6,7 @@ import {
   type ErrorResponse,
   type Locale,
 } from "@repo/shared";
+import { isGrantableRole, type RoleRef } from "@/lib/admin/team/rules";
 import ar from "@/messages/ar.json";
 import en from "@/messages/en.json";
 
@@ -26,9 +27,17 @@ type ProfileError = keyof typeof STATUS;
 export type ClerkIdentity = {
   fullName: string | null;
   verifiedEmail: string | null;
+  /**
+   * The role id a team invitation put in the user's public metadata, or null.
+   * Only the server can write public metadata.
+   */
+  invitedRoleId: string | null;
 };
 
-/** The columns onboarding writes. `role_id` and `status` are never among them. */
+/**
+ * The columns onboarding writes. `status` is never among them, and `role_id`
+ * comes only from an invitation, never from the body.
+ */
 export type NewProfileRow = {
   clerk_user_id: string;
   full_name: string;
@@ -40,6 +49,7 @@ export type NewProfileRow = {
   locale: Locale;
   timezone: string;
   terms_accepted_at: string;
+  role_id: string | null;
 };
 
 export type CreateProfileDeps = {
@@ -49,6 +59,10 @@ export type CreateProfileDeps = {
   getIdentity: (userId: string) => Promise<ClerkIdentity>;
   /** Inserts only. Returns "conflict" when the user already has a row. */
   insertProfile: (row: NewProfileRow) => Promise<"created" | "conflict">;
+  /** The role with this id, or null. Read on the server, after the session check. */
+  getRole: (roleId: string) => Promise<RoleRef | null>;
+  /** Queues the `account_new` email to the admins. A failure is ignored. */
+  queueNewClientEmail: (clientName: string) => Promise<unknown>;
   now?: () => Date;
 };
 
@@ -90,6 +104,13 @@ export async function createProfile(
     return fail("profile_incomplete", locale);
   }
 
+  // An invited member gets the invitation's role. An unknown role, or the
+  // admin role (§6.19: no code path grants it), leaves a client profile.
+  const invitedRole = identity.invitedRoleId
+    ? await deps.getRole(identity.invitedRoleId)
+    : null;
+  const roleId = isGrantableRole(invitedRole) ? invitedRole.id : null;
+
   const outcome = await deps.insertProfile({
     clerk_user_id: userId,
     full_name: fullName,
@@ -101,9 +122,15 @@ export async function createProfile(
     locale: body.locale ?? locale,
     timezone: body.timezone,
     terms_accepted_at: (deps.now?.() ?? new Date()).toISOString(),
+    role_id: roleId,
   });
   if (outcome === "conflict") {
     return fail("conflict", locale);
+  }
+
+  // A new client only. The profile exists by now, so nothing here may fail it.
+  if (roleId === null) {
+    await deps.queueNewClientEmail(fullName).catch(() => undefined);
   }
 
   return { status: 201, body: { ok: true } };

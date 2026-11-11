@@ -10,5 +10,11 @@
   "publishNotApproved": "This needs the admin's approval before it can be published.",
   "fileTypeNotAllowed": "This file type isn't allowed here. Check the file and try again.",
   "fileTooLarge": "This file is too large. Choose a smaller file.",
-  "uploadNotFound": "We couldn't find the uploaded file. Upload it again."
+  "uploadNotFound": "We couldn't find the uploaded file. Upload it again.",
+  "teamSelfChange": "You can't change your own role or disable your own account.",
+  "teamAdminRole": "The admin role can't be given from here.",
+  "teamRoleUnknown": "This role doesn't exist. Choose another role.",
+  "teamNotMember": "This account isn't a team member. To add someone to the team, send an invitation.",
+  "teamInviteExists": "This email already has an account or a pending invitation.",
+  "teamSyncFailed": "We couldn't update this member's sign-in. Nothing was changed. Try again."
 }
