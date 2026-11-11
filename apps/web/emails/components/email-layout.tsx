@@ -45,7 +45,10 @@ export function EmailLayout({
         <meta name="supported-color-schemes" content="light dark" />
         <style>{HEAD_CSS}</style>
       </Head>
+      {/* Some mail apps drop `<html>`: the body and the container repeat its language and direction. */}
       <Body
+        lang={locale}
+        dir={dir}
         className={CLASSES.body}
         style={{
           margin: 0,
@@ -56,6 +59,7 @@ export function EmailLayout({
       >
         <Preview>{preview}</Preview>
         <Container
+          lang={locale}
           dir={dir}
           style={{ width: "100%", maxWidth: SIZES.width, margin: "0 auto" }}
         >

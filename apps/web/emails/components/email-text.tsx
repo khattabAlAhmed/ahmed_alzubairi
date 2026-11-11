@@ -1,5 +1,6 @@
 import { Text } from "@react-email/components";
 import type { ReactNode } from "react";
+import { withLineBreaks } from "./line-breaks";
 import { CLASSES, COLORS, FONTS, SIZES } from "./theme";
 
 /** A paragraph of body text. Line breaks in a plain-text template are kept. */
@@ -13,11 +14,10 @@ export function EmailText({ children }: { children: ReactNode }) {
         fontFamily: FONTS.text,
         fontSize: 16,
         lineHeight: SIZES.lineHeight,
-        whiteSpace: "pre-line",
         overflowWrap: "anywhere",
       }}
     >
-      {children}
+      {withLineBreaks(children)}
     </Text>
   );
 }

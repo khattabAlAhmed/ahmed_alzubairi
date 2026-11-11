@@ -3,6 +3,7 @@ import { LOCALES, SITE_NAME } from "@repo/shared";
 import { describe, expect, it } from "vitest";
 import { EmailDetails } from "./email-details";
 import { EmailLayout } from "./email-layout";
+import { EmailNote } from "./email-note";
 import { EmailText } from "./email-text";
 import { SampleEmail } from "./sample";
 import { COLORS } from "./theme";
@@ -63,6 +64,23 @@ describe("EmailLayout", () => {
     expect(html).toContain("Footer line");
   });
 
+  it.each([
+    ["ar", "rtl"],
+    ["en", "ltr"],
+  ] as const)(
+    "repeats %s and %s inside the document, for mail apps that drop <html>",
+    async (locale, dir) => {
+      const html = await render(<SampleEmail locale={locale} />);
+
+      expect(html).toMatch(
+        new RegExp(`<body(?=[^>]*\\slang="${locale}")(?=[^>]*\\sdir="${dir}")`),
+      );
+      expect(html).toMatch(
+        new RegExp(`<table(?=[^>]*\\slang="${locale}")(?=[^>]*\\sdir="${dir}")`),
+      );
+    },
+  );
+
   it("has no words of its own without a footer", async () => {
     const text = await render(
       <EmailLayout locale="ar" preview="">
@@ -90,6 +108,23 @@ describe("EmailText and EmailDetails", () => {
     expect(html).not.toContain("<img src=x>");
     expect(html).not.toContain("<b>Subject</b>");
     expect(html).toContain("&lt;script&gt;");
+  });
+
+  it("keeps a text's line breaks in the HTML and in the plain-text copy", async () => {
+    const email = (
+      <EmailLayout locale="en" preview="">
+        <EmailText>{"First\nSecond"}</EmailText>
+        <EmailNote>{"Third\r\nFourth"}</EmailNote>
+      </EmailLayout>
+    );
+
+    const html = await render(email);
+    expect(html).toMatch(/First(<!-- -->)?<br\/>(<!-- -->)?Second/);
+    expect(html).toMatch(/Third(<!-- -->)?<br\/>(<!-- -->)?Fourth/);
+
+    const text = await render(email, { plainText: true });
+    expect(text).toContain("First\nSecond");
+    expect(text).toContain("Third\nFourth");
   });
 
   it("renders nothing for an empty details list", async () => {
