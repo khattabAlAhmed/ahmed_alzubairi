@@ -9,6 +9,7 @@ type Decision = {
 const mocks = vi.hoisted(() => ({
   protect: vi.fn(),
   insert: vi.fn(),
+  queue: vi.fn(),
   baseOptions: [] as unknown[],
   routeRules: [] as unknown[],
 }));
@@ -33,13 +34,24 @@ vi.mock("@/lib/supabase/service", () => ({
   createServiceClient: () => ({
     from: (table: string) => {
       expect(table).toBe("contact_messages");
-      return { insert: mocks.insert };
+      return {
+        insert: (row: unknown) => ({
+          select: (columns: string) => {
+            expect(columns).toBe("id");
+            return { single: () => mocks.insert(row) };
+          },
+        }),
+      };
     },
   }),
 }));
 
+vi.mock("@/lib/email/queue", () => ({ queueEmailForPermission: mocks.queue }));
+
 const { resetArcjetClients } = await import("@/lib/arcjet");
 const { POST } = await import("./route");
+
+const MESSAGE_ID = "323e4567-e89b-42d3-a456-426614174002";
 
 const VALID = {
   name: "Example Visitor",
@@ -72,7 +84,8 @@ beforeEach(() => {
   mocks.baseOptions.length = 0;
   mocks.routeRules.length = 0;
   mocks.protect.mockReset().mockResolvedValue(allow);
-  mocks.insert.mockReset().mockResolvedValue({ error: null });
+  mocks.insert.mockReset().mockResolvedValue({ data: { id: MESSAGE_ID }, error: null });
+  mocks.queue.mockReset().mockResolvedValue(true);
   logged = vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -178,10 +191,46 @@ describe("POST /api/contact", () => {
   });
 
   it("answers 500 when the insert fails, and never logs the visitor's details", async () => {
-    mocks.insert.mockResolvedValue({ error: { code: "42501", message: "denied" } });
+    mocks.insert.mockResolvedValue({ data: null, error: { code: "42501", message: "denied" } });
     const response = await post(VALID);
     expect(response.status).toBe(500);
     expect((await response.json()).error.code).toBe("internal_error");
+    expect(mocks.queue).not.toHaveBeenCalled();
+    const output = JSON.stringify(logged.mock.calls);
+    for (const value of Object.values(VALID)) expect(output).not.toContain(value);
+  });
+
+  it("queues one contact_message email for the admins, pointing at the saved row", async () => {
+    const response = await post(VALID);
+    expect(response.status).toBe(201);
+    expect(mocks.queue).toHaveBeenCalledTimes(1);
+    // Name and subject only: the text and the address stay in the database.
+    expect(mocks.queue).toHaveBeenCalledWith(
+      "contact_message",
+      "team.manage",
+      { name: "Example Visitor", subject: "A question" },
+      { entity: "contact_messages", entityId: MESSAGE_ID },
+    );
+  });
+
+  it("queues nothing for a refused or invalid message", async () => {
+    mocks.protect.mockResolvedValue(bot);
+    await post(VALID);
+    mocks.protect.mockResolvedValue(allow);
+    await post({ ...VALID, email: "not-an-email" });
+    expect(mocks.queue).not.toHaveBeenCalled();
+  });
+
+  it("still answers ok when the queue fails or throws, without logging the visitor's details", async () => {
+    mocks.queue.mockResolvedValue(false);
+    const failed = await post(VALID);
+    expect(failed.status).toBe(201);
+    expect(await failed.json()).toEqual({ ok: true });
+
+    mocks.queue.mockRejectedValue(new Error(`boom ${VALID.email}`));
+    const thrown = await post(VALID);
+    expect(thrown.status).toBe(201);
+    expect(await thrown.json()).toEqual({ ok: true });
     const output = JSON.stringify(logged.mock.calls);
     for (const value of Object.values(VALID)) expect(output).not.toContain(value);
   });

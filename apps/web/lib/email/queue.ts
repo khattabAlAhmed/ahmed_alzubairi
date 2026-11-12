@@ -96,6 +96,9 @@ async function insertRows(event: EmailEvent, rows: OutboxRow[]): Promise<boolean
   return true;
 }
 
+/** What a notification points at, for the dashboard counter's link. */
+export type NotificationTarget = { entity: string; entityId: string };
+
 /** The entity a payload points at, for the dashboard counter's link. */
 function entityOf(payload: Json): { entity: string; entity_id: string } | null {
   if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
@@ -116,9 +119,12 @@ async function insertNotifications(
   event: EmailEvent,
   userIds: string[],
   payload: Json,
+  given?: NotificationTarget,
 ) {
   if (userIds.length === 0) return;
-  const target = entityOf(payload);
+  const target = given
+    ? { entity: given.entity, entity_id: given.entityId }
+    : entityOf(payload);
   const rows = userIds.map(
     (user_id): TablesInsert<"notifications"> => ({
       user_id,
@@ -171,12 +177,14 @@ export async function queueEmail<Event extends EmailEvent>(input: {
  * no optional event. A payload with a `timezone` (the meeting events) is
  * written with each member's own time zone, so the date reads right for them.
  * Each recipient also gets one `notifications` row, for the dashboard counter.
+ * It points at `target` when one is given, else at the payload's consultation.
  * True when every email row was written, or nobody qualifies.
  */
 export async function queueEmailForPermission<Event extends EmailEvent>(
   event: Event,
   permission: Permission,
   payload: EmailPayload<Event>,
+  target?: NotificationTarget,
 ): Promise<boolean> {
   try {
     const checked = checkedPayload(event, payload);
@@ -233,6 +241,7 @@ export async function queueEmailForPermission<Event extends EmailEvent>(
       event,
       recipients.map((member) => member.clerk_user_id),
       checked,
+      target,
     );
     return true;
   } catch (error) {
