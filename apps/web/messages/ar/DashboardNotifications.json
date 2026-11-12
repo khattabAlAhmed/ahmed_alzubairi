@@ -1,0 +1,50 @@
+{
+  "nav": "الإشعارات",
+  "title": "الإشعارات",
+  "intro": "أحدث إشعاراتك. فتح الإشعار يجعله مقروءًا.",
+  "badge": {
+    "count": "{count, number}",
+    "more": "{max, number}+",
+    "unread": "{count, plural, one {إشعار واحد غير مقروء} two {إشعاران غير مقروءين} few {# إشعارات غير مقروءة} many {# إشعارًا غير مقروء} other {# إشعار غير مقروء}}"
+  },
+  "summary": "{count, plural, =0 {لا توجد إشعارات غير مقروءة} one {إشعار واحد غير مقروء} two {إشعاران غير مقروءين} few {# إشعارات غير مقروءة} many {# إشعارًا غير مقروء} other {# إشعار غير مقروء}}",
+  "markAll": "تحديد الكل كمقروء",
+  "marking": "جارٍ الحفظ…",
+  "markedAll": "أصبحت كل الإشعارات مقروءة.",
+  "failed": "تعذّر حفظ التغيير. حاول مرة أخرى.",
+  "listLabel": "أحدث الإشعارات",
+  "empty": {
+    "title": "لا توجد إشعارات بعد",
+    "text": "يظهر هنا كل طلب جديد أو رسالة جديدة تخصّك."
+  },
+  "row": {
+    "unread": "غير مقروء",
+    "read": "مقروء",
+    "opens": "يفتح {section}"
+  },
+  "sections": {
+    "messages": "الرسائل",
+    "overview": "نظرة عامة"
+  },
+  "types": {
+    "consultation_new": "طلب استشارة جديد",
+    "consultation_received": "تم استلام طلب الاستشارة",
+    "consultation_assigned": "استشارة مسندة إليك",
+    "consultation_reply": "رد جديد",
+    "meeting": "موعد اجتماع",
+    "meeting_reminder": "تذكير باجتماع",
+    "document_request": "طلب وثيقة",
+    "document_recommendation": "توصية وثيقة",
+    "document_granted": "وثيقة متاحة",
+    "course_registration": "تسجيل دورة",
+    "custom_training_request": "طلب تدريب مخصص",
+    "contact_message": "رسالة تواصل",
+    "account_new": "حساب جديد",
+    "other": "إشعار"
+  },
+  "errors": {
+    "unauthenticated": "يرجى تسجيل الدخول للمتابعة.",
+    "validation_failed": "هذا الطلب غير صالح. أعد تحميل الصفحة وحاول مرة أخرى.",
+    "internal_error": "حدث خطأ من جهتنا. يرجى المحاولة مرة أخرى."
+  }
+}
