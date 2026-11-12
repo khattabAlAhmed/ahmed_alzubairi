@@ -5,7 +5,11 @@ import {
   notificationTypeKey,
   type NotificationSection,
 } from "@/lib/notifications/links";
-import { countUnread, listLatest } from "@/lib/notifications/store";
+import {
+  countUnread,
+  LATEST_NOTIFICATIONS,
+  listPage,
+} from "@/lib/notifications/store";
 import { createUserClient } from "@/lib/supabase/user";
 
 /** One notification as the list shows it. */
@@ -37,17 +41,34 @@ export async function loadUnreadCount(userId: string): Promise<number> {
   }
 }
 
-/** The member's latest notifications and unread count, with their own client. */
+/** The list's address for a page; page 1 has no query. */
+export function notificationsPath(page: number): string {
+  return page > 1 ? `/dashboard/notifications?page=${page}` : "/dashboard/notifications";
+}
+
+/** The page number from the query string: a whole number from 1, else 1. */
+export function parsePage(raw: string | string[] | undefined): number {
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  if (one === undefined || !/^[1-9]\d{0,5}$/.test(one)) return 1;
+  return Number(one);
+}
+
+/**
+ * One page of the member's notifications, their unread count and how many
+ * pages there are, read with their own client.
+ */
 export async function loadNotifications(
   userId: string,
-): Promise<{ items: NotificationItem[]; unread: number }> {
+  page: number,
+): Promise<{ items: NotificationItem[]; unread: number; pages: number }> {
   const user = createUserClient();
-  const [rows, unread] = await Promise.all([
-    listLatest(user, userId),
+  const [{ rows, total }, unread] = await Promise.all([
+    listPage(user, userId, page),
     countUnread(user, userId),
   ]);
   return {
     unread,
+    pages: Math.max(1, Math.ceil(total / LATEST_NOTIFICATIONS)),
     items: rows.map((row) => ({
       id: row.id,
       typeKey: notificationTypeKey(row.type),

@@ -6,7 +6,7 @@ import ar from "@/messages/ar/DashboardNotifications.json";
 import en from "@/messages/en/DashboardNotifications.json";
 import { notificationTarget, notificationTypeKey } from "./links";
 import { handleReadRequest, type ReadRouteDeps } from "./route";
-import { countUnread, LATEST_NOTIFICATIONS, listLatest, markRead } from "./store";
+import { countUnread, LATEST_NOTIFICATIONS, listPage, markRead } from "./store";
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
@@ -51,7 +51,7 @@ function fakeClient(rows: Row[], { rls, fail }: { rls?: string; fail?: DbError }
   const chain = (
     run: (matching: Row[]) => Row[],
     tests: Test[],
-    opts: { head?: boolean; limit?: number; sort?: boolean } = {},
+    opts: { head?: boolean; range?: [number, number]; sort?: boolean } = {},
   ) => {
     const add = (test: Test) => chain(run, [...tests, test], opts);
     const result = () => {
@@ -60,15 +60,21 @@ function fakeClient(rows: Row[], { rls, fail }: { rls?: string; fail?: DbError }
       if (opts.sort) {
         matching = [...matching].sort((a, b) => b.created_at.localeCompare(a.created_at));
       }
-      const data = run(matching).slice(0, opts.limit);
-      return { data: opts.head ? null : data, count: data.length, error: null };
+      const all = run(matching);
+      const [from, to] = opts.range ?? [0, all.length];
+      // PostgREST: an offset past the last row is "range not satisfiable".
+      if (from > 0 && from >= all.length) {
+        return { data: null, count: null, error: { code: "PGRST103" } };
+      }
+      const data = all.slice(from, to + 1);
+      return { data: opts.head ? null : data, count: all.length, error: null };
     };
     return {
       eq: (column: keyof Row, value: unknown) => add((row) => row[column] === value),
       is: (column: keyof Row, value: null) => add((row) => row[column] === value),
       in: (column: keyof Row, values: unknown[]) => add((row) => values.includes(row[column])),
       order: (column: string) => chain(run, tests, { ...opts, sort: opts.sort || column === "created_at" }),
-      limit: (limit: number) => chain(run, tests, { ...opts, limit }),
+      range: (from: number, to: number) => chain(run, tests, { ...opts, range: [from, to] }),
       then: (resolve: (value: ReturnType<typeof result>) => void) => resolve(result()),
     };
   };
@@ -233,21 +239,38 @@ describe("notifications store", () => {
     expect(await countUnread(fakeClient([], { rls: ADMIN }), ADMIN)).toBe(0);
   });
 
-  it("lists the member's latest rows, newest first, and no one else's", async () => {
-    const rows = Array.from({ length: LATEST_NOTIFICATIONS + 5 }, (_, n) =>
+  it("lists the member's rows a page at a time, newest first, and no one else's", async () => {
+    const rows = Array.from({ length: LATEST_NOTIFICATIONS + 10 }, (_, n) =>
       note(n + 1, n % 5 === 0 ? EDITOR : ADMIN),
     );
-    const list = await listLatest(fakeClient(rows, { rls: ADMIN }), ADMIN);
-    expect(list).toHaveLength(LATEST_NOTIFICATIONS);
-    expect(list[0]?.id).toBe(id(LATEST_NOTIFICATIONS + 5));
-    const times = list.map((row) => row.createdAt);
+    const mine = rows.filter((row) => row.user_id === ADMIN);
+    const user = fakeClient(rows, { rls: ADMIN });
+    const first = await listPage(user, ADMIN);
+    expect(first.total).toBe(mine.length);
+    expect(first.rows).toHaveLength(LATEST_NOTIFICATIONS);
+    expect(first.rows[0]?.id).toBe(id(LATEST_NOTIFICATIONS + 10));
+    const times = first.rows.map((row) => row.createdAt);
     expect(times).toEqual([...times].sort().reverse());
-    const editors = new Set(rows.filter((row) => row.user_id === EDITOR).map((row) => row.id));
-    expect(list.some((row) => editors.has(row.id))).toBe(false);
     // The API shape: no user id and no entity id leave the server.
-    expect(Object.keys(list[0] ?? {}).sort()).toEqual(
+    expect(Object.keys(first.rows[0] ?? {}).sort()).toEqual(
       ["createdAt", "entity", "id", "readAt", "type"].sort(),
     );
+
+    // The older ones are on the next page: together, every row once.
+    const second = await listPage(user, ADMIN, 2);
+    expect(second.rows).toHaveLength(mine.length - LATEST_NOTIFICATIONS);
+    const seen = [...first.rows, ...second.rows].map((row) => row.id);
+    expect(new Set(seen).size).toBe(mine.length);
+    expect(seen.sort()).toEqual(mine.map((row) => row.id).sort());
+  });
+
+  it("a page past the end is empty, with the real total", async () => {
+    const rows = [note(1, ADMIN), note(2, ADMIN), note(3, EDITOR)];
+    expect(await listPage(fakeClient(rows, { rls: ADMIN }), ADMIN, 9)).toEqual({
+      rows: [],
+      total: 2,
+    });
+    expect(await listPage(fakeClient([], { rls: ADMIN }), ADMIN)).toEqual({ rows: [], total: 0 });
   });
 
   it("keeps the first read time of a row that is already read", async () => {
@@ -261,7 +284,7 @@ describe("notifications store", () => {
   it("throws the database's code", async () => {
     const broken = fakeClient([], { fail: { code: "XX000" } });
     await expect(countUnread(broken, ADMIN)).rejects.toThrow("XX000");
-    await expect(listLatest(broken, ADMIN)).rejects.toThrow("XX000");
+    await expect(listPage(broken, ADMIN)).rejects.toThrow("XX000");
     await expect(markRead(broken, ADMIN)).rejects.toThrow("XX000");
   });
 });

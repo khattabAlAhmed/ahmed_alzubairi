@@ -1,10 +1,11 @@
 import "server-only";
 import type { Database } from "@repo/db";
+import { pageRange } from "@repo/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Client = SupabaseClient<Database>;
 
-/** How many notifications the dashboard's list shows. */
+/** How many notifications one page of the dashboard's list shows. */
 export const LATEST_NOTIFICATIONS = 20;
 
 /** A `notifications` row as the list needs it. Times are ISO strings in UTC. */
@@ -30,27 +31,49 @@ export async function countUnread(user: Client, userId: string): Promise<number>
   return count ?? 0;
 }
 
-/** The member's latest notifications, newest first, through their own client. */
-export async function listLatest(
+/**
+ * One page of the member's notifications, newest first, through their own
+ * client, with how many they have in all. Page 1 is the latest.
+ */
+export async function listPage(
   user: Client,
   userId: string,
-  limit: number = LATEST_NOTIFICATIONS,
-): Promise<NotificationRow[]> {
-  const { data, error } = await user
+  page: number = 1,
+  pageSize: number = LATEST_NOTIFICATIONS,
+): Promise<{ rows: NotificationRow[]; total: number }> {
+  const { from, to } = pageRange({ page, pageSize });
+  const { data, error, count } = await user
     .from("notifications")
-    .select("id, type, entity, read_at, created_at")
+    .select("id, type, entity, read_at, created_at", { count: "exact" })
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .order("id")
-    .limit(limit);
+    .range(from, to);
+  // Past the last page PostgREST answers "range not satisfiable", with no
+  // count: an empty page, and the total from a count of its own.
+  if (error?.code === "PGRST103") {
+    return { rows: [], total: await countAll(user, userId) };
+  }
   if (error) throw new Error(`notifications list failed: ${error.code}`);
-  return data.map((row) => ({
-    id: row.id,
-    type: row.type,
-    entity: row.entity,
-    readAt: row.read_at === null ? null : new Date(row.read_at).toISOString(),
-    createdAt: new Date(row.created_at).toISOString(),
-  }));
+  return {
+    total: count ?? data.length,
+    rows: data.map((row) => ({
+      id: row.id,
+      type: row.type,
+      entity: row.entity,
+      readAt: row.read_at === null ? null : new Date(row.read_at).toISOString(),
+      createdAt: new Date(row.created_at).toISOString(),
+    })),
+  };
+}
+
+async function countAll(user: Client, userId: string): Promise<number> {
+  const { count, error } = await user
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  if (error) throw new Error(`notifications count failed: ${error.code}`);
+  return count ?? 0;
 }
 
 /**

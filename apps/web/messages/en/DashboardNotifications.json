@@ -1,7 +1,7 @@
 {
   "nav": "Notifications",
   "title": "Notifications",
-  "intro": "Your latest notifications. Opening one marks it as read.",
+  "intro": "Your notifications, newest first. Opening one marks it as read.",
   "badge": {
     "count": "{count, number}",
     "more": "{max, number}+",
@@ -12,7 +12,7 @@
   "marking": "Saving…",
   "markedAll": "All notifications are marked as read.",
   "failed": "The change couldn't be saved. Try again.",
-  "listLabel": "Latest notifications",
+  "listLabel": "Notifications",
   "empty": {
     "title": "No notifications yet",
     "text": "A new request or message for you shows here."
@@ -25,6 +25,12 @@
   "sections": {
     "messages": "Messages",
     "overview": "Overview"
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Newer",
+    "next": "Older",
+    "position": "Page {page} of {pages}"
   },
   "types": {
     "consultation_new": "New consultation request",

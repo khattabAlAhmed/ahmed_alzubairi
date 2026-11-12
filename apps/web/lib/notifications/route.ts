@@ -49,6 +49,10 @@ function fail(code: keyof typeof STATUS, locale: Locale) {
  * those of the caller's notifications read, `{}` marks all of them. The user
  * id comes from the session, never from the body, and an id that isn't the
  * caller's is ignored. Answers with the caller's unread count.
+ *
+ * The count is read after the update. If that read fails the answer is 500
+ * although the rows are marked; the page reads itself again after any answer,
+ * so it still shows what was saved.
  */
 export async function handleReadRequest(
   request: Request,

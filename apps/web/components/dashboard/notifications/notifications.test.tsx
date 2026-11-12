@@ -30,6 +30,7 @@ vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
 
 const { DashboardNavLink } = await import("../dashboard-nav-link");
 const { DashboardNavMenu } = await import("../dashboard-nav-menu");
+const { notificationsPath, parsePage } = await import("./data");
 const { NotificationList } = await import("./notification-list");
 const { RefreshOnNavigation } = await import("./refresh-on-navigation");
 const { sendRead } = await import("./send");
@@ -245,7 +246,7 @@ describe("NotificationList", () => {
     expect(nav.refresh).toHaveBeenCalledTimes(1);
   });
 
-  it("shows the server's message when mark all fails, and doesn't refresh", async () => {
+  it("shows the server's message when mark all fails, and reads the page again", async () => {
     fetchMock.mockResolvedValueOnce(
       answer({ error: { code: "internal_error", message: "Server said no." } }, 500),
     );
@@ -254,7 +255,70 @@ describe("NotificationList", () => {
       fireEvent.click(screen.getByRole("button", { name: en.markAll }));
     });
     expect(screen.getByRole("alert").textContent).toBe("Server said no.");
-    expect(nav.refresh).not.toHaveBeenCalled();
+    // The rows may be marked although the answer failed.
+    expect(nav.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops the failure once the page shows the change was saved", async () => {
+    fetchMock.mockResolvedValueOnce(
+      answer({ error: { code: "internal_error", message: "Server said no." } }, 500),
+    );
+    const view = show([UNREAD], 1);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: en.markAll }));
+    });
+    expect(screen.getByRole("alert")).toBeTruthy();
+    // The refresh brings the same count: the failure stays.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[UNREAD]} unread={1} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("alert")).toBeTruthy();
+    // The refresh brings a lower count: it was saved after all.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[{ ...UNREAD, readAt: READ.readAt }]} unread={0} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("a second open waits for the first: one request, one destination", async () => {
+    const OTHER: NotificationItem = { ...UNREAD, id: READ.id, section: "overview", href: "/dashboard" };
+    let finish: (value: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (finish = resolve)));
+    show([UNREAD, OTHER], 2);
+    const [first, second] = screen.getAllByRole("link") as [HTMLElement, HTMLElement];
+    fireEvent.click(first);
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    second.dispatchEvent(event);
+    // The second click neither navigates on its own nor sends a request.
+    expect(event.defaultPrevented).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finish(answer({ unread: 1 }));
+    });
+    expect(nav.push.mock.calls).toEqual([["/dashboard/messages"]]);
+  });
+
+  it("a middle click marks it read and leaves the new tab to the browser", async () => {
+    show([UNREAD, READ], 1);
+    const [unreadLink, readLink] = screen.getAllByRole("link") as [HTMLElement, HTMLElement];
+    const event = new MouseEvent("auxclick", { bubbles: true, cancelable: true, button: 1 });
+    await act(async () => {
+      unreadLink.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(false);
+    expect(sent(0).body).toEqual({ ids: [UNREAD.id] });
+    expect(nav.push).not.toHaveBeenCalled();
+    expect(nav.refresh).toHaveBeenCalledTimes(1);
+    // A right click, and a middle click on a read one, send nothing.
+    await act(async () => {
+      fireEvent(unreadLink, new MouseEvent("auxclick", { bubbles: true, button: 2 }));
+      fireEvent(readLink, new MouseEvent("auxclick", { bubbles: true, button: 1 }));
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("falls back to its own message when the request never arrives", async () => {
@@ -281,6 +345,21 @@ describe("NotificationList", () => {
       expect(link.getAttribute("tabindex")).toBeNull();
     }
     expect(screen.getByRole("button", { name: en.markAll }).tagName).toBe("BUTTON");
+  });
+});
+
+describe("the list's pages", () => {
+  it("reads a whole page number from 1, and falls back to 1", () => {
+    expect(parsePage("3")).toBe(3);
+    expect(parsePage(["2", "9"])).toBe(2);
+    for (const raw of [undefined, "", "0", "-1", "1.5", "abc", "1e3", " 2", "9999999"]) {
+      expect(parsePage(raw)).toBe(1);
+    }
+  });
+
+  it("leaves page 1 out of the address", () => {
+    expect(notificationsPath(1)).toBe("/dashboard/notifications");
+    expect(notificationsPath(3)).toBe("/dashboard/notifications?page=3");
   });
 });
 
