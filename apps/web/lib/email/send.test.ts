@@ -238,7 +238,7 @@ describe("sendOutboxRow", () => {
     await sendOutboxRow(seedRow({ locale: "ar" }));
     expect(resendSend.mock.calls[0]?.[0]).toMatchObject({
       subject: "[رسالة تواصل] A question",
-      text: "رسالة من Sender Name",
+      text: expect.stringContaining("\n\nرسالة من Sender Name\n\n"),
       html: expect.stringContaining('dir="rtl"'),
     });
   });

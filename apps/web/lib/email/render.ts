@@ -10,11 +10,13 @@ import {
   type EmailEvent,
   type EmailValues,
   type Locale,
+  SITE_NAME,
 } from "@repo/shared";
 import { createElement } from "react";
 import {
   EMAIL_ACTIONS,
   EMAIL_DEFAULTS,
+  EMAIL_FOOTER,
   GENERIC_TEMPLATE,
   type TemplateText,
 } from "@/emails/defaults";
@@ -69,7 +71,9 @@ async function loadTemplate(
 
 /**
  * The payload as placeholder values. `startsAt` (UTC) becomes a date and time
- * in the recipient's language and the payload's `timezone`.
+ * in the recipient's language and the payload's `timezone`. A `url` that isn't
+ * an https link becomes empty, so the body never spells out a link the button
+ * refused.
  */
 function placeholderValues(payload: unknown, locale: Locale): EmailValues {
   if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
@@ -78,6 +82,7 @@ function placeholderValues(payload: unknown, locale: Locale): EmailValues {
   const fields = payload as Record<string, unknown>;
   const values = emailValues(fields, locale);
   const { startsAt, timezone } = fields;
+  if ("url" in fields) values.url = webLink(fields.url, ["https:"]) ?? "";
   if (typeof startsAt === "string" && !Number.isNaN(Date.parse(startsAt))) {
     values.startsAt = new Intl.DateTimeFormat(locale, {
       dateStyle: "full",
@@ -96,11 +101,16 @@ function webLink(value: unknown, protocols: readonly string[]): string | null {
   return protocols.includes(url.protocol) ? url.href : null;
 }
 
-/** The site's address from `NEXT_PUBLIC_APP_URL`, without a trailing slash. */
+/**
+ * The site's address from `NEXT_PUBLIC_APP_URL`: its origin and path, without
+ * a trailing slash. A query or a fragment is dropped, so a path can be added.
+ */
 function appUrl(): string | null {
   // Read by name at send time, so the build doesn't fix its value.
   const link = webLink(process.env["NEXT_PUBLIC_APP_URL"], ["https:", "http:"]);
-  return link ? link.replace(/\/+$/, "") : null;
+  if (!link) return null;
+  const { origin, pathname } = new URL(link);
+  return `${origin}${pathname.replace(/\/+$/, "")}`;
 }
 
 /**
@@ -141,11 +151,18 @@ export async function renderOutboxRow(row: OutboxRow): Promise<RenderedEmail> {
   const html = await render(
     createElement(NotificationEmail, { locale, subject, body, action }),
   );
-  // The plain-text part: the same words, with the button as a line of its own
-  // unless the body already spells the link out (a meeting's does).
-  const text =
+  // The plain-text part: the same words as the layout. The site's name, the
+  // body, the button as a line of its own unless the body already spells the
+  // link out (a meeting's does), then the footer.
+  const text = [
+    SITE_NAME,
+    body,
     action && !body.includes(action.href)
-      ? `${body}\n\n${action.label}: ${action.href}`
-      : body;
+      ? `${action.label}: ${action.href}`
+      : null,
+    EMAIL_FOOTER[locale],
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   return { subject, text, html };
 }

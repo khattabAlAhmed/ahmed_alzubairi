@@ -1,6 +1,7 @@
 import type { Tables as DbTables } from "@repo/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EMAIL_DEFAULTS, GENERIC_TEMPLATE } from "@/emails/defaults";
+import { SITE_NAME } from "@repo/shared";
+import { EMAIL_DEFAULTS, EMAIL_FOOTER, GENERIC_TEMPLATE } from "@/emails/defaults";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fakeService, outboxRow, type Row, type Tables } from "./fake-db";
 import { renderOutboxRow, TemplateReadError } from "./render";
@@ -21,6 +22,10 @@ function useTemplate(event: string, text: Partial<Record<string, string>>) {
     ...text,
   });
 }
+
+/** The plain-text part around a body: the site's name, then the footer. */
+const framed = (body: string, locale: "ar" | "en" = "en") =>
+  `${SITE_NAME}\n\n${body}\n\n${EMAIL_FOOTER[locale]}`;
 
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
@@ -86,10 +91,43 @@ describe("renderOutboxRow", () => {
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://site.example/");
     const arabic = await renderOutboxRow(row({ locale: "ar" }));
     expect(arabic.html).toContain('href="https://site.example/ar/dashboard/messages"');
-    expect(arabic.text.endsWith("عرض الرسائل: https://site.example/ar/dashboard/messages")).toBe(true);
+    expect(
+      arabic.text.endsWith(
+        `\n\nعرض الرسائل: https://site.example/ar/dashboard/messages\n\n${EMAIL_FOOTER.ar}`,
+      ),
+    ).toBe(true);
     const english = await renderOutboxRow(row({ locale: "en" }));
     expect(english.html).toContain('href="https://site.example/en/dashboard/messages"');
-    expect(english.text.endsWith("View messages: https://site.example/en/dashboard/messages")).toBe(true);
+    expect(
+      english.text.endsWith(
+        `\n\nView messages: https://site.example/en/dashboard/messages\n\n${EMAIL_FOOTER.en}`,
+      ),
+    ).toBe(true);
+  });
+
+  it("the plain-text part starts with the site's name and ends with the footer", async () => {
+    for (const locale of ["ar", "en"] as const) {
+      const { text } = await renderOutboxRow(row({ locale }));
+      expect(text.startsWith(`${SITE_NAME}\n\n`)).toBe(true);
+      expect(text.endsWith(`\n\n${EMAIL_FOOTER[locale]}`)).toBe(true);
+    }
+  });
+
+  it("drops a query, a fragment and trailing slashes from the site's address", async () => {
+    for (const value of [
+      "https://site.example/?ref=x",
+      "https://site.example#top",
+      "https://site.example//?a=1#b",
+    ]) {
+      vi.stubEnv("NEXT_PUBLIC_APP_URL", value);
+      const email = await renderOutboxRow(row({ locale: "en" }));
+      expect(email.html).toContain('href="https://site.example/en/dashboard/messages"');
+      expect(email.text).toContain("View messages: https://site.example/en/dashboard/messages\n");
+    }
+    // A site under a path keeps the path.
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://site.example/app/?ref=x");
+    const email = await renderOutboxRow(row({ locale: "en" }));
+    expect(email.html).toContain('href="https://site.example/app/en/dashboard/messages"');
   });
 
   it("sends without a button when the site's address is missing or isn't a web link", async () => {
@@ -146,7 +184,12 @@ describe("renderOutboxRow", () => {
       'href="https://meet.example/abc"',
     );
     for (const url of ["javascript:alert(1)", "http://meet.example/abc", "nope"]) {
-      expect((await meeting(url)).html).not.toContain("<a ");
+      const email = await meeting(url);
+      expect(email.html).not.toContain("<a ");
+      // The refused link isn't spelled out either, in the body or the text.
+      expect(email.html).not.toContain(url);
+      expect(email.text).not.toContain(url);
+      expect(email.text).toContain("Platform: Meet");
     }
   });
 
@@ -158,7 +201,7 @@ describe("renderOutboxRow", () => {
     });
     const email = await renderOutboxRow(row());
     expect(email.subject).toBe("[Contact message] A question");
-    expect(email.text).toBe("From Sender Name.");
+    expect(email.text).toBe(framed("From Sender Name."));
   });
 
   it("picks a two-language value in the recipient's language", async () => {
@@ -188,8 +231,9 @@ describe("renderOutboxRow", () => {
     expect(en.text).toContain("Friday, November 13, 2026");
     expect(en.text).toContain("1:30");
     const ar = await renderOutboxRow(row({ event: "meeting", locale: "ar", payload }));
-    // The date is the first line; the meeting link follows it.
-    expect(ar.text.split("\n")[0]).toBe(
+    // The date is the body's first line, after the site's name; the meeting
+    // link follows it.
+    expect(ar.text.split("\n")[2]).toBe(
       new Intl.DateTimeFormat("ar", {
         dateStyle: "full",
         timeStyle: "short",
@@ -223,7 +267,7 @@ describe("renderOutboxRow", () => {
         },
       }),
     );
-    expect(email.text).toBe(`From <img src=x onerror="alert(1)"> & co.`);
+    expect(email.text).toBe(framed(`From <img src=x onerror="alert(1)"> & co.`));
     expect(email.html).toContain(
       "From &lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; co.",
     );
@@ -236,7 +280,7 @@ describe("renderOutboxRow", () => {
     const email = await renderOutboxRow(
       row({ payload: { name: "{{subject}}", subject: "secret" } }),
     );
-    expect(email.text).toBe("{{subject}}");
+    expect(email.text).toBe(framed("{{subject}}"));
   });
 
   it("keeps the subject on one line", async () => {
@@ -250,14 +294,14 @@ describe("renderOutboxRow", () => {
   it("makes a paragraph of each block and a line break of each line", async () => {
     useTemplate("contact_message", { body_en: "One\ntwo\n\n\nThree" });
     const email = await renderOutboxRow(row());
-    expect(email.text).toBe("One\ntwo\n\n\nThree");
+    expect(email.text).toBe(framed("One\ntwo\n\n\nThree"));
     expect(email.html.match(/<p [^>]*class="em-text"/g)).toHaveLength(2);
     expect(email.html).toMatch(/One<br\s*\/?>two<\/p>/);
   });
 
   it("leaves an unknown placeholder empty", async () => {
     useTemplate("contact_message", { body_en: "Hi {{nobody}}!" });
-    expect((await renderOutboxRow(row())).text).toBe("Hi !");
+    expect((await renderOutboxRow(row())).text).toBe(framed("Hi !"));
   });
 
   it("uses the built-in copy for an event it doesn't know, without a read", async () => {
