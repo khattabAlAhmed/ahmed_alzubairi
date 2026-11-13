@@ -78,9 +78,14 @@ export async function listClients(
 /**
  * `PATCH /api/admin/clients`, after the `clients.view_all` check: disable a
  * client or reactivate one (§6.16). The database changes first, then Clerk.
- * When Clerk refuses, the status goes back and the request fails, so the two
- * agree when this returns. A profile with a role is refused: the team route
- * handles team members.
+ * When Clerk doesn't take the change, the status goes back and the request
+ * fails, so the two agree when this returns. A profile with a role is
+ * refused: the team route handles team members.
+ *
+ * Sending the status the profile already has writes nothing and audits
+ * nothing, but sets Clerk to match. So if an earlier request left Clerk out
+ * of step (a lost answer, an overlapping request), sending the status again
+ * repairs it.
  */
 export async function updateClient(
   rawBody: unknown,
@@ -89,18 +94,21 @@ export async function updateClient(
   const body = updateClientRequestSchema.safeParse(rawBody);
   if (!body.success) return baseError("validation_failed", 400, locale);
   const { id, status } = body.data;
+  const banned = status === "disabled";
 
   const notFound = adminError("not_found", 404, "notFound", locale);
+  const unconfirmed = adminError("internal_error", 502, "clientSyncUnconfirmed", locale);
   const profile = await store.getProfile(id);
   if (!profile) return notFound;
   if (profile.isMember) {
     return adminError("forbidden", 403, "clientIsMember", locale);
   }
-  // Already as asked: no write and no audit row.
-  if (profile.status === status) return OK;
+  if (profile.status === status) {
+    return (await setClerkBan(id, banned, clerk)) === "done" ? OK : unconfirmed;
+  }
 
   let closed = 0;
-  if (status === "disabled") {
+  if (banned) {
     const count = await store.disableClient(id);
     // The profile was given a role since the read above.
     if (count === null) return notFound;
@@ -109,22 +117,21 @@ export async function updateClient(
     return adminError("conflict", 409, "clientChangedMeanwhile", locale);
   }
 
-  if (!(await setClerkBan(id, status === "disabled", clerk))) {
+  const outcome = await setClerkBan(id, banned, clerk);
+  if (outcome !== "done") {
     // Consultations that the disable closed stay closed: their earlier
     // statuses aren't kept, and a closed consultation is never lost (§6.16).
     await store.setStatus(id, status, profile.status);
+    // Clerk may hold the new state although it couldn't say so: set it back
+    // as well. If this fails too, sending either status later repairs it.
+    if (outcome === "unknown") await setClerkBan(id, !banned, clerk);
     return adminError("internal_error", 502, "clientSyncFailed", locale);
   }
 
-  // Another request may have changed the status while Clerk was answering.
-  // The profile decides: Clerk is set to match what it says now.
-  const current = await store.getProfile(id);
-  if (current && current.status !== status) {
-    await setClerkBan(id, current.status === "disabled", clerk);
-  }
-
+  // The change is made in both places, so it is logged now, before the check
+  // below can fail.
   await audit(
-    status === "disabled"
+    banned
       ? {
           actorId: userId,
           action: "client.disable",
@@ -139,5 +146,14 @@ export async function updateClient(
           entityId: id,
         },
   );
+
+  // Another request may have changed the status while Clerk was answering.
+  // The profile decides: Clerk is set to match what it says now.
+  const current = await store.getProfile(id);
+  if (current && current.status !== status) {
+    if ((await setClerkBan(id, current.status === "disabled", clerk)) !== "done") {
+      return unconfirmed;
+    }
+  }
   return OK;
 }

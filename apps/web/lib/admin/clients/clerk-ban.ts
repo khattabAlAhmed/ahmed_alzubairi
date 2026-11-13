@@ -27,27 +27,32 @@ export function createClerkBan(): ClerkBan {
 }
 
 /**
- * Bans or unbans the user. True when Clerk now holds `banned`. A failed call
- * may still have reached Clerk although its answer didn't reach us, so Clerk
- * is asked what it holds before the caller undoes anything. False: Clerk
- * doesn't hold `banned`, or couldn't say.
+ * What Clerk holds after `setClerkBan`. `refused`: Clerk said it holds the
+ * old state. `unknown`: the call failed and Clerk couldn't say what it holds.
+ */
+export type BanOutcome = "done" | "refused" | "unknown";
+
+/**
+ * Bans or unbans the user. A failed call may still have reached Clerk
+ * although its answer didn't reach us, so Clerk is asked what it holds before
+ * the caller undoes anything.
  */
 export async function setClerkBan(
   userId: string,
   banned: boolean,
   clerk: ClerkBan,
-): Promise<boolean> {
+): Promise<BanOutcome> {
   try {
     await (banned ? clerk.ban(userId) : clerk.unban(userId));
-    return true;
+    return "done";
   } catch (error) {
     const held = await clerk.isBanned(userId).catch(() => null);
-    if (held === banned) return true;
+    if (held === banned) return "done";
     // The status only: Clerk's error text can carry an email.
     console.error(
       `Clerk ${banned ? "ban" : "unban"} failed`,
       (error as { status?: unknown } | null)?.status ?? "error",
     );
-    return false;
+    return held === null ? "unknown" : "refused";
   }
 }

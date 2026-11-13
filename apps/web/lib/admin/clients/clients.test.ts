@@ -126,32 +126,32 @@ beforeEach(() => {
 describe("setClerkBan", () => {
   it("bans, and unbans", async () => {
     const { clerk, banned } = world();
-    expect(await setClerkBan(CLIENT, true, clerk)).toBe(true);
+    expect(await setClerkBan(CLIENT, true, clerk)).toBe("done");
     expect(banned.has(CLIENT)).toBe(true);
-    expect(await setClerkBan(CLIENT, false, clerk)).toBe(true);
+    expect(await setClerkBan(CLIENT, false, clerk)).toBe("done");
     expect(banned.has(CLIENT)).toBe(false);
   });
 
-  it("is false when the call fails and Clerk doesn't hold the change", async () => {
+  it("is refused when the call fails and Clerk says it holds the old state", async () => {
     const { clerk } = world();
     clerk.ban.mockRejectedValueOnce({ status: 500 });
-    expect(await setClerkBan(CLIENT, true, clerk)).toBe(false);
+    expect(await setClerkBan(CLIENT, true, clerk)).toBe("refused");
   });
 
-  it("is true when the call fails but Clerk took the change", async () => {
+  it("is done when the call fails but Clerk took the change", async () => {
     const { clerk, banned } = world();
     clerk.ban.mockImplementationOnce(async (id) => {
       banned.add(id);
       throw new Error("timeout");
     });
-    expect(await setClerkBan(CLIENT, true, clerk)).toBe(true);
+    expect(await setClerkBan(CLIENT, true, clerk)).toBe("done");
   });
 
-  it("is false when Clerk can't say what it holds", async () => {
+  it("is unknown when Clerk can't say what it holds", async () => {
     const { clerk } = world();
     clerk.unban.mockRejectedValueOnce(new Error("down"));
     clerk.isBanned.mockRejectedValueOnce(new Error("down"));
-    expect(await setClerkBan(OTHER_CLIENT, false, clerk)).toBe(false);
+    expect(await setClerkBan(OTHER_CLIENT, false, clerk)).toBe("unknown");
   });
 
   it("logs the status only, never Clerk's error text", async () => {
@@ -325,18 +325,77 @@ describe("updateClient", () => {
   });
 
   it.each([
-    ["an active client", CLIENT, "active"],
-    ["a disabled client", OTHER_CLIENT, "disabled"],
+    ["an active client", CLIENT, "active", "unban"],
+    ["a disabled client", OTHER_CLIENT, "disabled", "ban"],
   ] as const)(
-    "a status that %s already has changes nothing and audits nothing",
-    async (_name, id, status) => {
+    "a status that %s already has writes nothing and audits nothing, but sets Clerk to match",
+    async (_name, id, status, call) => {
       const { deps, calls, audit } = world();
       const result = await updateClient({ id, status }, deps);
       expect(result.status).toBe(200);
-      expect(calls).toEqual([]);
+      expect(calls).toEqual([call]);
       expect(audit).not.toHaveBeenCalled();
     },
   );
+
+  it("sending the same status again repairs a sign-in left out of step", async () => {
+    const { deps, banned, audit } = world();
+    // The profile says disabled, but an earlier request left Clerk unbanned.
+    banned.delete(OTHER_CLIENT);
+    const result = await updateClient({ id: OTHER_CLIENT, status: "disabled" }, deps);
+    expect(result.status).toBe(200);
+    expect(banned.has(OTHER_CLIENT)).toBe(true);
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it("answers 502 when the repair can't reach Clerk", async () => {
+    const { deps, clerk } = world();
+    clerk.unban.mockRejectedValueOnce(new Error("down"));
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    const result = await updateClient({ id: CLIENT, status: "active" }, deps);
+    expect(result.status).toBe(502);
+    expect(result.body).toEqual({
+      error: { code: "internal_error", message: adminEn.clientSyncUnconfirmed },
+    });
+  });
+
+  it("a ban Clerk can't confirm: the status goes back and Clerk is set back too", async () => {
+    const { deps, profiles, banned, clerk, audit } = world();
+    clerk.ban.mockImplementationOnce(async (id) => {
+      // The ban lands, but its answer is lost and Clerk can't be asked.
+      banned.add(id);
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    const result = await updateClient({ id: CLIENT, status: "disabled" }, deps);
+    expect(result.status).toBe(502);
+    expect(profiles.get(CLIENT)?.status).toBe("active");
+    expect(clerk.unban).toHaveBeenCalledWith(CLIENT);
+    expect(banned.has(CLIENT)).toBe(false);
+    expect(audit).not.toHaveBeenCalled();
+  });
+
+  it("a refused ban sets the status back without another Clerk call", async () => {
+    const { deps, clerk } = world();
+    clerk.ban.mockRejectedValueOnce({ status: 500 });
+    await updateClient({ id: CLIENT, status: "disabled" }, deps);
+    expect(clerk.unban).not.toHaveBeenCalled();
+  });
+
+  it("answers 502 when the step that follows another request fails, and keeps the audit row", async () => {
+    const { deps, profiles, banned, clerk, audit } = world();
+    clerk.ban.mockImplementationOnce(async (id) => {
+      banned.add(id);
+      profiles.get(CLIENT)!.status = "active";
+    });
+    clerk.unban.mockRejectedValueOnce({ status: 500 });
+    const result = await updateClient({ id: CLIENT, status: "disabled" }, deps);
+    expect(result.status).toBe(502);
+    expect(result.body).toEqual({
+      error: { code: "internal_error", message: adminEn.clientSyncUnconfirmed },
+    });
+    expect(audit).toHaveBeenCalledOnce();
+  });
 
   it.each([
     ["an active team member", ASSISTANT, "disabled"],
