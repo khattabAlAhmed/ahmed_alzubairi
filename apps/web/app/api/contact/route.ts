@@ -1,5 +1,6 @@
 import {
   contactRequestSchema,
+  EMAIL_ADMIN_PERMISSION,
   type ErrorCode,
   type ErrorResponse,
   type OkResponse,
@@ -7,6 +8,7 @@ import {
 import { NextResponse } from "next/server";
 import { localeFromReferer } from "@/lib/auth/paths";
 import { protectForm, type FormLimit } from "@/lib/arcjet";
+import { queueEmailForPermission } from "@/lib/email/queue";
 import { createServiceClient } from "@/lib/supabase/service";
 import ar from "@/messages/ar/Contact.json";
 import en from "@/messages/en/Contact.json";
@@ -31,7 +33,9 @@ function fail(code: keyof typeof STATUS, request: Request) {
 
 /**
  * `POST /api/contact` (§6.14): no account needed. The message is stored as
- * plain text and never rendered as HTML. No email yet (Phase 3).
+ * plain text and never rendered as HTML. Once it is saved, the admin gets a
+ * `contact_message` email and an unread notification (§6.21). The visitor's
+ * answer never depends on that email, and the visitor gets none.
  */
 export async function POST(request: Request) {
   const decision = await protectForm(request, CONTACT_LIMIT);
@@ -44,13 +48,29 @@ export async function POST(request: Request) {
 
   // Anyone may send a message, and Arcjet has run, so the service client
   // writes it. Visitors have no insert grant on this table (§7).
-  const { error } = await createServiceClient()
+  const { data, error } = await createServiceClient()
     .from("contact_messages")
-    .insert({ name, email, org_type: orgType, subject, message });
+    .insert({ name, email, org_type: orgType, subject, message })
+    .select("id")
+    .single();
   if (error) {
     // Never log the visitor's details or message.
     console.error("POST /api/contact: insert failed", error.code);
     return fail("internal_error", request);
+  }
+
+  // The message is saved, so the visitor's answer is settled. The queue logs
+  // its own failures, without the visitor's details, and the hourly job
+  // retries a failed send. The email carries the name and subject only.
+  try {
+    await queueEmailForPermission(
+      "contact_message",
+      EMAIL_ADMIN_PERMISSION,
+      { name, subject },
+      { entity: "contact_messages", entityId: data.id },
+    );
+  } catch {
+    console.error("POST /api/contact: email not queued");
   }
 
   const body: OkResponse = { ok: true };

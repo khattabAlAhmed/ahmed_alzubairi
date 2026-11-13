@@ -1,0 +1,50 @@
+{
+  "title": "Messages",
+  "intro": "Messages sent through the contact form. Reply from your own email.",
+  "filters": {
+    "label": "Find messages",
+    "search": "Search",
+    "searchHint": "Name, email, subject or text.",
+    "show": "Show",
+    "all": "All messages",
+    "unread": "Unread only",
+    "read": "Read only",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "count": "{total, plural, =0 {No messages} one {# message} other {# messages}}",
+  "empty": {
+    "title": "No messages yet",
+    "text": "A message sent from the contact page shows here.",
+    "filteredTitle": "No messages match",
+    "filteredText": "Try another search, or clear the filter."
+  },
+  "row": {
+    "unread": "Unread",
+    "read": "Read",
+    "from": "From",
+    "email": "Email",
+    "orgType": "Organization type",
+    "received": "Received",
+    "text": "Message",
+    "reply": "Reply by email",
+    "markUnread": "Mark as unread",
+    "markedUnread": "Marked as unread.",
+    "failed": "The change couldn't be saved. Try again."
+  },
+  "orgTypes": {
+    "government": "Government",
+    "organization": "Organization",
+    "company": "Company",
+    "individual": "Individual"
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Newer",
+    "next": "Older",
+    "position": "Page {page} of {pages}"
+  },
+  "errors": {
+    "notFound": "This message no longer exists."
+  }
+}
