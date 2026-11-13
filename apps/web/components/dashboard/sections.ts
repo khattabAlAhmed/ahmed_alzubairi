@@ -26,6 +26,17 @@ export function sectionKeys(section: DashboardSection): readonly Permission[] {
 }
 
 /**
+ * Any one of these opens the Clients section. Scoped members (§5) see their
+ * own clients there: assistant consultants through their consultations,
+ * training coordinators through course registrations. RLS decides the rows.
+ */
+export const CLIENT_ACCESS: readonly Permission[] = [
+  PERMISSIONS.CLIENTS_VIEW_ALL,
+  PERMISSIONS.CONSULTATIONS_REPLY,
+  PERMISSIONS.TRAINING_MANAGE,
+];
+
+/**
  * The dashboard menu (§6.20), in order. Later phases add their sections
  * here, each with its own permission. Never a role name.
  */
@@ -50,9 +61,7 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   {
     key: "clients",
     href: "/dashboard/clients",
-    // Scoped access (§5) shows a member their clients inside their own
-    // work; the full list is for `clients.view_all`.
-    permission: PERMISSIONS.CLIENTS_VIEW_ALL,
+    permission: CLIENT_ACCESS,
   },
   {
     key: "team",

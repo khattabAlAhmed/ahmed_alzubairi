@@ -13,6 +13,8 @@ describe("dashboard menu", () => {
       PERMISSIONS.TESTIMONIALS_APPROVE,
       PERMISSIONS.MESSAGES_VIEW,
       PERMISSIONS.CLIENTS_VIEW_ALL,
+      PERMISSIONS.CONSULTATIONS_REPLY,
+      PERMISSIONS.TRAINING_MANAGE,
       PERMISSIONS.TEAM_MANAGE,
     ]);
   });
@@ -47,17 +49,29 @@ describe("dashboard menu", () => {
     ]);
   });
 
-  it("shows Clients only with clients.view_all", () => {
-    expect(visibleSections(new Set([PERMISSIONS.CLIENTS_VIEW_ALL])).map((s) => s.key)).toEqual([
-      "home",
-      "clients",
+  it.each([
+    PERMISSIONS.CLIENTS_VIEW_ALL,
+    PERMISSIONS.CONSULTATIONS_REPLY,
+    PERMISSIONS.TRAINING_MANAGE,
+  ])("shows Clients with %s alone", (key) => {
+    expect(visibleSections(new Set([key])).map((s) => s.key)).toEqual(["home", "clients"]);
+  });
+
+  it("hides Clients from a content editor", () => {
+    const editor = new Set<Permission>([
+      PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
+      PERMISSIONS.DOCUMENTS_VIEW,
+      PERMISSIONS.CONTENT_MANAGE,
     ]);
+    expect(visibleSections(editor).map((s) => s.key)).toEqual(["home", "content", "testimonials"]);
   });
 
   it("hides Team, Clients and Messages from a member who holds every other permission", () => {
     const own: Permission[] = [
       PERMISSIONS.TEAM_MANAGE,
       PERMISSIONS.CLIENTS_VIEW_ALL,
+      PERMISSIONS.CONSULTATIONS_REPLY,
+      PERMISSIONS.TRAINING_MANAGE,
       PERMISSIONS.MESSAGES_VIEW,
     ];
     const others = Object.values(PERMISSIONS).filter((key) => !own.includes(key));
@@ -88,7 +102,7 @@ describe("dashboard menu", () => {
 
   it("hides Content, Testimonials and Settings from a member with none of their permissions", () => {
     const keys = visibleSections(
-      new Set<Permission>([PERMISSIONS.TRAINING_MANAGE, PERMISSIONS.DOCUMENTS_VIEW]),
+      new Set<Permission>([PERMISSIONS.DATA_DELETE, PERMISSIONS.DOCUMENTS_VIEW]),
     ).map((s) => s.key);
     expect(keys).toEqual(["home"]);
   });
