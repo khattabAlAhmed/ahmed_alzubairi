@@ -104,9 +104,13 @@ export function NotificationList({
     event.preventDefault();
     opening.current = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let settled = false;
+    const read = sendRead([item.id], { keepalive: true }).finally(() => {
+      settled = true;
+    });
     try {
       await Promise.race([
-        sendRead([item.id], { keepalive: true }),
+        read,
         new Promise<void>((resolve) => {
           timer = setTimeout(resolve, OPEN_WAIT_MS);
         }),
@@ -115,6 +119,9 @@ export function NotificationList({
       clearTimeout(timer);
       opening.current = false;
     }
+    // The section opened before the mark landed: read the count again once
+    // it does, or the menu would show the old one until the next move.
+    if (!settled) void read.then(() => router.refresh());
     router.push(item.href);
   }
 

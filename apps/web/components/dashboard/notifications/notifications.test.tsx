@@ -299,7 +299,10 @@ describe("NotificationList", () => {
   it("a read request that hangs doesn't keep the member from the section", async () => {
     vi.useFakeTimers();
     try {
-      fetchMock.mockImplementationOnce(() => new Promise<Response>(() => {}));
+      let settle: (response: Response) => void = () => {};
+      fetchMock.mockImplementationOnce(
+        () => new Promise<Response>((resolve) => (settle = resolve)),
+      );
       show([UNREAD, { ...UNREAD, id: READ.id, href: "/dashboard" }], 2);
       const [first, second] = screen.getAllByRole("link");
       await act(async () => {
@@ -311,6 +314,10 @@ describe("NotificationList", () => {
         await vi.advanceTimersByTimeAsync(OPEN_WAIT_MS);
       });
       expect(nav.push).toHaveBeenCalledWith("/dashboard/messages");
+      // The mark lands late: the count is read again then, and not before.
+      expect(nav.refresh).not.toHaveBeenCalled();
+      await act(async () => settle(answer({ unread: 1 })));
+      expect(nav.refresh).toHaveBeenCalledTimes(1);
       // The list takes clicks again.
       await act(async () => {
         fireEvent.click(second);
