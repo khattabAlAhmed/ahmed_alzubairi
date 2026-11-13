@@ -129,7 +129,9 @@ export async function updateClient(
   }
 
   // The change is made in both places, so it is logged now, before the check
-  // below can fail.
+  // below can fail. A failed insert doesn't skip that check: it is thrown
+  // once Clerk is set to match the profile.
+  let auditFailure: { error: unknown } | null = null;
   await audit(
     banned
       ? {
@@ -145,15 +147,17 @@ export async function updateClient(
           entity: "profiles",
           entityId: id,
         },
-  );
+  ).catch((error: unknown) => {
+    auditFailure = { error };
+  });
 
   // Another request may have changed the status while Clerk was answering.
   // The profile decides: Clerk is set to match what it says now.
   const current = await store.getProfile(id);
-  if (current && current.status !== status) {
-    if ((await setClerkBan(id, current.status === "disabled", clerk)) !== "done") {
-      return unconfirmed;
-    }
-  }
-  return OK;
+  const synced =
+    !current ||
+    current.status === status ||
+    (await setClerkBan(id, current.status === "disabled", clerk)) === "done";
+  if (auditFailure) throw (auditFailure as { error: unknown }).error;
+  return synced ? OK : unconfirmed;
 }

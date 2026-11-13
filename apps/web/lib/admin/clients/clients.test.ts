@@ -324,6 +324,20 @@ describe("updateClient", () => {
     expect(banned.has(CLIENT)).toBe(false);
   });
 
+  it("still sets Clerk to match when the audit insert fails, then throws", async () => {
+    const { deps, profiles, banned, clerk, audit } = world();
+    // Another request reactivates the client while the ban is on its way.
+    clerk.ban.mockImplementationOnce(async (id) => {
+      banned.add(id);
+      profiles.get(CLIENT)!.status = "active";
+    });
+    audit.mockRejectedValueOnce(new Error("audit_log insert failed: 57014"));
+    await expect(updateClient({ id: CLIENT, status: "disabled" }, deps)).rejects.toThrow(
+      "audit_log insert failed",
+    );
+    expect(banned.has(CLIENT)).toBe(false);
+  });
+
   it.each([
     ["an active client", CLIENT, "active", "unban"],
     ["a disabled client", OTHER_CLIENT, "disabled", "ban"],
