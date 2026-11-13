@@ -38,14 +38,33 @@ const FIELDS: Record<Locale, { subject: TemplateField; body: TemplateField }> = 
  * preview of each language. Saves through `PATCH /api/admin/email-templates`;
  * "Reset to default" deletes the saved template after a second step.
  */
-export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
+export function TemplateEditor({
+  entry,
+  onBusyChange,
+}: {
+  entry: EmailTemplateEntry;
+  /**
+   * Told when a save or a reset starts and ends, so the list keeps this
+   * editor open until the request settles: a closed and reopened editor
+   * could otherwise send a second save that lands before the first.
+   */
+  onBusyChange?: (busy: boolean) => void;
+}) {
   const t = useTranslations("DashboardEmailTemplates");
   const uiLocale = useLocale();
   const router = useRouter();
   const { event } = entry;
   const [values, setValues] = useState<TemplateValues>(() => toValues(entry));
   const [errors, setErrors] = useState<TemplateErrors>({});
-  const [busy, setBusy] = useState<"save" | "reset" | null>(null);
+  // What the server holds, as far as this editor knows. It is updated as soon
+  // as a save or a reset succeeds, without waiting for the page to be read
+  // again, so the next submission is compared with the right text.
+  const [saved, setSaved] = useState<EmailTemplateEntry>(entry);
+  const [busy, setBusyState] = useState<"save" | "reset" | null>(null);
+  const setBusy = (next: "save" | "reset" | null) => {
+    setBusyState(next);
+    onBusyChange?.(next !== null);
+  };
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const placeholdersId = useId();
@@ -70,8 +89,17 @@ export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
     return t.has(key) ? t(key) : null;
   };
 
-  const set = (field: TemplateField, value: string) =>
+  const set = (field: TemplateField, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
+    // The field is being corrected: its error and the notice about it go.
+    setErrors((current) => {
+      if (!(field in current)) return current;
+      const rest = { ...current };
+      delete rest[field];
+      return rest;
+    });
+    setMessage((current) => (current?.tone === "error" ? null : current));
+  };
 
   async function onSubmit(submitEvent: FormEvent) {
     submitEvent.preventDefault();
@@ -83,15 +111,27 @@ export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
       setMessage({ tone: "error", text: t("fixErrors") });
       return;
     }
-    if (!isChanged(values, entry)) {
+    if (!isChanged(values, saved)) {
       setMessage({ tone: "success", text: t("unchanged") });
       return;
     }
     setBusy("save");
     setMessage(null);
-    const result = await saveTemplate({ event, ...values });
+    const sent = { event, ...values };
+    const result = await saveTemplate(sent);
     setBusy(null);
-    if (result.ok) router.refresh();
+    if (result.ok) {
+      // The route trims each text before it stores it.
+      setSaved({
+        event,
+        subjectAr: sent.subjectAr.trim(),
+        subjectEn: sent.subjectEn.trim(),
+        bodyAr: sent.bodyAr.trim(),
+        bodyEn: sent.bodyEn.trim(),
+        edited: true,
+      });
+      router.refresh();
+    }
     setMessage(
       result.ok
         ? { tone: "success", text: t("saved") }
@@ -110,6 +150,7 @@ export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
       setMessage({ tone: "error", text: result.message ?? t("resetFailed") });
       return;
     }
+    setSaved({ ...defaultTemplate(event), edited: false });
     setValues(toValues(defaultTemplate(event)));
     setErrors({});
     setMessage({ tone: "success", text: t("resetDone") });
@@ -185,7 +226,7 @@ export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
         <Button type="submit" loading={busy === "save"} loadingLabel={t("saving")}>
           {busy === "save" ? t("saving") : t("save")}
         </Button>
-        {entry.edited && !confirmingReset && (
+        {saved.edited && !confirmingReset && (
           <Button variant="secondary" onClick={() => setConfirmingReset(true)}>
             {t("reset")}
           </Button>
@@ -206,7 +247,7 @@ export function TemplateEditor({ entry }: { entry: EmailTemplateEntry }) {
         </div>
       </div>
 
-      {entry.edited && confirmingReset && (
+      {saved.edited && confirmingReset && (
         <div
           role="group"
           aria-labelledby={resetId}

@@ -9,12 +9,16 @@ import { TemplateEditor } from "./template-editor";
 
 /**
  * Every email the site sends (§6.21), by its name in the page's language,
- * marked as default or edited. One editor is open at a time.
+ * marked as default or edited. One editor is open at a time, and it can't be
+ * closed or swapped while it is saving.
  */
 export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }) {
   const t = useTranslations("DashboardEmailTemplates");
   const headingId = useId();
   const [open, setOpen] = useState<EmailEvent | null>(null);
+  // True while the open editor's save or reset is on its way. The editor
+  // stays open until it settles, so one event never has two saves in flight.
+  const [locked, setLocked] = useState(false);
 
   return (
     <section aria-labelledby={headingId} className="space-y-4">
@@ -36,13 +40,14 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
                   variant="secondary"
                   size="sm"
                   aria-expanded={isOpen}
+                  disabled={locked}
                   aria-label={isOpen ? t("closeLabel", { name }) : t("editLabel", { name })}
                   onClick={() => setOpen(isOpen ? null : entry.event)}
                 >
                   {isOpen ? t("close") : t("edit")}
                 </Button>
               </div>
-              {isOpen && <TemplateEditor entry={entry} />}
+              {isOpen && <TemplateEditor entry={entry} onBusyChange={setLocked} />}
             </Card>
           );
         })}
