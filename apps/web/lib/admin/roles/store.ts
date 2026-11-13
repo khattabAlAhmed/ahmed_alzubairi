@@ -98,7 +98,15 @@ export function createRoleStore(user: Client, service: Client): RoleStore {
           throw new Error("role update failed: no role");
         }
       } catch (failure) {
-        await service.from("roles").delete().eq("id", data.id);
+        const cleanup = await service.from("roles").delete().eq("id", data.id);
+        if (cleanup.error) {
+          // The role stays, with no permissions: its key is taken until an
+          // admin gives it permissions with PATCH.
+          console.error(
+            `role create: the new role ${data.id} couldn't be removed`,
+            cleanup.error.code,
+          );
+        }
         throw failure;
       }
       return { ok: true, id: data.id };

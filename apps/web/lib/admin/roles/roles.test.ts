@@ -18,6 +18,7 @@ import {
   type RoleStore,
 } from "./handlers";
 import { handleRolesRequest, type RoleRouteDeps } from "./route";
+import { createRoleStore } from "./store";
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
@@ -443,5 +444,39 @@ describe("/api/admin/roles", () => {
     expect(await response.json()).toEqual({
       error: { code: "internal_error", message: expect.not.stringContaining("db down") },
     });
+  });
+});
+
+describe("createRoleStore", () => {
+  /** A service client whose insert works and whose rpc and delete answer as given. */
+  function serviceClient(deleteError: { code: string } | null) {
+    const deleted = vi.fn(async () => ({ error: deleteError }));
+    const client = {
+      from: () => ({
+        insert: () => ({
+          select: () => ({
+            single: async () => ({ data: { id: NEW_ROLE }, error: null }),
+          }),
+        }),
+        delete: () => ({ eq: deleted }),
+      }),
+      rpc: async () => ({ data: null, error: { code: "57014" } }),
+    };
+    return { client: client as never, deleted };
+  }
+
+  it("removes the new role when its permissions can't be written", async () => {
+    const { client, deleted } = serviceClient(null);
+    const store = createRoleStore(client, client);
+    await expect(store.createRole(NEW_ROLE_BODY)).rejects.toThrow("57014");
+    expect(deleted).toHaveBeenCalledExactlyOnceWith("id", NEW_ROLE);
+  });
+
+  it("reports a cleanup that failed, and still throws the first error", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { client } = serviceClient({ code: "40001" });
+    const store = createRoleStore(client, client);
+    await expect(store.createRole(NEW_ROLE_BODY)).rejects.toThrow("57014");
+    expect(log).toHaveBeenCalledWith(expect.stringContaining(NEW_ROLE), "40001");
   });
 });
