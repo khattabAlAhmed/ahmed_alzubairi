@@ -31,7 +31,7 @@ vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
 const { DashboardNavLink } = await import("../dashboard-nav-link");
 const { DashboardNavMenu } = await import("../dashboard-nav-menu");
 const { notificationsPath, parsePage } = await import("./data");
-const { NotificationList } = await import("./notification-list");
+const { NotificationList, OPEN_WAIT_MS } = await import("./notification-list");
 const { RefreshOnNavigation } = await import("./refresh-on-navigation");
 const { sendRead } = await import("./send");
 const { BADGE_MAX, UnreadBadge } = await import("./unread-badge");
@@ -275,13 +275,50 @@ describe("NotificationList", () => {
       </NextIntlClientProvider>,
     );
     expect(screen.getByRole("alert")).toBeTruthy();
-    // The refresh brings a lower count: it was saved after all.
+    // Another action read one of two: mark all still didn't finish.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[UNREAD, { ...UNREAD, id: READ.id }]} unread={2} />
+      </NextIntlClientProvider>,
+    );
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[UNREAD, READ]} unread={1} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("alert").textContent).toBe("Server said no.");
+    // The refresh brings zero: it was saved after all.
     view.rerender(
       <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
         <NotificationList items={[{ ...UNREAD, readAt: READ.readAt }]} unread={0} />
       </NextIntlClientProvider>,
     );
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("a read request that hangs doesn't keep the member from the section", async () => {
+    vi.useFakeTimers();
+    try {
+      fetchMock.mockImplementationOnce(() => new Promise<Response>(() => {}));
+      show([UNREAD, { ...UNREAD, id: READ.id, href: "/dashboard" }], 2);
+      const [first, second] = screen.getAllByRole("link");
+      await act(async () => {
+        fireEvent.click(first);
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(nav.push).not.toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(OPEN_WAIT_MS);
+      });
+      expect(nav.push).toHaveBeenCalledWith("/dashboard/messages");
+      // The list takes clicks again.
+      await act(async () => {
+        fireEvent.click(second);
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("a second open waits for the first: one request, one destination", async () => {

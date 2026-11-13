@@ -28,8 +28,13 @@ function LocalTime({ value }: { value: string }) {
   );
 }
 
-/** `at` is the unread count the notice was shown with. */
-type Notice = { tone: "status" | "alert"; text: string; at: number };
+type Notice = { tone: "status" | "alert"; text: string };
+
+/**
+ * How long a plain click waits for the mark before it opens the section. The
+ * request is `keepalive`, so it still finishes after the page has moved on.
+ */
+export const OPEN_WAIT_MS = 2000;
 
 /**
  * The member's latest notifications (§6.21). Each row is a link to its
@@ -61,8 +66,8 @@ export function NotificationList({
     setBusy(false);
     setNotice(
       result.ok
-        ? { tone: "status", text: t("markedAll"), at: unread }
-        : { tone: "alert", text: result.message ?? t("failed"), at: unread },
+        ? { tone: "status", text: t("markedAll") }
+        : { tone: "alert", text: result.message ?? t("failed") },
     );
     // Read the page again either way. The rows may be marked even when the
     // answer failed (the count is read after the update), and the screen
@@ -93,21 +98,31 @@ export function NotificationList({
     }
     if (item.readAt !== null) return;
     // Mark it first, so the section opens with the count already lower. A
-    // failed mark doesn't keep the member from the section.
+    // failed mark doesn't keep the member from the section, and neither does
+    // a slow one: after `OPEN_WAIT_MS` the section opens and the request is
+    // left to finish by itself.
     event.preventDefault();
     opening.current = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      await sendRead([item.id], { keepalive: true });
+      await Promise.race([
+        sendRead([item.id], { keepalive: true }),
+        new Promise<void>((resolve) => {
+          timer = setTimeout(resolve, OPEN_WAIT_MS);
+        }),
+      ]);
     } finally {
+      clearTimeout(timer);
       opening.current = false;
     }
     router.push(item.href);
   }
 
-  // A failure notice is dropped once the count it was shown with has changed:
-  // the page was read again and the change turned out to be saved.
+  // A failed "mark all" stays while anything is unread: another action may
+  // lower the count without finishing it. It is dropped at zero, when the
+  // page was read again and everything turned out to be marked.
   const shown =
-    notice && (notice.tone === "status" || notice.at === unread) ? notice : null;
+    notice && (notice.tone === "status" || unread > 0) ? notice : null;
 
   return (
     <div className="space-y-4">
