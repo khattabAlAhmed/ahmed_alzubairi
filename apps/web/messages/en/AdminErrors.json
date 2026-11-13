@@ -17,5 +17,7 @@
   "teamNotMember": "This account isn't a team member. To add someone to the team, send an invitation.",
   "teamInviteExists": "This email already has an account or a pending invitation.",
   "teamSyncFailed": "We couldn't update this member's sign-in, so their status wasn't changed. Try again.",
-  "teamChangedMeanwhile": "Someone else just changed this member. Refresh the page and try again."
+  "teamChangedMeanwhile": "Someone else just changed this member. Refresh the page and try again.",
+  "roleAdminLocked": "The admin role can't be edited from here.",
+  "roleKeyTaken": "Another role already uses this key. Choose a different key."
 }
