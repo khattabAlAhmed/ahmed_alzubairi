@@ -177,6 +177,19 @@ describe("MemberList", () => {
     expect(screen.getByRole("status").textContent).toBe(en.members.disabledDone);
   });
 
+  it("keeps the notice after the refresh brings the new status", async () => {
+    const view = wrap(<MemberList members={[EDITOR]} roles={ROLES} selfId={SELF.id} />);
+    fireEvent.click(screen.getByRole("button", { name: en.members.disable }));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: en.members.confirm })));
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardTeam: en }}>
+        <MemberList members={[{ ...EDITOR, status: "disabled" }]} roles={ROLES} selfId={SELF.id} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("status").textContent).toBe(en.members.disabledDone);
+    expect(screen.getByRole("button", { name: en.members.enable })).toBeTruthy();
+  });
+
   it("offers Enable on a disabled member", () => {
     wrap(
       <MemberList members={[{ ...EDITOR, status: "disabled" }]} roles={ROLES} selfId={SELF.id} />,
@@ -236,6 +249,24 @@ describe("RoleEditor", () => {
       permissions: ["messages.view"],
     });
     expect(refresh).toHaveBeenCalled();
+  });
+
+  it("keeps the saved notice after the refresh brings the new set", async () => {
+    const view = wrap(<RoleEditor roles={[EDITOR_ROLE]} />);
+    const card = cardOf("Content Editor");
+    fireEvent.click(within(card).getByLabelText(en.permissions.messages.view));
+    await act(async () =>
+      fireEvent.click(within(card).getByRole("button", { name: en.roles.save })),
+    );
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardTeam: en }}>
+        <RoleEditor roles={[{ ...EDITOR_ROLE, permissions: ["content.manage", "messages.view"] }]} />
+      </NextIntlClientProvider>,
+    );
+    const after = cardOf("Content Editor");
+    expect(within(after).getByRole("status").textContent).toBe(en.roles.saved);
+    expect((within(after).getByLabelText(en.permissions.messages.view) as HTMLInputElement).checked).toBe(true);
+    expect((within(after).getByRole("button", { name: en.roles.save }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("adds a role with its key, names and permissions", async () => {

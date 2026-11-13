@@ -84,6 +84,16 @@ function RoleCard({ role }: { role: AdminRole }) {
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  // After a refresh brings new stored values, the form starts from them and
+  // keeps its notice.
+  const saved = `${role.nameAr}\n${role.nameEn}\n${role.permissions.join()}`;
+  const [stored, setStored] = useState(saved);
+  if (stored !== saved) {
+    setStored(saved);
+    setNameAr(role.nameAr);
+    setNameEn(role.nameEn);
+    setPermissions(role.permissions);
+  }
   const name = roleName(role, locale);
   const headingId = useId();
 
@@ -282,11 +292,7 @@ export function RoleEditor({ roles }: { roles: AdminRole[] }) {
     <div className="space-y-6">
       <ul className="space-y-4">
         {roles.map((role) => (
-          // The key carries the stored values, so a refresh resets the card's own state.
-          <RoleCard
-            key={`${role.id}:${role.nameAr}:${role.nameEn}:${role.permissions.join()}`}
-            role={role}
-          />
+          <RoleCard key={role.id} role={role} />
         ))}
       </ul>
       <AddRoleForm />

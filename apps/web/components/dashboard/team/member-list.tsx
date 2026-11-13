@@ -30,6 +30,14 @@ function MemberRow({
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  // After a refresh brings new stored values, the controls start from them.
+  // The row keeps its notice, so "The account was disabled." stays on screen.
+  const [stored, setStored] = useState(`${member.roleId}:${member.status}`);
+  if (stored !== `${member.roleId}:${member.status}`) {
+    setStored(`${member.roleId}:${member.status}`);
+    setRoleId(member.roleId);
+    setConfirming(false);
+  }
 
   const role = roles.find((item) => item.id === member.roleId) ?? null;
   const isAdmin = isAdminRole(role);
@@ -172,9 +180,8 @@ export function MemberList({
   return (
     <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
       {members.map((member) => (
-        // The key carries the stored values, so a refresh resets the row's own state.
         <MemberRow
-          key={`${member.id}:${member.roleId}:${member.status}`}
+          key={member.id}
           member={member}
           roles={roles}
           isSelf={member.id === selfId}
