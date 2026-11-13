@@ -21,10 +21,11 @@ vi.mock("@clerk/nextjs/errors", () => ({
   isReverificationCancelledError: (error: unknown) =>
     (error as { cancelled?: boolean } | null)?.cancelled === true,
 }));
-const nav = vi.hoisted(() => ({ refresh: vi.fn(), replace: vi.fn() }));
+const nav = vi.hoisted(() => ({ refresh: vi.fn(), replace: vi.fn(), assign: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => nav,
   usePathname: () => "/account/profile",
+  getPathname: ({ href, locale }: { href: string; locale: string }) => `/${locale}${href}`,
 }));
 
 const { changedFields, DetailsForm, timeZones } = await import("./details-form");
@@ -40,6 +41,8 @@ beforeEach(() => {
   fetchMock.mockImplementation(async () => new Response(JSON.stringify({ ok: true })));
   nav.refresh.mockReset();
   nav.replace.mockReset();
+  nav.assign.mockReset();
+  vi.stubGlobal("location", { ...window.location, assign: nav.assign });
   clerk.updatePassword.mockReset().mockResolvedValue({});
   clerk.signOut.mockReset().mockResolvedValue(undefined);
 });
@@ -137,12 +140,12 @@ describe("DetailsForm", () => {
 });
 
 describe("LanguageForm", () => {
-  it("saves the language, then switches the UI to it", async () => {
+  it("saves the language, then loads the page again in it", async () => {
     wrap(<LanguageForm saved="ar" />);
     fireEvent.change(screen.getByLabelText(en.language.label), { target: { value: "en" } });
     await act(async () => fireEvent.click(screen.getByRole("button", { name: en.language.save })));
     expect(lastRequest().body).toEqual({ locale: "en" });
-    expect(nav.replace).toHaveBeenCalledWith("/account/profile", { locale: "en" });
+    expect(nav.assign).toHaveBeenCalledWith("/en/account/profile");
   });
 
   it("stays put when the save fails", async () => {
@@ -150,7 +153,7 @@ describe("LanguageForm", () => {
     wrap(<LanguageForm saved="ar" />);
     fireEvent.change(screen.getByLabelText(en.language.label), { target: { value: "en" } });
     await act(async () => fireEvent.click(screen.getByRole("button", { name: en.language.save })));
-    expect(nav.replace).not.toHaveBeenCalled();
+    expect(nav.assign).not.toHaveBeenCalled();
     expect(screen.getByRole("alert").textContent).toBe(en.language.failed);
   });
 });

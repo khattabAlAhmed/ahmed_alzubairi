@@ -4,17 +4,16 @@ import { LOCALES, type Locale } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import { useState, type FormEvent } from "react";
 import { Button, Card, Select } from "@/components/ui";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { getPathname, usePathname } from "@/i18n/navigation";
 import { NoticeLine, type Notice } from "./notice";
 import { saveProfile } from "./send";
 
 /**
- * The preferred language: saved to the profile (emails use it), then the UI
- * switches to it on the same page.
+ * The preferred language: saved to the profile (emails use it), then the page
+ * loads again in it.
  */
 export function LanguageForm({ saved }: { saved: Locale }) {
   const t = useTranslations("AccountProfile.language");
-  const router = useRouter();
   const pathname = usePathname();
   const [value, setValue] = useState<Locale>(saved);
   const [busy, setBusy] = useState(false);
@@ -30,7 +29,10 @@ export function LanguageForm({ saved }: { saved: Locale }) {
       setNotice({ ok: false, text: result.message ?? t("failed") });
       return;
     }
-    router.replace(pathname, { locale: value });
+    // A full load, not a client navigation: the language is a root param, and
+    // a soft navigation left the old language's page in the document too.
+    // Clerk's components also pick their language up on load.
+    window.location.assign(getPathname({ href: pathname, locale: value }));
   }
 
   return (
