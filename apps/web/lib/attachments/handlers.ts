@@ -149,11 +149,11 @@ export async function finalizeAttachment(
 
   if (object.size <= 0 || object.size > MAX_ATTACHMENT_BYTES) return refuse(tooLarge(locale));
 
+  // A detection error is ours, not the file's: it goes to the route's error
+  // handler, and the object and row stay for a retry (or the hourly cleanup).
   let realMime: string | undefined;
   try {
     realMime = await detectMime(object.stream);
-  } catch {
-    realMime = undefined;
   } finally {
     // The detection reads only the first bytes; stop the rest of the download.
     await object.stream.cancel().catch(() => {});

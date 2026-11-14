@@ -2,7 +2,13 @@ import { MAX_ATTACHMENT_BYTES, PERMISSIONS, type Consultation, type Permission }
 import { describe, expect, it, vi } from "vitest";
 import ar from "@/messages/ar/AttachmentErrors.json";
 import en from "@/messages/en/AttachmentErrors.json";
-import { cleanupAttachments, UNLINKED_MAX_AGE_MS, UPLOADING_MAX_AGE_MS, type CleanupDb } from "./cleanup";
+import {
+  cleanupAttachments,
+  SIGNED_UPLOAD_LIFETIME_MS,
+  UNLINKED_MAX_AGE_MS,
+  UPLOADING_MAX_AGE_MS,
+  type CleanupDb,
+} from "./cleanup";
 import {
   attachmentKey,
   createAttachmentUploadUrl,
@@ -261,6 +267,19 @@ describe("finalize", () => {
     expect(w.rows).toEqual([]);
   });
 
+  it("a detection error goes to the route: the object and row stay", async () => {
+    const w = world(CLIENT);
+    w.uploaded();
+    const broken = vi.fn(async () => {
+      throw new Error("storage read failed");
+    });
+    await expect(finalizeAttachment(CONSULTATION, { attachmentId: FILE }, w.deps, broken)).rejects.toThrow(
+      "storage read failed",
+    );
+    expect(w.removed).toEqual([]);
+    expect(w.rows[0]!.status).toBe("uploading");
+  });
+
   it("deletes a file whose real size is over the limit", async () => {
     const w = world(CLIENT);
     const big = new Uint8Array(MAX_ATTACHMENT_BYTES + 1);
@@ -376,6 +395,16 @@ describe("cleanupAttachments", () => {
     expect(fake.rows.map((row) => row.key).sort()).toEqual(["fresh-upload", "old-linked", "young-unlinked"]);
   });
 
+  it("keeps an upload whose signed URL may still write the object", async () => {
+    expect(UPLOADING_MAX_AGE_MS).toBeGreaterThan(SIGNED_UPLOAD_LIFETIME_MS);
+    const fake = db([
+      { key: "url-still-live", status: "uploading", messageId: null, createdAt: NOW - SIGNED_UPLOAD_LIFETIME_MS + 60_000 },
+      { key: "url-just-expired", status: "uploading", messageId: null, createdAt: NOW - SIGNED_UPLOAD_LIFETIME_MS },
+    ]);
+    expect(await cleanupAttachments(fake, NOW)).toEqual({ deleted: 0 });
+    expect(fake.removed).toEqual([]);
+  });
+
   it("is safe to run twice", async () => {
     const fake = db([{ key: "stale", status: "uploading", messageId: null, createdAt: NOW - 2 * UPLOADING_MAX_AGE_MS }]);
     await cleanupAttachments(fake, NOW);
@@ -387,7 +416,7 @@ describe("cleanupAttachments", () => {
     const deleteAbandoned = vi.fn(async () => []);
     await cleanupAttachments({ deleteAbandoned, removeObjects: async () => {} }, NOW);
     expect(deleteAbandoned).toHaveBeenCalledWith({
-      uploading: "2026-11-14T11:00:00.000Z",
+      uploading: "2026-11-14T09:55:00.000Z",
       unlinked: "2026-11-13T12:00:00.000Z",
     });
   });

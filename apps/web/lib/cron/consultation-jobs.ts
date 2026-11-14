@@ -10,7 +10,7 @@ import type { CronJob } from "./jobs";
  */
 export const CONSULTATION_JOBS: CronJob[] = [
   {
-    // Abandoned uploads: `uploading` after an hour, unlinked `ready` after 24 hours.
+    // Abandoned uploads: `uploading` after 2 h 5 min (past the signed URL), unlinked `ready` after 24 hours.
     name: "attachment-cleanup",
     run: async () => {
       await cleanupAttachments(createCleanupDb(createServiceClient()));

@@ -3,8 +3,15 @@ import type { Database } from "@repo/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ATTACHMENTS_BUCKET } from "./store";
 
-/** An upload not finalized within this time is abandoned. */
-export const UPLOADING_MAX_AGE_MS = 60 * 60 * 1000;
+/** How long a Supabase signed upload URL stays usable (fixed by Storage). */
+export const SIGNED_UPLOAD_LIFETIME_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * An upload not finalized within this time is abandoned. Longer than the
+ * signed upload URL lives, so a row is never deleted while its URL can still
+ * write the object (which would leave an object with no row).
+ */
+export const UPLOADING_MAX_AGE_MS = SIGNED_UPLOAD_LIFETIME_MS + 5 * 60 * 1000;
 
 /** A finalized file no message took within this time is abandoned. */
 export const UNLINKED_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -58,7 +65,7 @@ export function createCleanupDb(service: SupabaseClient<Database>): CleanupDb {
 
 /**
  * The hourly job's part for attachments (§8 System): `uploading` rows older
- * than an hour and `ready` rows no message took after 24 hours are deleted,
+ * than 2 h 5 min (past the signed URL's life) and `ready` rows no message took after 24 hours are deleted,
  * then their objects. Rows go first, so a file is never removed while its row
  * could still be linked. Safe to run twice at once: the second run finds the
  * rows gone. An object whose removal fails is orphaned in the private bucket,
