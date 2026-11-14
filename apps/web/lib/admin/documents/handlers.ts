@@ -40,6 +40,8 @@ export type DocumentStore = {
   list: () => Promise<AdminDocument[]>;
   /** True when the `documents` bucket holds this key. */
   fileExists: (key: string) => Promise<boolean>;
+  /** True when a document row other than `exceptId` (if given) holds this key. */
+  keyInUse: (key: string, exceptId?: string) => Promise<boolean>;
   /** Inserts a row and returns its id. */
   insert: (row: DocumentWrite) => Promise<string>;
   /** The row's current storage key, or null when there is no such row. */
@@ -61,7 +63,7 @@ export type DocumentDeps = {
 type Result<Body> = { status: 200; body: Body } | AdminError;
 
 function documentError(
-  code: "not_found" | "validation_failed",
+  code: "not_found" | "validation_failed" | "conflict",
   status: number,
   key: MessageKey,
   locale: Locale,
@@ -71,11 +73,14 @@ function documentError(
 
 /**
  * Checks a key from `uploads/finalize`: the `document` target's shape and
- * types, and the file really in the `documents` bucket. Returns its type.
+ * types, the file really in the `documents` bucket, and no other document
+ * holding it (each original belongs to one row, so replacing one row's file
+ * can never delete another's). Returns its type.
  */
 async function checkKey(
   key: string,
   { locale, store }: Pick<DocumentDeps, "locale" | "store">,
+  exceptId?: string,
 ): Promise<{ ok: true; mime: string } | { ok: false; error: AdminError }> {
   const mime = documentKeyMime(key);
   if (!mime) {
@@ -83,6 +88,9 @@ async function checkKey(
   }
   if (!(await store.fileExists(key))) {
     return { ok: false, error: documentError("not_found", 404, "fileNotFound", locale) };
+  }
+  if (await store.keyInUse(key, exceptId)) {
+    return { ok: false, error: documentError("conflict", 409, "fileInUse", locale) };
   }
   return { ok: true, mime };
 }
@@ -166,7 +174,7 @@ export async function updateDocument(
   if (fields.accessMode !== undefined) changes.access_mode = fields.accessMode;
   if (fields.status !== undefined) changes.status = fields.status;
   if (newKey !== undefined && newKey !== oldKey) {
-    const key = await checkKey(newKey, deps);
+    const key = await checkKey(newKey, deps, id);
     if (!key.ok) return key.error;
     changes.storage_key = newKey;
     changes.mime = key.mime;
@@ -176,6 +184,18 @@ export async function updateDocument(
     return documentError("not_found", 404, "notFound", deps.locale);
   }
   deps.revalidate(DOCUMENTS_CACHE_TAG);
+  if (changes.storage_key) {
+    // Before the audit write, so a failed audit insert can't leave the old
+    // original behind. The row already points at the new file. A key another
+    // row still holds is kept (none should: `checkKey` refuses sharing). A
+    // leftover original is only storage, never reachable without a row, so a
+    // failed delete isn't fatal.
+    try {
+      if (!(await deps.store.keyInUse(oldKey))) await deps.store.removeFile(oldKey);
+    } catch {
+      console.error("PATCH /api/admin/documents: old original not removed");
+    }
+  }
   await deps.audit({
     actorId: deps.userId,
     action: "document.update",
@@ -188,12 +208,5 @@ export async function updateDocument(
     },
   });
 
-  if (changes.storage_key) {
-    // The row already points at the new file; a leftover original is only
-    // storage, never reachable without a row, so a failed delete isn't fatal.
-    await deps.store.removeFile(oldKey).catch(() => {
-      console.error("PATCH /api/admin/documents: old original not removed");
-    });
-  }
   return { status: 200, body: { ok: true } };
 }

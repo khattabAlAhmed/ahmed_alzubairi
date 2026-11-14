@@ -64,6 +64,9 @@ function memoryStore(bucket: string[] = [PDF_KEY, PNG_KEY, OLD_KEY]) {
     files,
     list: vi.fn(async () => [LISTED]),
     fileExists: vi.fn(async (key: string) => files.has(key)),
+    keyInUse: vi.fn(async (key: string, exceptId?: string) =>
+      [...rows].some(([id, row]) => id !== exceptId && row.storage_key === key),
+    ),
     insert: vi.fn(async (row: DocumentWrite) => {
       const id = "223e4567-e89b-42d3-a456-426614174001";
       rows.set(id, row);
@@ -167,6 +170,17 @@ describe("createDocument", () => {
     expect(d.revalidate).not.toHaveBeenCalled();
   });
 
+  it("refuses a file another document already holds (409)", async () => {
+    const d = deps();
+    const result = await createDocument({ ...created, key: OLD_KEY }, d);
+    expect(result).toEqual({
+      status: 409,
+      body: { error: { code: "conflict", message: en.fileInUse } },
+    });
+    expect(d.store.insert).not.toHaveBeenCalled();
+    expect(d.audit).not.toHaveBeenCalled();
+  });
+
   it("refuses a key that isn't in the documents bucket (finalized for another target, or never uploaded)", async () => {
     const d = deps(memoryStore([]), "ar");
     const result = await createDocument(created, d);
@@ -236,6 +250,43 @@ describe("updateDocument", () => {
     expect(d.store.removeFile).toHaveBeenCalledWith(OLD_KEY);
     expect(d.audit.mock.calls[0]?.[0].metadata).toEqual({ fields: ["file"] });
     expect(JSON.stringify(d.audit.mock.calls)).not.toMatch(/[0-9a-f-]{36}\.(pdf|png)/);
+  });
+
+  it("deletes the old original before the audit write, so a failed audit leaves no file behind", async () => {
+    const d = deps();
+    d.audit.mockRejectedValueOnce(new Error("audit_log insert failed: 57014"));
+    await expect(updateDocument({ id: DOC_ID, key: PNG_KEY }, d)).rejects.toThrow("audit_log");
+    expect(d.store.removeFile).toHaveBeenCalledWith(OLD_KEY);
+    expect(d.store.files.has(OLD_KEY)).toBe(false);
+  });
+
+  it("refuses a file another document already holds (409), and writes nothing", async () => {
+    const d = deps();
+    d.store.rows.set("423e4567-e89b-42d3-a456-426614174003", {
+      ...(d.store.rows.get(DOC_ID) as DocumentWrite),
+      storage_key: PNG_KEY,
+    });
+    const result = await updateDocument({ id: DOC_ID, key: PNG_KEY }, d);
+    expect(result).toEqual({
+      status: 409,
+      body: { error: { code: "conflict", message: en.fileInUse } },
+    });
+    expect(d.store.update).not.toHaveBeenCalled();
+    expect(d.store.removeFile).not.toHaveBeenCalled();
+  });
+
+  it("never deletes an original another row still points at", async () => {
+    const d = deps();
+    // A row from before the sharing check, holding the same file.
+    d.store.rows.set("523e4567-e89b-42d3-a456-426614174004", {
+      ...(d.store.rows.get(DOC_ID) as DocumentWrite),
+    });
+    expect(await updateDocument({ id: DOC_ID, key: PNG_KEY }, d)).toEqual({
+      status: 200,
+      body: { ok: true },
+    });
+    expect(d.store.removeFile).not.toHaveBeenCalled();
+    expect(d.store.files.has(OLD_KEY)).toBe(true);
   });
 
   it("keeps the change when deleting the old original fails", async () => {

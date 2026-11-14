@@ -64,6 +64,14 @@ export function createDocumentStore(user: Client, service: Client): DocumentStor
       throw new Error(`documents info failed: ${error.message}`);
     },
 
+    async keyInUse(key, exceptId) {
+      let query = service.from("documents").select("id").eq("storage_key", key).limit(1);
+      if (exceptId) query = query.neq("id", exceptId);
+      const { data, error } = await query;
+      if (error) throw new Error(`documents read failed: ${error.code}`);
+      return data.length > 0;
+    },
+
     async insert(row) {
       const { data, error } = await service
         .from("documents")
