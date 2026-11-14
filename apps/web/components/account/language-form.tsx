@@ -50,7 +50,7 @@ export function LanguageForm({ saved }: { saved: Locale }) {
           label={t("label")}
           value={value}
           onChange={(event) => setValue(event.target.value as Locale)}
-          className="min-w-0 flex-1 basis-48"
+          className="min-w-0 flex-1 basis-48 sm:max-w-sm"
         >
           {LOCALES.map((locale) => (
             // Each language is named in itself, as language switches do.
