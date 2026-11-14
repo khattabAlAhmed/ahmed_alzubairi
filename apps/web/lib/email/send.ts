@@ -1,6 +1,7 @@
 import "server-only";
 import { EMAIL_MAX_ATTEMPTS } from "@repo/shared";
 import { createServiceClient } from "@/lib/supabase/service";
+import { meetingAttachment } from "./meeting-ics";
 import { renderOutboxRow, TemplateReadError, type OutboxRow } from "./render";
 import { getMailer } from "./resend";
 
@@ -70,6 +71,12 @@ export async function sendOutboxRow(row: OutboxRow): Promise<SendResult> {
 
     try {
       const email = await renderOutboxRow(row);
+      // A meeting email carries its calendar file. A failed lookup sends the
+      // email without it: the date, time and link are in the text.
+      const attachment = await meetingAttachment(row).catch(() => {
+        logFailure(row.event, "ics_error");
+        return null;
+      });
       const { error } = await mailer.resend.emails.send(
         {
           from: mailer.from,
@@ -77,6 +84,7 @@ export async function sendOutboxRow(row: OutboxRow): Promise<SendResult> {
           subject: email.subject,
           text: email.text,
           html: email.html,
+          ...(attachment ? { attachments: [attachment] } : {}),
         },
         // If a run dies after Resend took the email and before the row is
         // marked, the retry carries the same key and Resend sends nothing new.
