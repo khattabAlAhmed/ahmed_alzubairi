@@ -7,6 +7,18 @@ import { Badge, Button, Card } from "@/components/ui";
 import type { EmailTemplateEntry } from "@/lib/admin/email-templates/templates";
 import { TemplateEditor } from "./template-editor";
 
+/** True when two entries hold the same texts and the same edited state. */
+function sameTemplate(a: EmailTemplateEntry, b: EmailTemplateEntry): boolean {
+  return (
+    a.event === b.event &&
+    a.edited === b.edited &&
+    a.subjectAr === b.subjectAr &&
+    a.subjectEn === b.subjectEn &&
+    a.bodyAr === b.bodyAr &&
+    a.bodyEn === b.bodyEn
+  );
+}
+
 /**
  * Every email the site sends (§6.21), by its name in the page's language,
  * marked as default or edited. One editor is open at a time, and it can't be
@@ -19,23 +31,24 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
   // True while the open editor's save or reset is on its way. The editor
   // stays open until it settles, so one event never has two saves in flight.
   const [locked, setLocked] = useState(false);
-  // What this tab last saved or reset, per event, against the page's copy it
-  // was saved over. `templates` only changes when router.refresh() lands, so
-  // until then an editor reopened here starts from the saved text, not the
-  // old copy. A new `templates` is newer than any of these, so it wins.
-  const [stored, setStored] = useState<{
-    over: EmailTemplateEntry[];
-    byEvent: Partial<Record<EmailEvent, EmailTemplateEntry>>;
-  }>({ over: templates, byEvent: {} });
-  const current = stored.over === templates ? stored.byEvent : {};
+  // What this tab last saved or reset, per event. The page's copy only
+  // changes when router.refresh() lands, and a refresh started by an earlier
+  // save can land after a later one. So a saved entry is kept, and wins over
+  // the page, until a page copy that matches it arrives; then it is dropped,
+  // and the page is followed again (another admin's later change shows).
+  const [saved, setSaved] = useState<Partial<Record<EmailEvent, EmailTemplateEntry>>>({});
+  const [seenTemplates, setSeenTemplates] = useState(templates);
+  if (seenTemplates !== templates) {
+    setSeenTemplates(templates);
+    const pending = Object.values(saved).filter(
+      (entry) => !templates.some((page) => sameTemplate(page, entry)),
+    );
+    if (pending.length !== Object.keys(saved).length) {
+      setSaved(Object.fromEntries(pending.map((entry) => [entry.event, entry])));
+    }
+  }
   const remember = (entry: EmailTemplateEntry) =>
-    setStored((previous) => ({
-      over: templates,
-      byEvent: {
-        ...(previous.over === templates ? previous.byEvent : {}),
-        [entry.event]: entry,
-      },
-    }));
+    setSaved((previous) => ({ ...previous, [entry.event]: entry }));
 
   return (
     <section aria-labelledby={headingId} className="space-y-4">
@@ -44,7 +57,7 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
       </h2>
       <ul className="space-y-3">
         {templates.map((fromPage) => {
-          const entry = current[fromPage.event] ?? fromPage;
+          const entry = saved[fromPage.event] ?? fromPage;
           const name = t(`events.${entry.event}`);
           const isOpen = open === entry.event;
           return (

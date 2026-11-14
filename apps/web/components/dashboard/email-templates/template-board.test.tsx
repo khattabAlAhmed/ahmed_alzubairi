@@ -253,21 +253,62 @@ describe("TemplateBoard", () => {
     expect(screen.queryByRole("button", { name: en.reset })).toBeNull();
   });
 
-  it("takes fresh text from the page once the refresh is back", async () => {
+  const page = (templates: ReturnType<typeof templateEntries>) => (
+    <NextIntlClientProvider locale="en" messages={{ DashboardEmailTemplates: en }}>
+      <TemplateBoard templates={templates} />
+    </NextIntlClientProvider>
+  );
+  const closeContact = () =>
+    fireEvent.click(screen.getByRole("button", { name: "Close: Contact message" }));
+
+  it("keeps a later save when the refresh from an earlier one lands after it", async () => {
     const view = show();
     openContact();
-    type("bodyEn", "Saved body");
+    type("bodyEn", "Body A");
     await save();
-    fireEvent.click(screen.getByRole("button", { name: "Close: Contact message" }));
-    // Someone else saved since: the refresh brings their text.
-    view.rerender(
-      <NextIntlClientProvider locale="en" messages={{ DashboardEmailTemplates: en }}>
-        <TemplateBoard templates={templateEntries([{ ...contact, bodyEn: "Their body" }])} />
-      </NextIntlClientProvider>,
-    );
+    type("bodyEn", "Body B");
+    await save();
+    closeContact();
+    // Save A's refresh arrives last-but-one: it holds A, not B.
+    view.rerender(page(templateEntries([{ ...contact, bodyEn: "Body A" }])));
+    openContact();
+    expect(field("bodyEn").value).toBe("Body B");
+    type("subjectEn", "Only the subject {{subject}}");
+    await save();
+    expect(sentBodies().at(-1)?.body.bodyEn).toBe("Body B");
+  });
+
+  it("follows the page again once it shows the save, so a later change by someone else appears", async () => {
+    const view = show();
+    openContact();
+    type("bodyEn", "Body B");
+    await save();
+    closeContact();
+    view.rerender(page(templateEntries([{ ...contact, bodyEn: "Body B" }])));
+    // Another admin saves after that; the next refresh brings their text.
+    view.rerender(page(templateEntries([{ ...contact, bodyEn: "Their body" }])));
     openContact();
     expect(field("bodyEn").value).toBe("Their body");
   });
+
+  it("keeps a save that finishes after a refresh landed mid-save", async () => {
+    let settle: (response: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Response>((resolve) => (settle = resolve)),
+    );
+    const view = show();
+    openContact();
+    type("bodyEn", "Body B");
+    await save();
+    // A refresh lands while the PATCH is still on its way: a new page
+    // reference, still the old text.
+    view.rerender(page(templateEntries([])));
+    await act(async () => settle(answer({ ok: true })));
+    closeContact();
+    openContact();
+    expect(field("bodyEn").value).toBe("Body B");
+  });
+
 
   it("content inputs carry their own language; a typed tag stays text", () => {
     show();
