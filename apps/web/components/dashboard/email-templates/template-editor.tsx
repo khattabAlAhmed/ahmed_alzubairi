@@ -166,6 +166,8 @@ export function TemplateEditor({
         <>
           <TextField
             name={subject}
+            // A reset replaces both languages: no typing while it runs.
+            disabled={busy === "reset"}
             label={t("subject")}
             hint={t("subjectHint")}
             error={errorText(subject)}
@@ -174,6 +176,7 @@ export function TemplateEditor({
           />
           <TextArea
             name={body}
+            disabled={busy === "reset"}
             rows={10}
             label={t("body")}
             hint={t("bodyHint")}
