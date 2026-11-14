@@ -6,6 +6,7 @@ import {
   documentAccessModeSchema,
   documentCategorySchema,
   documentRecommendationSchema,
+  documentRequestStatusSchema,
   emailEventSchema,
   orgTypeSchema,
   profileStatusSchema,
@@ -22,6 +23,7 @@ import {
   uuidSchema,
 } from "./fields";
 import { PERMISSIONS, type Permission } from "./permissions";
+import { consultationSchema } from "./routes-client";
 
 /**
  * `PATCH /api/admin/consultations/:id`. At least one field. `assignedTo: null`
@@ -93,6 +95,19 @@ export const DOCUMENT_DECISIONS = [
 
 export type DocumentDecision = (typeof DOCUMENT_DECISIONS)[number];
 
+/**
+ * The decisions `decide_document_request` takes. `withdraw` is the decide
+ * route's name for `revoke_document_request`, which works only on a granted
+ * request.
+ */
+export const DECIDE_DOCUMENT_REQUEST_DECISIONS = [
+  "grant",
+  "contact_first",
+] as const satisfies readonly DocumentDecision[];
+
+export type DecideDocumentRequestDecision =
+  (typeof DECIDE_DOCUMENT_REQUEST_DECISIONS)[number];
+
 const futureDatetimeSchema = utcDatetimeSchema.refine(
   (value) => Date.parse(value) > Date.now(),
 );
@@ -108,6 +123,66 @@ export const decideDocumentRequestSchema = z.discriminatedUnion("decision", [
 ]);
 
 export type DecideDocumentRequest = z.infer<typeof decideDocumentRequestSchema>;
+
+/** A team member's recommendation on a request (§6.18 step 3). */
+export const adminDocumentRecommendationSchema = z.strictObject({
+  id: uuidSchema,
+  memberId: clerkUserIdSchema,
+  memberName: z.string(),
+  recommendation: documentRecommendationSchema,
+  note: z.string().nullable(),
+  createdAt: utcDatetimeSchema,
+});
+
+export type AdminDocumentRecommendation = z.infer<
+  typeof adminDocumentRecommendationSchema
+>;
+
+/** One row of the dashboard's document-request list. Never the `storage_key`. */
+export const adminDocumentRequestSchema = z.strictObject({
+  id: uuidSchema,
+  clientId: clerkUserIdSchema,
+  clientName: z.string(),
+  documentId: uuidSchema,
+  documentTitleAr: z.string(),
+  documentTitleEn: z.string(),
+  documentAccessMode: documentAccessModeSchema,
+  purpose: z.string(),
+  status: documentRequestStatusSchema,
+  consultationId: uuidSchema.nullable(),
+  decidedBy: clerkUserIdSchema.nullable(),
+  grantedAt: utcDatetimeSchema.nullable(),
+  expiresAt: utcDatetimeSchema.nullable(),
+  revokedAt: utcDatetimeSchema.nullable(),
+  createdAt: utcDatetimeSchema,
+  recommendations: z.array(adminDocumentRecommendationSchema),
+});
+
+export type AdminDocumentRequest = z.infer<typeof adminDocumentRequestSchema>;
+
+/**
+ * The dashboard's document-request list (a server read, with
+ * `documentRequestListParamsSchema`). `total` counts every page.
+ */
+export const adminDocumentRequestListSchema = z.strictObject({
+  requests: z.array(adminDocumentRequestSchema),
+  total: totalSchema,
+});
+
+export type AdminDocumentRequestList = z.infer<
+  typeof adminDocumentRequestListSchema
+>;
+
+/**
+ * The dashboard's consultation list (a server read, with
+ * `consultationListParamsSchema`). `total` counts every page.
+ */
+export const adminConsultationListSchema = z.strictObject({
+  consultations: z.array(consultationSchema),
+  total: totalSchema,
+});
+
+export type AdminConsultationList = z.infer<typeof adminConsultationListSchema>;
 
 const documentFields = {
   category: documentCategorySchema,
