@@ -209,10 +209,16 @@ export default async function ConsultationPage({ params }: { params: Params }) {
               {closed ? (
                 <p className="text-sm text-text-secondary">{t("status.closed")}</p>
               ) : (
-                canWork && <StatusControl id={consultation.id} status={consultation.status} />
+                // Keyed on the saved value: after a refresh the draft starts from what's stored.
+                canWork && <StatusControl key={consultation.status} id={consultation.id} status={consultation.status} />
               )}
               {access.assign && !closed && (
-                <AssignControl id={consultation.id} assignedTo={consultation.assignedTo} assignees={assignees} />
+                <AssignControl
+                  key={consultation.assignedTo ?? ""}
+                  id={consultation.id}
+                  assignedTo={consultation.assignedTo}
+                  assignees={assignees}
+                />
               )}
               {(closed || !access.assign) && (
                 <p className="text-sm">

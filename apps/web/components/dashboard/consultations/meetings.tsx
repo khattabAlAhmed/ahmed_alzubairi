@@ -106,7 +106,13 @@ export function MeetingForm({
     event.preventDefault();
     const platform = fields.platform.trim();
     const url = fields.url.trim();
-    const startsAt = toUtc(fields.date, fields.time);
+    // Unchanged date and time keep the stored start, to the second: editing
+    // only the link never moves the meeting.
+    const initial = meeting ? toLocalInputs(meeting.startsAt) : null;
+    const startsAt =
+      meeting && initial && initial.date === fields.date && initial.time === fields.time
+        ? meeting.startsAt
+        : toUtc(fields.date, fields.time);
     const durationMinutes = Number(fields.duration);
     if (!platform || !url || !startsAt || !fields.duration) return setError(t("required"));
     if (!isHttps(url)) return setError(t("invalidUrl"));

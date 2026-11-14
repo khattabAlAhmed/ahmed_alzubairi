@@ -181,6 +181,24 @@ describe("MeetingForm", () => {
     );
   });
 
+  it("keeps the stored start, seconds included, when only the link changes", async () => {
+    const update = vi.fn(ok);
+    const meeting = {
+      id: "33333333-3333-4333-8333-333333333333",
+      platform: "Zoom",
+      url: "https://zoom.example/old",
+      // Seconds the inputs can't show: rebuilding from them would move it.
+      startsAt: "2026-11-21T09:00:30.000Z",
+      durationMinutes: 30,
+      createdAt: "2026-11-14T10:00:00.000Z",
+    };
+    wrap(<MeetingForm consultationId={ID} meeting={meeting} onDone={() => {}} update={update} />);
+    fill({ url: "https://zoom.example/new" });
+    fireEvent.click(screen.getByRole("button", { name: en.meeting.save }));
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    expect(update).toHaveBeenCalledWith(ID, expect.objectContaining({ startsAt: "2026-11-21T09:00:30.000Z", url: "https://zoom.example/new" }));
+  });
+
   it("renders in Arabic", () => {
     wrap(<MeetingForm consultationId={ID} onDone={() => {}} />, "ar");
     expect(screen.getByRole("button", { name: ar.meeting.save })).toBeTruthy();

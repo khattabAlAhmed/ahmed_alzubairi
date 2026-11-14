@@ -142,6 +142,16 @@ describe("/dashboard/consultations/[id]", () => {
     expect(find(page, ConsultationThread)?.props).toMatchObject({ closed: false });
   });
 
+  it("keys the status and assign controls on their saved values, so a refresh resets a stale draft", async () => {
+    const page = await DetailPage({ params: idParams });
+    expect(find(page, StatusControl)?.key).toBe("in_review");
+    expect(find(page, AssignControl)?.key).toBe(ME);
+    mocks.loadConsultation.mockResolvedValue(view({ status: "scheduled", assignedTo: null }));
+    const after = await DetailPage({ params: idParams });
+    expect(find(after, StatusControl)?.key).toBe("scheduled");
+    expect(find(after, AssignControl)?.key).toBe("");
+  });
+
   it("has no assign control without consultations.assign, and reads no assignees", async () => {
     mocks.consultationsAccess.mockResolvedValue(access({ viewAll: true, delete: true }));
     const page = await DetailPage({ params: idParams });
