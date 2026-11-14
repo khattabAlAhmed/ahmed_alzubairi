@@ -9,8 +9,19 @@ import type { CronJob } from "./jobs";
  * log codes only.
  */
 export const DOCUMENT_JOBS: CronJob[] = [
+  { name: "expireDocumentGrants", run: expireDocumentGrants },
   { name: "deleteOldViewCopies", run: deleteOldViewCopies },
 ];
+
+/**
+ * Every grant whose expiry has passed becomes `expired`, in one statement
+ * (`expire_document_grants`): the document leaves the client's account
+ * (§6.18 "Expired"). Safe to run twice. Logs the code only.
+ */
+export async function expireDocumentGrants(): Promise<void> {
+  const { error } = await createServiceClient().rpc("expire_document_grants");
+  if (error) throw new Error(`expire_document_grants failed (${error.code || "error"})`);
+}
 
 /** Where the open route writes watermarked copies (§7). */
 export const VIEW_COPIES_BUCKET = "document-views";
