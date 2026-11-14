@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import ar from "@/messages/ar.json";
 
 const mocks = vi.hoisted(() => ({
   userId: "user_1" as string | null,
@@ -60,7 +61,7 @@ vi.mock("@/lib/supabase/service", () => ({
   }),
 }));
 
-const { POST } = await import("./route");
+const { PATCH, POST } = await import("./route");
 
 const EDITOR_ROLE = "11111111-1111-4111-8111-111111111111";
 const ADMIN_ROLE = "22222222-2222-4222-8222-222222222222";
@@ -214,5 +215,63 @@ describe("POST /api/profile", () => {
     const response = await post(VALID);
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ ok: true });
+  });
+});
+
+describe("PATCH /api/profile", () => {
+  const filters: unknown[][] = [];
+
+  function patch(body: unknown) {
+    return PATCH(
+      new Request("https://site.example/api/profile", {
+        method: "PATCH",
+        headers: { "content-type": "application/json", referer: "https://site.example/ar/account/profile" },
+        body: JSON.stringify(body),
+      }),
+    );
+  }
+
+  beforeEach(() => {
+    filters.length = 0;
+    mocks.update.mockReset().mockImplementation((row: unknown) => ({
+      eq: (column: string, value: string) => {
+        filters.push([row, column, value]);
+        return { select: async () => ({ data: [{ clerk_user_id: value }], error: null }) };
+      },
+    }));
+  });
+
+  it("updates only the caller's own row, by the session's id", async () => {
+    const response = await patch({ jobTitle: "Analyst", notifyOptional: false });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(filters).toEqual([
+      [{ job_title: "Analyst", notify_optional: false }, "clerk_user_id", "user_1"],
+    ]);
+  });
+
+  it("refuses a signed-out caller with 401, in the page's language", async () => {
+    mocks.userId = null;
+    const response = await patch({ jobTitle: "Analyst" });
+    expect(response.status).toBe(401);
+    expect((await response.json()).error.message).toBe(ar.Errors.unauthenticated);
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it.each([{ fullName: "X" }, { email: "x@example.com" }, { roleId: EDITOR_ROLE }, { status: "active" }])(
+    "refuses the unknown field in %o, and writes nothing",
+    async (body) => {
+      expect((await patch(body)).status).toBe(400);
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it("returns 500 with the error shape when the database fails", async () => {
+    mocks.update.mockImplementation(() => ({
+      eq: () => ({ select: async () => ({ data: null, error: { code: "57014" } }) }),
+    }));
+    const response = await patch({ jobTitle: "Analyst" });
+    expect(response.status).toBe(500);
+    expect((await response.json()).error.code).toBe("internal_error");
   });
 });
