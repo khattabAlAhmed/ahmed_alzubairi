@@ -23,10 +23,16 @@ import { ChevronDownIcon } from "@/components/ui/icons";
  */
 export function DashboardNavMenu({
   label,
+  badge,
   children,
 }: {
   /** The menu's name, e.g. "Dashboard menu". */
   label: string;
+  /**
+   * Shown on the phone's menu button, where the list is folded away: the
+   * unread counter. It carries its own text alternative.
+   */
+  badge?: ReactNode;
   /** The `<li>` entries. The current one carries `aria-current="page"`. */
   children: ReactNode;
 }) {
@@ -48,7 +54,9 @@ export function DashboardNavMenu({
   // The button names the entry the links marked as current.
   useLayoutEffect(() => {
     const link = listRef.current?.querySelector('[aria-current="page"]');
-    setCurrent(link?.textContent ?? null);
+    // An entry with more than its name inside (a counter) marks the name.
+    const name = link?.querySelector("[data-nav-label]") ?? link;
+    setCurrent(name?.textContent ?? null);
   }, [pathname, children]);
 
   useEffect(() => {
@@ -105,12 +113,15 @@ export function DashboardNavMenu({
             </>
           )}
         </span>
-        <ChevronDownIcon
-          className={cx(
-            "shrink-0 transition-transform motion-reduce:transition-none",
-            open && "rotate-180",
-          )}
-        />
+        <span className="flex shrink-0 items-center gap-2">
+          {badge}
+          <ChevronDownIcon
+            className={cx(
+              "shrink-0 transition-transform motion-reduce:transition-none",
+              open && "rotate-180",
+            )}
+          />
+        </span>
       </button>
       <ul
         ref={listRef}
