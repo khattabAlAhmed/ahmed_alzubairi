@@ -1,7 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { documentsAccess, loadDocuments } from "@/components/dashboard/documents/data";
-import { fileTypeLabel } from "@/components/dashboard/documents/document-form";
+import { fileTypeLabel } from "@/components/dashboard/documents/send";
 import { PublishToggle } from "@/components/dashboard/documents/publish-toggle";
 import { Refusal } from "@/components/dashboard/refusal";
 import { Badge, ButtonLink, Card, PageHeader } from "@/components/ui";

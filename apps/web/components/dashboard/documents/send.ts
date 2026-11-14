@@ -64,3 +64,11 @@ export function fileProblem(file: File): "fileType" | "fileSize" | null {
   if (file.size > RULES.maxBytes) return "fileSize";
   return null;
 }
+
+/** PDF, JPG or PNG, from the stored type. */
+export function fileTypeLabel(mime: string): string {
+  if (mime === "application/pdf") return "PDF";
+  if (mime === "image/jpeg") return "JPG";
+  if (mime === "image/png") return "PNG";
+  return mime;
+}

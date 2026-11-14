@@ -22,6 +22,7 @@ import {
   DOCUMENT_ACCEPT,
   DOCUMENT_MAX_BYTES,
   fileProblem,
+  fileTypeLabel,
   updateDocument,
 } from "./send";
 
@@ -233,12 +234,4 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
       </div>
     </form>
   );
-}
-
-/** PDF, JPG or PNG, from the stored type. */
-export function fileTypeLabel(mime: string): string {
-  if (mime === "application/pdf") return "PDF";
-  if (mime === "image/jpeg") return "JPG";
-  if (mime === "image/png") return "PNG";
-  return mime;
 }
