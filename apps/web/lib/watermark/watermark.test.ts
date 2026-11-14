@@ -1,4 +1,5 @@
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import { inflateSync } from "node:zlib";
+import { PDFArray, PDFDocument, PDFName, PDFRawStream, StandardFonts } from "pdf-lib";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { renderWatermarkTile, WATERMARK_STYLE } from "./render";
@@ -25,6 +26,27 @@ async function samplePdf(pages: number): Promise<Uint8Array> {
     page.drawText(`Sample page ${i + 1} (test document)`, { x: 50, y: 400, size: 18, font });
   }
   return pdf.save();
+}
+
+/** Where each image on the page is drawn: the x, y of its `cm` before `Do`. */
+function imageOrigins(pdf: PDFDocument, pageIndex: number): Array<{ x: number; y: number }> {
+  const page = pdf.getPage(pageIndex);
+  const contents = page.node.Contents();
+  const streams = contents instanceof PDFArray ? contents.asArray() : contents ? [contents] : [];
+  let text = "";
+  for (const ref of streams) {
+    const stream = pdf.context.lookup(ref);
+    if (!(stream instanceof PDFRawStream)) continue;
+    const filter = stream.dict.get(PDFName.of("Filter"));
+    const bytes = filter ? inflateSync(stream.contents) : Buffer.from(stream.contents);
+    text += `${Buffer.from(bytes).toString("latin1")}\n`;
+  }
+  const origins: Array<{ x: number; y: number }> = [];
+  const draw = /1 0 0 1 (-?[\d.]+) (-?[\d.]+) cm[\s\S]*?\/\S+ Do/g;
+  for (const match of text.matchAll(draw)) {
+    origins.push({ x: Number(match[1]), y: Number(match[2]) });
+  }
+  return origins;
 }
 
 describe("watermarkText", () => {
@@ -114,6 +136,30 @@ describe("stampPdf", () => {
     }
   });
 
+  it("tiles a page whose MediaBox doesn't start at 0,0 inside that box", async () => {
+    const source = await PDFDocument.create();
+    source.addPage([595, 842]).setMediaBox(2000, 2000, 595, 842);
+    const stamped = await PDFDocument.load(await stampPdf(await source.save(), tile));
+    const box = stamped.getPage(0).getMediaBox();
+    expect(box).toEqual({ x: 2000, y: 2000, width: 595, height: 842 });
+    const origins = imageOrigins(stamped, 0);
+    expect(origins.length).toBeGreaterThan(0);
+    const tileWidth = tile.width / WATERMARK_STYLE.scale;
+    const tileHeight = tile.height / WATERMARK_STYLE.scale;
+    // Every tile touches the box, and tiles cover its corners and centre.
+    for (const { x, y } of origins) {
+      expect(x + tileWidth).toBeGreaterThanOrEqual(2000);
+      expect(x).toBeLessThan(2595);
+      expect(y + tileHeight).toBeGreaterThanOrEqual(2000);
+      expect(y).toBeLessThan(2842);
+    }
+    const covered = (px: number, py: number) =>
+      origins.some(({ x, y }) => px >= x && px <= x + tileWidth && py >= y && py <= y + tileHeight);
+    for (const [px, py] of [[2000, 2000], [2595, 2000], [2000, 2842], [2595, 2842], [2297, 2421]]) {
+      expect(covered(px ?? 0, py ?? 0), `${px},${py} is under the mark`).toBe(true);
+    }
+  });
+
   it("keeps a 30-page PDF at 30 pages", async () => {
     const stamped = await stampPdf(await samplePdf(30), tile);
     expect((await PDFDocument.load(stamped)).getPageCount()).toBe(30);
@@ -139,6 +185,21 @@ describe("stampImage", () => {
     const { data } = await sharp(stamped).raw().toBuffer({ resolveWithObject: true });
     // A white page is no longer all white: the mark is on it.
     expect(data.some((value) => value < 240)).toBe(true);
+  });
+
+  it.each([
+    [50, 50],
+    [800, 60],
+    [60, 800],
+  ])("stamps a small %ix%i image without sharp rejecting the overlay", async (width, height) => {
+    const original = await sharp({ create: { width, height, channels: 3, background: "#ffffff" } })
+      .png()
+      .toBuffer();
+    const stamped = await stampImage(original, tile, "image/png");
+    const meta = await sharp(stamped).metadata();
+    expect([meta.width, meta.height]).toEqual([width, height]);
+    const { data } = await sharp(stamped).raw().toBuffer({ resolveWithObject: true });
+    expect(data.some((value) => value < 255)).toBe(true);
   });
 
   it("stampDocument picks the stamper by type", async () => {
