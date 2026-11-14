@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { auditActionSchema, auditEntitySchema } from "./audit";
-import { profileStatusSchema } from "./enums";
+import {
+  consultationKindSchema,
+  consultationStatusSchema,
+  documentRequestStatusSchema,
+  profileStatusSchema,
+} from "./enums";
 import { clerkUserIdSchema } from "./fields";
 import {
   DEFAULT_PAGE_SIZE,
@@ -64,6 +69,33 @@ export const auditLogListParamsSchema = z.strictObject({
 });
 
 export type AuditLogListParams = z.infer<typeof auditLogListParamsSchema>;
+
+/**
+ * The dashboard's consultation list (a server read, through the member's own
+ * client: RLS shows the assigned or, with `consultations.view_all`, every
+ * consultation). `search` matches the title.
+ */
+export const consultationListParamsSchema = z.strictObject({
+  ...listParamFields,
+  status: consultationStatusSchema.optional(),
+  kind: consultationKindSchema.optional(),
+});
+
+export type ConsultationListParams = z.infer<typeof consultationListParamsSchema>;
+
+/**
+ * The dashboard's document-request list (a server read, through the member's
+ * own client: RLS lets in `document_requests.recommend` and `.decide`).
+ * `search` matches the client's name or the document's title.
+ */
+export const documentRequestListParamsSchema = z.strictObject({
+  ...listParamFields,
+  status: documentRequestStatusSchema.optional(),
+});
+
+export type DocumentRequestListParams = z.infer<
+  typeof documentRequestListParamsSchema
+>;
 
 /** The rows `page` and `pageSize` select: `from` and `to` are both included. */
 export function pageRange(params: Pick<ListParams, "page" | "pageSize">): {

@@ -1644,8 +1644,67 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decide_document_request: {
+        Args: {
+          decided_by: string
+          decision: string
+          expires_at?: string
+          request_id: string
+        }
+        Returns: {
+          client_id: string
+          consultation_id: string | null
+          created_at: string
+          decided_by: string | null
+          document_id: string
+          expires_at: string | null
+          granted_at: string | null
+          id: string
+          purpose: string
+          revoked_at: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "document_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       disable_client: { Args: { client_id: string }; Returns: number }
+      expire_document_grants: { Args: never; Returns: number }
       has_permission: { Args: { key: string }; Returns: boolean }
+      request_document: {
+        Args: { client_id: string; document_ids: string[]; purpose: string }
+        Returns: {
+          document_id: string
+          merged: boolean
+          request_id: string
+          status: string
+        }[]
+      }
+      revoke_document_request: {
+        Args: { decided_by: string; request_id: string }
+        Returns: {
+          client_id: string
+          consultation_id: string | null
+          created_at: string
+          decided_by: string | null
+          document_id: string
+          expires_at: string | null
+          granted_at: string | null
+          id: string
+          purpose: string
+          revoked_at: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "document_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       scoped_client_ids: { Args: never; Returns: string[] }
       set_role_permissions: {
         Args: {
