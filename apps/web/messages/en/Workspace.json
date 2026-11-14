@@ -1,0 +1,86 @@
+{
+  "status": {
+    "label": "Status",
+    "consultation": {
+      "new": "New",
+      "in_review": "In review",
+      "in_progress": "In progress",
+      "scheduled": "Meeting scheduled",
+      "closed": "Closed"
+    },
+    "documentRequest": {
+      "pending_review": "Awaiting review",
+      "in_contact": "In contact",
+      "granted": "Available",
+      "expired": "Expired",
+      "revoked": "Withdrawn"
+    }
+  },
+  "chat": {
+    "you": "You",
+    "sentBy": "From {name}",
+    "attachments": "Attachments"
+  },
+  "file": {
+    "types": {
+      "pdf": "PDF",
+      "docx": "Word",
+      "xlsx": "Excel",
+      "image": "Image",
+      "other": "File"
+    },
+    "uploading": "Uploading {percent}%",
+    "ready": "Ready",
+    "refused": "Refused",
+    "remove": "Remove {name}",
+    "reasons": {
+      "tooLarge": "It's larger than {size}.",
+      "wrongType": "This file type isn't allowed.",
+      "tooMany": "A message can have up to {count} files.",
+      "failed": "The upload failed. Please try again."
+    }
+  },
+  "composer": {
+    "label": "Your message",
+    "placeholder": "Write your message here",
+    "attach": "Attach files",
+    "limits": "Up to {count} files per message, {size} each. Allowed types: {types}.",
+    "files": "Attached files",
+    "send": "Send",
+    "sending": "Sending"
+  },
+  "meeting": {
+    "title": "Video meeting",
+    "platform": "Platform",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "timeZone": "Time zone",
+    "join": "Join the meeting",
+    "joinLabel": "Join the meeting on {platform} (opens in a new window)"
+  },
+  "document": {
+    "category": "Category",
+    "access": "Access",
+    "categories": {
+      "course_certificate": "Course certificate",
+      "qualification_certificate": "Qualification certificate",
+      "thank_you_letter": "Thank-you letter",
+      "recommendation_letter": "Recommendation letter",
+      "experience_certificate": "Experience certificate",
+      "project_photo": "Project photo",
+      "event_photo": "Event photo"
+    },
+    "accessModes": {
+      "view": "View only",
+      "view_download": "View and download"
+    }
+  },
+  "confirm": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "typeWord": "To confirm, type the word: {word}",
+    "mismatch": "The word doesn't match.",
+    "step": "Step {step} of 2"
+  }
+}

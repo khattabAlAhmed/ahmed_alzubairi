@@ -1,0 +1,86 @@
+{
+  "status": {
+    "label": "الحالة",
+    "consultation": {
+      "new": "جديد",
+      "in_review": "قيد المراجعة",
+      "in_progress": "قيد المتابعة",
+      "scheduled": "موعد مجدول",
+      "closed": "مغلق"
+    },
+    "documentRequest": {
+      "pending_review": "بانتظار المراجعة",
+      "in_contact": "قيد التواصل",
+      "granted": "متاحة",
+      "expired": "منتهية",
+      "revoked": "مسحوبة"
+    }
+  },
+  "chat": {
+    "you": "أنت",
+    "sentBy": "من {name}",
+    "attachments": "المرفقات"
+  },
+  "file": {
+    "types": {
+      "pdf": "PDF",
+      "docx": "Word",
+      "xlsx": "Excel",
+      "image": "صورة",
+      "other": "ملف"
+    },
+    "uploading": "جارٍ الرفع {percent}%",
+    "ready": "جاهز",
+    "refused": "مرفوض",
+    "remove": "إزالة {name}",
+    "reasons": {
+      "tooLarge": "حجمه أكبر من {size}.",
+      "wrongType": "هذا النوع غير مسموح.",
+      "tooMany": "تجاوزت {count} ملفات في الرسالة.",
+      "failed": "تعذّر رفع الملف. حاول مرة أخرى."
+    }
+  },
+  "composer": {
+    "label": "رسالتك",
+    "placeholder": "اكتب رسالتك هنا",
+    "attach": "إرفاق ملفات",
+    "limits": "حتى {count} ملفات في الرسالة، وحجم الملف حتى {size}. الأنواع المسموحة: {types}.",
+    "files": "الملفات المرفقة",
+    "send": "إرسال",
+    "sending": "جارٍ الإرسال"
+  },
+  "meeting": {
+    "title": "اجتماع مرئي",
+    "platform": "المنصة",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "duration": "المدة",
+    "timeZone": "المنطقة الزمنية",
+    "join": "الانضمام إلى الاجتماع",
+    "joinLabel": "الانضمام إلى الاجتماع على {platform} (يفتح في نافذة جديدة)"
+  },
+  "document": {
+    "category": "التصنيف",
+    "access": "طريقة الاطلاع",
+    "categories": {
+      "course_certificate": "شهادة دورة",
+      "qualification_certificate": "شهادة مؤهل",
+      "thank_you_letter": "خطاب شكر",
+      "recommendation_letter": "خطاب توصية",
+      "experience_certificate": "شهادة خبرة",
+      "project_photo": "صورة مشروع",
+      "event_photo": "صورة فعالية"
+    },
+    "accessModes": {
+      "view": "عرض فقط",
+      "view_download": "عرض وتحميل"
+    }
+  },
+  "confirm": {
+    "continue": "متابعة",
+    "cancel": "إلغاء",
+    "typeWord": "للتأكيد، اكتب الكلمة: {word}",
+    "mismatch": "الكلمة غير مطابقة.",
+    "step": "الخطوة {step} من 2"
+  }
+}
