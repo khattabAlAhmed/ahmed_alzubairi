@@ -195,7 +195,7 @@ describe("/dashboard/consultations/[id]", () => {
   it("keeps the current assignee selectable when they're no longer eligible", async () => {
     mocks.loadAssignees.mockResolvedValue([]);
     const page = await DetailPage({ params: idParams });
-    expect(find(page, AssignControl)?.props.assignees).toEqual([{ id: ME, name: "Assistant" }]);
+    expect((find(page, AssignControl)?.props as { assignees?: unknown } | undefined)?.assignees).toEqual([{ id: ME, name: "Assistant" }]);
   });
 });
 
