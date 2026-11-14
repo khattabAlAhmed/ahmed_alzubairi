@@ -6,6 +6,8 @@
     "testimonials": "Testimonials and logos",
     "messages": "Messages",
     "clients": "Clients",
+    "documentRequests": "Document requests",
+    "documents": "Documents",
     "team": "Team",
     "settings": "Settings"
   },
@@ -18,6 +20,8 @@
       "testimonials": "Testimonials and logos, with their letters, consent and the admin's approval.",
       "messages": "Messages sent from the contact page.",
       "clients": "Client accounts: find one, disable or reactivate it.",
+      "documentRequests": "Requests to see protected documents: recommend, decide, withdraw, and the access log.",
+      "documents": "Protected certificates, letters and photos: upload, edit and publish.",
       "team": "Members, roles and permissions, and the audit log.",
       "settings": "Contact details, social links and the CV."
     }

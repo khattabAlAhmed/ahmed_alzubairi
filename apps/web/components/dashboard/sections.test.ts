@@ -15,6 +15,8 @@ describe("dashboard menu", () => {
       PERMISSIONS.CLIENTS_VIEW_ALL,
       PERMISSIONS.CONSULTATIONS_REPLY,
       PERMISSIONS.TRAINING_MANAGE,
+      PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
+      PERMISSIONS.DOCUMENTS_MANAGE,
       PERMISSIONS.TEAM_MANAGE,
     ]);
   });
@@ -57,13 +59,35 @@ describe("dashboard menu", () => {
     expect(visibleSections(new Set([key])).map((s) => s.key)).toEqual(["home", "clients"]);
   });
 
-  it("hides Clients from a content editor", () => {
+  it("hides Clients and Documents from a content editor, and shows Document requests", () => {
     const editor = new Set<Permission>([
       PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
       PERMISSIONS.DOCUMENTS_VIEW,
       PERMISSIONS.CONTENT_MANAGE,
     ]);
-    expect(visibleSections(editor).map((s) => s.key)).toEqual(["home", "content", "testimonials"]);
+    expect(visibleSections(editor).map((s) => s.key)).toEqual([
+      "home",
+      "content",
+      "testimonials",
+      "documentRequests",
+    ]);
+  });
+
+  it("shows Document requests only with document_requests.recommend", () => {
+    expect(
+      visibleSections(new Set([PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND])).map((s) => s.key),
+    ).toEqual(["home", "documentRequests"]);
+    const decideOnly = visibleSections(new Set([PERMISSIONS.DOCUMENT_REQUESTS_DECIDE]));
+    expect(decideOnly.map((s) => s.key)).toEqual(["home"]);
+  });
+
+  it("shows Documents only with documents.manage", () => {
+    expect(visibleSections(new Set([PERMISSIONS.DOCUMENTS_MANAGE])).map((s) => s.key)).toEqual([
+      "home",
+      "documents",
+    ]);
+    const viewOnly = visibleSections(new Set([PERMISSIONS.DOCUMENTS_VIEW])).map((s) => s.key);
+    expect(viewOnly).not.toContain("documents");
   });
 
   it("hides Team, Clients and Messages from a member who holds every other permission", () => {
@@ -76,7 +100,7 @@ describe("dashboard menu", () => {
     ];
     const others = Object.values(PERMISSIONS).filter((key) => !own.includes(key));
     const keys = visibleSections(new Set(others)).map((s) => s.key);
-    expect(keys).toEqual(["home", "content", "testimonials"]);
+    expect(keys).toEqual(["home", "content", "testimonials", "documentRequests", "documents"]);
   });
 
   it("shows the admin every section", () => {
@@ -86,6 +110,8 @@ describe("dashboard menu", () => {
         PERMISSIONS.TESTIMONIALS_APPROVE,
         PERMISSIONS.MESSAGES_VIEW,
         PERMISSIONS.CLIENTS_VIEW_ALL,
+        PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
+        PERMISSIONS.DOCUMENTS_MANAGE,
         PERMISSIONS.TEAM_MANAGE,
       ]),
     ).map((s) => s.key);
@@ -95,6 +121,8 @@ describe("dashboard menu", () => {
       "testimonials",
       "messages",
       "clients",
+      "documentRequests",
+      "documents",
       "team",
       "settings",
     ]);
