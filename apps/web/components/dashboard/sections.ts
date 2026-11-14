@@ -2,7 +2,14 @@ import { PERMISSIONS, type Permission } from "@repo/shared";
 
 /** One dashboard menu entry. Labels live under `DashboardContent.nav`. */
 export type DashboardSection = {
-  key: "home" | "content" | "testimonials" | "settings";
+  key:
+    | "home"
+    | "content"
+    | "testimonials"
+    | "messages"
+    | "clients"
+    | "team"
+    | "settings";
   href: string;
   /**
    * The permission that shows it, or a list where any one shows it, or null
@@ -17,6 +24,17 @@ export function sectionKeys(section: DashboardSection): readonly Permission[] {
   if (section.permission === null) return [];
   return typeof section.permission === "string" ? [section.permission] : section.permission;
 }
+
+/**
+ * Any one of these opens the Clients section. Scoped members (§5) see their
+ * own clients there: assistant consultants through their consultations,
+ * training coordinators through course registrations. RLS decides the rows.
+ */
+export const CLIENT_ACCESS: readonly Permission[] = [
+  PERMISSIONS.CLIENTS_VIEW_ALL,
+  PERMISSIONS.CONSULTATIONS_REPLY,
+  PERMISSIONS.TRAINING_MANAGE,
+];
 
 /**
  * The dashboard menu (§6.20), in order. Later phases add their sections
@@ -34,6 +52,21 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
     href: "/dashboard/testimonials",
     // Editors edit them; the admin approves them.
     permission: [PERMISSIONS.CONTENT_MANAGE, PERMISSIONS.TESTIMONIALS_APPROVE],
+  },
+  {
+    key: "messages",
+    href: "/dashboard/messages",
+    permission: PERMISSIONS.MESSAGES_VIEW,
+  },
+  {
+    key: "clients",
+    href: "/dashboard/clients",
+    permission: CLIENT_ACCESS,
+  },
+  {
+    key: "team",
+    href: "/dashboard/team",
+    permission: PERMISSIONS.TEAM_MANAGE,
   },
   {
     key: "settings",

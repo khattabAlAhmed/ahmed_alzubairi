@@ -1,0 +1,229 @@
+{
+  "title": "Team",
+  "intro": "Team members, what each role may do, and a record of what was changed.",
+  "tabs": {
+    "label": "Team sections",
+    "members": "Members",
+    "roles": "Roles and permissions",
+    "audit": "Audit log"
+  },
+  "status": {
+    "active": "Active",
+    "disabled": "Disabled"
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "Page {page} of {pages}"
+  },
+  "members": {
+    "heading": "Members",
+    "filters": {
+      "label": "Find members",
+      "search": "Search",
+      "searchHint": "Name or email.",
+      "status": "Status",
+      "all": "Everyone",
+      "apply": "Apply",
+      "clear": "Clear"
+    },
+    "count": "{total, plural, =0 {No members} one {# member} other {# members}}",
+    "empty": {
+      "title": "No members match",
+      "text": "Try another search, or clear the filter."
+    },
+    "you": "You",
+    "joined": "Joined",
+    "role": "Role",
+    "roleFor": "Role of {name}",
+    "unknownRole": "Unknown role",
+    "saveRole": "Save role",
+    "saving": "Saving…",
+    "roleSaved": "The role was changed.",
+    "disable": "Disable",
+    "enable": "Enable",
+    "confirmDisable": "Disable {name}? They are signed out and can't sign in until you enable them again.",
+    "confirmEnable": "Enable {name}? They can sign in again with the same role.",
+    "confirm": "Yes, continue",
+    "cancel": "Cancel",
+    "disabledDone": "The account was disabled.",
+    "enabledDone": "The account was enabled.",
+    "failed": "The change wasn't saved. Try again.",
+    "selfNote": "You can't change your own role or disable your own account.",
+    "adminNote": "An admin's account can't be changed from here."
+  },
+  "invite": {
+    "title": "Invite a member",
+    "intro": "They get an email with a link to create their account. The role applies as soon as they finish.",
+    "email": "Email",
+    "role": "Role",
+    "chooseRole": "Choose a role",
+    "send": "Send invitation",
+    "sending": "Sending…",
+    "sent": "The invitation was sent.",
+    "failed": "The invitation wasn't sent. Try again.",
+    "emailRequired": "Enter a valid email address.",
+    "roleRequired": "Choose a role."
+  },
+  "invitations": {
+    "title": "Pending invitations",
+    "empty": "No invitation is waiting.",
+    "sent": "Sent"
+  },
+  "roles": {
+    "intro": "A change applies at once: a member sees it the next time they open a page.",
+    "system": "Built-in role",
+    "custom": "Added role",
+    "key": "Key",
+    "nameAr": "Name in Arabic",
+    "nameEn": "Name in English",
+    "permissions": "Permissions",
+    "permissionsFor": "Permissions of {name}",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "The role was saved.",
+    "failed": "The role wasn't saved. Try again.",
+    "nameRequired": "Enter the name in Arabic and in English.",
+    "adminLocked": "The admin role has every permission and can't be edited here, so the site can never be locked out.",
+    "add": {
+      "title": "Add a role",
+      "intro": "Give the role a key, its two names and its permissions. The key can't be changed later.",
+      "key": "Key",
+      "keyHint": "Lowercase English letters, digits and underscores, starting with a letter. For example: media_officer.",
+      "keyInvalid": "Use lowercase English letters, digits and underscores, starting with a letter.",
+      "submit": "Add role",
+      "adding": "Adding…",
+      "created": "The role was added."
+    }
+  },
+  "permissions": {
+    "consultations": {
+      "view_all": "See every consultation",
+      "reply": "Reply to consultations assigned to them",
+      "assign": "Assign consultations"
+    },
+    "document_requests": {
+      "recommend": "See document requests and add a recommendation",
+      "decide": "Make the final decision on document access"
+    },
+    "documents": {
+      "view": "Open the protected documents themselves",
+      "manage": "Upload and edit documents"
+    },
+    "content": {
+      "manage": "Edit pages, articles, projects and resources"
+    },
+    "testimonials": {
+      "approve": "Give the admin approval on testimonials and logos"
+    },
+    "training": {
+      "manage": "Manage courses and registrations"
+    },
+    "messages": {
+      "view": "Read contact form messages"
+    },
+    "clients": {
+      "view_all": "See all client data"
+    },
+    "data": {
+      "delete": "Delete any data"
+    },
+    "team": {
+      "manage": "Manage the team and settings"
+    }
+  },
+  "audit": {
+    "intro": "Every recorded change, newest first. Rows are never edited or removed.",
+    "filters": {
+      "label": "Filter the audit log",
+      "actor": "Who",
+      "anyActor": "Anyone",
+      "entity": "Where",
+      "anyEntity": "Anywhere",
+      "action": "What",
+      "anyAction": "Any action",
+      "apply": "Apply",
+      "clear": "Clear"
+    },
+    "count": "{total, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "empty": {
+      "title": "Nothing recorded yet",
+      "text": "Changes made in the dashboard show here.",
+      "filteredTitle": "No entries match",
+      "filteredText": "Try other filters, or clear them."
+    },
+    "unknownActor": "Unknown account",
+    "item": "Item",
+    "details": "Details",
+    "actions": {
+      "content": {
+        "publish": "Published content",
+        "unpublish": "Unpublished content",
+        "edit": "Edited content"
+      },
+      "approval": {
+        "grant": "Gave approval",
+        "withdraw": "Withdrew approval"
+      },
+      "settings": {
+        "update": "Changed the settings"
+      },
+      "team": {
+        "invite": "Invited a member",
+        "role_change": "Changed a member's role",
+        "disable": "Disabled a member",
+        "enable": "Enabled a member"
+      },
+      "role": {
+        "create": "Added a role",
+        "update": "Edited a role"
+      },
+      "client": {
+        "disable": "Disabled a client",
+        "enable": "Enabled a client"
+      },
+      "account": {
+        "disable": "Disabled their own account"
+      },
+      "email_template": {
+        "update": "Edited an email template"
+      },
+      "consultation": {
+        "status": "Changed a consultation's status",
+        "assign": "Assigned a consultation",
+        "reply": "Replied in a consultation"
+      },
+      "meeting": {
+        "create": "Added a meeting",
+        "update": "Edited a meeting"
+      },
+      "record": {
+        "delete": "Deleted a record"
+      },
+      "document": {
+        "create": "Added a document",
+        "update": "Edited a document",
+        "view": "Viewed a document",
+        "download": "Downloaded a document"
+      },
+      "document_request": {
+        "recommend": "Recommended on a document request",
+        "grant": "Granted a document",
+        "contact_first": "Chose contact first on a document request",
+        "revoke": "Withdrew access to a document"
+      }
+    },
+    "entities": {
+      "site_settings": "Settings",
+      "profiles": "Accounts",
+      "roles": "Roles",
+      "email_templates": "Email templates",
+      "consultations": "Consultations",
+      "meetings": "Meetings",
+      "documents": "Documents",
+      "document_requests": "Document requests",
+      "courses": "Courses"
+    }
+  }
+}

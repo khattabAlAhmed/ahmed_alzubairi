@@ -189,7 +189,8 @@ describe("audit keys", () => {
         "email_template.update",
       ]),
     );
-    expect(AUDIT_ACTIONS).toHaveLength(16);
+    // Phase 2 and 3 come first, as stored; later phases only add after them.
+    expect(AUDIT_ACTIONS.indexOf("email_template.update")).toBe(15);
   });
 
   it("have no duplicates", () => {
@@ -198,7 +199,8 @@ describe("audit keys", () => {
   });
 
   it("cover every content type and the Phase 3 tables", () => {
-    expect(AUDIT_ENTITIES).toEqual([
+    // Later phases add after these.
+    expect(AUDIT_ENTITIES.slice(0, CONTENT_TYPES.length + 4)).toEqual([
       ...CONTENT_TYPES,
       "site_settings",
       "profiles",

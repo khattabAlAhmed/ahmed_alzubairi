@@ -1,0 +1,79 @@
+{
+  "title": "Clients",
+  "intro": "Client accounts and their details. You see the clients your permissions cover.",
+  "scopedIntro": "You see the clients linked to your own work: consultations assigned to you, or course registrations.",
+  "status": {
+    "active": "Active",
+    "disabled": "Disabled"
+  },
+  "orgTypes": {
+    "government": "Government",
+    "organization": "Organization",
+    "company": "Company",
+    "individual": "Individual"
+  },
+  "locales": {
+    "ar": "Arabic",
+    "en": "English"
+  },
+  "filters": {
+    "label": "Find clients",
+    "search": "Search",
+    "searchHint": "Name, email, phone or organization.",
+    "status": "Status",
+    "all": "Everyone",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "count": "{total, plural, =0 {No clients} one {# client} other {# clients}}",
+  "empty": {
+    "title": "No clients yet",
+    "text": "A client shows here once they create an account and finish their profile.",
+    "filteredTitle": "No clients match",
+    "filteredText": "Try another search, or clear the filter."
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "Page {page} of {pages}"
+  },
+  "list": {
+    "organization": "Organization",
+    "language": "Language",
+    "joined": "Joined",
+    "open": "Open {name}"
+  },
+  "detail": {
+    "back": "All clients",
+    "profile": "Profile",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "orgType": "Organization type",
+    "orgName": "Organization",
+    "jobTitle": "Job title",
+    "language": "Preferred language",
+    "status": "Status",
+    "joined": "Joined",
+    "none": "Not given",
+    "history": "History",
+    "historyEmptyTitle": "No history yet",
+    "historyEmptyText": "Consultations and document requests will show here."
+  },
+  "account": {
+    "title": "Account",
+    "activeText": "The client can sign in.",
+    "disabledText": "The client can't sign in. Their data stays here.",
+    "disable": "Disable account",
+    "enable": "Reactivate account",
+    "confirmDisable": "Disable {name}'s account? They are signed out and can't sign in. Their open consultations will be closed. Nothing is deleted.",
+    "confirmEnable": "Reactivate {name}'s account? They can sign in again. Consultations closed when the account was disabled stay closed.",
+    "confirm": "Yes, continue",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "disabledDone": "The account was disabled.",
+    "enabledDone": "The account was reactivated.",
+    "failed": "The change wasn't saved. Try again."
+  }
+}
