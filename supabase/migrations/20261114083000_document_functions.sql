@@ -88,12 +88,14 @@ begin
       using errcode = 'P0002', detail = unavailable::text;
   end if;
 
+  -- clock_timestamp(), not now(): now() is the transaction's start, and this
+  -- call may have waited for the lock above past a grant's expiry.
   update public.document_requests r
   set status = 'expired'
   where r.client_id = request_document.client_id
     and r.document_id = any (wanted)
     and r.status = 'granted'
-    and r.expires_at <= now();
+    and r.expires_at <= clock_timestamp();
 
   return query
   with inserted as (
@@ -155,11 +157,8 @@ begin
     raise exception 'invalid_decision' using errcode = '22023';
   end if;
 
-  if decide_document_request.decision = 'grant' then
-    if decide_document_request.expires_at <= now() then
-      raise exception 'expiry_in_past' using errcode = '22023';
-    end if;
-  elsif decide_document_request.expires_at is not null then
+  if decide_document_request.decision <> 'grant'
+    and decide_document_request.expires_at is not null then
     raise exception 'expiry_needs_grant' using errcode = '22023';
   end if;
 
@@ -188,6 +187,12 @@ begin
   end if;
 
   if decide_document_request.decision = 'grant' then
+    -- Checked after the lock, against the clock: now() is the transaction's
+    -- start, and this call may have waited for the lock past the expiry.
+    if decide_document_request.expires_at <= clock_timestamp() then
+      raise exception 'expiry_in_past' using errcode = '22023';
+    end if;
+
     update public.document_requests r
     set status = 'granted',
         granted_at = now(),

@@ -449,6 +449,54 @@ describe("decide_document_request", () => {
   });
 });
 
+// now() is fixed when the transaction starts, so a call that waited on a lock
+// would compare against a stale time. Sleeping inside the transaction leaves
+// now() behind the clock the same way a lock wait does.
+describe("expiry is judged after the wait, not at transaction start", () => {
+  beforeEach(async () => {
+    await db.owner.exec("delete from public.document_requests where client_id = 'client_c'");
+  });
+
+  it("request_document expires a grant that lapsed while it waited", async () => {
+    const [first] = await requestDocuments("client_c", [DOC_1]);
+    await db.owner.query(
+      `update public.document_requests
+          set status = 'granted', granted_at = now(), expires_at = clock_timestamp() + interval '1 second'
+        where id = $1`,
+      [first?.request_id],
+    );
+    const [again] = await asService(async (tx) => {
+      await tx.query("select pg_sleep(1.5)");
+      const { rows } = await tx.query<RequestResult>(
+        "select * from public.request_document('client_c', $1::uuid[], 'Again')",
+        [[DOC_1]],
+      );
+      return rows;
+    });
+    expect(again?.merged).toBe(false);
+    expect(again?.request_id).not.toBe(first?.request_id);
+    expect((await requestRow(first?.request_id ?? ""))?.status).toBe("expired");
+  });
+
+  it("decide_document_request refuses an expiry that passed while it waited", async () => {
+    const [row] = await requestDocuments("client_c", [DOC_2]);
+    const outcome = await sqlState(
+      asService(async (tx) => {
+        const { rows } = await tx.query<{ at: string }>(
+          "select (clock_timestamp() + interval '1 second')::text as at",
+        );
+        await tx.query("select pg_sleep(1.5)");
+        await tx.query("select * from public.decide_document_request($1, 'admin', 'grant', $2)", [
+          row?.request_id,
+          rows[0]?.at,
+        ]);
+      }),
+    );
+    expect(outcome).toBe("22023 expiry_in_past");
+    expect((await requestRow(row?.request_id ?? ""))?.status).toBe("pending_review");
+  });
+});
+
 describe("revoke_document_request", () => {
   let requestId: string;
 
