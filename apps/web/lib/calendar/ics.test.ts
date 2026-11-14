@@ -29,7 +29,7 @@ describe("buildMeetingIcs", () => {
       "DTSTAMP:20261114T120000Z",
       "DTSTART:20261120T090000Z",
       "DTEND:20261120T094500Z",
-      "SUMMARY:Test consultation\; review\\, part 1",
+      "SUMMARY:Test consultation\\; review\\, part 1",
       "DESCRIPTION:Zoom\\nhttps://example.invalid/m1",
       "LOCATION:https://example.invalid/m1",
       "URL:https://example.invalid/m1",
@@ -60,6 +60,12 @@ describe("buildMeetingIcs", () => {
 
   it("escapes line breaks and backslashes in text, so a value can't start a new property", () => {
     expect(escapeText("a\nEND:VEVENT\\")).toBe("a\\nEND:VEVENT\\\\");
+  });
+
+  it("escapes a semicolon and a comma with a backslash", () => {
+    // Raw characters: a backslash before each.
+    expect(escapeText("a;b,c")).toBe(String.raw`a\;b\,c`);
+    expect(buildMeetingIcs({ ...EVENT, title: "Plan; budget" })).toContain(String.raw`SUMMARY:Plan\; budget`);
   });
 
   it("formats UTC times and the UID", () => {
