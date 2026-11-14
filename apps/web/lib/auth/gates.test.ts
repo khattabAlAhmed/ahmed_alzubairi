@@ -48,7 +48,7 @@ vi.mock("react", async (original) => ({
   cache: <T>(fn: T) => fn,
 }));
 
-const { requireProfile, requireTeamMember } = await import("./gates");
+const { requireProfile, requireTeamMember, withQuery } = await import("./gates");
 
 const params = (locale: string) => Promise.resolve({ locale });
 
@@ -80,6 +80,35 @@ describe("requireProfile", () => {
 
   it("refuses an unknown locale", async () => {
     await expect(requireProfile(params("fr"), "/account")).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("fills a dynamic segment from the params", async () => {
+    const route = Promise.resolve({ locale: "en", id: "a b" });
+    await expect(requireProfile(route, "/account/consultations/[id]")).rejects.toThrow(
+      "REDIRECT /en/onboarding?redirect_url=%2Fen%2Faccount%2Fconsultations%2Fa%2520b",
+    );
+  });
+
+  it("keeps the named query keys through onboarding, and only those", async () => {
+    const route = withQuery(params("ar"), Promise.resolve({ service: "strategy-review", other: "x" }), ["service"]);
+    await expect(requireProfile(route, "/account/consultations/new")).rejects.toThrow(
+      "REDIRECT /ar/onboarding?redirect_url=%2Far%2Faccount%2Fconsultations%2Fnew%3Fservice%3Dstrategy-review",
+    );
+  });
+
+  it("keeps the query through sign-in too", async () => {
+    mocks.userId = null;
+    const route = withQuery(params("en"), Promise.resolve({ service: "governance" }), ["service"]);
+    await expect(requireProfile(route, "/account/consultations/new")).rejects.toThrow(
+      "REDIRECT /en/sign-in?redirect_url=%2Fen%2Faccount%2Fconsultations%2Fnew%3Fservice%3Dgovernance",
+    );
+  });
+
+  it("drops a repeated or empty query value", async () => {
+    const route = withQuery(params("en"), Promise.resolve({ service: ["a", "b"] }), ["service"]);
+    await expect(requireProfile(route, "/account/consultations/new")).rejects.toThrow(
+      "REDIRECT /en/onboarding?redirect_url=%2Fen%2Faccount%2Fconsultations%2Fnew",
+    );
   });
 });
 

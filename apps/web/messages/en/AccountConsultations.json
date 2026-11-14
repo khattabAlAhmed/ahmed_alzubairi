@@ -1,0 +1,52 @@
+{
+  "list": {
+    "title": "My consultations",
+    "intro": "Your consultation requests, their status, chats and meetings.",
+    "new": "Start a new consultation",
+    "emptyTitle": "No consultations yet",
+    "emptyText": "Start a consultation to describe what you need. The team replies here.",
+    "label": "Your consultations",
+    "service": "Service",
+    "noService": "Service no longer listed",
+    "lastActivity": "Last activity",
+    "open": "Open {title}"
+  },
+  "form": {
+    "title": "Start a new consultation",
+    "intro": "Describe what you need. The team replies in this consultation's chat.",
+    "back": "Back to my consultations",
+    "service": "Service type",
+    "servicePlaceholder": "Choose a service",
+    "serviceRequired": "Choose a service.",
+    "noServices": "No services are open for requests right now. Please try again later.",
+    "consultationTitle": "Title",
+    "titleHint": "A short line that names the subject.",
+    "titleRequired": "Enter a title.",
+    "description": "Description of the need",
+    "descriptionHint": "What you need, the context, and any dates that matter.",
+    "descriptionRequired": "Describe what you need.",
+    "organization": "Organization (optional)",
+    "attachments": "Attachments (optional)",
+    "submit": "Send the request",
+    "submitting": "Sending",
+    "failed": "We couldn't send your request. Please try again.",
+    "fileFailed": "A file couldn't be uploaded. Your request is saved: remove or replace the file, then press Send again.",
+    "retry": "Your request is saved. Press Send to finish attaching the files."
+  },
+  "detail": {
+    "back": "Back to my consultations",
+    "status": "Status",
+    "service": "Service",
+    "opened": "Opened",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing",
+    "description": "Your request",
+    "chat": "Chat",
+    "noMessages": "No replies yet. The team will answer here.",
+    "meetings": "Meetings",
+    "reply": "Reply",
+    "closed": "This consultation is closed. It stays in your history, but it can't take new messages.",
+    "sendFailed": "We couldn't send your message. Your text is kept; please try again.",
+    "downloadFailed": "We couldn't open this file. Please try again."
+  }
+}

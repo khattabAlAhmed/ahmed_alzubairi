@@ -3,16 +3,18 @@
 import { useAuth } from "@clerk/nextjs";
 import { useLocale } from "next-intl";
 import { buttonClasses } from "@/components/ui";
-import { CONSULTATION_HREF } from "@/components/nav-items";
 import { Link } from "@/i18n/navigation";
 import { RETURN_PARAM } from "@/lib/auth/return-path";
 
-/** The query parameter Phase 4's consultation form reads to preselect a service. */
+/** The query parameter the consultation form reads to preselect a service. */
 export const SERVICE_PARAM = "service";
 
-/** The consultation request with this service selected, as a path with its query. */
-export function serviceRequestPath(serviceId: string) {
-  return `${CONSULTATION_HREF}?${new URLSearchParams({ [SERVICE_PARAM]: serviceId })}`;
+/** The new-consultation form. */
+export const NEW_CONSULTATION_PATH = "/account/consultations/new";
+
+/** The consultation form with this service selected, as a path with its query. */
+export function serviceRequestPath(serviceSlug: string) {
+  return `${NEW_CONSULTATION_PATH}?${new URLSearchParams({ [SERVICE_PARAM]: serviceSlug })}`;
 }
 
 /**
@@ -21,11 +23,11 @@ export function serviceRequestPath(serviceId: string) {
  * The label comes from the server, so no messages ship to the browser for it.
  */
 export function RequestServiceButton({
-  serviceId,
+  serviceSlug,
   label,
   className,
 }: {
-  serviceId: string;
+  serviceSlug: string;
   label: string;
   className?: string;
 }) {
@@ -33,8 +35,8 @@ export function RequestServiceButton({
   const { isSignedIn } = useAuth();
 
   const href = isSignedIn
-    ? { pathname: CONSULTATION_HREF, query: { [SERVICE_PARAM]: serviceId } }
-    : { pathname: "/sign-up", query: { [RETURN_PARAM]: `/${locale}${serviceRequestPath(serviceId)}` } };
+    ? { pathname: NEW_CONSULTATION_PATH, query: { [SERVICE_PARAM]: serviceSlug } }
+    : { pathname: "/sign-up", query: { [RETURN_PARAM]: `/${locale}${serviceRequestPath(serviceSlug)}` } };
 
   return (
     <Link href={href} className={buttonClasses({ size: "lg", className })}>
