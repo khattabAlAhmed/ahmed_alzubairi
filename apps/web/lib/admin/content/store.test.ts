@@ -80,11 +80,17 @@ const SEED = readFileSync(
 
 describe("content store reads, against the real grants", () => {
   let db: TestDb;
+  /**
+   * Read once with the setup: the `information_schema` query takes seconds
+   * on pglite, too long for one test's time limit under a full run.
+   */
+  let granted: string[];
 
   beforeAll(async () => {
     db = await createTestDb();
     await db.owner.exec(SEED);
     await addMember(db, EDITOR, "content_editor");
+    granted = await columnGrantedTables();
   }, 60_000);
 
   afterAll(async () => {
@@ -106,8 +112,7 @@ describe("content store reads, against the real grants", () => {
     return rows.map((row) => row.table_name);
   }
 
-  it("never asks for every column of a table granted column by column", async () => {
-    const granted = await columnGrantedTables();
+  it("never asks for every column of a table granted column by column", () => {
     expect(granted).toContain("resources");
     for (const type of CONTENT_TYPES) {
       for (const part of selectParts(type, selectFor(type))) {
