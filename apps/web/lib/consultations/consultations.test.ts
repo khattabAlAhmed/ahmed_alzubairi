@@ -1,5 +1,5 @@
 import { EMAIL_ADMIN_PERMISSION } from "@repo/shared";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import ar from "@/messages/ar/ConsultationErrors.json";
 import en from "@/messages/en/ConsultationErrors.json";
 import {
@@ -372,6 +372,38 @@ describe("sendMessage", () => {
     expect(w.attachments.find((item) => item.id === IDS.fileReady)!.messageId).toBeNull();
     expect(w.messages.map((item) => item.id)).toEqual([IDS.oldMessage]);
     expect(w.emails).toEqual([]);
+  });
+
+  it("drops the message and puts the files back when linking throws", async () => {
+    const w = world();
+    const d = deps(w, USERS.clientA);
+    (d.store.linkAttachments as unknown as { mockImplementationOnce: (f: unknown) => void }).mockImplementationOnce(
+      async ({ messageId }: { messageId: string }) => {
+        w.attachments.find((item) => item.id === IDS.fileReady)!.messageId = messageId;
+        throw new Error("link failed: 57014");
+      },
+    );
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(
+      sendMessage(IDS.consultationA, { attachmentIds: [IDS.fileReady, IDS.fileReady2] }, d),
+    ).rejects.toThrow("57014");
+    spy.mockRestore();
+    expect(w.attachments.find((item) => item.id === IDS.fileReady)!.messageId).toBeNull();
+    expect(w.messages.map((item) => item.id)).toEqual([IDS.oldMessage]);
+    expect(w.emails).toEqual([]);
+  });
+
+  it("a failed first-reply update doesn't fail the sent reply", async () => {
+    const w = world();
+    const d = deps(w, USERS.assistant);
+    (d.store.markFirstReply as unknown as { mockRejectedValueOnce: (e: unknown) => void }).mockRejectedValueOnce(
+      new Error("first reply failed: 57014"),
+    );
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await sendMessage(IDS.consultationA, { body: "Reply" }, d)).status).toBe(201);
+    spy.mockRestore();
+    expect(w.audit).toHaveBeenCalledOnce();
+    expect(w.emails.map((item) => item.event)).toEqual(["consultation_reply"]);
   });
 
   it("a failed email doesn't fail the message", async () => {
