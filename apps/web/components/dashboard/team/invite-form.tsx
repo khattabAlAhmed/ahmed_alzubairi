@@ -23,6 +23,8 @@ export function InviteForm({ roles }: { roles: AdminRole[] }) {
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const choices = grantableRoles(roles);
 
+  // The fields are locked while the invitation is on its way, so the reset
+  // after it can't wipe an edit made meanwhile.
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNotice(null);
@@ -63,6 +65,7 @@ export function InviteForm({ roles }: { roles: AdminRole[] }) {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           error={errors.email}
+          disabled={busy}
           maxLength={254}
           className="min-w-0 flex-1 basis-64"
         />
@@ -72,6 +75,7 @@ export function InviteForm({ roles }: { roles: AdminRole[] }) {
           value={roleId}
           onChange={(event) => setRoleId(event.target.value)}
           error={errors.roleId}
+          disabled={busy}
           className="min-w-0 flex-1 basis-48"
         >
           <option value="">{t("chooseRole")}</option>

@@ -45,7 +45,7 @@ export default async function TeamAuditPage({
     getTranslations("DashboardTeam.audit"),
     getMessages(),
     loadAudit(list),
-    loadActors(),
+    loadActors(list.actor),
   ]);
   const pages = pageCount(log.total, list.pageSize);
   const link = (page: number) =>
@@ -64,7 +64,9 @@ export default async function TeamAuditPage({
       <TeamHeader current="audit" />
       <p className="max-w-prose text-text-secondary">{t("intro")}</p>
 
+      {/* Keyed by the applied filters: a new address resets the controls to it. */}
       <form
+        key={[list.actor, list.entity, list.action].join("|")}
         method="get"
         role="search"
         aria-label={t("filters.label")}

@@ -157,6 +157,7 @@ function RoleCard({ role }: { role: AdminRole }) {
               value={nameAr}
               maxLength={MAX_SHORT_TEXT_LENGTH}
               onChange={(event) => setNameAr(event.target.value)}
+              disabled={busy}
               error={error}
             />
             <TextField
@@ -166,6 +167,7 @@ function RoleCard({ role }: { role: AdminRole }) {
               value={nameEn}
               maxLength={MAX_SHORT_TEXT_LENGTH}
               onChange={(event) => setNameEn(event.target.value)}
+              disabled={busy}
             />
           </div>
           <PermissionChecklist
@@ -249,6 +251,7 @@ function AddRoleForm() {
           value={key}
           maxLength={64}
           onChange={(event) => setKey(event.target.value)}
+          disabled={busy}
           error={errors.key}
           className="max-w-md"
         />
@@ -260,6 +263,7 @@ function AddRoleForm() {
             value={nameAr}
             maxLength={MAX_SHORT_TEXT_LENGTH}
             onChange={(event) => setNameAr(event.target.value)}
+              disabled={busy}
             error={errors.names}
           />
           <TextField
@@ -269,6 +273,7 @@ function AddRoleForm() {
             value={nameEn}
             maxLength={MAX_SHORT_TEXT_LENGTH}
             onChange={(event) => setNameEn(event.target.value)}
+              disabled={busy}
           />
         </div>
         <PermissionChecklist
