@@ -389,6 +389,19 @@ describe("updateClient", () => {
     expect(audit).not.toHaveBeenCalled();
   });
 
+  it("still sets Clerk back after an unknown outcome when the status write throws", async () => {
+    const { deps, banned, clerk, store } = world();
+    clerk.ban.mockImplementationOnce(async (id) => {
+      banned.add(id);
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
+    await expect(updateClient({ id: CLIENT, status: "disabled" }, deps)).rejects.toThrow("57014");
+    expect(clerk.unban).toHaveBeenCalledWith(CLIENT);
+    expect(banned.has(CLIENT)).toBe(false);
+  });
+
   it("a refused ban sets the status back without another Clerk call", async () => {
     const { deps, clerk } = world();
     clerk.ban.mockRejectedValueOnce({ status: 500 });
