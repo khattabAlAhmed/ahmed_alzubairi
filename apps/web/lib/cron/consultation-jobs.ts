@@ -1,4 +1,6 @@
+import { createReminderDb, sendMeetingReminders } from "@/lib/admin/consultations/reminders";
 import { cleanupAttachments, createCleanupDb } from "@/lib/attachments/cleanup";
+import { queueEmail } from "@/lib/email/queue";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { CronJob } from "./jobs";
 
@@ -14,6 +16,13 @@ export const CONSULTATION_JOBS: CronJob[] = [
     name: "attachment-cleanup",
     run: async () => {
       await cleanupAttachments(createCleanupDb(createServiceClient()));
+    },
+  },
+  {
+    // `meeting_reminder` 24 hours ahead (23 to 25), once per meeting.
+    name: "meeting-reminders",
+    run: async () => {
+      await sendMeetingReminders(createReminderDb(createServiceClient()), queueEmail);
     },
   },
 ];

@@ -1,0 +1,11 @@
+{
+  "notFound": "We couldn't find this consultation.",
+  "meetingNotFound": "We couldn't find this meeting.",
+  "statusForbidden": "You can change the status only of a consultation assigned to you.",
+  "assignForbidden": "You don't have permission to assign consultations.",
+  "meetingForbidden": "You can add meetings only to a consultation assigned to you.",
+  "assigneeInvalid": "Choose an active team member who can reply to consultations.",
+  "reopenRefused": "A closed consultation can't be reopened.",
+  "closed": "This consultation is closed.",
+  "changedMeanwhile": "This consultation was changed meanwhile. Reload and try again."
+}
