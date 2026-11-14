@@ -1,3 +1,5 @@
+import { cleanupAttachments, createCleanupDb } from "@/lib/attachments/cleanup";
+import { createServiceClient } from "@/lib/supabase/service";
 import type { CronJob } from "./jobs";
 
 /**
@@ -6,4 +8,12 @@ import type { CronJob } from "./jobs";
  * here without touching `jobs.ts`. Each job must be safe to run twice at once
  * and log codes only.
  */
-export const CONSULTATION_JOBS: CronJob[] = [];
+export const CONSULTATION_JOBS: CronJob[] = [
+  {
+    // Abandoned uploads: `uploading` after an hour, unlinked `ready` after 24 hours.
+    name: "attachment-cleanup",
+    run: async () => {
+      await cleanupAttachments(createCleanupDb(createServiceClient()));
+    },
+  },
+];

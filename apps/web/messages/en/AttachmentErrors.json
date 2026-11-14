@@ -1,0 +1,11 @@
+{
+  "notFound": "We couldn't find this file.",
+  "consultationNotFound": "We couldn't find this consultation.",
+  "forbidden": "You can't add files to this consultation.",
+  "closed": "This consultation is closed, so it can't take new files.",
+  "fileTypeNotAllowed": "This file type isn't allowed. Use PDF, DOCX, XLSX, JPG or PNG.",
+  "fileTooLarge": "This file is larger than 10 MB.",
+  "fileContentMismatch": "This file's content doesn't match its type, so it was removed. Use PDF, DOCX, XLSX, JPG or PNG.",
+  "uploadMissing": "The file didn't finish uploading. Try again.",
+  "notReady": "This file isn't ready yet."
+}
