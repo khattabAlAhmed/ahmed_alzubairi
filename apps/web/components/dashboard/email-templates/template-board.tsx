@@ -19,6 +19,23 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
   // True while the open editor's save or reset is on its way. The editor
   // stays open until it settles, so one event never has two saves in flight.
   const [locked, setLocked] = useState(false);
+  // What this tab last saved or reset, per event, against the page's copy it
+  // was saved over. `templates` only changes when router.refresh() lands, so
+  // until then an editor reopened here starts from the saved text, not the
+  // old copy. A new `templates` is newer than any of these, so it wins.
+  const [stored, setStored] = useState<{
+    over: EmailTemplateEntry[];
+    byEvent: Partial<Record<EmailEvent, EmailTemplateEntry>>;
+  }>({ over: templates, byEvent: {} });
+  const current = stored.over === templates ? stored.byEvent : {};
+  const remember = (entry: EmailTemplateEntry) =>
+    setStored((previous) => ({
+      over: templates,
+      byEvent: {
+        ...(previous.over === templates ? previous.byEvent : {}),
+        [entry.event]: entry,
+      },
+    }));
 
   return (
     <section aria-labelledby={headingId} className="space-y-4">
@@ -26,7 +43,8 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
         {t("listHeading")}
       </h2>
       <ul className="space-y-3">
-        {templates.map((entry) => {
+        {templates.map((fromPage) => {
+          const entry = current[fromPage.event] ?? fromPage;
           const name = t(`events.${entry.event}`);
           const isOpen = open === entry.event;
           return (
@@ -47,7 +65,9 @@ export function TemplateBoard({ templates }: { templates: EmailTemplateEntry[] }
                   {isOpen ? t("close") : t("edit")}
                 </Button>
               </div>
-              {isOpen && <TemplateEditor entry={entry} onBusyChange={setLocked} />}
+              {isOpen && (
+                <TemplateEditor entry={entry} onBusyChange={setLocked} onSaved={remember} />
+              )}
             </Card>
           );
         })}

@@ -220,6 +220,55 @@ describe("TemplateBoard", () => {
     expect(field("bodyEn").value).toBe("New text");
   });
 
+  // The page's copy only changes when router.refresh() lands; here it never
+  // does, as when the member closes and reopens before the refresh is back.
+  it("reopens with the saved text, and a later save sends it, not the old copy", async () => {
+    show();
+    openContact();
+    type("bodyEn", "Saved body");
+    await save();
+    fireEvent.click(screen.getByRole("button", { name: "Close: Contact message" }));
+    expect(screen.getByText(en.status.edited)).toBeTruthy();
+    openContact();
+    expect(field("bodyEn").value).toBe("Saved body");
+    type("subjectEn", "New subject {{subject}}");
+    await save();
+    expect(sentBodies().at(-1)?.body).toMatchObject({
+      subjectEn: "New subject {{subject}}",
+      bodyEn: "Saved body",
+    });
+  });
+
+  it("reopens with the default text after a reset", async () => {
+    show(templateEntries([{ ...contact, bodyEn: "Mine" }]));
+    openContact();
+    fireEvent.click(screen.getByRole("button", { name: en.reset }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: en.resetYes }));
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Close: Contact message" }));
+    expect(screen.queryByText(en.status.edited)).toBeNull();
+    openContact();
+    expect(field("bodyEn").value).toBe(contact.bodyEn);
+    expect(screen.queryByRole("button", { name: en.reset })).toBeNull();
+  });
+
+  it("takes fresh text from the page once the refresh is back", async () => {
+    const view = show();
+    openContact();
+    type("bodyEn", "Saved body");
+    await save();
+    fireEvent.click(screen.getByRole("button", { name: "Close: Contact message" }));
+    // Someone else saved since: the refresh brings their text.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardEmailTemplates: en }}>
+        <TemplateBoard templates={templateEntries([{ ...contact, bodyEn: "Their body" }])} />
+      </NextIntlClientProvider>,
+    );
+    openContact();
+    expect(field("bodyEn").value).toBe("Their body");
+  });
+
   it("content inputs carry their own language; a typed tag stays text", () => {
     show();
     openContact();
