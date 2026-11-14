@@ -69,7 +69,7 @@ export function ServiceDetailPage({
   const t = useTranslations("Pages");
   const tNav = useTranslations("Nav");
   const request = (className?: string) => (
-    <RequestServiceButton serviceId={service.id} label={t("requestService")} className={className} />
+    <RequestServiceButton serviceSlug={service.slug} label={t("requestService")} className={className} />
   );
 
   return (

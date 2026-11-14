@@ -146,20 +146,20 @@ afterEach(cleanup);
 
 describe("RequestServiceButton", () => {
   it("goes through sign-up and back to the request with the service, when signed out", () => {
-    render(<RequestServiceButton serviceId="svc-1" label="requestService" />);
+    render(<RequestServiceButton serviceSlug="strategy-review" label="requestService" />);
     const href = new URL(screen.getByRole("link").getAttribute("href")!, "https://site.invalid");
     expect(href.pathname).toBe("/sign-up");
-    expect(href.searchParams.get("redirect_url")).toBe("/ar/account/consultations?service=svc-1");
+    expect(href.searchParams.get("redirect_url")).toBe("/ar/account/consultations/new?service=strategy-review");
   });
 
   it("opens the request with the service, when signed in", () => {
     mocks.signedIn = true;
-    render(<RequestServiceButton serviceId="svc-1" label="requestService" />);
-    expect(screen.getByRole("link").getAttribute("href")).toBe("/account/consultations?service=svc-1");
+    render(<RequestServiceButton serviceSlug="strategy-review" label="requestService" />);
+    expect(screen.getByRole("link").getAttribute("href")).toBe("/account/consultations/new?service=strategy-review");
   });
 
-  it("encodes the service ID in the request path", () => {
-    expect(serviceRequestPath("a b&c")).toBe("/account/consultations?service=a+b%26c");
+  it("encodes the service slug in the request path", () => {
+    expect(serviceRequestPath("a b&c")).toBe("/account/consultations/new?service=a+b%26c");
   });
 });
 
