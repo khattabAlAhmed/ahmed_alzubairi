@@ -118,15 +118,15 @@ export function DetailsForm({
       </div>
       {/* Name and email are text, never HTML (§9). */}
       <dl className="grid gap-3 sm:grid-cols-2">
-        <div>
+        <div className="min-w-0">
           <dt className="text-sm text-text-secondary">{t("details.name")}</dt>
           <dd className="font-semibold break-words">
             <bdi>{fullName}</bdi>
           </dd>
         </div>
-        <div>
+        <div className="min-w-0">
           <dt className="text-sm text-text-secondary">{t("details.email")}</dt>
-          <dd className="font-semibold break-all">
+          <dd className="font-semibold wrap-anywhere">
             <bdi dir="ltr">{email}</bdi>
           </dd>
         </div>
@@ -174,7 +174,8 @@ export function DetailsForm({
             error={errors.jobTitle}
           />
         </div>
-        <div className="flex flex-wrap items-end gap-3">
+        {/* The button lines up with the field, not with its hint: mt-6 is the label's height. */}
+        <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
           <Select
             label={t("details.timezone")}
             hint={t("details.timezoneHint")}
@@ -188,7 +189,7 @@ export function DetailsForm({
               </option>
             ))}
           </Select>
-          <Button type="button" variant="quiet" onClick={pickDeviceZone} className="mb-6">
+          <Button type="button" variant="quiet" onClick={pickDeviceZone} className="sm:mt-6">
             {t("details.useDevice")}
           </Button>
         </div>

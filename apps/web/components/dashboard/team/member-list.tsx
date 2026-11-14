@@ -67,18 +67,19 @@ function MemberRow({
     <li className="space-y-3 p-4">
       {/* Names and emails are rendered as text, never as HTML (§9). */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-semibold break-words">
             <bdi>{member.fullName}</bdi>
             {isSelf && (
               <Badge className="ms-2 align-middle">{t("you")}</Badge>
             )}
           </p>
-          <p className="text-sm break-all text-text-secondary">
+          <p className="text-sm wrap-anywhere text-text-secondary">
             <bdi dir="ltr">{member.email}</bdi>
           </p>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-text-secondary">
+        {/* Capped on wide screens, so a long role name wraps instead of pushing the page sideways. */}
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary sm:max-w-[50%] sm:justify-end">
           <Badge tone={member.status === "active" ? "strong" : "neutral"}>
             {tStatus(member.status)}
           </Badge>
@@ -178,7 +179,7 @@ export function MemberList({
   selfId: string;
 }) {
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
       {members.map((member) => (
         <MemberRow
           key={member.id}
