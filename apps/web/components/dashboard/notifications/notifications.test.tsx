@@ -365,6 +365,26 @@ describe("NotificationList", () => {
     }
   });
 
+  it("a mark that lands before the wait ends, after the member moved on, still refreshes the count", async () => {
+    let settle: (response: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Response>((resolve) => (settle = resolve)),
+    );
+    const view = show([UNREAD], 1);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("link"));
+    });
+    nav.pathname = "/dashboard/content";
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[UNREAD]} unread={1} />
+      </NextIntlClientProvider>,
+    );
+    await act(async () => settle(answer({ unread: 0 })));
+    expect(nav.push).not.toHaveBeenCalled();
+    expect(nav.refresh).toHaveBeenCalledTimes(1);
+  });
+
   it("a pending open still pushes when the page didn't change", async () => {
     let settle: (response: Response) => void = () => {};
     fetchMock.mockImplementationOnce(
