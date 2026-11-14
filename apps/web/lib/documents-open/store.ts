@@ -15,6 +15,11 @@ type Client = SupabaseClient<Database>;
 const ORIGINALS = "documents";
 export const COPIES_BUCKET = "document-views";
 
+/** Storage's "not found" answer: `statusCode` "404", or its message. */
+export function isMissingObject(error: { message?: string; status?: number; statusCode?: string }): boolean {
+  return error.status === 404 || error.statusCode === "404" || /not.?found/i.test(error.message ?? "");
+}
+
 const MIMES: readonly StampableMime[] = ["application/pdf", "image/jpeg", "image/png"];
 const EXTENSIONS: Record<StampableMime, string> = {
   "application/pdf": "pdf",
@@ -104,6 +109,7 @@ export function createDocumentOpenStore(
 
     async readOriginal(storageKey) {
       const { data, error } = await service.storage.from(ORIGINALS).download(storageKey);
+      if (error && isMissingObject(error as { message?: string; status?: number; statusCode?: string })) return null;
       if (error) throw new Error(`original download failed: ${error.message}`);
       return new Uint8Array(await data.arrayBuffer());
     },
