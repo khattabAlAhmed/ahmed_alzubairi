@@ -1,0 +1,5 @@
+{
+  "notFound": "We couldn't find this document. It may have been deleted.",
+  "keyInvalid": "This file can't be used for a document. Upload a PDF, JPG or PNG again.",
+  "fileNotFound": "We couldn't find the uploaded file. Upload it again."
+}
