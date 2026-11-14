@@ -45,18 +45,45 @@ export function loadRoles(): Promise<AdminRole[]> {
 
 export type Actor = { id: string; name: string };
 
-/** The team members, for the audit log's "who" filter. */
+const ACTOR_PAGE = 1000;
+
+/** Profiles with at least one audit row; `acted` holds one of them at most. */
+export const ACTOR_SELECT =
+  "clerk_user_id, full_name, acted:audit_log!audit_log_actor_id_fkey!inner(id)";
+
+/**
+ * Everyone who appears in the audit log, for its "who" filter: members, past
+ * members whose role was taken away, and clients who disabled their own
+ * account. Read in pages, so none is cut off. The selected actor is added when
+ * they aren't among them, so the filter shows who it filters by.
+ */
 export async function loadActors(
+  selected?: string,
   client: SupabaseClient<Database> = createUserClient(),
 ): Promise<Actor[]> {
-  const { data, error } = await client
-    .from("profiles")
-    .select("clerk_user_id, full_name")
-    .not("role_id", "is", null)
-    .order("full_name")
-    .limit(100);
-  if (error) throw new Error(`actor list failed: ${error.code}`);
-  return data.map((row) => ({ id: row.clerk_user_id, name: row.full_name }));
+  const actors: Actor[] = [];
+  for (let from = 0; ; from += ACTOR_PAGE) {
+    const { data, error } = await client
+      .from("profiles")
+      .select(ACTOR_SELECT)
+      .limit(1, { referencedTable: "acted" })
+      .order("full_name")
+      .order("clerk_user_id")
+      .range(from, from + ACTOR_PAGE - 1);
+    if (error) throw new Error(`actor list failed: ${error.code}`);
+    actors.push(...data.map((row) => ({ id: row.clerk_user_id, name: row.full_name })));
+    if (data.length < ACTOR_PAGE) break;
+  }
+  if (selected && !actors.some((actor) => actor.id === selected)) {
+    const { data, error } = await client
+      .from("profiles")
+      .select("clerk_user_id, full_name")
+      .eq("clerk_user_id", selected)
+      .maybeSingle();
+    if (error) throw new Error(`actor read failed: ${error.code}`);
+    actors.push({ id: selected, name: data?.full_name ?? selected });
+  }
+  return actors;
 }
 
 export const AUDIT_SELECT =
@@ -68,14 +95,26 @@ export async function loadAudit(
   client: SupabaseClient<Database> = createUserClient(),
 ): Promise<AuditLogList> {
   const { from, to } = pageRange(params);
-  let query = client.from("audit_log").select(AUDIT_SELECT, { count: "exact" });
-  if (params.actor) query = query.eq("actor_id", params.actor);
-  if (params.entity) query = query.eq("entity", params.entity);
-  if (params.action) query = query.eq("action", params.action);
-  const { data, error, count } = await query
+  const query = (head: boolean) => {
+    let built = client
+      .from("audit_log")
+      .select(AUDIT_SELECT, head ? { count: "exact", head: true } : { count: "exact" });
+    if (params.actor) built = built.eq("actor_id", params.actor);
+    if (params.entity) built = built.eq("entity", params.entity);
+    if (params.action) built = built.eq("action", params.action);
+    return built;
+  };
+  const { data, error, count } = await query(false)
     .order("created_at", { ascending: false })
     .order("id")
     .range(from, to);
+  // PostgREST answers 416 for a page past the end. Return the count alone, so
+  // the page can send the reader to the last page.
+  if (error?.code === "PGRST103") {
+    const counted = await query(true);
+    if (counted.error) throw new Error(`audit count failed: ${counted.error.code}`);
+    return { entries: [], total: counted.count ?? 0 };
+  }
   if (error) throw new Error(`audit list failed: ${error.code}`);
 
   const entries = data.flatMap((row): AuditLogEntry[] => {

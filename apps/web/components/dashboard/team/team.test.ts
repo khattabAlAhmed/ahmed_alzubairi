@@ -13,7 +13,7 @@ import teamAr from "@/messages/ar/DashboardTeam.json";
 import contentEn from "@/messages/en/DashboardContent.json";
 import teamEn from "@/messages/en/DashboardTeam.json";
 import { actionLabel, entityLabel } from "./audit-labels";
-import { AUDIT_SELECT, loadActors, loadAudit } from "./data";
+import { ACTOR_SELECT, AUDIT_SELECT, loadActors, loadAudit } from "./data";
 import { listPath, pageCount, parseParams } from "./list";
 import {
   grantableRoles,
@@ -216,14 +216,20 @@ describe("send", () => {
 });
 
 describe("loaders", () => {
-  /** A supabase-js query that records each call and resolves to `result`. */
-  function recorder(result: unknown) {
+  /**
+   * A supabase-js client that records each call. Each `from` starts the next
+   * query, which resolves to the next of `results` (the last one repeats).
+   */
+  function recorder(...results: unknown[]) {
     const calls: unknown[][] = [];
+    let index = -1;
     const query: Record<string, unknown> = {
-      then: (resolve: (value: unknown) => unknown) => resolve(result),
+      then: (resolve: (value: unknown) => unknown) =>
+        resolve(results[Math.min(index, results.length - 1)]),
     };
-    for (const name of ["from", "select", "eq", "not", "order", "range", "limit"]) {
+    for (const name of ["from", "select", "eq", "not", "order", "range", "limit", "maybeSingle"]) {
       query[name] = (...args: unknown[]) => {
+        if (name === "from") index += 1;
         calls.push([name, ...args]);
         return query;
       };
@@ -285,18 +291,71 @@ describe("loaders", () => {
     expect(entries[0]).toMatchObject({ actorName: null, metadata: {} });
   });
 
+  it("answers a page past the end with the count alone, so the page can redirect", async () => {
+    const { calls, client } = recorder(
+      { data: null, error: { code: "PGRST103" }, count: null },
+      { data: null, error: null, count: 21 },
+    );
+    expect(await loadAudit({ page: 9, pageSize: 20, search: undefined, entity: "roles" }, client)).toEqual({
+      entries: [],
+      total: 21,
+    });
+    expect(calls.slice(-3)).toEqual([
+      ["from", "audit_log"],
+      ["select", AUDIT_SELECT, { count: "exact", head: true }],
+      ["eq", "entity", "roles"],
+    ]);
+  });
+
   it("throws on a database error", async () => {
     const { client } = recorder({ data: null, error: { code: "42501" }, count: null });
     await expect(loadAudit({ page: 1, pageSize: 20, search: undefined }, client)).rejects.toThrow("42501");
-    await expect(loadActors(client)).rejects.toThrow("42501");
+    await expect(loadActors(undefined, client)).rejects.toThrow("42501");
   });
 
-  it("lists team members as the audit log's actors", async () => {
+  it("lists everyone who appears in the audit log as its actors", async () => {
     const { calls, client } = recorder({
       data: [{ clerk_user_id: "user_admin", full_name: "Test Admin" }],
       error: null,
     });
-    expect(await loadActors(client)).toEqual([{ id: "user_admin", name: "Test Admin" }]);
-    expect(calls).toContainEqual(["not", "role_id", "is", null]);
+    expect(await loadActors(undefined, client)).toEqual([{ id: "user_admin", name: "Test Admin" }]);
+    expect(calls).toEqual([
+      ["from", "profiles"],
+      ["select", ACTOR_SELECT],
+      ["limit", 1, { referencedTable: "acted" }],
+      ["order", "full_name"],
+      ["order", "clerk_user_id"],
+      ["range", 0, 999],
+    ]);
+  });
+
+  it("reads every page of actors, not only the first", async () => {
+    const full = Array.from({ length: 1000 }, (_, i) => ({ clerk_user_id: `user_${i}`, full_name: `Test ${i}` }));
+    const { calls, client } = recorder(
+      { data: full, error: null },
+      { data: [{ clerk_user_id: "user_last", full_name: "Test Last" }], error: null },
+    );
+    const actors = await loadActors(undefined, client);
+    expect(actors).toHaveLength(1001);
+    expect(calls.filter((call) => call[0] === "range")).toEqual([
+      ["range", 0, 999],
+      ["range", 1000, 1999],
+    ]);
+  });
+
+  it("adds the selected actor when they have no audit rows in the list", async () => {
+    const { calls, client } = recorder(
+      { data: [{ clerk_user_id: "user_admin", full_name: "Test Admin" }], error: null },
+      { data: { clerk_user_id: "user_gone", full_name: "Test Gone" }, error: null },
+    );
+    expect(await loadActors("user_gone", client)).toEqual([
+      { id: "user_admin", name: "Test Admin" },
+      { id: "user_gone", name: "Test Gone" },
+    ]);
+    expect(calls).toContainEqual(["eq", "clerk_user_id", "user_gone"]);
+    // Already in the list: no second read.
+    const again = recorder({ data: [{ clerk_user_id: "user_admin", full_name: "Test Admin" }], error: null });
+    await loadActors("user_admin", again.client);
+    expect(again.calls.filter((call) => call[0] === "from")).toHaveLength(1);
   });
 });

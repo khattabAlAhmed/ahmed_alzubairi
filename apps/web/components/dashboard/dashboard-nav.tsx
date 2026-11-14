@@ -7,6 +7,9 @@ import { canOpenDashboard } from "@/lib/auth/profile-access";
 import { grantedPermissions } from "./access";
 import { DashboardNavLink } from "./dashboard-nav-link";
 import { DashboardNavMenu } from "./dashboard-nav-menu";
+import { loadUnreadCount } from "./notifications/data";
+import { RefreshOnNavigation } from "./notifications/refresh-on-navigation";
+import { BADGE_MAX, UnreadBadge } from "./notifications/unread-badge";
 import { sectionPermissions, visibleSections } from "./sections";
 
 /**
@@ -27,14 +30,29 @@ export async function DashboardNav({
     return null;
   }
 
-  const [t, granted] = await Promise.all([
+  const [t, tn, granted, unread] = await Promise.all([
     getTranslations("DashboardContent"),
+    getTranslations("DashboardNotifications"),
     grantedPermissions(sectionPermissions(), locale),
+    // The member's own rows, through RLS. Read on every render of the menu.
+    loadUnreadCount(userId),
   ]);
   const sections = visibleSections(granted);
+  // Nothing at zero. Digits follow the UI language, like the other counts.
+  const badge = (
+    <UnreadBadge
+      count={unread}
+      text={
+        unread > BADGE_MAX
+          ? tn("badge.more", { max: BADGE_MAX })
+          : tn("badge.count", { count: unread })
+      }
+      label={tn("badge.unread", { count: unread })}
+    />
+  );
 
   return (
-    <DashboardNavMenu label={t("navLabel")}>
+    <DashboardNavMenu label={t("navLabel")} badge={badge}>
       {sections.map((section) => (
         <li key={section.key}>
           <DashboardNavLink href={section.href} exact={section.key === "home"}>
@@ -42,6 +60,16 @@ export async function DashboardNav({
           </DashboardNavLink>
         </li>
       ))}
+      {/* Every team member has notifications, so no permission decides it. */}
+      <li>
+        <DashboardNavLink href="/dashboard/notifications">
+          <span className="flex items-center justify-between gap-2">
+            <span data-nav-label="">{tn("nav")}</span>
+            {badge}
+          </span>
+        </DashboardNavLink>
+        <RefreshOnNavigation />
+      </li>
     </DashboardNavMenu>
   );
 }
