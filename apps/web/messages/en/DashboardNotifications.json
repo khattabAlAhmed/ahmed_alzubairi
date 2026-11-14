@@ -1,0 +1,56 @@
+{
+  "nav": "Notifications",
+  "title": "Notifications",
+  "intro": "Your notifications, newest first. Opening one marks it as read.",
+  "badge": {
+    "count": "{count, number}",
+    "more": "{max, number}+",
+    "unread": "{count, plural, one {# unread notification} other {# unread notifications}}"
+  },
+  "summary": "{count, plural, =0 {No unread notifications} one {# unread notification} other {# unread notifications}}",
+  "markAll": "Mark all as read",
+  "marking": "Saving…",
+  "markedAll": "All notifications are marked as read.",
+  "failed": "The change couldn't be saved. Try again.",
+  "listLabel": "Notifications",
+  "empty": {
+    "title": "No notifications yet",
+    "text": "A new request or message for you shows here."
+  },
+  "row": {
+    "unread": "Unread",
+    "read": "Read",
+    "opens": "Opens {section}"
+  },
+  "sections": {
+    "messages": "Messages",
+    "overview": "Overview"
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Newer",
+    "next": "Older",
+    "position": "Page {page} of {pages}"
+  },
+  "types": {
+    "consultation_new": "New consultation request",
+    "consultation_received": "Consultation request received",
+    "consultation_assigned": "Consultation assigned to you",
+    "consultation_reply": "New reply",
+    "meeting": "Meeting scheduled",
+    "meeting_reminder": "Meeting reminder",
+    "document_request": "Document request",
+    "document_recommendation": "Document recommendation",
+    "document_granted": "Document available",
+    "course_registration": "Course registration",
+    "custom_training_request": "Custom training request",
+    "contact_message": "Contact message",
+    "account_new": "New account",
+    "other": "Notification"
+  },
+  "errors": {
+    "unauthenticated": "Please sign in to continue.",
+    "validation_failed": "This request isn't valid. Reload the page and try again.",
+    "internal_error": "Something went wrong on our side. Please try again."
+  }
+}

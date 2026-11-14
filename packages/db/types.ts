@@ -1647,6 +1647,15 @@ export type Database = {
       disable_client: { Args: { client_id: string }; Returns: number }
       has_permission: { Args: { key: string }; Returns: boolean }
       scoped_client_ids: { Args: never; Returns: string[] }
+      set_role_permissions: {
+        Args: {
+          name_ar?: string
+          name_en?: string
+          permissions?: string[]
+          role_id: string
+        }
+        Returns: string
+      }
       visible_consultation_ids: { Args: never; Returns: string[] }
     }
     Enums: {
