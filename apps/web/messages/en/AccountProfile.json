@@ -1,0 +1,86 @@
+{
+  "title": "Profile",
+  "intro": "Your details, language, notifications, password and account.",
+  "details": {
+    "title": "Your details",
+    "identity": "Your name and email come from your sign-in account.",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone number",
+    "phoneHint": "Digits only, with the country code if you like. For example: +966500000000.",
+    "phoneInvalid": "Enter a phone number of 7 to 15 digits.",
+    "orgType": "Organization type",
+    "orgTypeNone": "Not given",
+    "orgName": "Organization name",
+    "jobTitle": "Job title",
+    "cantEmpty": "This can't be emptied here once it's saved. Change it instead.",
+    "timezone": "Time zone",
+    "timezoneHint": "Times in emails and on this site are shown in this zone.",
+    "useDevice": "Use this device's time zone",
+    "save": "Save details",
+    "saving": "Saving…",
+    "saved": "Your details were saved.",
+    "nothing": "Nothing has changed.",
+    "failed": "Your details weren't saved. Try again."
+  },
+  "orgTypes": {
+    "government": "Government",
+    "organization": "Organization",
+    "company": "Company",
+    "individual": "Individual"
+  },
+  "language": {
+    "title": "Language",
+    "intro": "The language of this site and of the emails we send you.",
+    "label": "Preferred language",
+    "ar": "العربية",
+    "en": "English",
+    "save": "Save language",
+    "failed": "Your language wasn't saved. Try again."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "label": "Optional notifications",
+    "covers": "Meeting reminders and course registration confirmations.",
+    "always": "Emails about your consultations, documents and account always reach you.",
+    "on": "On",
+    "off": "Off",
+    "savedOn": "Optional notifications are on.",
+    "savedOff": "Optional notifications are off.",
+    "failed": "The change wasn't saved. Try again."
+  },
+  "password": {
+    "title": "Password",
+    "intro": "At least 12 characters.",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Repeat the new password",
+    "signOutOthers": "Sign out on my other devices",
+    "save": "Change password",
+    "saving": "Changing…",
+    "saved": "Your password was changed.",
+    "mismatch": "The two new passwords don't match.",
+    "tooShort": "Use at least 12 characters.",
+    "incorrect": "The current password isn't right.",
+    "pwned": "This password has appeared in a data breach. Choose another one.",
+    "weak": "This password isn't strong enough. Choose another one.",
+    "failed": "Your password wasn't changed. Try again."
+  },
+  "disable": {
+    "title": "Disable my account",
+    "intro": "You won't be able to sign in. Your open consultations will be closed. Your data is kept, not deleted.",
+    "adminOnly": "Only the site's admin can reactivate your account.",
+    "start": "Disable my account",
+    "confirmTitle": "Are you sure?",
+    "understand": "I understand that only the site's admin can reactivate my account.",
+    "confirm": "Yes, disable my account",
+    "cancel": "Cancel",
+    "working": "Disabling…",
+    "failed": "Your account wasn't disabled. Try again."
+  },
+  "errors": {
+    "noProfile": "We couldn't find your profile. Complete your profile first.",
+    "teamMember": "Team accounts can't be disabled here. The admin manages team accounts.",
+    "disableFailed": "We couldn't disable your sign-in, so your account wasn't changed. Try again."
+  }
+}

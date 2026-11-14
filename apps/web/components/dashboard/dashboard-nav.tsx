@@ -70,6 +70,10 @@ export async function DashboardNav({
         </DashboardNavLink>
         <RefreshOnNavigation />
       </li>
+      {/* Their own account (§6.16), so no permission decides it either. */}
+      <li>
+        <DashboardNavLink href="/account/profile">{tn("profileNav")}</DashboardNavLink>
+      </li>
     </DashboardNavMenu>
   );
 }
