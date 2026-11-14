@@ -16,7 +16,7 @@ import {
 import { Button, Checkbox } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { RETURN_PARAM } from "@/lib/auth/return-path";
-import { DOCUMENTS_PATH, parseRequestIds, REQUEST_PARAM, requestPath } from "./paths";
+import { DOCUMENTS_PATH, MAX_REQUEST_IDS, parseRequestIds, REQUEST_PARAM, requestPath } from "./paths";
 import { RequestDialog, type DialogDocument } from "./request-dialog";
 
 type RequestContext = {
@@ -99,14 +99,25 @@ export function DocumentRequestProvider({
     [isLoaded, isSignedIn, locale, router],
   );
 
-  const toggle = useCallback((id: string) => {
-    setSelected((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+  const [atLimit, setAtLimit] = useState(false);
+  const toggle = useCallback(
+    (id: string) => {
+      if (selected.has(id)) {
+        const next = new Set(selected);
+        next.delete(id);
+        setSelected(next);
+        setAtLimit(false);
+        return;
+      }
+      // One request carries at most MAX_REQUEST_IDS documents: refused here, with a message.
+      if (selected.size >= MAX_REQUEST_IDS) {
+        setAtLimit(true);
+        return;
+      }
+      setSelected(new Set(selected).add(id));
+    },
+    [selected],
+  );
 
   function close() {
     setDialogIds(null);
@@ -130,11 +141,23 @@ export function DocumentRequestProvider({
           className="sticky bottom-0 z-10 border-t border-text/15 bg-surface/95 px-4 py-3 shadow-lg backdrop-blur"
         >
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-semibold" aria-live="polite">
-              {t("selected", { count: selected.size })}
-            </p>
+            <div aria-live="polite">
+              <p className="text-sm font-semibold">{t("selected", { count: selected.size })}</p>
+              {atLimit && (
+                <p role="alert" className="text-sm font-semibold text-danger">
+                  {t("limit", { max: MAX_REQUEST_IDS })}
+                </p>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
-              <Button variant="quiet" size="sm" onClick={() => setSelected(new Set())}>
+              <Button
+                variant="quiet"
+                size="sm"
+                onClick={() => {
+                  setSelected(new Set());
+                  setAtLimit(false);
+                }}
+              >
                 {t("clearSelection")}
               </Button>
               <Button size="sm" onClick={() => start([...selected])}>
@@ -164,6 +187,7 @@ export function RequestButton({ id, title }: DialogDocument) {
       variant="secondary"
       size="sm"
       aria-label={t("requestLabel", { title })}
+      data-document-request={id}
       onClick={() => start([id])}
       className="shrink-0"
     >

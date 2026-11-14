@@ -21,5 +21,6 @@
   "myDocuments": "Go to My available documents",
   "failed": "That didn't send. Try again.",
   "profileNeeded": "Finish your profile first, then send the request.",
-  "finishProfile": "Finish my profile"
+  "finishProfile": "Finish my profile",
+  "limit": "You can request up to {max} documents at a time. Send these first, then select more."
 }

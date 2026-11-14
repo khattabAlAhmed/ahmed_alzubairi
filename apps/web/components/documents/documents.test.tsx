@@ -112,6 +112,7 @@ describe("paths", () => {
   it("reads uuids only, each once, in order", () => {
     expect(parseRequestIds(`${B},nope,${A.toUpperCase()},${B}`)).toEqual([B, A]);
     expect(parseRequestIds(null)).toEqual([]);
+    // A hand-made link can't carry more than one request takes.
     expect(parseRequestIds(Array.from({ length: 60 }, (_, i) => `${String(i).padStart(8, "0")}-1111-4111-8111-111111111111`).join(","))).toHaveLength(50);
   });
 
@@ -184,6 +185,35 @@ describe("signed-out request round trip", () => {
   });
 });
 
+describe("selection limit", () => {
+  it("stops at 50 with a message, so nothing is dropped after sign-in", () => {
+    const many = Array.from({ length: 51 }, (_, i) => ({
+      id: `${String(i).padStart(8, "0")}-1111-4111-8111-111111111111`,
+      title: `Doc ${i}`,
+    }));
+    withIntl(
+      <DocumentRequestProvider documents={many}>
+        {many.map((document) => (
+          <SelectBox key={document.id} {...document} />
+        ))}
+      </DocumentRequestProvider>,
+    );
+    for (const document of many.slice(0, 50)) fireEvent.click(screen.getByLabelText(`Select ${document.title}`));
+    fireEvent.click(screen.getByLabelText("Select Doc 50"));
+    expect((screen.getByLabelText("Select Doc 50") as HTMLInputElement).checked).toBe(false);
+    expect(screen.getByRole("alert").textContent).toBe(
+      "You can request up to 50 documents at a time. Send these first, then select more.",
+    );
+    expect(screen.getByText("50 documents selected")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Request selected documents" }));
+    const target = decodeURIComponent(String(router.push.mock.calls[0]?.[0]?.query?.redirect_url));
+    expect(target.split("=")[1]?.split(",")).toHaveLength(50);
+    // Unselecting one clears the message.
+    fireEvent.click(screen.getByLabelText("Select Doc 0"));
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+});
+
 describe("RequestDialog", () => {
   function openFor(id: string = A, locale: "ar" | "en" = "en") {
     auth.isSignedIn = true;
@@ -234,6 +264,31 @@ describe("RequestDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(router.replace).toHaveBeenCalledWith("/documents", { scroll: false });
+  });
+
+  it("puts focus on the first document's button when the toolbar that opened it is gone", async () => {
+    fetchMock.mockResolvedValueOnce(json({ requestIds: [A] }));
+    auth.isSignedIn = true;
+    list();
+    fireEvent.click(screen.getByLabelText("Select Course certificate"));
+    const toolbar = screen.getByRole("button", { name: "Request selected documents" });
+    toolbar.focus();
+    fireEvent.click(toolbar);
+    fireEvent.change(screen.getByLabelText("Purpose"), { target: { value: "x" } });
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Send request" })));
+    expect(toolbar.isConnected).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Request to view: Course certificate" }));
+  });
+
+  it("puts focus back on the opener when it's still there", () => {
+    auth.isSignedIn = true;
+    list();
+    const opener = screen.getByRole("button", { name: "Request to view: Thank-you letter" });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(document.activeElement).toBe(opener);
   });
 
   it("points to the profile when it isn't finished", async () => {

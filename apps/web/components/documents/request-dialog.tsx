@@ -39,6 +39,7 @@ export function RequestDialog({
   const [missing, setMissing] = useState(false);
   const [state, setState] = useState<State>({ step: "form", error: null, profileNeeded: false });
   const busy = state.step === "sending";
+  const firstId = documents[0]?.id ?? "";
 
   useEffect(() => {
     const element = dialog.current;
@@ -49,9 +50,14 @@ export function RequestDialog({
     }
     return () => {
       if (element?.open && typeof element.close === "function") element.close();
-      opener?.focus();
+      // The toolbar that opened it is gone once the selection clears: focus
+      // the first document's own request button instead.
+      const target = opener?.isConnected
+        ? opener
+        : document.querySelector<HTMLElement>(`[data-document-request="${firstId}"]`);
+      target?.focus();
     };
-  }, []);
+  }, [firstId]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

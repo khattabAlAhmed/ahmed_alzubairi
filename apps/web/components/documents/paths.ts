@@ -12,10 +12,14 @@ export const MY_DOCUMENTS_PATH = "/account/documents";
  */
 export const REQUEST_PARAM = "request";
 
-/** The most ids one link carries; a longer list is cut, never refused. */
+/**
+ * The most documents one request carries. The page stops a selection at this
+ * many, with a message, so a link never holds more and nothing is dropped
+ * after sign-in.
+ */
 export const MAX_REQUEST_IDS = 50;
 
-/** The document ids in a `request` value: uuids only, each once, in order. */
+/** The document ids in a `request` value: uuids only, each once, in order, at most `MAX_REQUEST_IDS`. */
 export function parseRequestIds(value: string | null | undefined): string[] {
   if (!value) return [];
   const ids = value
