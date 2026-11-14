@@ -74,7 +74,8 @@ export function EmailPreview({
           title={t("previewTitle", { language: t(`locales.${locale}`) })}
           sandbox=""
           srcDoc={html}
-          className="h-112 w-full rounded-md border border-text/15 bg-white"
+          // Taller from md up, where the whole email (footer included) then fits without scrolling the frame.
+          className="h-112 w-full rounded-md border border-text/15 bg-white md:h-140"
         />
       )}
     </div>

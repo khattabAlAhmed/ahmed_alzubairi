@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import { Badge, Button } from "@/components/ui";
-import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { cx } from "@/components/ui/cx";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { NotificationItem } from "./data";
 import { sendRead } from "./send";
@@ -179,7 +179,8 @@ export function NotificationList({
       )}
       <ul
         aria-label={t("listLabel")}
-        className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface"
+        // Clipped to the card's corners, so the first and last rows' hover fits them.
+        className="divide-y divide-text/10 overflow-hidden rounded-lg border border-text/10 bg-surface shadow-sm"
       >
         {items.map((item) => {
           const read = item.readAt !== null;
@@ -193,8 +194,11 @@ export function NotificationList({
                   if (event.button === 1) markInPlace(item);
                 }}
                 className={cx(
-                  "flex flex-col gap-1 rounded-md p-4 hover:bg-text/5 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
-                  FOCUS_RING,
+                  "flex flex-col gap-1 p-4 hover:bg-text/5 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+                  // FOCUS_RING's colors with a negative offset: the list clips
+                  // overflow, so the ring sits inside the row. FOCUS_RING itself
+                  // can't be combined with it, since its positive offset wins.
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 )}
               >
                 <span className="min-w-0">
