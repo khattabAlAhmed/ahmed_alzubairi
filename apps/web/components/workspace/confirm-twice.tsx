@@ -78,7 +78,7 @@ function ConfirmDialog({ onCancel, onConfirm, title, question, word, confirmLabe
         event.preventDefault();
         if (!busy) onCancel();
       }}
-      className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border border-text/15 bg-surface p-0 text-text shadow-lg backdrop:bg-primary/60"
+      className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border border-text/15 bg-surface p-0 text-text shadow-lg backdrop:bg-primary/70 backdrop:backdrop-blur-[2px]"
     >
       <form noValidate onSubmit={submit} className="space-y-4 p-6">
         <div>
