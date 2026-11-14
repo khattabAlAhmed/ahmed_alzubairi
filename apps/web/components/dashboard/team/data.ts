@@ -24,18 +24,31 @@ import { createUserClient } from "@/lib/supabase/user";
  * reads use the member's own client, so RLS checks it again (§9).
  */
 
+type TeamSources = Omit<Parameters<typeof listTeam>[1], "locale">;
+
 /** One page of members and the pending invitations, as `GET /api/admin/team` returns them. */
 export async function loadTeam(
   params: TeamListParams,
   locale: Locale,
-): Promise<AdminTeamListResponse> {
-  const result = await listTeam(params, {
-    locale,
+  sources: TeamSources = {
     store: createTeamStore(createUserClient(), createServiceClient()),
     clerk: createTeamClerk(),
-  });
-  if (!("members" in result.body)) throw new Error("team list refused");
-  return result.body;
+  },
+): Promise<AdminTeamListResponse> {
+  const load = async (page: TeamListParams) => {
+    const result = await listTeam(page, { locale, ...sources });
+    if (!("members" in result.body)) throw new Error("team list refused");
+    return result.body;
+  };
+  try {
+    return await load(params);
+  } catch (error) {
+    // PostgREST answers 416 (PGRST103) for a page past the end. The first
+    // page gives the total, so the page can send the reader to the last one.
+    const pastEnd = error instanceof Error && error.message.endsWith("PGRST103");
+    if (!pastEnd || params.page === 1) throw error;
+    return { ...(await load({ ...params, page: 1 })), members: [] };
+  }
 }
 
 /** Every role with its permissions, as `GET /api/admin/roles` returns them. */
