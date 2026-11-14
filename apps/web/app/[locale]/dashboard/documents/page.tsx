@@ -72,7 +72,10 @@ export default async function DocumentsPage({ params }: { params: Promise<{ loca
                         </p>
                       )}
                     </div>
-                    <Badge tone={document.status === "published" ? "strong" : "neutral"}>
+                    <Badge
+                      tone={document.status === "published" ? "strong" : "neutral"}
+                      className="self-start"
+                    >
                       {t(`status.${document.status}`)}
                     </Badge>
                   </div>
