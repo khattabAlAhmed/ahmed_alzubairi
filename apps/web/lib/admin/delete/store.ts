@@ -83,21 +83,6 @@ export function createDeleteStore(service: SupabaseClient): DeleteStore {
       return data.length > 0;
     },
 
-    async unlinkDocumentRequests(consultationId) {
-      const { error } = await service
-        .from("document_requests")
-        .update({ consultation_id: null })
-        .eq("consultation_id", consultationId);
-      if (error) fail("document request unlink", error);
-    },
-
-    async deleteConsultationChildren(consultationId) {
-      for (const table of ["consultation_attachments", "consultation_messages", "meetings"]) {
-        const { error } = await service.from(table).delete().eq("consultation_id", consultationId);
-        if (error) fail(`${table} delete`, error);
-      }
-    },
-
     async deleteRow(type, id) {
       const { data, error } = await service.from(type).delete().eq("id", id).select("id");
       if (error) {

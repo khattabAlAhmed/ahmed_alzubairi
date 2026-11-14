@@ -22,8 +22,6 @@ const OTHER = "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d";
 type World = {
   rows: Map<string, Set<string>>;
   files: Map<string, StoredFile[]>;
-  children: string[];
-  unlinked: string[];
   removed: StoredFile[];
   grants: Set<string>;
   inUse: Set<string>;
@@ -38,8 +36,6 @@ function world(locale: "ar" | "en" = "en"): World {
   const w = {
     rows: new Map<string, Set<string>>(),
     files: new Map<string, StoredFile[]>(),
-    children: [] as string[],
-    unlinked: [] as string[],
     removed: [] as StoredFile[],
     grants: new Set<string>(),
     inUse: new Set<string>(),
@@ -51,12 +47,6 @@ function world(locale: "ar" | "en" = "en"): World {
     exists: vi.fn(async (type: AdminDeleteType, id: string) => has(type, id)),
     files: vi.fn(async (type: AdminDeleteType, id: string) => w.files.get(`${type}/${id}`) ?? []),
     hasLiveGrant: vi.fn(async (id: string) => w.grants.has(id)),
-    unlinkDocumentRequests: vi.fn(async (id: string) => {
-      w.unlinked.push(id);
-    }),
-    deleteConsultationChildren: vi.fn(async (id: string) => {
-      w.children.push(id);
-    }),
     deleteRow: vi.fn(async (type: AdminDeleteType, id: string) => {
       if (w.inUse.has(id)) return "in_use" as const;
       if (!has(type, id)) return "not_found" as const;
@@ -91,7 +81,7 @@ const remove = (w: World, type: string, id = ID, confirm: unknown = id) =>
   deleteRecord(type, id, { confirm }, w.deps);
 
 describe("deleteRecord", () => {
-  it("deletes a consultation: unlinks its request, then children, the row, and its objects", async () => {
+  it("deletes a consultation: reads its files, deletes the row (children cascade), then the objects", async () => {
     const w = world();
     const files = [
       { bucket: "attachments", key: `${ID}/a.pdf` },
@@ -99,14 +89,11 @@ describe("deleteRecord", () => {
     ];
     add(w, "consultations", ID, files);
     expect(await remove(w, "consultations")).toEqual({ status: 200, body: { ok: true } });
-    expect(w.unlinked).toEqual([ID]);
-    expect(w.children).toEqual([ID]);
     expect(w.rows.get("consultations")!.has(ID)).toBe(false);
     expect(w.removed).toEqual(files);
     // The rows go before the files.
     const order = [
-      (w.store.unlinkDocumentRequests as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
-      (w.store.deleteConsultationChildren as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
+      (w.store.files as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
       (w.store.deleteRow as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
       (w.store.removeFiles as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
     ];
@@ -193,7 +180,6 @@ describe("deleteRecord", () => {
     expect((await remove(w, "documents")).status).toBe(200);
     expect(w.removed).toEqual([{ bucket: "documents", key: "originals/x.pdf" }]);
     expect(w.tags).toEqual(["content:documents"]);
-    expect(w.store.unlinkDocumentRequests).not.toHaveBeenCalled();
   });
 
   it("deletes a content row with its files and refreshes its cache tag", async () => {
@@ -225,6 +211,26 @@ describe("deleteRecord", () => {
     expect(w.audits).toHaveLength(1);
     expect(logged).toHaveBeenCalledWith("admin delete: file removal failed (error)");
     logged.mockRestore();
+  });
+
+  it("removes the files and refreshes the cache even when the audit write then fails", async () => {
+    const w = world();
+    add(w, "posts", ID, [{ bucket: "public-media", key: "posts/cover.jpg" }]);
+    (w.deps.audit as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("audit down"));
+    await expect(remove(w, "posts")).rejects.toThrow("audit down");
+    expect(w.removed).toEqual([{ bucket: "public-media", key: "posts/cover.jpg" }]);
+    expect(w.tags).toEqual(["content:posts"]);
+  });
+
+  it("changes nothing when the row delete fails, so a retry still finds the files", async () => {
+    const w = world();
+    add(w, "consultations", ID, [{ bucket: "attachments", key: "k" }]);
+    (w.store.deleteRow as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("db down"));
+    await expect(remove(w, "consultations")).rejects.toThrow("db down");
+    expect(w.removed).toEqual([]);
+    expect(w.audits).toEqual([]);
+    expect((await remove(w, "consultations")).status).toBe(200);
+    expect(w.removed).toEqual([{ bucket: "attachments", key: "k" }]);
   });
 
   it("covers every shared type with a tag rule", async () => {
@@ -347,20 +353,6 @@ describe("createDeleteStore", () => {
   let fake: ReturnType<typeof fakeClient>;
   beforeEach(() => {
     fake = fakeClient();
-  });
-
-  it("deletes a consultation's attachments, messages and meetings, in that order", async () => {
-    await createDeleteStore(fake.client).deleteConsultationChildren(ID);
-    expect(fake.calls.map((call) => call.table)).toEqual(["consultation_attachments", "consultation_messages", "meetings"]);
-    for (const call of fake.calls) expect(call.ops).toEqual([["delete"], ["eq", "consultation_id", ID]]);
-  });
-
-  it("unlinks the document requests that point at the consultation", async () => {
-    await createDeleteStore(fake.client).unlinkDocumentRequests(ID);
-    expect(fake.calls[0]).toEqual({
-      table: "document_requests",
-      ops: [["update", { consultation_id: null }], ["eq", "consultation_id", ID]],
-    });
   });
 
   it("reads a consultation's attachment keys from the attachments bucket", async () => {

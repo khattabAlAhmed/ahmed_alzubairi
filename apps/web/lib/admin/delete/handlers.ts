@@ -33,11 +33,12 @@ export type DeleteStore = {
   files: (type: AdminDeleteType, id: string) => Promise<StoredFile[]>;
   /** True while a client holds a live grant: `granted`, not yet expired. */
   hasLiveGrant: (documentId: string) => Promise<boolean>;
-  /** Sets `consultation_id` to null on the document requests that point at it. */
-  unlinkDocumentRequests: (consultationId: string) => Promise<void>;
-  /** Deletes the consultation's attachments, messages and meetings, in that order. */
-  deleteConsultationChildren: (consultationId: string) => Promise<void>;
-  /** Deletes the row. `in_use` when another row still references it. */
+  /**
+   * Deletes the row in one statement. Its child rows go with it through the
+   * foreign keys: a consultation's messages, attachments and meetings
+   * cascade, and its document requests are unlinked (`set null`), so nothing
+   * is half-deleted if it fails. `in_use` when another row still references it.
+   */
   deleteRow: (type: AdminDeleteType, id: string) => Promise<"deleted" | "not_found" | "in_use">;
   /** Removes objects. Throws when Storage refuses. */
   removeFiles: (files: StoredFile[]) => Promise<void>;
@@ -77,11 +78,11 @@ function logFailure(what: string, error: unknown) {
 /**
  * `DELETE /api/admin/:type/:id` (§8). The dashboard asks twice; here the body
  * must name the same row (`{ confirm: id }`). Only the shared list of types
- * (never a log table, `profiles`, `email_outbox` or `roles`). Files go after
- * their rows, so a file is never removed while a row could still point at
- * it; a file that can't be removed is only an unreachable object, so it is
- * logged and the delete still succeeds. Writes `record.delete` to the audit
- * log, with no content.
+ * (never a log table, `profiles`, `email_outbox` or `roles`). The row and its
+ * children go in one statement. Files go after their rows, so a file is never
+ * removed while a row could still point at it; a file that can't be removed
+ * is only an unreachable object, so it is logged and the delete still
+ * succeeds. Writes `record.delete` to the audit log, with no content.
  */
 export async function deleteRecord(
   rawType: unknown,
@@ -105,17 +106,14 @@ export async function deleteRecord(
     return fail("conflict", 409, "documentGranted", locale);
   }
 
+  // Read before the row goes: a failed delete changes nothing, so a retry reads them again.
   const files = await store.files(params.type, params.id);
-  if (params.type === "consultations") {
-    await store.unlinkDocumentRequests(params.id);
-    await store.deleteConsultationChildren(params.id);
-  }
   const outcome = await store.deleteRow(params.type, params.id);
   if (outcome === "not_found") return fail("not_found", 404, "notFound", locale);
   if (outcome === "in_use") return fail("conflict", 409, "inUse", locale);
 
-  await audit({ actorId: userId, action: "record.delete", entity: params.type, entityId: params.id });
-
+  // The row is gone: clean up before the audit, so a failed audit write
+  // (a 500) never leaves files or a stale cache behind.
   if (files.length > 0) {
     try {
       await store.removeFiles(files);
@@ -125,5 +123,7 @@ export async function deleteRecord(
   }
   const tag = cacheTagOf(params.type);
   if (tag) revalidate(tag);
+
+  await audit({ actorId: userId, action: "record.delete", entity: params.type, entityId: params.id });
   return { status: 200, body: { ok: true } };
 }
