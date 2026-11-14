@@ -204,15 +204,96 @@ describe("GET /api/documents/:id/open", () => {
     expect(d.store.liveGrant).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["ar", ar.originalMissing],
+    ["en", en.originalMissing],
+  ] as const)("a missing original is a 404 in %s, with no copy made", async (locale, message) => {
+    const d = routeDeps("user_client", memoryStore({ readOriginal: vi.fn(async () => null) }));
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleOpenDocument(
+      new Request(`http://localhost/api/documents/${DOC}/open`, {
+        headers: { referer: `http://localhost/${locale}/account/documents/x` },
+      }),
+      DOC,
+      d,
+    );
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: { code: "not_found", message } });
+    // The open was logged before the read, by design; nothing was stamped, saved or signed.
+    expect(d.store.logAccess).toHaveBeenCalled();
+    expect(d.watermark).not.toHaveBeenCalled();
+    expect(d.store.saveCopy).not.toHaveBeenCalled();
+    expect(d.store.signCopy).not.toHaveBeenCalled();
+    // The team's log line names the document, never the key or the viewer.
+    const lines = JSON.stringify(logged.mock.calls);
+    expect(lines).toContain(DOC);
+    expect(lines).not.toContain(ORIGINAL_KEY);
+    expect(lines).not.toContain("سارة");
+  });
+
+  it("the missing-original message differs from the no-access one", () => {
+    expect(en.originalMissing).not.toBe(en.notFound);
+    expect(ar.originalMissing).not.toBe(ar.notFound);
+  });
+
   it("a failure after the log is a 500 that names no key", async () => {
     const d = routeDeps("user_client", memoryStore({
-      readOriginal: vi.fn(async () => { throw new Error("original download failed: Object not found"); }),
+      readOriginal: vi.fn(async () => { throw new Error("original download failed: Internal error"); }),
     }));
     const logged = vi.spyOn(console, "error").mockImplementation(() => {});
     const response = await open(d);
     expect(response.status).toBe(500);
     expect(await response.text()).not.toContain(ORIGINAL_KEY);
     expect(JSON.stringify(logged.mock.calls)).not.toContain(ORIGINAL_KEY);
+  });
+});
+
+describe("createDocumentOpenStore.readOriginal", () => {
+  function storageWith(result: { data: unknown; error: unknown }) {
+    const download = vi.fn(async () => result);
+    const service = { storage: { from: vi.fn(() => ({ download })) } };
+    return { store: createDocumentOpenStore({} as never, service as never, "user_client"), download, service };
+  }
+
+  it("returns null when Storage has no object at the key", async () => {
+    const { store, service, download } = storageWith({
+      data: null,
+      error: { name: "StorageApiError", message: "Object not found", status: 400, statusCode: "404", code: "NoSuchKey" },
+    });
+    expect(await store.readOriginal(ORIGINAL_KEY)).toBeNull();
+    expect(service.storage.from).toHaveBeenCalledWith("documents");
+    expect(download).toHaveBeenCalledWith(ORIGINAL_KEY);
+  });
+
+  it("returns null for the exact message when Storage sends no code", async () => {
+    const { store } = storageWith({ data: null, error: { message: "Object not found", statusCode: "404" } });
+    expect(await store.readOriginal(ORIGINAL_KEY)).toBeNull();
+  });
+
+  it("still throws when the bucket itself is missing, though it's also a 404", async () => {
+    const { store } = storageWith({
+      data: null,
+      error: { name: "StorageApiError", message: "Bucket not found", status: 400, statusCode: "404", code: "NoSuchBucket" },
+    });
+    await expect(store.readOriginal(ORIGINAL_KEY)).rejects.toThrow("original download failed: Bucket not found");
+  });
+
+  it("still throws on a not-found message that isn't the exact one", async () => {
+    const { store } = storageWith({ data: null, error: { message: "Resource not found", statusCode: "404" } });
+    await expect(store.readOriginal(ORIGINAL_KEY)).rejects.toThrow("original download failed");
+  });
+
+  it("still throws on any other Storage failure", async () => {
+    const { store } = storageWith({
+      data: null,
+      error: { name: "StorageApiError", message: "Internal error", status: 500, statusCode: "500" },
+    });
+    await expect(store.readOriginal(ORIGINAL_KEY)).rejects.toThrow("original download failed: Internal error");
+  });
+
+  it("returns the bytes when the object is there", async () => {
+    const { store } = storageWith({ data: new Blob([new Uint8Array([7, 8])]), error: null });
+    expect(await store.readOriginal(ORIGINAL_KEY)).toEqual(new Uint8Array([7, 8]));
   });
 });
 

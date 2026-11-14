@@ -52,8 +52,11 @@ export type DocumentOpenStore = {
   liveGrant: (documentId: string) => Promise<string | null>;
   document: (documentId: string) => Promise<StoredDocument | null>;
   logAccess: (row: { requestId: string; documentId: string; action: DocumentOpenAction }) => Promise<void>;
-  /** The original's bytes. Never sent to the browser. */
-  readOriginal: (storageKey: string) => Promise<Uint8Array>;
+  /**
+   * The original's bytes, or null when the `documents` bucket has no object
+   * at that key (an operational fault, not a crash). Never sent to the browser.
+   */
+  readOriginal: (storageKey: string) => Promise<Uint8Array | null>;
   /** Saves a watermarked copy in `document-views` under a new random key. Returns the key. */
   saveCopy: (bytes: Uint8Array, mime: StampableMime) => Promise<string>;
   /** A signed URL for a copy, valid `SIGNED_URL_TTL_SECONDS`. */
@@ -99,6 +102,9 @@ export function downloadName(document: StoredDocument, locale: Locale): string {
  *      `audit_log` for everyone) before any copy exists.
  *   4. A watermarked copy goes to `document-views`; the answer is a signed URL
  *      to it, valid 60 seconds. The original is never sent.
+ *   5. An original missing from Storage: 404 with its own message, and a log
+ *      line naming the document id only. The open was already logged in step
+ *      3 (the log comes before any copy, by design), and no copy is made.
  */
 export async function openDocument(
   rawId: unknown,
@@ -137,6 +143,11 @@ export async function openDocument(
   });
 
   const original = await store.readOriginal(document.storageKey);
+  if (!original) {
+    // The id only: no key, no name, nothing about the viewer.
+    console.error(`GET /api/documents/:id/open original missing for document ${documentId}`);
+    return openError("not_found", 404, "originalMissing", locale);
+  }
   const stamped = await deps.watermark(original, document.mime, deps.markText(viewer, deps.now()));
   const copyKey = await store.saveCopy(stamped, document.mime);
   const url = await store.signCopy(

@@ -1,4 +1,5 @@
 {
   "notFound": "This document isn't available to you. If your access ended, you can request it again.",
-  "downloadNotAllowed": "This document can be viewed only, not downloaded."
+  "downloadNotAllowed": "This document can be viewed only, not downloaded.",
+  "originalMissing": "This document can't be opened right now. Please try again later, or contact us if it keeps happening."
 }
