@@ -1,0 +1,90 @@
+{
+  "title": "Documents",
+  "intro": "Protected documents clients can ask to see. Upload the original here; clients only ever get a watermarked copy.",
+  "add": "Add a document",
+  "count": "{total, plural, =0 {No documents} one {# document} other {# documents}}",
+  "empty": {
+    "title": "No documents yet",
+    "text": "Add the first certificate, letter or photo. It stays a draft until you publish it."
+  },
+  "list": {
+    "edit": "Edit {title}",
+    "otherTitle": "In the other language",
+    "file": "File",
+    "noTitle": "(no title)"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published"
+  },
+  "new": {
+    "title": "Add a document",
+    "intro": "Upload the original and describe it in both languages. Clients see it in the list only once it's published.",
+    "back": "Back to documents"
+  },
+  "detail": {
+    "back": "Back to documents",
+    "edit": "Details",
+    "requests": "See requests for this document"
+  },
+  "form": {
+    "titleAr": "Title in Arabic",
+    "titleEn": "Title in English",
+    "category": "Category",
+    "accessMode": "Access",
+    "accessModeHint": "View only hides the download button. The watermark is on every copy either way.",
+    "status": "Status",
+    "statusHint": "A draft never appears to clients.",
+    "file": "File",
+    "fileHint": "PDF, JPG or PNG, up to {size}.",
+    "replaceFile": "Replace the file",
+    "replaceHint": "Optional. PDF, JPG or PNG, up to {size}. Leave empty to keep the current file.",
+    "currentFile": "Current file: {type}",
+    "required": "Fill this in.",
+    "fileRequired": "Choose a file.",
+    "fileType": "Choose a PDF, JPG or PNG file.",
+    "fileSize": "This file is larger than {size}.",
+    "fixErrors": "Check the fields marked above.",
+    "create": "Add document",
+    "creating": "Uploading…",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "failed": "That didn't save. Try again.",
+    "uploadFailed": "The file didn't upload. Try again."
+  },
+  "publish": {
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "publishLabel": "Publish {title}",
+    "unpublishLabel": "Unpublish {title}",
+    "working": "Saving…",
+    "published": "Published.",
+    "unpublished": "Moved back to draft.",
+    "failed": "That didn't save. Try again."
+  },
+  "log": {
+    "title": "Access log",
+    "intro": "Every time a client opened this document, newest first.",
+    "requestIntro": "Every time the client opened the document through this request, newest first.",
+    "empty": "No one has opened it yet.",
+    "who": "Client",
+    "when": "When",
+    "action": "Action",
+    "actions": {
+      "view": "Viewed",
+      "download": "Downloaded"
+    },
+    "limit": "Showing the latest {count}.",
+    "noName": "(unknown client)"
+  },
+  "delete": {
+    "button": "Delete document",
+    "title": "Delete this document?",
+    "question": "Delete “{title}” and its file? Clients who were given it lose it, and its requests go with it. This can't be undone.",
+    "word": "DELETE",
+    "confirm": "Delete for good",
+    "failed": "That didn't delete. Try again.",
+    "busy": "Deleting…"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "title": "Document requests",
+  "intro": "Clients' requests to see protected documents. Team members recommend; the final decision is the admin's alone.",
+  "count": "{total, plural, =0 {No requests} one {# request} other {# requests}}",
+  "filters": {
+    "label": "Filter requests",
+    "search": "Search",
+    "searchHint": "Client name or document title",
+    "status": "Status",
+    "document": "Document",
+    "all": "All",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "empty": {
+    "title": "No document requests yet",
+    "text": "When a client asks to see a document, the request appears here.",
+    "filteredTitle": "No matching requests",
+    "filteredText": "Try another search or clear the filters."
+  },
+  "list": {
+    "open": "Open the request from {client} for {document}",
+    "requested": "Requested",
+    "recommendations": "{count, plural, =0 {No recommendations} one {# recommendation} other {# recommendations}}",
+    "noName": "(unknown client)",
+    "noTitle": "(document hidden)"
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "Page {page} of {pages}"
+  },
+  "detail": {
+    "back": "Back to requests",
+    "client": "Client",
+    "document": "Document",
+    "purpose": "Purpose",
+    "requested": "Requested",
+    "status": "Status",
+    "granted": "Granted",
+    "expires": "Access ends",
+    "noExpiry": "No end date",
+    "revoked": "Withdrawn",
+    "chat": "Open the chat with the client",
+    "chatHint": "You chose to talk first. Decide once the purpose is clear.",
+    "notFound": "This request isn't there any more, or you can't see it.",
+    "recommendations": "Recommendations",
+    "noRecommendations": "No recommendations yet.",
+    "by": "{name}",
+    "noMember": "(team member)"
+  },
+  "recommendation": {
+    "approve": "Approve",
+    "needs_clarification": "Needs clarification"
+  },
+  "recommend": {
+    "title": "Your recommendation",
+    "intro": "Advice for the admin. It doesn't decide the request.",
+    "choice": "Recommendation",
+    "note": "Note",
+    "noteHint": "Optional. Seen by the team only.",
+    "submit": "Send recommendation",
+    "saving": "Sending…",
+    "done": "Recommendation sent.",
+    "failed": "That didn't send. Try again.",
+    "choose": "Choose one."
+  },
+  "decide": {
+    "title": "Decision",
+    "intro": "Make it available, or talk to the client first.",
+    "grant": "Make available",
+    "grantHint": "The document appears in the client's account. Leave the date empty for no end date.",
+    "expiry": "Access ends on (optional)",
+    "expiryHint": "Access ends at the end of this day, your time.",
+    "expiryPast": "Pick today or a later date.",
+    "contactFirst": "Contact first",
+    "contactFirstHint": "Opens a chat with the client to understand the purpose. You decide later.",
+    "working": "Saving…",
+    "granted": "The document is now available to the client.",
+    "contacted": "The chat is open.",
+    "failed": "That didn't save. Try again.",
+    "withdrawTitle": "Withdraw access",
+    "withdrawIntro": "The document leaves the client's account at once.",
+    "withdraw": "Withdraw",
+    "withdrawConfirm": "Withdraw {document} from {client}? They can ask for it again.",
+    "withdrawYes": "Yes, withdraw",
+    "cancel": "Cancel",
+    "withdrawn": "Access withdrawn.",
+    "closed": "This request is closed. The client can ask again."
+  }
+}

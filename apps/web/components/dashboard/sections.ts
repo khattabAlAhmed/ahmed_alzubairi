@@ -8,6 +8,8 @@ export type DashboardSection = {
     | "testimonials"
     | "messages"
     | "clients"
+    | "documentRequests"
+    | "documents"
     | "team"
     | "settings";
   href: string;
@@ -63,6 +65,8 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
     href: "/dashboard/clients",
     permission: CLIENT_ACCESS,
   },
+  { key: "documentRequests", href: "/dashboard/document-requests", permission: PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND },
+  { key: "documents", href: "/dashboard/documents", permission: PERMISSIONS.DOCUMENTS_MANAGE },
   {
     key: "team",
     href: "/dashboard/team",
