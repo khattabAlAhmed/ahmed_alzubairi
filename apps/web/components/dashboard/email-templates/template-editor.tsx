@@ -203,7 +203,7 @@ export function TemplateEditor({
           {EMAIL_PLACEHOLDERS[event].map((name) => (
             <div key={name} className="contents">
               <dt>
-                <code dir="ltr" className="rounded bg-text/10 px-1.5 py-0.5 text-sm break-all">
+                <code dir="ltr" className="rounded bg-text/10 px-1.5 py-0.5 text-sm wrap-anywhere">
                   {placeholderToken(name)}
                 </code>
               </dt>
