@@ -46,13 +46,22 @@ export async function disableAccount(
 
   const outcome = await setClerkBan(userId, true, clerk);
   if (outcome !== "done") {
+    let restored = false;
     try {
       // Consultations that were closed stay closed (§6.16).
       await store.setStatus(userId, "disabled", profile.status);
+      restored = true;
     } finally {
-      // Clerk may hold the ban although it couldn't say so. Undo it even if
-      // the status write failed, so the user isn't left banned.
-      if (outcome === "unknown") await setClerkBan(userId, false, clerk);
+      // Clerk may hold the ban although it couldn't say so. Set it to what
+      // the profile holds now: active once it's back, or what a fresh read
+      // says if the write failed. If that read fails too, Clerk is left as it
+      // is; the admin can reactivate from the dashboard, which sets both.
+      if (outcome === "unknown") {
+        const now = restored
+          ? profile.status
+          : (await store.getProfile(userId).catch(() => null))?.status;
+        if (now) await setClerkBan(userId, now === "disabled", clerk);
+      }
     }
     return ownFail("internal_error", 502, "disableFailed", locale);
   }

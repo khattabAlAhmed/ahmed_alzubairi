@@ -221,15 +221,31 @@ describe("disableAccount", () => {
     expect(clerk.unban).toHaveBeenCalledWith(USER);
   });
 
-  it("still unbans after an unknown ban when putting the status back fails", async () => {
-    const { run, store, clerk } = world();
+  it("after an unknown ban and a failed status write, sets Clerk to what the profile still says", async () => {
+    const { run, store, clerk, state } = world();
     clerk.ban.mockImplementationOnce(async () => {
       throw new Error("timeout");
     });
     clerk.isBanned.mockRejectedValueOnce(new Error("down"));
     store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
     await expect(run()).rejects.toThrow("57014");
-    expect(clerk.unban).toHaveBeenCalledWith(USER);
+    // The profile stayed disabled, so Clerk ends banned too.
+    expect(state()).toEqual({ status: "disabled", banned: true });
+    expect(clerk.unban).not.toHaveBeenCalled();
+  });
+
+  it("leaves Clerk alone when the profile can't be read either", async () => {
+    const { run, store, clerk } = world();
+    clerk.ban.mockImplementationOnce(async () => {
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
+    store.getProfile.mockImplementationOnce(store.getProfile.getMockImplementation()!);
+    store.getProfile.mockRejectedValueOnce(new Error("profile read failed"));
+    await expect(run()).rejects.toThrow("57014");
+    expect(clerk.ban).toHaveBeenCalledTimes(1);
+    expect(clerk.unban).not.toHaveBeenCalled();
   });
 
   it("refuses a profile that got a role meanwhile", async () => {
