@@ -194,6 +194,22 @@ describe("POST /api/document-requests", () => {
     expect(d.store.notify).not.toHaveBeenCalled();
   });
 
+  it("a failed notification for one request doesn't skip the next one", async () => {
+    const store = memoryStore();
+    vi.mocked(store.notify).mockRejectedValueOnce(new Error("notifications insert failed: 57014"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const d = routeDeps("user_client", [], store);
+    expect((await handleCreateDocumentRequests(post("/api/document-requests", body), d)).status).toBe(200);
+    // The second request still gets its emails and its notifications.
+    expect(
+      d.queueEmail.mock.calls.map(([call]) => (call.payload as { documentTitle: unknown }).documentTitle),
+    ).toEqual([
+      TITLES[DOC_1], TITLES[DOC_1], TITLES[DOC_2], TITLES[DOC_2],
+    ]);
+    expect(store.notify).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(store.notify).mock.calls[1]?.[2]).toBe(REQ_2);
+  });
+
   it("still answers 200 when the emails can't be queued", async () => {
     const store = memoryStore({ membersWith: vi.fn(async () => { throw new Error("db down"); }) });
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -256,6 +272,17 @@ describe("POST /api/admin/document-requests/:id/recommend", () => {
       { entity: "document_requests", entityId: REQ_1 },
     );
     expect(JSON.stringify(d.audit.mock.calls)).not.toContain("Looks right");
+  });
+
+  it("keeps a recommendation that lands just after a decision, but doesn't email the admin about it", async () => {
+    const requestInfo = vi
+      .fn<() => Promise<RequestInfo>>()
+      .mockResolvedValueOnce(info("pending_review"))
+      .mockResolvedValueOnce(info("granted"));
+    const d = routeDeps("user_rec", [PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND], memoryStore({ requestInfo }));
+    expect((await recommend(d)).status).toBe(200);
+    expect(d.store.addRecommendation).toHaveBeenCalled();
+    expect(d.queueEmailForPermission).not.toHaveBeenCalled();
   });
 
   it.each(["granted", "expired", "revoked"] as const)("refuses a %s request (409)", async (status) => {
@@ -322,6 +349,14 @@ describe("POST /api/admin/document-requests/:id/decide", () => {
       to: info("pending_review").client,
       payload: { documentTitle: TITLES[DOC_1] },
     });
+  });
+
+  it("grant: the client's email is queued even when the audit write then fails", async () => {
+    const d = decider();
+    d.audit.mockRejectedValueOnce(new Error("audit_log insert failed: 57014"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await decide(d, { decision: "grant" })).status).toBe(500);
+    expect(d.queueEmail).toHaveBeenCalledWith(expect.objectContaining({ event: "document_granted" }));
   });
 
   it("grant without an expiry passes null", async () => {

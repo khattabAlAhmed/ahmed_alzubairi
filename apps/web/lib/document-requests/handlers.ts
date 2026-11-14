@@ -156,21 +156,24 @@ export async function createDocumentRequests(
         deps.store.documentTitles(created.map((row) => row.documentId)),
         deps.store.membersWith(NEW_REQUEST_PERMISSIONS),
       ]);
+      // Each request on its own: a failure for one never skips the next.
       for (const row of created) {
-        const documentTitle = titles.get(row.documentId);
-        if (!documentTitle) continue;
-        for (const member of team) {
-          await deps.queueEmail({
-            event: "document_request",
-            to: member,
-            payload: { documentTitle, clientName: profile.fullName },
-          });
-        }
-        await deps.store.notify(
-          team.map((member) => member.userId),
-          "document_request",
-          row.requestId,
-        );
+        await quietly("document_request", async () => {
+          const documentTitle = titles.get(row.documentId);
+          if (!documentTitle) return;
+          for (const member of team) {
+            await deps.queueEmail({
+              event: "document_request",
+              to: member,
+              payload: { documentTitle, clientName: profile.fullName },
+            });
+          }
+          await deps.store.notify(
+            team.map((member) => member.userId),
+            "document_request",
+            row.requestId,
+          );
+        });
       }
     });
   }
@@ -218,8 +221,13 @@ export async function recommendDocumentRequest(
     metadata: { recommendation: body.data.recommendation },
   });
 
-  await quietly("document_recommendation", async () =>
-    deps.queueEmailForPermission(
+  await quietly("document_recommendation", async () => {
+    // The check above doesn't lock the row, so a decision can land between it
+    // and the insert. The recommendation is advisory and stays on record; the
+    // admin is told only while the request is still open.
+    const now = await deps.store.requestInfo(id);
+    if (now?.status !== "pending_review" && now?.status !== "in_contact") return;
+    await deps.queueEmailForPermission(
       "document_recommendation",
       EMAIL_ADMIN_PERMISSION,
       {
@@ -227,8 +235,8 @@ export async function recommendDocumentRequest(
         memberName: await deps.store.memberName(deps.userId),
       },
       { entity: "document_requests", entityId: id },
-    ),
-  );
+    );
+  });
   return { status: 200, body: { ok: true } };
 }
 
@@ -281,13 +289,9 @@ export async function decideDocumentRequest(
     return { status: 200, body: { ok: true } };
   }
 
-  await deps.audit({
-    actorId: deps.userId,
-    action: "document_request.grant",
-    entity: "document_requests",
-    entityId: id,
-    metadata: { expires: expiresAt !== null },
-  });
+  // The grant is committed. The client's notice is queued first, so a failed
+  // audit write (which fails the response) can't also lose it: a retry would
+  // get 409, and nothing else would send it.
   await quietly("document_granted", async () => {
     const info = await deps.store.requestInfo(id);
     if (!info) return;
@@ -296,6 +300,13 @@ export async function decideDocumentRequest(
       to: info.client,
       payload: { documentTitle: info.documentTitle },
     });
+  });
+  await deps.audit({
+    actorId: deps.userId,
+    action: "document_request.grant",
+    entity: "document_requests",
+    entityId: id,
+    metadata: { expires: expiresAt !== null },
   });
   return { status: 200, body: { ok: true } };
 }
