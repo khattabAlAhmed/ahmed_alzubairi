@@ -258,11 +258,29 @@ describe("createDocumentOpenStore.readOriginal", () => {
   it("returns null when Storage has no object at the key", async () => {
     const { store, service, download } = storageWith({
       data: null,
-      error: { name: "StorageApiError", message: "Object not found", status: 400, statusCode: "404" },
+      error: { name: "StorageApiError", message: "Object not found", status: 400, statusCode: "404", code: "NoSuchKey" },
     });
     expect(await store.readOriginal(ORIGINAL_KEY)).toBeNull();
     expect(service.storage.from).toHaveBeenCalledWith("documents");
     expect(download).toHaveBeenCalledWith(ORIGINAL_KEY);
+  });
+
+  it("returns null for the exact message when Storage sends no code", async () => {
+    const { store } = storageWith({ data: null, error: { message: "Object not found", statusCode: "404" } });
+    expect(await store.readOriginal(ORIGINAL_KEY)).toBeNull();
+  });
+
+  it("still throws when the bucket itself is missing, though it's also a 404", async () => {
+    const { store } = storageWith({
+      data: null,
+      error: { name: "StorageApiError", message: "Bucket not found", status: 400, statusCode: "404", code: "NoSuchBucket" },
+    });
+    await expect(store.readOriginal(ORIGINAL_KEY)).rejects.toThrow("original download failed: Bucket not found");
+  });
+
+  it("still throws on a not-found message that isn't the exact one", async () => {
+    const { store } = storageWith({ data: null, error: { message: "Resource not found", statusCode: "404" } });
+    await expect(store.readOriginal(ORIGINAL_KEY)).rejects.toThrow("original download failed");
   });
 
   it("still throws on any other Storage failure", async () => {

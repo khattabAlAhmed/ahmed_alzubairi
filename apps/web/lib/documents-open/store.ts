@@ -15,9 +15,15 @@ type Client = SupabaseClient<Database>;
 const ORIGINALS = "documents";
 export const COPIES_BUCKET = "document-views";
 
-/** Storage's "not found" answer: `statusCode` "404", or its message. */
-export function isMissingObject(error: { message?: string; status?: number; statusCode?: string }): boolean {
-  return error.status === 404 || error.statusCode === "404" || /not.?found/i.test(error.message ?? "");
+/**
+ * Storage's answer for a missing object: `code` "NoSuchKey", or, from a
+ * server that sends no code, exactly "Object not found". Nothing broader: a
+ * missing bucket ("NoSuchBucket", also a 404) is a configuration fault and
+ * must still throw.
+ */
+export function isMissingObject(error: { code?: string; message?: string }): boolean {
+  if (error.code !== undefined) return error.code === "NoSuchKey";
+  return error.message === "Object not found";
 }
 
 const MIMES: readonly StampableMime[] = ["application/pdf", "image/jpeg", "image/png"];
@@ -109,7 +115,7 @@ export function createDocumentOpenStore(
 
     async readOriginal(storageKey) {
       const { data, error } = await service.storage.from(ORIGINALS).download(storageKey);
-      if (error && isMissingObject(error as { message?: string; status?: number; statusCode?: string })) return null;
+      if (error && isMissingObject(error as { code?: string; message?: string })) return null;
       if (error) throw new Error(`original download failed: ${error.message}`);
       return new Uint8Array(await data.arrayBuffer());
     },
