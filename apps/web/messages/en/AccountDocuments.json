@@ -1,0 +1,41 @@
+{
+  "title": "My available documents",
+  "intro": "Documents you asked to see, and where each request stands.",
+  "browse": "Browse documents",
+  "empty": {
+    "title": "No documents yet",
+    "text": "Ask to see a certificate or letter from the documents page. It appears here once it's available."
+  },
+  "groups": {
+    "available": "Available",
+    "inProgress": "In progress",
+    "ended": "Ended"
+  },
+  "groupsIntro": {
+    "available": "Open them here. Each copy carries your name and the date.",
+    "inProgress": "The team is reviewing these.",
+    "ended": "Access ended or was withdrawn. You can ask again."
+  },
+  "expires": "Available until {date}",
+  "noExpiry": "No end date",
+  "requested": "Requested {date}",
+  "open": "Open",
+  "openLabel": "Open {title}",
+  "chat": "Go to the conversation",
+  "requestAgain": "Request again",
+  "requestAgainLabel": "Request again: {title}",
+  "viewer": {
+    "back": "Back to My available documents",
+    "loading": "Opening the document…",
+    "page": "Page {page} of {pages}",
+    "download": "Download",
+    "downloading": "Preparing…",
+    "viewOnly": "View only: this document can't be downloaded.",
+    "watermark": "Every page carries your name and today's date.",
+    "failed": "The document didn't open. Try again.",
+    "retry": "Try again",
+    "notAvailable": "This document isn't available to you now.",
+    "notAvailableText": "Access may have ended or been withdrawn. You can ask for it again.",
+    "imageAlt": "{title}, with your watermark"
+  }
+}

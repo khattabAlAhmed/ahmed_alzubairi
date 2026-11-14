@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { hasLocale } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { PageHero } from "@/components/public/projects";
@@ -23,16 +23,20 @@ export default async function Documents({ params }: Props) {
   if (!hasLocale(routing.locales, locale)) notFound();
   // Renders on request: the build never reads Supabase. Reads stay cached by tag.
   await connection();
-  const [tNav, t, documents] = await Promise.all([
+  const [tNav, t, documents, { DocumentRequestDialog }] = await Promise.all([
     getTranslations({ locale, namespace: "Nav" }),
     getTranslations({ locale, namespace: "Catalog" }),
     getPublicDocuments(locale),
+    getMessages({ locale }),
   ]);
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
       <PageHero title={tNav("documents")} intro={t("documentsIntro")} />
-      <DocumentsList documents={documents} />
+      {/* Only the request flow's strings go to the browser. */}
+      <NextIntlClientProvider locale={locale} messages={{ DocumentRequestDialog }}>
+        <DocumentsList documents={documents} />
+      </NextIntlClientProvider>
     </main>
   );
 }
