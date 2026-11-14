@@ -65,13 +65,10 @@ export default async function DocumentsPage({ params }: { params: Promise<{ loca
                         </Link>
                       </h2>
                       {other && (
-                        <p
-                          lang={locale === "ar" ? "en" : "ar"}
-                          dir={locale === "ar" ? "ltr" : "rtl"}
-                          className="text-sm text-text-secondary wrap-anywhere"
-                        >
+                        // The line starts where the title does; only the text inside is isolated.
+                        <p className="text-sm text-text-secondary wrap-anywhere">
                           <span className="sr-only">{t("list.otherTitle")}: </span>
-                          {other}
+                          <bdi lang={locale === "ar" ? "en" : "ar"}>{other}</bdi>
                         </p>
                       )}
                     </div>
