@@ -71,8 +71,22 @@ export const REQUEST_PAGE_KEYS = [
   "request",
 ] as const;
 
-/** The most matches a name or title search narrows the list to. */
-const SEARCH_MATCH_LIMIT = 200;
+/** Ids one search read returns; the reads go on until a short page. */
+const SEARCH_PAGE_SIZE = 1000;
+
+/** Every id a paged read returns, a page at a time, so no match is dropped. */
+async function allIds(
+  read: (from: number, to: number) => PromiseLike<{ data: string[] | null; error: { code: string } | null }>,
+  what: string,
+): Promise<string[]> {
+  const ids: string[] = [];
+  for (let from = 0; ; from += SEARCH_PAGE_SIZE) {
+    const { data, error } = await read(from, from + SEARCH_PAGE_SIZE - 1);
+    if (error) throw new Error(`${what} search failed: ${error.code}`);
+    ids.push(...(data ?? []));
+    if (!data || data.length < SEARCH_PAGE_SIZE) return ids;
+  }
+}
 
 const REQUEST_COLUMNS =
   "id, client_id, document_id, purpose, status, consultation_id, decided_by, granted_at, expires_at, revoked_at, created_at, document:documents(title_ar, title_en, access_mode)";
@@ -171,25 +185,32 @@ async function searchMatches(
   service: Client,
 ): Promise<{ clientIds: string[]; documentIds: string[] }> {
   const pattern = searchPattern(term);
-  const [clients, documents] = await Promise.all([
-    service
-      .from("profiles")
-      .select("clerk_user_id")
-      .is("role_id", null)
-      .or(`full_name.ilike.${pattern}`)
-      .limit(SEARCH_MATCH_LIMIT),
-    user
-      .from("documents")
-      .select("id")
-      .or(`title_ar.ilike.${pattern},title_en.ilike.${pattern}`)
-      .limit(SEARCH_MATCH_LIMIT),
+  const [clientIds, documentIds] = await Promise.all([
+    allIds(
+      (from, to) =>
+        service
+          .from("profiles")
+          .select("clerk_user_id")
+          .is("role_id", null)
+          .or(`full_name.ilike.${pattern}`)
+          .order("clerk_user_id")
+          .range(from, to)
+          .then(({ data, error }) => ({ data: data?.map((row) => row.clerk_user_id) ?? null, error })),
+      "client",
+    ),
+    allIds(
+      (from, to) =>
+        user
+          .from("documents")
+          .select("id")
+          .or(`title_ar.ilike.${pattern},title_en.ilike.${pattern}`)
+          .order("id")
+          .range(from, to)
+          .then(({ data, error }) => ({ data: data?.map((row) => row.id) ?? null, error })),
+      "document",
+    ),
   ]);
-  if (clients.error) throw new Error(`client search failed: ${clients.error.code}`);
-  if (documents.error) throw new Error(`document search failed: ${documents.error.code}`);
-  return {
-    clientIds: clients.data.map((row) => row.clerk_user_id),
-    documentIds: documents.data.map((row) => row.id),
-  };
+  return { clientIds, documentIds };
 }
 
 /** A PostgREST `in` list: each value quoted, so ids with odd characters stay values. */

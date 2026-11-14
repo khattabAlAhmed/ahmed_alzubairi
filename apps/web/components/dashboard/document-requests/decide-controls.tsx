@@ -12,11 +12,10 @@ type Notice = { ok: boolean; text: string };
 
 const subscribe = () => () => {};
 
-/** Tomorrow in the browser's zone, as a date input's `min`. */
-function tomorrow(now: Date = new Date()): string {
-  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+/** Today in the browser's zone, as a date input's `min`: access may end tonight. */
+function today(now: Date = new Date()): string {
   const pad = (value: number) => String(value).padStart(2, "0");
-  return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 /**
@@ -149,7 +148,7 @@ export function DecideControls({
           label={t("expiry")}
           hint={t("expiryHint")}
           value={date}
-          min={inBrowser ? tomorrow() : undefined}
+          min={inBrowser ? today() : undefined}
           onChange={(event) => {
             setDate(event.target.value);
             setDateError(undefined);

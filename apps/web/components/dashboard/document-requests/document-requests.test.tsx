@@ -209,11 +209,20 @@ describe("DecideControls", () => {
     });
   });
 
+  it("lets the picker choose today", () => {
+    decide("pending_review");
+    const now = new Date();
+    const pad = (value: number) => String(value).padStart(2, "0");
+    expect(screen.getByLabelText("Access ends on (optional)").getAttribute("min")).toBe(
+      `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+    );
+  });
+
   it("refuses a past end date without sending", async () => {
     decide("pending_review");
     fireEvent.change(screen.getByLabelText("Access ends on (optional)"), { target: { value: "2000-01-01" } });
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Make available" })));
-    expect(screen.getByText("Pick a date after today.")).toBeTruthy();
+    expect(screen.getByText("Pick today or a later date.")).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -263,6 +272,18 @@ describe("RecommendForm", () => {
       },
     ]);
     expect(router.refresh).toHaveBeenCalled();
+  });
+
+  it("locks the choice and the note while sending", async () => {
+    let finish: (value: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (finish = resolve)));
+    withIntl(<RecommendForm requestId={ID} />);
+    fireEvent.click(screen.getByLabelText("Approve"));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Send recommendation" })));
+    expect(screen.getByLabelText("Needs clarification").matches(":disabled")).toBe(true);
+    expect(screen.getByLabelText("Note").matches(":disabled")).toBe(true);
+    await act(async () => finish(json({ ok: true })));
+    expect(screen.getByLabelText("Note").matches(":disabled")).toBe(false);
   });
 
   it("sends no note when it is empty", async () => {
@@ -439,6 +460,25 @@ describe("loadRequests", () => {
     await loadRequests(params({ search: "letter" }), deps);
     const calls = callsOn(user.queries, "document_requests")[0];
     expect(calls).toContainEqual(["or", `client_id.in.("user_client"),document_id.in.("${DOC_ID}")`]);
+  });
+
+  it("reads every page of name matches, so no match is cut off", async () => {
+    const first = Array.from({ length: 1000 }, (_, index) => ({ clerk_user_id: `user_${index}` }));
+    const service = fakeClient((_table, calls) => {
+      if (!calls.some((call) => call[0] === "or")) return { data: names, error: null };
+      const range = calls.find((call) => call[0] === "range");
+      return { data: range?.[1] === 0 ? first : [{ clerk_user_id: "user_last" }], error: null };
+    });
+    const { user } = world();
+    await loadRequests(params({ search: "a" }), { user: user.client, service: service.client });
+    const searches = service.queries.filter((query) => query.calls.some((call) => call[0] === "or"));
+    expect(searches.map((query) => query.calls.find((call) => call[0] === "range"))).toEqual([
+      ["range", 0, 999],
+      ["range", 1000, 1999],
+    ]);
+    const filter = callsOn(user.queries, "document_requests")[0]?.find((call) => call[0] === "or");
+    expect(String(filter?.[1])).toContain('"user_last"');
+    expect(String(filter?.[1])).toContain('"user_999"');
   });
 
   it("reads no requests when the search matches nothing", async () => {

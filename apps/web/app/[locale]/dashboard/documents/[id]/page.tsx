@@ -67,8 +67,9 @@ export default async function DocumentPage({ params }: { params: Params }) {
           <h2 id="document-details" className="mb-4 text-xl">
             {t("detail.edit")}
           </h2>
-          {/* Keyed by the saved values, so a refresh after a save resets the form to them. */}
-          <DocumentForm key={JSON.stringify(document)} document={document} />
+          {/* Keyed by the saved fields, so a refresh after a save resets the form to them.
+              Status is left out: Publish/Unpublish must not discard unsaved edits. */}
+          <DocumentForm key={JSON.stringify({ ...document, status: undefined })} document={document} />
         </Card>
 
         {log && <AccessLog entries={log} locale={locale} scope="document" />}

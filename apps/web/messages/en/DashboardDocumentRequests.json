@@ -73,7 +73,7 @@
     "grantHint": "The document appears in the client's account. Leave the date empty for no end date.",
     "expiry": "Access ends on (optional)",
     "expiryHint": "Access ends at the end of this day, your time.",
-    "expiryPast": "Pick a date after today.",
+    "expiryPast": "Pick today or a later date.",
     "contactFirst": "Contact first",
     "contactFirstHint": "Opens a chat with the client to understand the purpose. You decide later.",
     "working": "Saving…",

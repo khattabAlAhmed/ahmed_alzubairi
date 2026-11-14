@@ -62,6 +62,14 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const size = formatBytes(DOCUMENT_MAX_BYTES, locale);
+  // Publish/Unpublish elsewhere on the page changes the saved status. The form
+  // isn't remounted for that (unsaved edits stay); it takes the new status, so
+  // a later save doesn't undo the publish.
+  const [savedStatus, setSavedStatus] = useState(document?.status);
+  if (document && savedStatus !== document.status) {
+    setSavedStatus(document.status);
+    setValues((current) => ({ ...current, status: document.status }));
+  }
 
   function set<Key extends keyof Values>(key: Key, value: Values[Key]) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -132,88 +140,91 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
 
   return (
     <form noValidate onSubmit={submit} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <TextField
-          label={t("titleAr")}
-          lang="ar"
-          dir="rtl"
-          value={values.titleAr}
-          onChange={(event) => set("titleAr", event.target.value)}
-          error={errors.titleAr}
-          maxLength={MAX_SHORT_TEXT_LENGTH}
-          required
-        />
-        <TextField
-          label={t("titleEn")}
-          lang="en"
-          dir="ltr"
-          value={values.titleEn}
-          onChange={(event) => set("titleEn", event.target.value)}
-          error={errors.titleEn}
-          maxLength={MAX_SHORT_TEXT_LENGTH}
-          required
-        />
-        <Select
-          label={t("category")}
-          value={values.category}
-          onChange={(event) => set("category", event.target.value as DocumentCategory)}
-        >
-          {DOCUMENT_CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {tw(`categories.${category}`)}
-            </option>
-          ))}
-        </Select>
-        <Select
-          label={t("accessMode")}
-          hint={t("accessModeHint")}
-          value={values.accessMode}
-          onChange={(event) => set("accessMode", event.target.value as DocumentAccessMode)}
-        >
-          {DOCUMENT_ACCESS_MODES.map((mode) => (
-            <option key={mode} value={mode}>
-              {tw(`accessModes.${mode}`)}
-            </option>
-          ))}
-        </Select>
-        <Select
-          label={t("status")}
-          hint={t("statusHint")}
-          value={values.status}
-          onChange={(event) => set("status", event.target.value as ContentStatus)}
-        >
-          {CONTENT_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {ts(`status.${status}`)}
-            </option>
-          ))}
-        </Select>
-      </div>
+      {/* Locked while a save runs, so nothing typed or picked meanwhile is lost. */}
+      <fieldset disabled={busy} className="min-w-0 space-y-5">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <TextField
+            label={t("titleAr")}
+            lang="ar"
+            dir="rtl"
+            value={values.titleAr}
+            onChange={(event) => set("titleAr", event.target.value)}
+            error={errors.titleAr}
+            maxLength={MAX_SHORT_TEXT_LENGTH}
+            required
+          />
+          <TextField
+            label={t("titleEn")}
+            lang="en"
+            dir="ltr"
+            value={values.titleEn}
+            onChange={(event) => set("titleEn", event.target.value)}
+            error={errors.titleEn}
+            maxLength={MAX_SHORT_TEXT_LENGTH}
+            required
+          />
+          <Select
+            label={t("category")}
+            value={values.category}
+            onChange={(event) => set("category", event.target.value as DocumentCategory)}
+          >
+            {DOCUMENT_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {tw(`categories.${category}`)}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label={t("accessMode")}
+            hint={t("accessModeHint")}
+            value={values.accessMode}
+            onChange={(event) => set("accessMode", event.target.value as DocumentAccessMode)}
+          >
+            {DOCUMENT_ACCESS_MODES.map((mode) => (
+              <option key={mode} value={mode}>
+                {tw(`accessModes.${mode}`)}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label={t("status")}
+            hint={t("statusHint")}
+            value={values.status}
+            onChange={(event) => set("status", event.target.value as ContentStatus)}
+          >
+            {CONTENT_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {ts(`status.${status}`)}
+              </option>
+            ))}
+          </Select>
+        </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor={fileId}>{document ? t("replaceFile") : t("file")}</Label>
-        {document && (
-          <p className="text-sm text-text-secondary">
-            {t("currentFile", { type: fileTypeLabel(document.mime) })}
-          </p>
-        )}
-        <input
-          ref={fileInput}
-          id={fileId}
-          type="file"
-          accept={DOCUMENT_ACCEPT}
-          aria-invalid={errors.file ? true : undefined}
-          aria-describedby={fileDescribed}
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          className={cx(
-            "block w-full max-w-full rounded-md border border-text/50 bg-surface p-2 text-sm text-text",
-            "file:me-3 file:rounded file:border-0 file:bg-text/10 file:px-3 file:py-1.5 file:text-text",
-            "focus:outline-2 focus:outline-offset-1 focus:outline-ring aria-invalid:border-2 aria-invalid:border-danger",
+        <div className="space-y-1.5">
+          <Label htmlFor={fileId}>{document ? t("replaceFile") : t("file")}</Label>
+          {document && (
+            <p className="text-sm text-text-secondary">
+              {t("currentFile", { type: fileTypeLabel(document.mime) })}
+            </p>
           )}
-        />
-        <FieldHint id={`${fileId}-hint`}>{fileHint}</FieldHint>
-        {errors.file && <FieldError id={`${fileId}-error`}>{errors.file}</FieldError>}
-      </div>
+          <input
+            ref={fileInput}
+            id={fileId}
+            type="file"
+            accept={DOCUMENT_ACCEPT}
+            aria-invalid={errors.file ? true : undefined}
+            aria-describedby={fileDescribed}
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            className={cx(
+              "block w-full max-w-full rounded-md border border-text/50 bg-surface p-2 text-sm text-text",
+              "file:me-3 file:rounded file:border-0 file:bg-text/10 file:px-3 file:py-1.5 file:text-text",
+              "focus:outline-2 focus:outline-offset-1 focus:outline-ring aria-invalid:border-2 aria-invalid:border-danger",
+            )}
+          />
+          <FieldHint id={`${fileId}-hint`}>{fileHint}</FieldHint>
+          {errors.file && <FieldError id={`${fileId}-error`}>{errors.file}</FieldError>}
+        </div>
+      </fieldset>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button

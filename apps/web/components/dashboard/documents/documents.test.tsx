@@ -261,6 +261,29 @@ describe("DocumentForm", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("keeps unsaved edits and takes the new status after Publish elsewhere", () => {
+    const { rerender } = withIntl(<DocumentForm document={DOC} />);
+    fireEvent.change(screen.getByLabelText("Title in English"), { target: { value: "Edited" } });
+    rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardDocuments: enDocs, Workspace: enWorkspace }}>
+        <DocumentForm document={{ ...DOC, status: "published" }} />
+      </NextIntlClientProvider>,
+    );
+    expect((screen.getByLabelText("Title in English") as HTMLInputElement).value).toBe("Edited");
+    expect((screen.getByLabelText("Status") as HTMLSelectElement).value).toBe("published");
+  });
+
+  it("locks the fields while a save runs", async () => {
+    let finish: (value: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (finish = resolve)));
+    withIntl(<DocumentForm document={DOC} />);
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Save changes" })));
+    expect(screen.getByLabelText("Title in English").matches(":disabled")).toBe(true);
+    expect(screen.getByLabelText("Replace the file").matches(":disabled")).toBe(true);
+    await act(async () => finish(json({ ok: true })));
+    expect(screen.getByLabelText("Title in English").matches(":disabled")).toBe(false);
+  });
+
   it("renders in Arabic", () => {
     withIntl(<DocumentForm />, "ar");
     expect(screen.getByRole("button", { name: "إضافة الوثيقة" })).toBeTruthy();

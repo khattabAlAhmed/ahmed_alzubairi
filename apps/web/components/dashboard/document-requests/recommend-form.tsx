@@ -49,7 +49,9 @@ export function RecommendForm({ requestId }: { requestId: string }) {
 
   return (
     <form noValidate onSubmit={submit} className="space-y-4">
+      {/* Locked while sending, so a change made meanwhile isn't cleared on success. */}
       <fieldset
+        disabled={busy}
         aria-describedby={missing ? `${groupId}-error` : undefined}
         aria-invalid={missing ? true : undefined}
       >
@@ -88,6 +90,7 @@ export function RecommendForm({ requestId }: { requestId: string }) {
         onChange={(event) => setNote(event.target.value)}
         rows={3}
         maxLength={MAX_LONG_TEXT_LENGTH}
+        disabled={busy}
       />
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" variant="secondary" loading={busy} loadingLabel={t("recommend.saving")}>
