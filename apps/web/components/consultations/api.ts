@@ -1,5 +1,6 @@
 import type {
   AttachmentUploadUrlResponse,
+  ConsultationDetailResponse,
   CreateConsultationRequest,
   IdResponse,
   SendMessageRequest,
@@ -60,6 +61,8 @@ export type ConsultationApi = {
   /** upload-url → Storage → finalize. Returns the attachment id. */
   upload: (consultationId: string, file: File, onProgress: (percent: number) => void) => Promise<string>;
   sendMessage: (consultationId: string, body: SendMessageRequest) => Promise<string>;
+  /** The ids of the files already linked to a message on the consultation. */
+  linkedAttachmentIds: (consultationId: string) => Promise<Set<string>>;
   /** A 60-second signed download URL (`GET /api/attachments/:id`). */
   downloadUrl: (attachmentId: string) => Promise<string>;
 };
@@ -83,6 +86,11 @@ export function consultationApi(fetchImpl: typeof fetch = fetch, put: PutFile = 
     async sendMessage(consultationId, body) {
       const url = `/api/consultations/${encodeURIComponent(consultationId)}/messages`;
       return (await postJson<IdResponse>(fetchImpl, url, body)).id;
+    },
+    async linkedAttachmentIds(consultationId) {
+      const url = `/api/consultations/${encodeURIComponent(consultationId)}`;
+      const detail = await call<ConsultationDetailResponse>(fetchImpl, url);
+      return new Set(detail.attachments.map((file) => file.id));
     },
     async downloadUrl(attachmentId) {
       const url = `/api/attachments/${encodeURIComponent(attachmentId)}`;

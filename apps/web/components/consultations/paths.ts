@@ -9,3 +9,6 @@ export const SERVICE_PARAM = "service";
 
 /** The new-consultation form. */
 export const NEW_CONSULTATION_PATH = "/account/consultations/new";
+
+/** Where a ready file's link points. The chat catches the click to fetch a signed URL. */
+export const attachmentHref = (id: string) => `/api/attachments/${encodeURIComponent(id)}`;

@@ -35,7 +35,8 @@ export function useFiles(api: ConsultationApi) {
 
   const attach = useCallback((picked: File[]) => {
     update((current) => {
-      let counted = current.filter((item) => item.chip.state !== "refused").length;
+      // A failed upload is still on the message: it is tried again on send.
+      let counted = current.filter((item) => item.chip.state !== "refused" || item.chip.reason === "failed").length;
       const added = picked.map((file): PickedFile => {
         const reason = attachmentRefusal(file, counted);
         if (!reason) counted += 1;

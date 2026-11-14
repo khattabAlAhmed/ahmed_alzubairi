@@ -47,6 +47,7 @@
     "reply": "Reply",
     "closed": "This consultation is closed. It stays in your history, but it can't take new messages.",
     "sendFailed": "We couldn't send your message. Your text is kept; please try again.",
-    "downloadFailed": "We couldn't open this file. Please try again."
+    "downloadFailed": "We couldn't open this file. Please try again.",
+    "retry": "Try again"
   }
 }

@@ -2,10 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { useMemo, useState, type MouseEvent } from "react";
+import { Button } from "@/components/ui";
 import { ChatMessage, Composer, type FileChipData } from "@/components/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { consultationApi, type ConsultationApi } from "./api";
 import { useFiles } from "./use-files";
+
+export { attachmentHref } from "./paths";
 
 export type ThreadMessage = {
   id: string;
@@ -16,8 +19,6 @@ export type ThreadMessage = {
   attachments: FileChipData[];
 };
 
-/** Where a ready file's link points. The click is caught to fetch a signed URL. */
-export const attachmentHref = (id: string) => `/api/attachments/${encodeURIComponent(id)}`;
 const HREF_PATTERN = /^\/api\/attachments\/([^/?#]+)$/;
 
 /**
@@ -46,6 +47,8 @@ export function ConsultationThread({
   const [error, setError] = useState<string | undefined>();
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
+  const failed = filesState.chips.some((chip) => chip.state === "refused" && chip.reason === "failed");
+
   async function openFile(event: MouseEvent<HTMLElement>) {
     const link = (event.target as HTMLElement).closest("a");
     const match = link && HREF_PATTERN.exec(link.getAttribute("href") ?? "");
@@ -60,6 +63,8 @@ export function ConsultationThread({
   }
 
   async function send() {
+    // Only this draft is cleared on success: text typed meanwhile stays.
+    const submitted = text;
     setSending(true);
     setError(undefined);
     try {
@@ -73,7 +78,7 @@ export function ConsultationThread({
         ...(body ? { body } : {}),
         ...(uploaded.ids.length > 0 ? { attachmentIds: uploaded.ids } : {}),
       });
-      setText("");
+      setText((current) => (current === submitted ? "" : current));
       filesState.clear();
       router.refresh();
     } catch (failure) {
@@ -119,6 +124,7 @@ export function ConsultationThread({
           {t("closed")}
         </p>
       ) : (
+        <div className="space-y-2">
         <Composer
           label={t("reply")}
           value={text}
@@ -130,6 +136,15 @@ export function ConsultationThread({
           sending={sending}
           error={error}
         />
+        {/* A reply whose only file failed has nothing "ready", so the Composer can't send it: retry here. */}
+        {failed && !sending && (
+          <div className="flex justify-end">
+            <Button type="button" variant="secondary" size="sm" onClick={send}>
+              {t("retry")}
+            </Button>
+          </div>
+        )}
+        </div>
       )}
     </div>
   );

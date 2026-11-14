@@ -49,6 +49,7 @@ function fakeApi(overrides: Partial<ConsultationApi> = {}): ConsultationApi & {
     create: vi.fn(async () => CONSULTATION),
     upload: vi.fn(async () => "44444444-4444-4444-8444-444444444444"),
     sendMessage: vi.fn(async () => "55555555-5555-4555-8555-555555555555"),
+    linkedAttachmentIds: vi.fn(async () => new Set<string>()),
     downloadUrl: vi.fn(async () => "https://storage.invalid/signed"),
     ...overrides,
   } as never;
@@ -166,6 +167,49 @@ describe("NewConsultationForm", () => {
     expect(api.upload).toHaveBeenCalledTimes(2);
   });
 
+  it("doesn't send the first message again when the lost one had landed", async () => {
+    const api = fakeApi();
+    api.sendMessage.mockRejectedValueOnce(new ApiError(null));
+    (api.linkedAttachmentIds as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+      new Set(["44444444-4444-4444-8444-444444444444"]),
+    );
+    wrap(<NewConsultationForm services={SERVICES} organization={null} api={api} />);
+    fillForm();
+    pick([pdf()]);
+    fireEvent.click(screen.getByRole("button", { name: enPage.form.submit }));
+    expect(await screen.findByText(enPage.form.failed)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: enPage.form.submit }));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith(`/account/consultations/${CONSULTATION}`));
+    expect(api.create).toHaveBeenCalledTimes(1);
+    expect(api.upload).toHaveBeenCalledTimes(1);
+    expect(api.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends the first message again when the lost one hadn't landed", async () => {
+    const api = fakeApi();
+    api.sendMessage.mockRejectedValueOnce(new ApiError(null));
+    wrap(<NewConsultationForm services={SERVICES} organization={null} api={api} />);
+    fillForm();
+    pick([pdf()]);
+    fireEvent.click(screen.getByRole("button", { name: enPage.form.submit }));
+    expect(await screen.findByText(enPage.form.failed)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: enPage.form.submit }));
+    await waitFor(() => expect(router.push).toHaveBeenCalled());
+    expect(api.sendMessage).toHaveBeenCalledTimes(2);
+  });
+
+  it("counts a failed upload toward the file limit", async () => {
+    const api = fakeApi();
+    api.upload.mockRejectedValueOnce(new ApiError(null));
+    wrap(<NewConsultationForm services={SERVICES} organization={null} api={api} />);
+    fillForm();
+    pick([pdf("1.pdf"), pdf("2.pdf"), pdf("3.pdf"), pdf("4.pdf")]);
+    fireEvent.click(screen.getByRole("button", { name: enPage.form.submit }));
+    expect(await screen.findByText(enWorkspace.file.reasons.failed)).toBeTruthy();
+    pick([pdf("5.pdf"), pdf("6.pdf")]);
+    expect(await screen.findByText(enWorkspace.file.reasons.tooMany.replace("{count}", "5"))).toBeTruthy();
+  });
+
   it("shows the server's message when the request is refused, and keeps the text", async () => {
     const api = fakeApi({ create: vi.fn(async () => Promise.reject(new ApiError("This service isn't available."))) });
     wrap(<NewConsultationForm services={SERVICES} organization={null} api={api} />);
@@ -227,6 +271,34 @@ describe("ConsultationThread", () => {
     fireEvent.click(screen.getByRole("button", { name: enWorkspace.composer.send }));
     await waitFor(() => expect(router.refresh).toHaveBeenCalled());
     expect(api.sendMessage).toHaveBeenCalledWith(CONSULTATION, { body: "Hello" });
+  });
+
+  it("keeps text typed while the reply was sending", async () => {
+    let finish: (id: string) => void = () => {};
+    const api = fakeApi({ sendMessage: vi.fn(() => new Promise<string>((resolve) => (finish = resolve))) });
+    wrap(<ConsultationThread consultationId={CONSULTATION} messages={[]} closed={false} api={api} />);
+    const box = screen.getByLabelText(enPage.detail.reply) as HTMLTextAreaElement;
+    fireEvent.change(box, { target: { value: "First" } });
+    fireEvent.click(screen.getByRole("button", { name: enWorkspace.composer.send }));
+    await waitFor(() => expect(api.sendMessage).toHaveBeenCalled());
+    fireEvent.change(box, { target: { value: "Second draft" } });
+    finish("m");
+    await waitFor(() => expect(router.refresh).toHaveBeenCalled());
+    expect(box.value).toBe("Second draft");
+  });
+
+  it("retries a reply whose only file failed", async () => {
+    const api = fakeApi();
+    api.upload.mockRejectedValueOnce(new ApiError(null));
+    wrap(<ConsultationThread consultationId={CONSULTATION} messages={[]} closed={false} api={api} />);
+    pick([pdf()]);
+    fireEvent.click(screen.getByRole("button", { name: enWorkspace.composer.send }));
+    fireEvent.click(await screen.findByRole("button", { name: enPage.detail.retry }));
+    await waitFor(() => expect(router.refresh).toHaveBeenCalled());
+    expect(api.upload).toHaveBeenCalledTimes(2);
+    expect(api.sendMessage).toHaveBeenCalledWith(CONSULTATION, {
+      attachmentIds: ["44444444-4444-4444-8444-444444444444"],
+    });
   });
 
   it("keeps the reply text when sending fails", async () => {

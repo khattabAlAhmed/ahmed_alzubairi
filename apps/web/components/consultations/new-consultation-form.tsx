@@ -59,6 +59,8 @@ export function NewConsultationForm({
   const [sending, setSending] = useState(false);
   // Once created, a second send reuses it: never two consultations.
   const [createdId, setCreatedId] = useState<string | null>(null);
+  // The first message was sent but its answer never came: it may have landed.
+  const [messageUncertain, setMessageUncertain] = useState(false);
 
   const counted = filesState.chips.filter((chip) => chip.state !== "refused" || chip.reason === "failed").length;
   const full = counted >= MAX_ATTACHMENTS_PER_MESSAGE;
@@ -81,6 +83,7 @@ export function NewConsultationForm({
 
     setSending(true);
     setFormError(null);
+    let sendingMessage = false;
     try {
       let id = createdId;
       if (!id) {
@@ -99,9 +102,17 @@ export function NewConsultationForm({
         setFormError(uploaded.failed ? `${uploaded.failed} ${t("retry")}` : t("fileFailed"));
         return;
       }
-      if (uploaded.ids.length > 0) await api.sendMessage(id, { attachmentIds: uploaded.ids });
+      if (uploaded.ids.length > 0) {
+        // A message that landed holds its files; sending them again would be refused.
+        const linked = messageUncertain ? await api.linkedAttachmentIds(id) : new Set<string>();
+        if (!uploaded.ids.every((fileId) => linked.has(fileId))) {
+          sendingMessage = true;
+          await api.sendMessage(id, { attachmentIds: uploaded.ids });
+        }
+      }
       router.push(`/account/consultations/${id}`);
     } catch (error) {
+      if (sendingMessage) setMessageUncertain(true);
       const message = (error as { serverMessage?: unknown }).serverMessage;
       setFormError(typeof message === "string" ? message : t("failed"));
     } finally {

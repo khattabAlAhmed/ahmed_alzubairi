@@ -13,6 +13,9 @@ export type ConsultationRow = Consultation & {
   lastActivityAt: string;
 };
 
+/** Supabase's default response cap. */
+const MESSAGE_PAGE = 1000;
+
 const store = () => createConsultationStore(createUserClient(), createServiceClient());
 
 /** Service titles in this language, by id. Only published services are listed. */
@@ -25,18 +28,24 @@ async function serviceTitles(locale: Locale): Promise<Map<string, string>> {
  * so RLS scopes it to what the caller sees.
  */
 async function lastMessageTimes(ids: string[]): Promise<Map<string, string>> {
-  if (ids.length === 0) return new Map();
-  const { data, error } = await createUserClient()
-    .from("consultation_messages")
-    .select("consultation_id, created_at")
-    .in("consultation_id", ids)
-    .order("created_at", { ascending: false });
-  if (error) throw new Error(`message times read failed: ${error.code}`);
   const times = new Map<string, string>();
-  for (const row of data) {
-    if (!times.has(row.consultation_id)) times.set(row.consultation_id, new Date(row.created_at).toISOString());
+  if (ids.length === 0) return times;
+  const client = createUserClient();
+  // Page by page: a response holds at most MESSAGE_PAGE rows.
+  for (let from = 0; ; from += MESSAGE_PAGE) {
+    const { data, error } = await client
+      .from("consultation_messages")
+      .select("consultation_id, created_at")
+      .in("consultation_id", ids)
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, from + MESSAGE_PAGE - 1);
+    if (error) throw new Error(`message times read failed: ${error.code}`);
+    for (const row of data) {
+      if (!times.has(row.consultation_id)) times.set(row.consultation_id, new Date(row.created_at).toISOString());
+    }
+    if (data.length < MESSAGE_PAGE || times.size === ids.length) return times;
   }
-  return times;
 }
 
 /** "استشاراتي": the caller's consultations, newest activity first. */
