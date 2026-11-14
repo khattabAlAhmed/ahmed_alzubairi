@@ -389,17 +389,48 @@ describe("updateClient", () => {
     expect(audit).not.toHaveBeenCalled();
   });
 
-  it("still sets Clerk back after an unknown outcome when the status write throws", async () => {
-    const { deps, banned, clerk, store } = world();
-    clerk.ban.mockImplementationOnce(async (id) => {
-      banned.add(id);
+  it("after an unknown outcome and a failed status write, sets Clerk to what the profile still says", async () => {
+    const { deps, profiles, banned, clerk, store } = world();
+    clerk.ban.mockImplementationOnce(async () => {
       throw new Error("timeout");
     });
     clerk.isBanned.mockRejectedValueOnce(new Error("down"));
     store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
     await expect(updateClient({ id: CLIENT, status: "disabled" }, deps)).rejects.toThrow("57014");
-    expect(clerk.unban).toHaveBeenCalledWith(CLIENT);
-    expect(banned.has(CLIENT)).toBe(false);
+    // The profile stayed disabled, so Clerk ends banned too.
+    expect(profiles.get(CLIENT)?.status).toBe("disabled");
+    expect(banned.has(CLIENT)).toBe(true);
+    expect(clerk.unban).not.toHaveBeenCalled();
+  });
+
+  it("the same for a reactivation: an active profile ends unbanned", async () => {
+    const { deps, profiles, banned, clerk, store } = world();
+    clerk.unban.mockImplementationOnce(async () => {
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    store.setStatus.mockImplementationOnce(async (id, from, to) => {
+      profiles.get(id)!.status = to;
+      return true;
+    });
+    store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
+    await expect(updateClient({ id: OTHER_CLIENT, status: "active" }, deps)).rejects.toThrow("57014");
+    expect(profiles.get(OTHER_CLIENT)?.status).toBe("active");
+    expect(banned.has(OTHER_CLIENT)).toBe(false);
+  });
+
+  it("leaves Clerk alone when the profile can't be read either", async () => {
+    const { deps, clerk, store } = world();
+    clerk.ban.mockImplementationOnce(async () => {
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
+    store.getProfile.mockImplementationOnce(store.getProfile.getMockImplementation()!);
+    store.getProfile.mockRejectedValueOnce(new Error("profile read failed"));
+    await expect(updateClient({ id: CLIENT, status: "disabled" }, deps)).rejects.toThrow("57014");
+    expect(clerk.ban).toHaveBeenCalledTimes(1);
+    expect(clerk.unban).not.toHaveBeenCalled();
   });
 
   it("a refused ban sets the status back without another Clerk call", async () => {

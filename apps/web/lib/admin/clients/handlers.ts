@@ -121,13 +121,21 @@ export async function updateClient(
   if (outcome !== "done") {
     // Consultations that the disable closed stay closed: their earlier
     // statuses aren't kept, and a closed consultation is never lost (§6.16).
+    let restored = false;
     try {
       await store.setStatus(id, status, profile.status);
+      restored = true;
     } finally {
-      // Clerk may hold the new state although it couldn't say so: set it back
-      // as well, even if the status write failed. If this fails too, sending
-      // either status later repairs it.
-      if (outcome === "unknown") await setClerkBan(id, !banned, clerk);
+      // Clerk may hold the new state although it couldn't say so. Set it to
+      // what the profile holds now: the old status once it's back, or what a
+      // fresh read says if the write failed. If that read fails too, Clerk is
+      // left as it is, and sending the status again sets it to match.
+      if (outcome === "unknown") {
+        const now = restored
+          ? profile.status
+          : (await store.getProfile(id).catch(() => null))?.status;
+        if (now) await setClerkBan(id, now === "disabled", clerk);
+      }
     }
     return adminError("internal_error", 502, "clientSyncFailed", locale);
   }
