@@ -2,7 +2,14 @@ import { PERMISSIONS, type Permission } from "@repo/shared";
 
 /** One dashboard menu entry. Labels live under `DashboardContent.nav`. */
 export type DashboardSection = {
-  key: "home" | "content" | "testimonials" | "settings";
+  key:
+    | "home"
+    | "content"
+    | "testimonials"
+    | "messages"
+    | "clients"
+    | "team"
+    | "settings";
   href: string;
   /**
    * The permission that shows it, or a list where any one shows it, or null
@@ -34,6 +41,23 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
     href: "/dashboard/testimonials",
     // Editors edit them; the admin approves them.
     permission: [PERMISSIONS.CONTENT_MANAGE, PERMISSIONS.TESTIMONIALS_APPROVE],
+  },
+  {
+    key: "messages",
+    href: "/dashboard/messages",
+    permission: PERMISSIONS.MESSAGES_VIEW,
+  },
+  {
+    key: "clients",
+    href: "/dashboard/clients",
+    // Scoped access (§5) shows a member their clients inside their own
+    // work; the full list is for `clients.view_all`.
+    permission: PERMISSIONS.CLIENTS_VIEW_ALL,
+  },
+  {
+    key: "team",
+    href: "/dashboard/team",
+    permission: PERMISSIONS.TEAM_MANAGE,
   },
   {
     key: "settings",

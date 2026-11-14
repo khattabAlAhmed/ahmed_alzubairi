@@ -10,6 +10,8 @@ import {
   type ClerkIdentity,
   type NewProfileRow,
 } from "@/lib/profile/create";
+import { writeOwnProfile } from "@/lib/profile/read";
+import { updateProfile } from "@/lib/profile/update";
 import { createServiceClient } from "@/lib/supabase/service";
 
 // Postgres: a row with this primary key already exists.
@@ -71,6 +73,28 @@ export async function POST(request: Request) {
     return NextResponse.json(result.body, { status: result.status });
   } catch (error) {
     console.error("POST /api/profile", error);
+    const result = internalError(locale);
+    return NextResponse.json(result.body, { status: result.status });
+  }
+}
+
+/**
+ * `PATCH /api/profile`: the signed-in user changes their own details. The id
+ * comes from the session; the service client writes that one row (§9).
+ */
+export async function PATCH(request: Request) {
+  const locale = localeFromReferer(request.headers.get("referer"));
+  try {
+    const { userId } = await auth();
+    const result = await updateProfile({
+      userId,
+      locale,
+      readBody: () => request.json(),
+      write: (id, row) => writeOwnProfile(createServiceClient(), id, row),
+    });
+    return NextResponse.json(result.body, { status: result.status });
+  } catch (error) {
+    console.error("PATCH /api/profile", error);
     const result = internalError(locale);
     return NextResponse.json(result.body, { status: result.status });
   }

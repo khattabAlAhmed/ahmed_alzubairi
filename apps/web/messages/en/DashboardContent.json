@@ -4,6 +4,9 @@
     "home": "Overview",
     "content": "Content",
     "testimonials": "Testimonials and logos",
+    "messages": "Messages",
+    "clients": "Clients",
+    "team": "Team",
     "settings": "Settings"
   },
   "home": {
@@ -13,6 +16,9 @@
     "sections": {
       "content": "Pages, services, projects and the rest of the public site.",
       "testimonials": "Testimonials and logos, with their letters, consent and the admin's approval.",
+      "messages": "Messages sent from the contact page.",
+      "clients": "Client accounts: find one, disable or reactivate it.",
+      "team": "Members, roles and permissions, and the audit log.",
       "settings": "Contact details, social links and the CV."
     }
   },
