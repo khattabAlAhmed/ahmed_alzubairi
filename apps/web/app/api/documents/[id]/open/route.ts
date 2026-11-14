@@ -1,7 +1,8 @@
 import { handleOpenDocument } from "@/lib/documents-open/route";
 
-// The watermark uses native modules (@napi-rs/canvas, sharp): Node.js only.
-export const runtime = "nodejs";
+// Runs on the Node.js runtime, the default for route handlers: the watermark
+// needs native modules (@napi-rs/canvas, sharp). `runtime` itself can't be set
+// with `cacheComponents` on.
 // A 10 MB, 30-page PDF is stamped page by page; give it room.
 export const maxDuration = 60;
 
