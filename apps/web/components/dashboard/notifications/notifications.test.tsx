@@ -328,6 +328,62 @@ describe("NotificationList", () => {
     }
   });
 
+  it.each([
+    ["moves to another page", "navigate"],
+    ["leaves the list", "unmount"],
+  ] as const)("a pending open doesn't push once the member %s", async (_label, how) => {
+    vi.useFakeTimers();
+    try {
+      let settle: (response: Response) => void = () => {};
+      fetchMock.mockImplementationOnce(
+        () => new Promise<Response>((resolve) => (settle = resolve)),
+      );
+      const view = show([UNREAD], 1);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("link"));
+      });
+      if (how === "navigate") {
+        nav.pathname = "/dashboard/content";
+        view.rerender(
+          <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+            <NotificationList items={[UNREAD]} unread={1} />
+          </NextIntlClientProvider>,
+        );
+      } else {
+        view.unmount();
+      }
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(OPEN_WAIT_MS);
+      });
+      expect(nav.push).not.toHaveBeenCalled();
+      // The mark still lands, and the count is read again.
+      await act(async () => settle(answer({ unread: 0 })));
+      expect(nav.refresh).toHaveBeenCalledTimes(1);
+      expect(nav.push).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("a pending open still pushes when the page didn't change", async () => {
+    let settle: (response: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Response>((resolve) => (settle = resolve)),
+    );
+    const view = show([UNREAD], 1);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("link"));
+    });
+    // A refresh renders the list again on the same page.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={{ DashboardNotifications: en }}>
+        <NotificationList items={[UNREAD]} unread={1} />
+      </NextIntlClientProvider>,
+    );
+    await act(async () => settle(answer({ unread: 0 })));
+    expect(nav.push).toHaveBeenCalledWith("/dashboard/messages");
+  });
+
   it("a second open waits for the first: one request, one destination", async () => {
     const OTHER: NotificationItem = { ...UNREAD, id: READ.id, section: "overview", href: "/dashboard" };
     let finish: (value: Response) => void = () => {};
