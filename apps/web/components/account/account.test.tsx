@@ -173,6 +173,13 @@ describe("LanguageForm", () => {
     expect(nav.assign).toHaveBeenCalledWith("/en/account/profile");
   });
 
+  it("saves the language even when it matches the one the page loaded with", async () => {
+    wrap(<LanguageForm saved="ar" />);
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: en.language.save })));
+    expect(lastRequest().body).toEqual({ locale: "ar" });
+    expect(nav.assign).toHaveBeenCalledWith("/ar/account/profile");
+  });
+
   it("stays put when the save fails", async () => {
     fetchMock.mockResolvedValueOnce(new Response("{}", { status: 500 }));
     wrap(<LanguageForm saved="ar" />);

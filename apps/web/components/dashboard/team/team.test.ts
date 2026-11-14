@@ -13,7 +13,7 @@ import teamAr from "@/messages/ar/DashboardTeam.json";
 import contentEn from "@/messages/en/DashboardContent.json";
 import teamEn from "@/messages/en/DashboardTeam.json";
 import { actionLabel, entityLabel } from "./audit-labels";
-import { ACTOR_SELECT, AUDIT_SELECT, loadActors, loadAudit } from "./data";
+import { ACTOR_SELECT, AUDIT_SELECT, loadActors, loadAudit, loadTeam } from "./data";
 import { listPath, pageCount, parseParams } from "./list";
 import {
   grantableRoles,
@@ -357,5 +357,25 @@ describe("loaders", () => {
     const again = recorder({ data: [{ clerk_user_id: "user_admin", full_name: "Test Admin" }], error: null });
     await loadActors("user_admin", again.client);
     expect(again.calls.filter((call) => call[0] === "from")).toHaveLength(1);
+  });
+
+  it("answers a member page past the end with the total alone, so the page can redirect", async () => {
+    const listMembers = vi.fn(async (params: { page: number }) => {
+      if (params.page > 2) throw new Error("team list failed: PGRST103");
+      return { members: [], total: 21 };
+    });
+    const sources = {
+      store: { listMembers } as never,
+      clerk: { listPendingInvitations: async () => [] } as never,
+    };
+    expect(await loadTeam({ page: 9, pageSize: 20, search: undefined }, "en", sources)).toEqual({
+      members: [],
+      total: 21,
+      invitations: [],
+    });
+    expect(listMembers.mock.calls.map(([params]) => params.page)).toEqual([9, 1]);
+    // Any other failure still throws.
+    listMembers.mockRejectedValueOnce(new Error("team list failed: 42501"));
+    await expect(loadTeam({ page: 3, pageSize: 20, search: undefined }, "en", sources)).rejects.toThrow("42501");
   });
 });

@@ -93,7 +93,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
               {" · "}
               {t(`orgTypes.${message.orgType}`)}
             </span>
-            <span className="block text-sm font-normal break-all text-text-secondary">
+            <span className="block text-sm font-normal wrap-anywhere text-text-secondary">
               <bdi dir="ltr">{message.email}</bdi>
             </span>
           </span>
@@ -147,7 +147,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
 /** The page's messages. Opening one shows its text and marks it read. */
 export function MessageList({ messages }: { messages: ContactMessage[] }) {
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
       {messages.map((message) => (
         // The key carries the stored state, so a reload resets the row's own.
         <MessageItem key={`${message.id}:${message.readAt}`} message={message} />
