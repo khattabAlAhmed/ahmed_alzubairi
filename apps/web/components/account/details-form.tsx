@@ -189,7 +189,7 @@ export function DetailsForm({
               </option>
             ))}
           </Select>
-          <Button type="button" variant="quiet" onClick={pickDeviceZone} className="sm:mt-6">
+          <Button type="button" variant="quiet" onClick={pickDeviceZone} className="-ms-4 sm:ms-0 sm:mt-6">
             {t("details.useDevice")}
           </Button>
         </div>

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui";
-import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 
 export type TeamTab = "members" | "roles" | "audit";
@@ -29,9 +29,10 @@ export async function TeamHeader({ current }: { current: TeamTab }) {
                 className={cx(
                   "-mb-px inline-flex h-11 items-center rounded-t-md border-b-2 border-transparent px-3 text-sm whitespace-nowrap text-text-secondary hover:bg-text/5 hover:text-text sm:px-4",
                   "aria-[current=page]:border-text aria-[current=page]:font-semibold aria-[current=page]:text-text",
-                  FOCUS_RING,
-                  // The row clips overflow, so the ring sits inside the tab.
-                  "focus-visible:-outline-offset-2",
+                  // FOCUS_RING's colors with a negative offset: the row clips
+                  // overflow, so the ring sits inside the tab. FOCUS_RING itself
+                  // can't be combined with it, since its positive offset wins.
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 )}
               >
                 {t(`tabs.${tab.key}`)}

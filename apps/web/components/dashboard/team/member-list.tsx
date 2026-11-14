@@ -66,7 +66,7 @@ function MemberRow({
   return (
     <li className="space-y-3 p-4">
       {/* Names and emails are rendered as text, never as HTML (§9). */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+      <div className="flex flex-col gap-2 xl:flex-row xl:items-start xl:justify-between xl:gap-4">
         <div className="min-w-0 flex-1">
           <p className="font-semibold break-words">
             <bdi>{member.fullName}</bdi>
@@ -78,8 +78,8 @@ function MemberRow({
             <bdi dir="ltr">{member.email}</bdi>
           </p>
         </div>
-        {/* Capped on wide screens, so a long role name wraps instead of pushing the page sideways. */}
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary sm:max-w-[50%] sm:justify-end">
+        {/* Under the name until xl: beside it, a long role name squeezed the name and email. Capped at half the row there. */}
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary xl:max-w-[50%] xl:justify-end">
           <Badge tone={member.status === "active" ? "strong" : "neutral"}>
             {tStatus(member.status)}
           </Badge>
