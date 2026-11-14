@@ -163,8 +163,8 @@ describe("createConsultation", () => {
       deps(w, USERS.clientA),
     );
     expect(result.status).toBe(201);
-    if (!("consultation" in result.body)) throw new Error("expected a consultation");
-    const created = result.body.consultation;
+    if (!("id" in result.body)) throw new Error("expected an id");
+    const created = w.consultations.find((item) => item.id === (result.body as { id: string }).id)!;
     expect(created).toMatchObject({
       kind: "consultation",
       status: "new",
@@ -272,9 +272,10 @@ describe("sendMessage", () => {
       attachmentIds: [IDS.fileReady, IDS.fileReady2],
     });
     expect(result.status).toBe(201);
-    if (!("message" in result.body)) throw new Error("expected a message");
-    expect(result.body.message).toMatchObject({ senderId: USERS.clientA, senderName: "Test Client A", body: "Files attached" });
-    const linked = w.attachments.filter((item) => item.messageId === (result.body as { message: { id: string } }).message.id);
+    if (!("id" in result.body)) throw new Error("expected an id");
+    const messageId = result.body.id;
+    expect(w.messages.find((item) => item.id === messageId)).toMatchObject({ senderId: USERS.clientA, body: "Files attached" });
+    const linked = w.attachments.filter((item) => item.messageId === messageId);
     expect(linked.map((item) => item.id).sort()).toEqual([IDS.fileReady, IDS.fileReady2].sort());
     expect(w.emails).toEqual([
       {

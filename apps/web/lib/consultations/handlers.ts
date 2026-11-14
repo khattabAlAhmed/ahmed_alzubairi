@@ -7,7 +7,7 @@ import {
   type Consultation,
   type ConsultationDetailResponse,
   type ConsultationListResponse,
-  type ConsultationMessage,
+  type IdResponse,
   type Locale,
 } from "@repo/shared";
 import type { AuditEntry } from "@/lib/admin/audit";
@@ -32,9 +32,6 @@ export type WriteDeps = ConsultationDeps & {
   mail: ConsultationMail;
   audit: (entry: AuditEntry) => Promise<void>;
 };
-
-export type CreateConsultationResponse = { consultation: Consultation };
-export type SendMessageResponse = { message: ConsultationMessage };
 
 /** Logs what failed and a code only: never an address, a name or message text. */
 function logFailure(what: string, error: unknown) {
@@ -94,7 +91,7 @@ export async function readConsultation(
 export async function createConsultation(
   body: unknown,
   { locale, userId, store, mail }: WriteDeps,
-): Promise<Result<CreateConsultationResponse>> {
+): Promise<Result<IdResponse>> {
   if (!userId) return baseFail("unauthenticated", 401, locale);
   const parsed = createConsultationRequestSchema.safeParse(body);
   if (!parsed.success) return baseFail("validation_failed", 400, locale);
@@ -127,7 +124,7 @@ export async function createConsultation(
     to: { email: profile.email, locale: profile.locale },
     payload: fields,
   });
-  return { status: 201, body: { consultation } };
+  return { status: 201, body: { id: consultation.id } };
 }
 
 /** Whether the caller may post on a consultation RLS has shown them. */
@@ -220,7 +217,7 @@ export async function sendMessage(
   id: string,
   body: unknown,
   deps: WriteDeps,
-): Promise<Result<SendMessageResponse>> {
+): Promise<Result<IdResponse>> {
   const { locale, userId, store } = deps;
   if (!userId) return baseFail("unauthenticated", 401, locale);
   if (!uuidSchema.safeParse(id).success) return notFound(locale);
@@ -285,9 +282,5 @@ export async function sendMessage(
   }
   await queueReply(consultation, fromClient, deps);
 
-  const names = await store.senderNames([userId]);
-  return {
-    status: 201,
-    body: { message: { ...message, senderName: names.get(userId) ?? "" } },
-  };
+  return { status: 201, body: { id: message.id } };
 }
