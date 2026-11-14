@@ -196,6 +196,30 @@ describe("TemplateBoard", () => {
     expect(nav.refresh).toHaveBeenCalledTimes(1);
   });
 
+  it("locks the texts while a reset is on its way, so nothing typed then is lost", async () => {
+    let settle: (response: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Response>((resolve) => (settle = resolve)),
+    );
+    show(templateEntries([{ ...contact, bodyEn: "Mine" }]));
+    openContact();
+    fireEvent.click(screen.getByRole("button", { name: en.reset }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: en.resetYes }));
+    });
+    for (const name of ["subjectAr", "subjectEn", "bodyAr", "bodyEn"]) {
+      expect(field(name).disabled, name).toBe(true);
+    }
+    await act(async () => settle(answer({ ok: true })));
+    for (const name of ["subjectAr", "subjectEn", "bodyAr", "bodyEn"]) {
+      expect(field(name).disabled, name).toBe(false);
+    }
+    expect(field("bodyEn").value).toBe(contact.bodyEn);
+    // Editable again once the default is back.
+    type("bodyEn", "New text");
+    expect(field("bodyEn").value).toBe("New text");
+  });
+
   it("content inputs carry their own language; a typed tag stays text", () => {
     show();
     openContact();
