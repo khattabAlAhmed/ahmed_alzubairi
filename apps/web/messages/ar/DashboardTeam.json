@@ -188,13 +188,42 @@
       },
       "email_template": {
         "update": "تعديل قالب بريد"
+      },
+      "consultation": {
+        "status": "تغيير حالة استشارة",
+        "assign": "إسناد استشارة",
+        "reply": "رد في استشارة"
+      },
+      "meeting": {
+        "create": "إضافة موعد اجتماع",
+        "update": "تعديل موعد اجتماع"
+      },
+      "record": {
+        "delete": "حذف سجل"
+      },
+      "document": {
+        "create": "إضافة وثيقة",
+        "update": "تعديل وثيقة",
+        "view": "عرض وثيقة",
+        "download": "تحميل وثيقة"
+      },
+      "document_request": {
+        "recommend": "توصية على طلب وثيقة",
+        "grant": "إتاحة وثيقة",
+        "contact_first": "التواصل أولاً بشأن طلب وثيقة",
+        "revoke": "سحب إتاحة وثيقة"
       }
     },
     "entities": {
       "site_settings": "الإعدادات",
       "profiles": "الحسابات",
       "roles": "الأدوار",
-      "email_templates": "قوالب البريد"
+      "email_templates": "قوالب البريد",
+      "consultations": "الاستشارات",
+      "meetings": "مواعيد الاجتماعات",
+      "documents": "الوثائق",
+      "document_requests": "طلبات الوثائق",
+      "courses": "الدورات"
     }
   }
 }
