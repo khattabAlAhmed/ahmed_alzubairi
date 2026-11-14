@@ -2,9 +2,9 @@ import { useTranslations } from "next-intl";
 import { ButtonLink } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { StatusPill } from "@/components/workspace";
-import { NEW_CONSULTATION_PATH } from "@/components/public/pages/request-service-button";
 import { Link } from "@/i18n/navigation";
 import { LocalTime } from "./local-time";
+import { NEW_CONSULTATION_PATH } from "./paths";
 import type { ConsultationRow } from "./read";
 
 export const NEW_CONSULTATION_HREF = NEW_CONSULTATION_PATH;

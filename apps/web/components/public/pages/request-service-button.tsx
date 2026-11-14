@@ -4,13 +4,10 @@ import { useAuth } from "@clerk/nextjs";
 import { useLocale } from "next-intl";
 import { buttonClasses } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
+import { NEW_CONSULTATION_PATH, SERVICE_PARAM } from "@/components/consultations/paths";
 import { RETURN_PARAM } from "@/lib/auth/return-path";
 
-/** The query parameter the consultation form reads to preselect a service. */
-export const SERVICE_PARAM = "service";
-
-/** The new-consultation form. */
-export const NEW_CONSULTATION_PATH = "/account/consultations/new";
+export { SERVICE_PARAM };
 
 /** The consultation form with this service selected, as a path with its query. */
 export function serviceRequestPath(serviceSlug: string) {

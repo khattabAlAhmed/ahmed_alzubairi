@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { NewConsultationForm } from "@/components/consultations/new-consultation-form";
 import { readServiceOptions } from "@/components/consultations/read";
-import { SERVICE_PARAM } from "@/components/public/pages/request-service-button";
+import { SERVICE_PARAM } from "@/components/consultations/paths";
 import { ButtonLink, PageHeader } from "@/components/ui";
 import { requireProfile, withQuery } from "@/lib/auth/gates";
 import { readOwnProfileDetails } from "@/lib/profile/read";
