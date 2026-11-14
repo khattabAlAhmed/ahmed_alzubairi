@@ -111,6 +111,19 @@ describe("InviteForm", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it("locks the fields while the invitation is on its way", async () => {
+    let answer!: (response: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+    wrap(<InviteForm roles={ROLES} />);
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "new@example.com" } });
+    fireEvent.change(screen.getByLabelText("Role"), { target: { value: TRAINER_ROLE.id } });
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Send invitation" })));
+    expect(screen.getByLabelText("Email").matches(":disabled")).toBe(true);
+    expect(screen.getByLabelText("Role").matches(":disabled")).toBe(true);
+    await act(async () => answer(new Response(JSON.stringify({ ok: true }))));
+    expect(screen.getByLabelText("Email").matches(":disabled")).toBe(false);
+  });
+
   it("shows the server's error text", async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ error: { code: "conflict", message: "Already invited." } }), {
@@ -288,6 +301,24 @@ describe("RoleEditor", () => {
       nameEn: "Media Officer",
       permissions: ["content.manage"],
     });
+  });
+
+  it("locks the key and names while the new role is on its way", async () => {
+    let answer!: (response: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+    wrap(<RoleEditor roles={[]} />);
+    const form = screen.getByRole("region", { name: en.roles.add.title });
+    fireEvent.change(within(form).getByLabelText(en.roles.add.key), { target: { value: "media_officer" } });
+    fireEvent.change(within(form).getByLabelText(en.roles.nameAr), { target: { value: "مسؤول إعلام" } });
+    fireEvent.change(within(form).getByLabelText(en.roles.nameEn), { target: { value: "Media Officer" } });
+    await act(async () =>
+      fireEvent.click(within(form).getByRole("button", { name: en.roles.add.submit })),
+    );
+    for (const label of [en.roles.add.key, en.roles.nameAr, en.roles.nameEn]) {
+      expect(within(form).getByLabelText(label).matches(":disabled")).toBe(true);
+    }
+    await act(async () => answer(new Response(JSON.stringify({ ok: true }))));
+    expect(within(form).getByLabelText(en.roles.add.key).matches(":disabled")).toBe(false);
   });
 
   it("refuses a key the schema doesn't allow, before sending", async () => {

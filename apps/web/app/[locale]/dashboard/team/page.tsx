@@ -97,8 +97,10 @@ export default async function TeamPage({
         <h2 id="members-title" className="text-xl">
           {t("members.heading")}
         </h2>
-        {/* A plain GET form: the filter lives in the address and works without scripts. */}
+        {/* A plain GET form: the filter lives in the address and works without scripts.
+            Keyed by the applied filters: a new address resets the controls to it. */}
         <form
+          key={[list.search, list.status].join("|")}
           method="get"
           role="search"
           aria-label={t("members.filters.label")}

@@ -92,6 +92,12 @@ describe("Team pages", () => {
     );
   });
 
+  it("loads the actor list with the selected actor in it", async () => {
+    mocks.sectionAccess.mockResolvedValue({ locale: "en", allowed: true });
+    await TeamAuditPage({ params, searchParams: Promise.resolve({ actor: "user_gone" }) });
+    expect(mocks.loadActors).toHaveBeenCalledWith("user_gone");
+  });
+
   it("sends an audit page past the end to the last page, keeping the filter", async () => {
     mocks.sectionAccess.mockResolvedValue({ locale: "en", allowed: true });
     mocks.loadAudit.mockResolvedValue({ entries: [], total: 21 });
