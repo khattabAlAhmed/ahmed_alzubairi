@@ -3,6 +3,7 @@
 import { useClerk } from "@clerk/nextjs";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { Button, Card, Checkbox } from "@/components/ui";
 import { NoticeLine, type Notice } from "./notice";
 import { disableOwnAccount } from "./send";
@@ -16,6 +17,7 @@ export function DisableAccount() {
   const t = useTranslations("AccountProfile.disable");
   const locale = useLocale();
   const { signOut } = useClerk();
+  const router = useRouter();
   const [step, setStep] = useState<"closed" | "confirm">("closed");
   const [understood, setUnderstood] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -35,7 +37,14 @@ export function DisableAccount() {
       setNotice({ ok: false, text: result.message ?? t("failed") });
       return;
     }
-    await signOut({ redirectUrl: `/${locale}` });
+    try {
+      await signOut({ redirectUrl: `/${locale}` });
+    } catch {
+      // The account is already disabled and Clerk's ban has ended the
+      // session, so saying it wasn't disabled would be wrong: leave the page.
+      setBusy(false);
+      router.replace("/");
+    }
   }
 
   return (

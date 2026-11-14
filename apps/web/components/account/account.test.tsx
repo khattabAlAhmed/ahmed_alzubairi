@@ -90,6 +90,20 @@ describe("changedFields", () => {
   it("keeps a saved time zone the browser doesn't list", () => {
     expect(timeZones("Mars/Olympus")[0]).toBe("Mars/Olympus");
   });
+
+  it("lists the saved and the selected zone when the browser lists none", () => {
+    const original = Intl.supportedValuesOf;
+    // An old browser without the API.
+    Object.defineProperty(Intl, "supportedValuesOf", { value: undefined, configurable: true });
+    try {
+      expect(timeZones("Asia/Riyadh", "Europe/London", "Asia/Riyadh")).toEqual([
+        "Asia/Riyadh",
+        "Europe/London",
+      ]);
+    } finally {
+      Object.defineProperty(Intl, "supportedValuesOf", { value: original, configurable: true });
+    }
+  });
 });
 
 describe("DetailsForm", () => {
@@ -102,6 +116,17 @@ describe("DetailsForm", () => {
     expect(lastRequest()).toEqual({ url: "/api/profile", method: "PATCH", body: { jobTitle: "Analyst" } });
     expect(screen.getByRole("status").textContent).toBe(en.details.saved);
     expect(nav.refresh).toHaveBeenCalled();
+  });
+
+  it("locks the fields while a save is on its way", async () => {
+    let finish: (value: Response) => void = () => {};
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (finish = resolve)));
+    show();
+    fireEvent.change(screen.getByLabelText(en.details.jobTitle), { target: { value: "Analyst" } });
+    fireEvent.click(screen.getByRole("button", { name: en.details.save }));
+    expect(screen.getByLabelText(en.details.jobTitle).matches(":disabled")).toBe(true);
+    await act(async () => finish(new Response(JSON.stringify({ ok: true }))));
+    expect(screen.getByLabelText(en.details.jobTitle).matches(":disabled")).toBe(false);
   });
 
   it("refuses an emptied field and a bad phone before sending", async () => {
@@ -252,6 +277,18 @@ describe("DisableAccount", () => {
     await act(async () => fireEvent.click(confirm));
     expect(lastRequest()).toEqual({ url: "/api/account/disable", method: "POST", body: {} });
     expect(clerk.signOut).toHaveBeenCalledWith({ redirectUrl: "/en" });
+  });
+
+  it("leaves the page when Clerk's sign-out fails after the account was disabled", async () => {
+    clerk.signOut.mockRejectedValueOnce(new Error("offline"));
+    wrap(<DisableAccount />);
+    fireEvent.click(screen.getByRole("button", { name: en.disable.start }));
+    fireEvent.click(screen.getByLabelText(en.disable.understand));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: en.disable.confirm })));
+    expect(nav.replace).toHaveBeenCalledWith("/");
+    expect((screen.getByRole("button", { name: en.disable.cancel }) as HTMLButtonElement).disabled).toBe(false);
+    // The account is disabled, so no "wasn't disabled" notice.
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("cancel closes the confirm and sends nothing", () => {
