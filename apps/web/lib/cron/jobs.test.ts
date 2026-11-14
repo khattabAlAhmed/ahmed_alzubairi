@@ -4,7 +4,9 @@ import { outboxRow, type Failures, type Row, type Tables } from "@/lib/email/fak
 import { resetMailerWarning } from "@/lib/email/resend";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fakeCronService } from "./fake-db";
-import { OUTBOX_BATCH_SIZE, retryOutbox, runJobs, type CronJob } from "./jobs";
+import { CONSULTATION_JOBS } from "./consultation-jobs";
+import { DOCUMENT_JOBS } from "./document-jobs";
+import { HOURLY_JOBS, OUTBOX_BATCH_SIZE, retryOutbox, runJobs, type CronJob } from "./jobs";
 
 const { resendSend } = vi.hoisted(() => ({ resendSend: vi.fn() }));
 
@@ -164,5 +166,20 @@ describe("runJobs", () => {
     expect(next).toHaveBeenCalledTimes(1);
     expect(logged).toHaveBeenCalledTimes(1);
     expect(logged).toHaveBeenCalledWith("cron hourly: job broken failed");
+  });
+});
+
+describe("HOURLY_JOBS", () => {
+  it("runs the outbox retry, then every consultation and document job", () => {
+    expect(HOURLY_JOBS.map((job) => job.name)).toEqual([
+      "retryOutbox",
+      ...CONSULTATION_JOBS.map((job) => job.name),
+      ...DOCUMENT_JOBS.map((job) => job.name),
+    ]);
+  });
+
+  it("gives every job its own name, so a failure is logged unambiguously", () => {
+    const names = HOURLY_JOBS.map((job) => job.name);
+    expect(new Set(names).size).toBe(names.length);
   });
 });

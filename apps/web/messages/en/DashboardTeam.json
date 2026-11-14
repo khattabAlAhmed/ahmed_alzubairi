@@ -188,13 +188,42 @@
       },
       "email_template": {
         "update": "Edited an email template"
+      },
+      "consultation": {
+        "status": "Changed a consultation's status",
+        "assign": "Assigned a consultation",
+        "reply": "Replied in a consultation"
+      },
+      "meeting": {
+        "create": "Added a meeting",
+        "update": "Edited a meeting"
+      },
+      "record": {
+        "delete": "Deleted a record"
+      },
+      "document": {
+        "create": "Added a document",
+        "update": "Edited a document",
+        "view": "Viewed a document",
+        "download": "Downloaded a document"
+      },
+      "document_request": {
+        "recommend": "Recommended on a document request",
+        "grant": "Granted a document",
+        "contact_first": "Chose contact first on a document request",
+        "revoke": "Withdrew access to a document"
       }
     },
     "entities": {
       "site_settings": "Settings",
       "profiles": "Accounts",
       "roles": "Roles",
-      "email_templates": "Email templates"
+      "email_templates": "Email templates",
+      "consultations": "Consultations",
+      "meetings": "Meetings",
+      "documents": "Documents",
+      "document_requests": "Document requests",
+      "courses": "Courses"
     }
   }
 }

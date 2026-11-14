@@ -75,6 +75,23 @@ export const documentOpenActionSchema = z.enum(DOCUMENT_OPEN_ACTIONS);
 
 export type DocumentOpenAction = z.infer<typeof documentOpenActionSchema>;
 
+/**
+ * `document_requests.status` (§6.18). There is no rejected status: there is no
+ * reject action anywhere (§9). Open means pending_review or in_contact; open
+ * and granted rows are the ones a new request merges into.
+ */
+export const DOCUMENT_REQUEST_STATUSES = [
+  "pending_review",
+  "in_contact",
+  "granted",
+  "expired",
+  "revoked",
+] as const;
+
+export const documentRequestStatusSchema = z.enum(DOCUMENT_REQUEST_STATUSES);
+
+export type DocumentRequestStatus = z.infer<typeof documentRequestStatusSchema>;
+
 export const DOCUMENT_RECOMMENDATIONS = [
   "approve",
   "needs_clarification",

@@ -2,6 +2,8 @@ import "server-only";
 import { EMAIL_MAX_ATTEMPTS, type CronHourlyResponse } from "@repo/shared";
 import { sendOutboxRow } from "@/lib/email/send";
 import { createServiceClient } from "@/lib/supabase/service";
+import { CONSULTATION_JOBS } from "./consultation-jobs";
+import { DOCUMENT_JOBS } from "./document-jobs";
 
 /**
  * The jobs `POST /api/cron/hourly` runs (§8 System). Each job must be safe to
@@ -53,7 +55,15 @@ export async function retryOutbox(): Promise<CronHourlyResponse> {
   return report;
 }
 
-export const HOURLY_JOBS: CronJob[] = [{ name: "retryOutbox", run: retryOutbox }];
+/**
+ * Every hourly job. Each lane adds its own in `consultation-jobs.ts` or
+ * `document-jobs.ts`; this list only gathers them.
+ */
+export const HOURLY_JOBS: CronJob[] = [
+  { name: "retryOutbox", run: retryOutbox },
+  ...CONSULTATION_JOBS,
+  ...DOCUMENT_JOBS,
+];
 
 /**
  * Runs the jobs one after another and adds up what they report. A job that
