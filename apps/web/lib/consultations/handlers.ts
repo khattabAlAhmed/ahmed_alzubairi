@@ -255,23 +255,38 @@ export async function sendMessage(
     body: parsed.data.body ?? null,
   });
   if (ids.length > 0) {
-    const linked = await store.linkAttachments({
-      messageId: message.id,
-      consultationId: id,
-      uploadedBy: userId,
-      ids,
-    });
-    if (linked !== ids.length) {
-      // Another message took a file meanwhile. Put the ones linked here back
-      // first: deleting the message would delete its attachments with it.
+    // Put the files linked here back before dropping the message: deleting
+    // the message would delete its attachments with it.
+    const undo = async () => {
       await store.unlinkAttachments(message.id);
       await store.deleteMessage(message.id);
+    };
+    let linked: number;
+    try {
+      linked = await store.linkAttachments({
+        messageId: message.id,
+        consultationId: id,
+        uploadedBy: userId,
+        ids,
+      });
+    } catch (error) {
+      // No message without its files: a retry then starts clean.
+      await undo().catch((undoError: unknown) => logFailure("message undo", undoError));
+      throw error;
+    }
+    if (linked !== ids.length) {
+      // Another message took a file meanwhile.
+      await undo();
       return ownFail("conflict", 409, "attachmentTaken", locale);
     }
   }
 
   if (!fromClient) {
-    if (consultation.firstReplyAt === null) await store.markFirstReply(id);
+    if (consultation.firstReplyAt === null) {
+      // The message is sent. A failed update is logged, not fatal: the next
+      // team reply sets it, as it is written only while still null.
+      await store.markFirstReply(id).catch((error: unknown) => logFailure("first reply", error));
+    }
     await deps.audit({
       actorId: userId,
       action: "consultation.reply",
