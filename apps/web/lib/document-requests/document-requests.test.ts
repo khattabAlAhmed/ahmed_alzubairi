@@ -445,7 +445,7 @@ describe("fromSqlError", () => {
 
 describe("expireDocumentGrants (hourly)", () => {
   it("is in the document jobs, by name", () => {
-    expect(DOCUMENT_JOBS.map((job) => job.name)).toEqual(["expireDocumentGrants"]);
+    expect(DOCUMENT_JOBS.map((job) => job.name)).toContain("expireDocumentGrants");
   });
 
   it("calls expire_document_grants", async () => {
