@@ -1,0 +1,10 @@
+{
+  "profileIncomplete": "Complete your profile before you request documents.",
+  "notAClient": "Only client accounts can request documents.",
+  "documentUnavailable": "One of these documents isn't available. Refresh the page and choose again.",
+  "requestNotFound": "We couldn't find this request. It may have been deleted.",
+  "requestNotOpen": "This request has already been decided. Refresh the page to see where it stands.",
+  "requestNotGranted": "Only a granted request can be withdrawn. Refresh the page to see where it stands.",
+  "expiryInPast": "Choose an expiry date in the future, or leave it empty.",
+  "notAllowed": "You don't have permission to do this."
+}
