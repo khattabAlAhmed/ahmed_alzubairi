@@ -46,9 +46,14 @@ export async function disableAccount(
 
   const outcome = await setClerkBan(userId, true, clerk);
   if (outcome !== "done") {
-    // Consultations that were closed stay closed (§6.16).
-    await store.setStatus(userId, "disabled", profile.status);
-    if (outcome === "unknown") await setClerkBan(userId, false, clerk);
+    try {
+      // Consultations that were closed stay closed (§6.16).
+      await store.setStatus(userId, "disabled", profile.status);
+    } finally {
+      // Clerk may hold the ban although it couldn't say so. Undo it even if
+      // the status write failed, so the user isn't left banned.
+      if (outcome === "unknown") await setClerkBan(userId, false, clerk);
+    }
     return ownFail("internal_error", 502, "disableFailed", locale);
   }
 

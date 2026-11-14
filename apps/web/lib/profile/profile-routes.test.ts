@@ -221,6 +221,17 @@ describe("disableAccount", () => {
     expect(clerk.unban).toHaveBeenCalledWith(USER);
   });
 
+  it("still unbans after an unknown ban when putting the status back fails", async () => {
+    const { run, store, clerk } = world();
+    clerk.ban.mockImplementationOnce(async () => {
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    store.setStatus.mockRejectedValueOnce(new Error("status change failed: 57014"));
+    await expect(run()).rejects.toThrow("57014");
+    expect(clerk.unban).toHaveBeenCalledWith(USER);
+  });
+
   it("refuses a profile that got a role meanwhile", async () => {
     const { run, store, clerk } = world();
     store.disableClient.mockResolvedValueOnce(null);

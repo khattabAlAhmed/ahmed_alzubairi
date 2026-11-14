@@ -26,10 +26,15 @@ export type DetailsValues = {
 
 type Errors = Partial<Record<"phone" | "orgName" | "jobTitle", string>>;
 
-/** Every IANA zone the browser knows, with the saved one first if it's missing. */
-export function timeZones(saved: string): string[] {
+/**
+ * Every IANA zone the browser knows, plus the saved and the selected ones if
+ * it doesn't list them (an old browser may list none), so the selected value
+ * always has an option.
+ */
+export function timeZones(...current: string[]): string[] {
   const all = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
-  return all.includes(saved) ? all : [saved, ...all];
+  const missing = [...new Set(current)].filter((zone) => !all.includes(zone));
+  return [...missing, ...all];
 }
 
 /**
@@ -72,7 +77,7 @@ export function DetailsForm({
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
-  const zones = timeZones(saved.timezone);
+  const zones = timeZones(saved.timezone, values.timezone);
   const set = <K extends keyof DetailsValues>(key: K, value: DetailsValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
@@ -132,6 +137,8 @@ export function DetailsForm({
         </div>
       </dl>
       <form noValidate onSubmit={onSubmit} className="space-y-4">
+        {/* Locked while saving, so what the notice calls saved is what's on screen. */}
+        <fieldset disabled={busy} className="min-w-0 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label={t("details.phone")}
@@ -192,6 +199,7 @@ export function DetailsForm({
             {t("details.useDevice")}
           </Button>
         </div>
+        </fieldset>
         <Button type="submit" loading={busy} loadingLabel={t("details.saving")}>
           {t("details.save")}
         </Button>
