@@ -1,0 +1,7 @@
+{
+  "typeNotAllowed": "This kind of record can't be deleted.",
+  "confirmMismatch": "The confirmation doesn't match this record. Nothing was deleted.",
+  "notFound": "We couldn't find this record. It may already be deleted.",
+  "documentGranted": "This document is open to a client right now. Withdraw their access first, then delete it.",
+  "inUse": "Other records still use this one. Remove those links first, then delete it."
+}
