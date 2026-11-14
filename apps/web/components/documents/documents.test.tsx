@@ -385,7 +385,8 @@ describe("RequestCard", () => {
     expect(screen.getByRole("link", { name: "Open Course certificate" }).getAttribute("href")).toBe(
       `/account/documents/${REQUEST.id}`,
     );
-    expect(screen.getByText(/Available until/)).toBeTruthy();
+    const note = screen.getByText(/Available until/);
+    expect(note.querySelector("time")?.getAttribute("dateTime")).toBe("2099-12-31T20:59:59.000Z");
   });
 
   it("shows طلب مجدداً on an expired request, back to the documents page with it selected", () => {
@@ -394,6 +395,7 @@ describe("RequestCard", () => {
     expect(link.textContent).toBe("طلب مجدداً");
     expect(link.getAttribute("href")).toBe(`/documents?request=${A}`);
     expect(screen.getByText("منتهية")).toBeTruthy();
+    expect(screen.getByText(/طُلبت في/).querySelector("time")?.getAttribute("dateTime")).toBe(REQUEST.createdAt);
   });
 
   it("shows a late grant as expired", () => {

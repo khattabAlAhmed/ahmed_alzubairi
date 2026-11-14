@@ -16,9 +16,9 @@
     "inProgress": "يراجع الفريق هذه الطلبات.",
     "ended": "انتهى الاطلاع أو سُحب. يمكنك الطلب مجدداً."
   },
-  "expires": "متاحة حتى {date}",
+  "expires": "متاحة حتى <date></date>",
   "noExpiry": "بلا تاريخ انتهاء",
-  "requested": "طُلبت في {date}",
+  "requested": "طُلبت في <date></date>",
   "open": "فتح",
   "openLabel": "فتح {title}",
   "chat": "الذهاب إلى المحادثة",

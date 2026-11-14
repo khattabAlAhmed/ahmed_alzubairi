@@ -68,6 +68,7 @@ export function RequestCard({
       note={note}
       actions={actions}
       headingLevel={3}
+      className="w-full"
     />
   );
 }

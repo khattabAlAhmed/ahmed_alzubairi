@@ -16,9 +16,9 @@
     "inProgress": "The team is reviewing these.",
     "ended": "Access ended or was withdrawn. You can ask again."
   },
-  "expires": "Available until {date}",
+  "expires": "Available until <date></date>",
   "noExpiry": "No end date",
-  "requested": "Requested {date}",
+  "requested": "Requested <date></date>",
   "open": "Open",
   "openLabel": "Open {title}",
   "chat": "Go to the conversation",
