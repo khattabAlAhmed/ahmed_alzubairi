@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { createTranslator, NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import arContent from "@/messages/ar/DashboardContent.json";
 import ar from "@/messages/ar/DashboardNotifications.json";
+import enContent from "@/messages/en/DashboardContent.json";
 import en from "@/messages/en/DashboardNotifications.json";
 import type { NotificationItem } from "./data";
 
@@ -28,8 +30,38 @@ vi.mock("next/navigation", () => ({
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/user", () => ({ createUserClient: vi.fn() }));
 
+// The server menu's sources: a signed-in, active team member who holds no
+// permission at all, with nothing unread.
+const server = vi.hoisted(() => ({ locale: "en" as "ar" | "en" }));
+vi.mock("@clerk/nextjs/server", () => ({ auth: async () => ({ userId: "user_member" }) }));
+vi.mock("@/lib/auth/gates", () => ({
+  readOwnProfile: async () => ({ role_id: "role-1", status: "active" }),
+}));
+vi.mock("../access", () => ({ grantedPermissions: async () => new Set() }));
+vi.mock("./data", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./data")>()),
+  loadUnreadCount: async () => 0,
+}));
+vi.mock("next-intl/server", async () => {
+  const arMessages = (await import("@/messages/ar/DashboardNotifications.json")).default;
+  const enMessages = (await import("@/messages/en/DashboardNotifications.json")).default;
+  const arNav = (await import("@/messages/ar/DashboardContent.json")).default;
+  const enNav = (await import("@/messages/en/DashboardContent.json")).default;
+  const { createTranslator: translator } = await import("next-intl");
+  return {
+    getTranslations: async (namespace: "DashboardContent" | "DashboardNotifications") => {
+      const messages =
+        server.locale === "ar"
+          ? { DashboardContent: arNav, DashboardNotifications: arMessages }
+          : { DashboardContent: enNav, DashboardNotifications: enMessages };
+      return translator({ locale: server.locale, messages, namespace });
+    },
+  };
+});
+
 const { DashboardNavLink } = await import("../dashboard-nav-link");
 const { DashboardNavMenu } = await import("../dashboard-nav-menu");
+const { DashboardNav } = await import("../dashboard-nav");
 const { notificationsPath, parsePage } = await import("./data");
 const { NotificationList, OPEN_WAIT_MS } = await import("./notification-list");
 const { RefreshOnNavigation } = await import("./refresh-on-navigation");
@@ -145,6 +177,60 @@ describe("the menu with the counter", () => {
     const { container } = render(<Menu count={3} />);
     const name = container.querySelector("button span.truncate");
     expect(name?.textContent).toBe("Dashboard menu: Notifications");
+  });
+});
+
+describe("the dashboard menu's profile entry", () => {
+  async function showNav(locale: "ar" | "en") {
+    server.locale = locale;
+    const menu = await DashboardNav({ params: Promise.resolve({ locale }) });
+    return render(
+      <NextIntlClientProvider
+        locale={locale}
+        messages={{
+          DashboardContent: locale === "ar" ? arContent : enContent,
+          DashboardNotifications: locale === "ar" ? ar : en,
+        }}
+      >
+        {menu}
+      </NextIntlClientProvider>,
+    );
+  }
+
+  it.each([
+    ["en", "My profile"],
+    ["ar", "ملفي الشخصي"],
+  ] as const)("shows a member with no permission the profile link, in %s", async (locale, label) => {
+    await showNav(locale);
+    const link = screen.getByRole("link", { name: label });
+    expect(link.getAttribute("href")).toBe("/account/profile");
+    // Next to Notifications, in the one list the phone folds away.
+    const items = within(screen.getByRole("navigation")).getAllByRole("listitem");
+    const names = items.map((item) => item.textContent);
+    expect(names.at(-1)).toBe(label);
+    expect(names.at(-2)).toBe(locale === "ar" ? ar.nav : en.nav);
+    // Every other section needs a permission this member doesn't hold.
+    expect(names).toEqual([
+      (locale === "ar" ? arContent : enContent).nav.home,
+      locale === "ar" ? ar.nav : en.nav,
+      label,
+    ]);
+  });
+
+  it("is in the phone's folded list, which opens from the menu button", async () => {
+    await showNav("en");
+    const button = screen.getByRole("button", { expanded: false });
+    fireEvent.click(button);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    const list = document.getElementById(button.getAttribute("aria-controls") ?? "");
+    expect(list?.className).toContain("flex");
+    expect(within(list!).getByRole("link", { name: "My profile" })).toBeTruthy();
+  });
+
+  it("is not current on a dashboard page", async () => {
+    nav.pathname = "/dashboard";
+    await showNav("en");
+    expect(screen.getByRole("link", { name: "My profile" }).getAttribute("aria-current")).toBeNull();
   });
 });
 

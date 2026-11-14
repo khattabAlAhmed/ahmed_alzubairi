@@ -1,5 +1,6 @@
 {
   "nav": "Notifications",
+  "profileNav": "My profile",
   "title": "Notifications",
   "intro": "Your notifications, newest first. Opening one marks it as read.",
   "badge": {
