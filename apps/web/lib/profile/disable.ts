@@ -66,6 +66,12 @@ export async function disableAccount(
     return ownFail("internal_error", 502, "disableFailed", locale);
   }
 
+  // An admin may have reactivated the account while the ban was on its way,
+  // and unbanned it before this ban landed. Set Clerk to what the profile
+  // holds now, so an active profile can sign in.
+  const now = await store.getProfile(userId).catch(() => null);
+  if (now?.status === "active") await setClerkBan(userId, false, clerk);
+
   await deps.audit({
     actorId: userId,
     action: "account.disable",

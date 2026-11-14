@@ -197,6 +197,27 @@ describe("disableAccount", () => {
     });
   });
 
+  it("unbans when an admin reactivated the profile before the ban landed", async () => {
+    const { run, store, clerk, calls, state } = world();
+    clerk.ban.mockImplementationOnce(async () => {
+      calls.push("ban");
+      // The admin's reactivation (status active, unban) finished first.
+      await store.setStatus(USER, "disabled", "active");
+    });
+    expect((await run()).status).toBe(200);
+    expect(calls).toEqual(["disable_client", "ban", "status:active", "unban"]);
+    expect(state()).toEqual({ status: "active", banned: false });
+  });
+
+  it("keeps the ban when the profile can't be read after it", async () => {
+    const { run, store, clerk, state } = world();
+    store.getProfile.mockImplementationOnce(store.getProfile.getMockImplementation()!);
+    store.getProfile.mockRejectedValueOnce(new Error("profile read failed"));
+    expect((await run()).status).toBe(200);
+    expect(clerk.unban).not.toHaveBeenCalled();
+    expect(state()).toEqual({ status: "disabled", banned: true });
+  });
+
   it("a refused ban puts the status back, and audits nothing", async () => {
     const { run, clerk, audit, state } = world();
     clerk.ban.mockRejectedValueOnce({ status: 500 });

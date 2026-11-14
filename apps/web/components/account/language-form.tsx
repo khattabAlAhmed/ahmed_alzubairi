@@ -23,7 +23,9 @@ export function LanguageForm({ saved }: { saved: Locale }) {
     event.preventDefault();
     setNotice(null);
     setBusy(true);
-    const result = value === saved ? { ok: true as const } : await saveProfile({ locale: value });
+    // Saved even when it matches what the page loaded with: an earlier save
+    // whose answer was lost may have stored another language.
+    const result = await saveProfile({ locale: value });
     setBusy(false);
     if (!result.ok) {
       setNotice({ ok: false, text: result.message ?? t("failed") });
