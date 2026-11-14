@@ -1,0 +1,111 @@
+{
+  "title": "Consultations",
+  "intro": "Client consultations: chats, statuses, assignment and meetings.",
+  "count": "{total, plural, =0 {No consultations} one {# consultation} other {# consultations}}",
+  "filters": {
+    "label": "Filter consultations",
+    "search": "Search",
+    "searchHint": "Consultation title",
+    "status": "Status",
+    "kind": "Type",
+    "mine": "Assigned to me",
+    "all": "All",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "kinds": {
+    "consultation": "Consultation",
+    "document_request": "Document request"
+  },
+  "list": {
+    "open": "Open {title}, from {client}",
+    "noName": "Client without a name",
+    "client": "Client",
+    "assignee": "Assigned to",
+    "unassigned": "Not assigned",
+    "opened": "Opened"
+  },
+  "empty": {
+    "title": "No consultations yet",
+    "text": "When a client starts a consultation, it appears here.",
+    "assistantText": "Consultations assigned to you appear here.",
+    "filteredTitle": "No matching consultations",
+    "filteredText": "Try another search or clear the filters."
+  },
+  "paging": {
+    "label": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "Page {page} of {pages}"
+  },
+  "detail": {
+    "back": "Back to consultations",
+    "notFound": "We couldn't find this consultation, or it isn't assigned to you.",
+    "client": "Client",
+    "email": "Email",
+    "phone": "Phone",
+    "organization": "Organization",
+    "service": "Service",
+    "opened": "Opened",
+    "request": "Request",
+    "documentRequest": "Open the document request",
+    "chat": "Chat",
+    "meetings": "Meetings",
+    "noMeetings": "No meetings yet."
+  },
+  "status": {
+    "label": "Status",
+    "save": "Change status",
+    "saving": "Saving…",
+    "close": "Close the consultation",
+    "closeQuestion": "Close this consultation? It stays in both histories, but it can't take new messages or meetings, and it can't be reopened.",
+    "closeConfirm": "Close it",
+    "closeCancel": "Cancel",
+    "closed": "This consultation is closed. It stays in the history; it can't be reopened.",
+    "failed": "That didn't save. Refresh and try again."
+  },
+  "assign": {
+    "label": "Assigned to",
+    "none": "Not assigned",
+    "save": "Assign",
+    "saving": "Saving…",
+    "hint": "Active team members who can reply. They get an email and a notification.",
+    "failed": "That didn't save. Refresh and try again."
+  },
+  "meeting": {
+    "add": "Add a meeting",
+    "edit": "Edit",
+    "editTitle": "Edit the meeting",
+    "addTitle": "New meeting",
+    "platform": "Platform",
+    "platformHint": "For example Zoom or Google Meet.",
+    "url": "Meeting link",
+    "urlHint": "The full https:// link.",
+    "date": "Date",
+    "time": "Start time",
+    "duration": "Duration (minutes)",
+    "zone": "Date and time are in your time zone: {zone}. The client sees them in theirs.",
+    "save": "Save the meeting",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "required": "Fill in every field.",
+    "invalidUrl": "Enter a link that starts with https://.",
+    "invalidDuration": "Enter the duration in whole minutes.",
+    "failed": "That didn't save. Try again."
+  },
+  "delete": {
+    "button": "Delete consultation",
+    "title": "Delete this consultation?",
+    "question": "Delete “{title}” with its chat, files and meetings? This can't be undone.",
+    "word": "DELETE",
+    "confirm": "Delete for good",
+    "busy": "Deleting…",
+    "failed": "That didn't delete. Try again."
+  },
+  "thread": {
+    "noMessages": "No messages yet.",
+    "reply": "Your reply",
+    "closed": "This consultation is closed. It stays in the history, but it can't take new messages.",
+    "sendFailed": "Your reply didn't send. Your text is kept; try again."
+  }
+}

@@ -12,8 +12,9 @@ describe("dashboard menu", () => {
       PERMISSIONS.CONTENT_MANAGE,
       PERMISSIONS.TESTIMONIALS_APPROVE,
       PERMISSIONS.MESSAGES_VIEW,
-      PERMISSIONS.CLIENTS_VIEW_ALL,
+      PERMISSIONS.CONSULTATIONS_VIEW_ALL,
       PERMISSIONS.CONSULTATIONS_REPLY,
+      PERMISSIONS.CLIENTS_VIEW_ALL,
       PERMISSIONS.TRAINING_MANAGE,
       PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
       PERMISSIONS.DOCUMENTS_MANAGE,
@@ -51,12 +52,30 @@ describe("dashboard menu", () => {
     ]);
   });
 
-  it.each([
-    PERMISSIONS.CLIENTS_VIEW_ALL,
-    PERMISSIONS.CONSULTATIONS_REPLY,
-    PERMISSIONS.TRAINING_MANAGE,
-  ])("shows Clients with %s alone", (key) => {
-    expect(visibleSections(new Set([key])).map((s) => s.key)).toEqual(["home", "clients"]);
+  it.each([PERMISSIONS.CLIENTS_VIEW_ALL, PERMISSIONS.TRAINING_MANAGE])(
+    "shows Clients with %s alone",
+    (key) => {
+      expect(visibleSections(new Set([key])).map((s) => s.key)).toEqual(["home", "clients"]);
+    },
+  );
+
+  it("shows Consultations and Clients to an assistant with consultations.reply alone", () => {
+    expect(visibleSections(new Set([PERMISSIONS.CONSULTATIONS_REPLY])).map((s) => s.key)).toEqual([
+      "home",
+      "consultations",
+      "clients",
+    ]);
+  });
+
+  it("shows Consultations with consultations.view_all alone", () => {
+    expect(
+      visibleSections(new Set([PERMISSIONS.CONSULTATIONS_VIEW_ALL])).map((s) => s.key),
+    ).toEqual(["home", "consultations"]);
+  });
+
+  it("hides Consultations without view_all or reply, even with assign", () => {
+    const keys = visibleSections(new Set([PERMISSIONS.CONSULTATIONS_ASSIGN])).map((s) => s.key);
+    expect(keys).not.toContain("consultations");
   });
 
   it("hides Clients and Documents from a content editor, and shows Document requests", () => {
@@ -94,6 +113,7 @@ describe("dashboard menu", () => {
     const own: Permission[] = [
       PERMISSIONS.TEAM_MANAGE,
       PERMISSIONS.CLIENTS_VIEW_ALL,
+      PERMISSIONS.CONSULTATIONS_VIEW_ALL,
       PERMISSIONS.CONSULTATIONS_REPLY,
       PERMISSIONS.TRAINING_MANAGE,
       PERMISSIONS.MESSAGES_VIEW,
@@ -109,6 +129,7 @@ describe("dashboard menu", () => {
         PERMISSIONS.CONTENT_MANAGE,
         PERMISSIONS.TESTIMONIALS_APPROVE,
         PERMISSIONS.MESSAGES_VIEW,
+        PERMISSIONS.CONSULTATIONS_VIEW_ALL,
         PERMISSIONS.CLIENTS_VIEW_ALL,
         PERMISSIONS.DOCUMENT_REQUESTS_RECOMMEND,
         PERMISSIONS.DOCUMENTS_MANAGE,
@@ -120,6 +141,7 @@ describe("dashboard menu", () => {
       "content",
       "testimonials",
       "messages",
+      "consultations",
       "clients",
       "documentRequests",
       "documents",

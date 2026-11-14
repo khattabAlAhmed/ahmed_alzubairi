@@ -7,6 +7,7 @@ export type DashboardSection = {
     | "content"
     | "testimonials"
     | "messages"
+    | "consultations"
     | "clients"
     | "documentRequests"
     | "documents"
@@ -59,6 +60,12 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
     key: "messages",
     href: "/dashboard/messages",
     permission: PERMISSIONS.MESSAGES_VIEW,
+  },
+  {
+    key: "consultations",
+    href: "/dashboard/consultations",
+    // view_all sees every one; reply alone sees the assigned ones (RLS).
+    permission: [PERMISSIONS.CONSULTATIONS_VIEW_ALL, PERMISSIONS.CONSULTATIONS_REPLY],
   },
   {
     key: "clients",
