@@ -132,7 +132,7 @@ export default async function ClientsPage({
               </p>
               <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
                 {(client.orgType || client.orgName) && (
-                  <span>
+                  <span className="min-w-0 wrap-anywhere">
                     {t("list.organization")}:{" "}
                     {client.orgType && t(`orgTypes.${client.orgType}`)}
                     {client.orgType && client.orgName && " · "}
