@@ -134,7 +134,12 @@ export function NotificationList({
     // The section opened before the mark landed: read the count again once
     // it does, or the menu would show the old one until the next move.
     if (!settled) void read.then(() => router.refresh());
-    if (started !== generation.current) return;
+    if (started !== generation.current) {
+      // The member moved on. The refresh from that move may have run before
+      // the mark landed, so read the count again now that it has.
+      if (settled) router.refresh();
+      return;
+    }
     router.push(item.href);
   }
 
