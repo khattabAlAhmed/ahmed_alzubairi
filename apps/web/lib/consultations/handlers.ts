@@ -130,20 +130,35 @@ export async function createConsultation(
   return { status: 201, body: { consultation } };
 }
 
+/** Whether the caller may post on a consultation RLS has shown them. */
+export type PostAccess =
+  | { ok: true; fromClient: boolean }
+  | { ok: false; reason: "forbidden" | "closed" };
+
 /**
- * True when a team member may post here: `consultations.view_all`, or
- * `consultations.reply` on a consultation assigned to them.
+ * The rule for posting (messages here, attachments in lib/attachments): the
+ * client on their own consultation, or a team member with
+ * `consultations.view_all`, or with `consultations.reply` on one assigned to
+ * them. A closed consultation takes nothing. Call it only on a consultation
+ * the user client returned, so RLS has already decided it is visible.
  */
-async function teamMayPost(
+export async function postAccess(
   consultation: Consultation,
   userId: string,
-  store: ConsultationStore,
-): Promise<boolean> {
-  const [viewAll, reply] = await Promise.all([
-    store.hasPermission(PERMISSIONS.CONSULTATIONS_VIEW_ALL),
-    store.hasPermission(PERMISSIONS.CONSULTATIONS_REPLY),
-  ]);
-  return viewAll || (reply && consultation.assignedTo === userId);
+  store: Pick<ConsultationStore, "hasPermission">,
+): Promise<PostAccess> {
+  const fromClient = consultation.clientId === userId;
+  if (!fromClient) {
+    const [viewAll, reply] = await Promise.all([
+      store.hasPermission(PERMISSIONS.CONSULTATIONS_VIEW_ALL),
+      store.hasPermission(PERMISSIONS.CONSULTATIONS_REPLY),
+    ]);
+    if (!viewAll && !(reply && consultation.assignedTo === userId)) {
+      return { ok: false, reason: "forbidden" };
+    }
+  }
+  if (consultation.status === "closed") return { ok: false, reason: "closed" };
+  return { ok: true, fromClient };
 }
 
 /**
@@ -195,7 +210,7 @@ async function queueReply(
 
 /**
  * `POST /api/consultations/:id/messages`. The client on their own
- * consultation, or a team member who may post (see `teamMayPost`). A closed
+ * consultation, or a team member who may post (see `postAccess`). A closed
  * consultation refuses (409). Attachments must be the sender's own `ready`
  * files on this consultation that no message holds yet; they are linked to
  * the new message. A team member's message sets `first_reply_at` once and is
@@ -214,11 +229,13 @@ export async function sendMessage(
 
   const consultation = await store.get(id);
   if (!consultation) return notFound(locale);
-  const fromClient = consultation.clientId === userId;
-  if (!fromClient && !(await teamMayPost(consultation, userId, store))) {
-    return ownFail("forbidden", 403, "replyForbidden", locale);
+  const access = await postAccess(consultation, userId, store);
+  if (!access.ok) {
+    return access.reason === "closed"
+      ? ownFail("conflict", 409, "closed", locale)
+      : ownFail("forbidden", 403, "replyForbidden", locale);
   }
-  if (consultation.status === "closed") return ownFail("conflict", 409, "closed", locale);
+  const { fromClient } = access;
 
   const ids = [...new Set(parsed.data.attachmentIds ?? [])];
   if (ids.length > 0) {
