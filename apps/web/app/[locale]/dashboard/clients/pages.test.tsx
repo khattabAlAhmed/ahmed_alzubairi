@@ -90,6 +90,18 @@ describe("/dashboard/clients", () => {
     });
   });
 
+  it("keys the filter form by the applied filters, so Clear resets its controls", async () => {
+    mocks.clientAccess.mockResolvedValue({ locale: "en", allowed: true, canManage: true });
+    const formKey = async (searchParams: Record<string, string>) => {
+      const page = await ClientsPage({ params, searchParams: Promise.resolve(searchParams) });
+      return elements(page).find((element) => element.type === "form")?.key;
+    };
+    const filtered = await formKey({ status: "disabled" });
+    const cleared = await formKey({});
+    expect(filtered).not.toBe(cleared);
+    expect(await formKey({ status: "disabled" })).toBe(filtered);
+  });
+
   it("sends a page past the end to the last page, keeping the filter", async () => {
     mocks.clientAccess.mockResolvedValue({ locale: "ar", allowed: true, canManage: true });
     mocks.loadClients.mockResolvedValue({ clients: [], total: 3 });
