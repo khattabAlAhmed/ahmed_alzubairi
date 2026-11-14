@@ -41,6 +41,7 @@ const FIELDS: Record<Locale, { subject: TemplateField; body: TemplateField }> = 
 export function TemplateEditor({
   entry,
   onBusyChange,
+  onSaved,
 }: {
   entry: EmailTemplateEntry;
   /**
@@ -49,6 +50,11 @@ export function TemplateEditor({
    * could otherwise send a second save that lands before the first.
    */
   onBusyChange?: (busy: boolean) => void;
+  /**
+   * Told what the server holds after a save or a reset, so the list can show
+   * it and an editor reopened before the page is read again starts from it.
+   */
+  onSaved?: (entry: EmailTemplateEntry) => void;
 }) {
   const t = useTranslations("DashboardEmailTemplates");
   const uiLocale = useLocale();
@@ -122,14 +128,16 @@ export function TemplateEditor({
     setBusy(null);
     if (result.ok) {
       // The route trims each text before it stores it.
-      setSaved({
+      const stored: EmailTemplateEntry = {
         event,
         subjectAr: sent.subjectAr.trim(),
         subjectEn: sent.subjectEn.trim(),
         bodyAr: sent.bodyAr.trim(),
         bodyEn: sent.bodyEn.trim(),
         edited: true,
-      });
+      };
+      setSaved(stored);
+      onSaved?.(stored);
       router.refresh();
     }
     setMessage(
@@ -150,7 +158,9 @@ export function TemplateEditor({
       setMessage({ tone: "error", text: result.message ?? t("resetFailed") });
       return;
     }
-    setSaved({ ...defaultTemplate(event), edited: false });
+    const restored: EmailTemplateEntry = { ...defaultTemplate(event), edited: false };
+    setSaved(restored);
+    onSaved?.(restored);
     setValues(toValues(defaultTemplate(event)));
     setErrors({});
     setMessage({ tone: "success", text: t("resetDone") });
