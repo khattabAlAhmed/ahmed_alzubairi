@@ -1,10 +1,10 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import { Badge, Button } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { NotificationItem } from "./data";
 import { sendRead } from "./send";
 
@@ -57,6 +57,17 @@ export function NotificationList({
   // Set while one notification is being opened: a second one waits its turn,
   // so a slow first request can't pull the member away from the second.
   const opening = useRef(false);
+  // Bumped when the member moves to another page or the list goes away. An
+  // open that started before then doesn't push: it would take the member
+  // from where they went.
+  const pathname = usePathname();
+  const generation = useRef(0);
+  useEffect(
+    () => () => {
+      generation.current += 1;
+    },
+    [pathname],
+  );
 
   async function markAll() {
     if (busy) return;
@@ -103,6 +114,7 @@ export function NotificationList({
     // left to finish by itself.
     event.preventDefault();
     opening.current = true;
+    const started = generation.current;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let settled = false;
     const read = sendRead([item.id], { keepalive: true }).finally(() => {
@@ -122,6 +134,12 @@ export function NotificationList({
     // The section opened before the mark landed: read the count again once
     // it does, or the menu would show the old one until the next move.
     if (!settled) void read.then(() => router.refresh());
+    if (started !== generation.current) {
+      // The member moved on. The refresh from that move may have run before
+      // the mark landed, so read the count again now that it has.
+      if (settled) router.refresh();
+      return;
+    }
     router.push(item.href);
   }
 
