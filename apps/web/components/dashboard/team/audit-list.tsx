@@ -1,5 +1,6 @@
 import type { AuditLogEntry } from "@repo/shared";
 import { getMessages, getTranslations } from "next-intl/server";
+import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { LocalTime } from "./local-time";
 import { actionLabel, entityLabel } from "./audit-labels";
 
@@ -24,7 +25,7 @@ export async function AuditList({
   const { actions, entities } = DashboardTeam.audit;
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
       {entries.map((entry) => {
         const metadata = Object.entries(entry.metadata);
         return (
@@ -41,7 +42,7 @@ export async function AuditList({
                 <LocalTime value={entry.createdAt} locale={locale} />
               </p>
             </div>
-            <p className="text-sm break-all text-text-secondary">
+            <p className="text-sm wrap-anywhere text-text-secondary">
               {entityLabel(entry.entity, entities, DashboardContent.types)}
               {entry.entityId && (
                 <>
@@ -52,12 +53,19 @@ export async function AuditList({
             </p>
             {metadata.length > 0 && (
               <details className="text-sm">
-                <summary className="cursor-pointer text-text-secondary">{t("details")}</summary>
+                <summary
+                  className={cx(
+                    "w-fit cursor-pointer rounded-sm text-text-secondary hover:text-text",
+                    FOCUS_RING,
+                  )}
+                >
+                  {t("details")}
+                </summary>
                 <dl dir="ltr" className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-start">
                   {metadata.map(([key, value]) => (
                     <div key={key} className="contents">
                       <dt className="font-semibold">{key}</dt>
-                      <dd className="break-all">{metadataText(value)}</dd>
+                      <dd className="wrap-anywhere">{metadataText(value)}</dd>
                     </div>
                   ))}
                 </dl>
