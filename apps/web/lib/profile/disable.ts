@@ -49,8 +49,9 @@ export async function disableAccount(
     let restored = false;
     try {
       // Consultations that were closed stay closed (§6.16).
-      await store.setStatus(userId, "disabled", profile.status);
-      restored = true;
+      // Compare-and-set: false when the status changed meanwhile and nothing
+      // was written; the fresh read below then decides.
+      restored = await store.setStatus(userId, "disabled", profile.status);
     } finally {
       // Clerk may hold the ban although it couldn't say so. Set it to what
       // the profile holds now: active once it's back, or what a fresh read

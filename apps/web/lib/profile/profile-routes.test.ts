@@ -255,6 +255,21 @@ describe("disableAccount", () => {
     expect(clerk.unban).not.toHaveBeenCalled();
   });
 
+  it("after an unknown ban and a status write that changed nothing, sets Clerk from a fresh read", async () => {
+    const { run, store, clerk, state } = world();
+    clerk.ban.mockImplementationOnce(async () => {
+      throw new Error("timeout");
+    });
+    clerk.isBanned.mockRejectedValueOnce(new Error("down"));
+    // The status moved on meanwhile, so the compare-and-set wrote nothing.
+    store.setStatus.mockResolvedValueOnce(false);
+    expect((await run()).status).toBe(502);
+    expect(store.getProfile).toHaveBeenCalledTimes(2);
+    // The profile still says disabled, so Clerk stays banned.
+    expect(state()).toEqual({ status: "disabled", banned: true });
+    expect(clerk.unban).not.toHaveBeenCalled();
+  });
+
   it("leaves Clerk alone when the profile can't be read either", async () => {
     const { run, store, clerk } = world();
     clerk.ban.mockImplementationOnce(async () => {
