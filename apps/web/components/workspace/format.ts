@@ -27,17 +27,18 @@ export type RefusalReason = "tooLarge" | "wrongType" | "tooMany" | "failed";
 
 export type FileKind = "pdf" | "docx" | "xlsx" | "image" | "other";
 
-const KIND_BY_MIME: Partial<Record<FileMime, FileKind>> = {
-  "application/pdf": "pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-  "image/jpeg": "image",
-  "image/png": "image",
-};
+// A Map, so an inherited key such as "toString" or "__proto__" can't match.
+const KIND_BY_MIME = new Map<string, FileKind>([
+  ["application/pdf", "pdf"],
+  ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx"],
+  ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx"],
+  ["image/jpeg", "image"],
+  ["image/png", "image"],
+] satisfies [FileMime, FileKind][]);
 
 /** The icon and label group for a file. An unknown type is "other". */
 export function fileKind(mime: string): FileKind {
-  return KIND_BY_MIME[mime as FileMime] ?? "other";
+  return KIND_BY_MIME.get(mime) ?? "other";
 }
 
 /** "2.4 MB" / "2.4 ميغابايت". Arabic uses the long unit: the short one ("م.ب") isn't widely read. */

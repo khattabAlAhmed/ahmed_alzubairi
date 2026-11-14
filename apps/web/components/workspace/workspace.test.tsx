@@ -21,6 +21,7 @@ import {
   DOCUMENT_REQUEST_STATUSES,
   DocumentCard,
   FileChip,
+  fileKind,
   formatBytes,
   MeetingCard,
   StatusPill,
@@ -305,6 +306,15 @@ describe("attachment helpers", () => {
     expect(attachmentRefusal({ ...pdf, name: "a.exe" }, 0)).toBe("wrongType");
     expect(attachmentRefusal({ ...pdf, size: MAX_ATTACHMENT_BYTES + 1 }, 0)).toBe("tooLarge");
     expect(attachmentRefusal({ ...pdf, size: MAX_ATTACHMENT_BYTES }, 0)).toBeNull();
+  });
+
+  it("groups files by type, and anything unknown, including inherited keys, is other", () => {
+    expect(fileKind("application/pdf")).toBe("pdf");
+    expect(fileKind("image/jpeg")).toBe("image");
+    expect(fileKind("application/zip")).toBe("other");
+    expect(fileKind("toString")).toBe("other");
+    expect(fileKind("__proto__")).toBe("other");
+    expect(fileKind("constructor")).toBe("other");
   });
 
   it("names the allowed types and formats sizes", () => {
