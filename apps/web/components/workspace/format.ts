@@ -7,21 +7,6 @@ import {
   type FileMime,
 } from "@repo/shared";
 
-/**
- * Document request statuses (§6.18), in order. They mirror the
- * `document_requests.status` check in the client_work migration; packages/shared
- * doesn't export them yet. Move them there with the Phase 4 contract.
- */
-export const DOCUMENT_REQUEST_STATUSES = [
-  "pending_review",
-  "in_contact",
-  "granted",
-  "expired",
-  "revoked",
-] as const;
-
-export type DocumentRequestStatus = (typeof DOCUMENT_REQUEST_STATUSES)[number];
-
 /** Why a file is refused before or during upload (§6.17). */
 export type RefusalReason = "tooLarge" | "wrongType" | "tooMany" | "failed";
 

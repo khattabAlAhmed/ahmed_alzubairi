@@ -1,6 +1,6 @@
 "use client";
 
-import { CONSULTATION_STATUSES } from "@repo/shared";
+import { CONSULTATION_STATUSES, DOCUMENT_REQUEST_STATUSES } from "@repo/shared";
 import { useLocale } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { Button, Card, SectionHeading } from "@/components/ui";
@@ -9,7 +9,6 @@ import {
   ChatMessage,
   Composer,
   ConfirmTwice,
-  DOCUMENT_REQUEST_STATUSES,
   DocumentCard,
   FileChip,
   MeetingCard,

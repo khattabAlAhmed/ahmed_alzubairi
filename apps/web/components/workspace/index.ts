@@ -6,10 +6,8 @@ export { FileChip, type FileChipData } from "./file-chip";
 export {
   allowedTypeNames,
   attachmentRefusal,
-  DOCUMENT_REQUEST_STATUSES,
   fileKind,
   formatBytes,
-  type DocumentRequestStatus,
   type FileKind,
   type RefusalReason,
 } from "./format";

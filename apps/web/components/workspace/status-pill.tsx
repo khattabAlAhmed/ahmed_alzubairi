@@ -1,9 +1,8 @@
 "use client";
 
-import type { ConsultationStatus } from "@repo/shared";
+import type { ConsultationStatus, DocumentRequestStatus } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
-import type { DocumentRequestStatus } from "./format";
 
 export type StatusPillProps =
   | { kind: "consultation"; status: ConsultationStatus; className?: string }

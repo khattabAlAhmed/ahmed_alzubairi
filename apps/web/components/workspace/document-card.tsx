@@ -1,11 +1,10 @@
 "use client";
 
-import type { DocumentAccessMode, DocumentCategory } from "@repo/shared";
+import type { DocumentAccessMode, DocumentCategory, DocumentRequestStatus } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
-import type { DocumentRequestStatus } from "./format";
 import { DownloadIcon, EyeIcon } from "./icons";
 import { StatusPill } from "./status-pill";
 

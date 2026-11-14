@@ -3,6 +3,7 @@ import {
   CONSULTATION_STATUSES,
   DOCUMENT_ACCESS_MODES,
   DOCUMENT_CATEGORIES,
+  DOCUMENT_REQUEST_STATUSES,
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS_PER_MESSAGE,
 } from "@repo/shared";
@@ -18,7 +19,6 @@ import {
   ChatMessage,
   Composer,
   ConfirmTwice,
-  DOCUMENT_REQUEST_STATUSES,
   DocumentCard,
   FileChip,
   fileKind,
