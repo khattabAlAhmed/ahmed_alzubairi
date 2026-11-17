@@ -333,8 +333,7 @@ describe("CourseCard", () => {
     href: "/training/c",
     title: "Course",
     description: null,
-    // Midday UTC: the same date in every zone the browser may be in.
-    startsAt: "2027-01-12T12:00:00Z",
+    startsAt: "2027-01-12T06:00:00Z",
     place: "Riyadh",
     action: <button type="button">Register</button>,
   };
@@ -342,7 +341,9 @@ describe("CourseCard", () => {
   it("shows the type, date, place, seats meter and register action", () => {
     render(<CourseCard {...base} type="in_person" seats={{ left: 14, total: 25 }} />);
     expect(screen.getByText("courseType.in_person")).toBeTruthy();
-    expect(screen.getByText("January 12, 2027")).toBeTruthy();
+    // The date is shown in the runner's zone, as a browser would.
+    const local = new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(base.startsAt));
+    expect(screen.getByText(local)).toBeTruthy();
     expect(screen.getByText("Riyadh")).toBeTruthy();
     expect(screen.getByRole("meter").getAttribute("aria-valuenow")).toBe("14");
     expect(screen.getByRole("button", { name: "Register" })).toBeTruthy();
