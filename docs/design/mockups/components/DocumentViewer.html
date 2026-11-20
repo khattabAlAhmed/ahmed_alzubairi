@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Document card and viewer — preview</title>
+<style>
+.dv { display: grid; grid-template-columns: 4fr 8fr; gap: 32px; }
+.dc { border-top: var(--rule-heavy) solid var(--rule); }
+.dc > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.viewer { border: 1px solid var(--line); display: flex; flex-direction: column; }
+.vbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+.page { position: relative; margin: 20px auto; width: 300px; aspect-ratio: 1 / 1.414; background: #FFFFFF; color: #1A1C1E; box-shadow: 0 0 0 1px var(--line); overflow: hidden; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+.page .ln { height: 6px; background: #E3E5E6; }
+.wm { position: absolute; inset: -40%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 60px; transform: rotate(-30deg); color: rgba(26, 28, 30, 0.13); font-size: 13px; place-content: center; pointer-events: none; }
+.wrap { background: var(--surface); display: flex; justify-content: center; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="dv">
+<div class="stack" style="gap: 6px">
+<p class="ar-small muted">وثائقي المتاحة</p>
+<div class="dc">
+<div><p class="ar-small" style="font-weight: 500">رسالة شكر · برنامج الحماية</p><span class="r-status r-status--success"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>متاحة</span><p class="r-hint">عرض فقط · حتى ٣٠ أبريل</p><a href="#" class="r-more" style="font-size: 14px">افتح</a></div>
+<div><p class="ar-small" style="font-weight: 500">شهادة خبرة · مستشار حوكمة</p><span class="r-status r-status--success"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>متاحة</span><p class="r-hint">عرض وتنزيل · بلا انتهاء</p><a href="#" class="r-more" style="font-size: 14px">افتح</a></div>
+<div><p class="ar-small muted">شهادة في الحماية الإنسانية</p><span class="r-status r-status--muted"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>منتهية</span><p class="r-hint">انتهت في ١ مارس</p><a href="#" class="r-more" style="font-size: 14px">اطلبها مرة أخرى</a></div>
+</div>
+</div>
+<div class="viewer">
+<div class="vbar"><p class="ar-small" style="font-weight: 500">رسالة شكر · برنامج الحماية</p><div class="row" style="gap: 6px"><span class="r-tag">عرض فقط</span><span class="r-hint">صفحة ١ من ٢</span><button class="r-icon-btn" aria-label="إغلاق العارض"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+<div class="wrap"><div class="page" aria-label="صفحة الوثيقة مع علامة مائية باسمك وتاريخ العرض">
+<div class="ln" style="width: 40%"></div><div class="ln"></div><div class="ln"></div><div class="ln" style="width: 80%"></div><div class="ln"></div><div class="ln" style="width: 60%"></div>
+<div class="wm" aria-hidden="true"><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span><span>ليلى م. · ١٦/٠٣/٢٠٢٦</span></div>
+</div></div>
+<p class="r-hint" style="padding: 10px 14px; border-top: 1px solid var(--line)">كل فتح يُسجَّل. العلامة المائية باسمك وتاريخ العرض على كل صفحة. الرابط صالح ٦٠ ثانية.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

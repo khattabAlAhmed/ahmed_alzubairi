@@ -161,12 +161,13 @@ Lane A adds a newsletter checkbox to the email gate after Lane B is merged.
 
 Agents don't start Phase 8 until these are done. The lead plans the board after step 6.
 
-**Status (2026-11-20):**
+**Status (2026-11-20): every step below is done. The lead can plan the board.**
 
-- Steps 1–3 are done. Ahmed chose the foundation "The record", and Ahmed and the product owner approved the design system: https://claude.ai/artifact/SzbYLxMUnJ5HRR2m6UXqNs. `docs/design/DESIGN.md` is generated from it, and `docs/design/system/` holds its tokens and stylesheets.
-- Ahmed's step 4 decisions: the home page **keeps the letter** (so the contract change below applies), the quick stats are **static** (no count-up; this replaces "Numbers animate calmly on view" in `project.md` §6.2), and the hero is the **dossier**: statement on the start side, portrait on the end with the stats ledger beside it.
-- Step 4: Ahmed approved the home and project pages, and every other public page is now designed at https://claude.ai/artifact/CPd8qYyTAYhdEeRYBfeZXr: about, services and one service, an expertise area, contact, projects, blog and one article, resources, media, training and one course, clients and testimonials, documents, FAQ, privacy policy (terms use the same page), 404, sign-in, sign-up with onboarding, and a board of empty, loading and error states for every list. Each is in Arabic at 1440 px with a 375 px version; dark is a switch on each page (shown for home and project). English is designed for home only so far. The shared layout stylesheet is `docs/design/system/pages.css`.
-- Still open in step 4: English versions of the inner pages, Ahmed's own words (the letter, one sentence per page, the hero), and his signature scan. Step 5 (hand off) follows Ahmed's review of these pages.
+- Steps 1–3: Ahmed chose the foundation "The record", and Ahmed and the product owner approved the design system: https://claude.ai/artifact/SzbYLxMUnJ5HRR2m6UXqNs. `docs/design/DESIGN.md` is generated from it, and `docs/design/system/` holds its tokens and stylesheets.
+- Step 4: every public page is designed and approved at https://claude.ai/artifact/CPd8qYyTAYhdEeRYBfeZXr, in Arabic and English, at 1440 px and 375 px, light and dark. Ahmed's decisions: the home page **keeps the letter** (so the contract change below applies), the quick stats are **static** (no count-up; this replaces "Numbers animate calmly on view" in `project.md` §6.2), and the hero is the **dossier**: statement on the start side, portrait on the end with the stats ledger beside it.
+- Step 5: Ahmed gave the product owner his approval for the design and its decisions. The voice of the page copy is approved: headings, intros, buttons, and empty, loading and error states go into `messages/` as written in the mockups. **Facts are not approved copy.** Years, counts, career, qualifications, quotes, testimonials, organization names and contact details in the mockups are placeholders; they come from Ahmed's content in the dashboard. Still owed by Ahmed: the letter text and a scan of his signature. Until both exist, the letter section is not rendered.
+- Step 6: the handoff is in `docs/design/`: `DESIGN.md`, `system/` (tokens, `components.css`, `pages.css`), `mockups/` (a static copy of every page and every component board; open `mockups/index.html`) and `screens/` (screenshots of every page at 1440 px light and dark and 375 px, and of every board light and dark).
+- Step 7: DaVinci's role in HQ already makes `SOUL.md` and `DESIGN.md` its source of truth, and now points to the mockups.
 
 1. **Placeholder photos.** Generate the images listed in `docs/design/images/README.md` with the prompts there, and save them in that folder under the names given. They are dev placeholders.
 2. **Foundations in Claude Design** (claude.ai → Design, included in the Claude Pro/Max plan). Attach `SOUL.md`, `components.md`, `project.md` and the photos, and paste stage 1 of `docs/design/claude-design-prompt.md`. It produces three foundation options, each on one specimen board, Arabic first. **Ahmed picks one.** With it he settles §14 decision 3 (fonts and colors), and decision 1 (name and logo) if he's ready.
@@ -178,13 +179,13 @@ Agents don't start Phase 8 until these are done. The lead plans the board after 
 
 **Keys needed:** none. The inputs above are the product owner's and Ahmed's job.
 
-**Contract change, only if Ahmed keeps the letter:** a new home section (the letter text in both languages, and the signature image) is a contract change. The lead plans it as the first task of the phase, and the product owner approves it, as `CLAUDE.md` requires.
+**Contract change (Ahmed kept the letter):** a new home section (the letter text in both languages, and the signature image) is a contract change. The lead plans it as the first task of the phase, and the product owner approves it, as `CLAUDE.md` requires.
 
 ### Rules for this phase
 
 - `DESIGN.md` replaces §13's look. §13 keeps the rules that aren't style: contrast, RTL, states, responsive, performance, accessibility. Where they disagree with `SOUL.md`, ask the product owner.
 - Pages are composed only from the design system's components. If a page needs one the system doesn't have, add it to `components.md` and the system first (with DaVinci and the product owner), then use it. Never a one-off style inside a page.
-- Build to the approved mockups. If a screen has no mockup, follow `SOUL.md` and `DESIGN.md` and ask DaVinci, never the model's defaults.
+- Build to the approved mockups in `docs/design/mockups/` (pages and component boards; add `?theme=dark` for dark). If a screen has no mockup, follow `SOUL.md` and `DESIGN.md` and ask DaVinci, never the model's defaults.
 - Nothing from "What breaks the soul" in `SOUL.md`, and nothing `DESIGN.md` bans.
 - UI copy in `messages/` follows the voice in `SOUL.md`: first person, measured, no hype. Copy that changes meaning, and any button label named in `project.md`, needs the product owner's approval.
 - Look at your work. Every UI PR shows before and after screenshots at 375 px and 1280 px, in Arabic and English, light and dark, next to the matching mockup.
@@ -192,7 +193,7 @@ Agents don't start Phase 8 until these are done. The lead plans the board after 
 
 | Lane | Includes | project.md |
 | --- | --- | --- |
-| **Foundation — the design system in code, before the lanes** | Every item in `components.md`, built to the approved component boards. Tokens for both themes in `globals.css`, the chosen fonts with `next/font`, an Arabic and an English type scale (Arabic sits larger, with more line height), spacing, radius, motion. Then the primitives, the site shell, his voice, content, forms and feedback components, restyling the files listed under "Code today". A design-system page at `/[locale]/design-system` that shows every component in every state: not linked, `noindex`, and a 404 in production. Optimize the **design** images into `apps/web/public/images/`. A `pnpm screenshots` script (Playwright, using the sandbox's Chromium) that captures the design-system page and the public pages at both widths, both languages, both themes. Update §13 and §14 in `project.md` to point to `docs/design/`. | §13, §14 |
+| **Foundation — the design system in code, before the lanes** | Every item in `components.md`, built to the approved component boards in `docs/design/mockups/components/`. Tokens for both themes in `globals.css`, the chosen fonts with `next/font`, an Arabic and an English type scale (Arabic sits larger, with more line height), spacing, radius, motion. Then the primitives, the site shell, his voice, content, forms and feedback components, restyling the files listed under "Code today". A design-system page at `/[locale]/design-system` that shows every component in every state: not linked, `noindex`, and a 404 in production. Optimize the **design** images into `apps/web/public/images/`. A `pnpm screenshots` script (Playwright, using the sandbox's Chromium) that captures the design-system page and the public pages at both widths, both languages, both themes. Update §13 and §14 in `project.md` to point to `docs/design/`. | §13, §14 |
 | **A — Identity pages** | Header, footer, mobile menu. Home, every section, including the letter if approved. About, expertise, services. | §6.1–6.5, §6.11 |
 | **B — Work and reading pages** | Projects as short stories, clients and testimonials, the public document list, training, blog, resources, media, FAQ, contact, legal pages, 404. Empty, loading and error states on all of them. Clerk sign-in and sign-up themed with the new tokens. | §6.6–6.14, §6.25 |
 

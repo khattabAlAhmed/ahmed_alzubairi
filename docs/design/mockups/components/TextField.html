@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Text field — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-3" style="gap: 28px 32px">
+<div class="r-field"><label class="r-label" for="tf1">الاسم الكامل</label><input class="r-input" id="tf1" placeholder="كما تحب أن أخاطبك"><p class="r-hint">افتراضي</p></div>
+<div class="r-field"><label class="r-label" for="tf2">الجهة <span class="r-req">اختياري</span></label><input class="r-input is-focus" id="tf2" value="وزارة التخطيط"><p class="r-hint">عند التركيز</p></div>
+<div class="r-field"><label class="r-label" for="tf3">البريد الإلكتروني</label><input class="r-input r-input--ltr" id="tf3" type="email" value="ahmed@example" aria-invalid="true" aria-describedby="tf3e"><p class="r-error" id="tf3e"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true" style="margin-top: 4px"><path d="M6 6l12 12M18 6L6 18"/></svg>اكتب بريداً كاملاً، مثل name@example.org</p></div>
+<div class="r-field"><label class="r-label" for="tf4">نوع الجهة</label><select class="r-select" id="tf4"><option>حكومية</option><option>منظمة</option><option>شركة</option><option>فرد</option></select><p class="r-hint">قائمة</p></div>
+<div class="r-field"><label class="r-label" for="tf5">رقم الهاتف</label><input class="r-input r-input--ltr" id="tf5" type="tel" value="+967 77 123 4567" disabled><p class="r-hint">معطّل</p></div>
+<div class="r-field"><label class="r-label" for="tf6">الموضوع</label><input class="r-input" id="tf6" value="مراجعة دليل الحوكمة"><p class="r-hint">مُعبّأ</p></div>
+<div class="r-field" style="grid-column: span 3"><label class="r-label" for="tf7">ما الذي تواجهه؟</label><textarea class="r-textarea" id="tf7" aria-describedby="tf7h">نعمل على نظام داخلي جديد، ونحتاج رأياً مستقلاً قبل عرضه على مجلس الإدارة.</textarea><p class="r-hint" id="tf7h">اكتب بالطريقة التي تشرح بها لزميل. لا حاجة لصيغة رسمية.</p></div>
+</div>
+</div>
+</body>
+</html>

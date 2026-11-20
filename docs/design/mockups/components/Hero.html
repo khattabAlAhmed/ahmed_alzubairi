@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Hero — preview</title>
+<style>
+.hero { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; padding-block-start: 28px; border-top: var(--rule-heavy) solid var(--rule); }
+.hero-text { grid-column: span 7; display: flex; flex-direction: column; gap: 26px; padding-block-end: 8px; }
+.hero-id { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; font-size: 15px; color: var(--ink-2); }
+.hero-id b { color: var(--ink); font-weight: 600; font-size: 17px; }
+.hero-photo { grid-column: span 5; display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 20px; align-items: end; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<section class="hero" aria-labelledby="h1">
+<div class="hero-text">
+<p class="hero-id"><b>أحمد الزبيري</b><span>مستشار في الإدارة والحوكمة والعمل الإنساني والتنمية</span></p>
+<h1 id="h1" class="ar-display" style="text-wrap: balance">أساعد المؤسسات على اتخاذ قراراتٍ تستطيع الدفاع عنها.</h1>
+<p class="ar-body muted" style="max-width: 32em">أمام الناس الذين تخدمهم، وأمام نفسها. أعمل مع الوزارات والمنظمات والشركات، وأبدأ دائماً بالاستماع.</p>
+<div class="row" style="gap: 16px"><a href="#" class="r-btn r-btn--primary r-btn--lg">تعرّف على خبرتي</a><a href="#" class="r-btn r-btn--secondary r-btn--lg">اطلب استشارة</a></div>
+</div>
+<div class="hero-photo">
+<figure><img class="r-photo" style="aspect-ratio: 4 / 5" src="../../images/ahmed-portrait.jpg" alt="صورة مؤقتة لأحمد جالساً إلى طاولة قرب نافذة"></figure>
+<dl class="r-ledger" style="align-self: end">
+<div><dt>الخبرة</dt><dd>١٤ سنة</dd></div>
+<div><dt>المشاريع</dt><dd>٣٨</dd></div>
+<div><dt>الجهات</dt><dd>٢١</dd></div>
+<div><dt>المتدرّبون</dt><dd>١٬٢٠٠</dd></div>
+</dl>
+</div>
+</section>
+<p class="r-hint" style="margin-top: 20px; max-width: 72em">النص على طرف البداية، والصورة على طرف النهاية، وبجانبها سجل الأرقام بهدوء (هذه هي «الإحصاءات السريعة» حين تُعرض مع الافتتاح). لا عنوان في المنتصف، ولا إطار حول الصورة، ولا عدّاد متحرك. على الجوال: الاسم، ثم الجملة، ثم الصورة بعرض كامل، ثم الزران، ثم السجل.</p>
+</div>
+</body>
+</html>

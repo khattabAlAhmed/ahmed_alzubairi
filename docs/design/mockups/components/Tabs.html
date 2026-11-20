@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Tabs — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-2">
+<div class="stack">
+<div class="r-tabs" role="tablist" aria-label="أقسام الأسئلة">
+<button class="r-tab" role="tab" aria-selected="true">الاستشارات</button>
+<button class="r-tab" role="tab" aria-selected="false">التدريب</button>
+<button class="r-tab" role="tab" aria-selected="false">الوثائق</button>
+<button class="r-tab" role="tab" aria-selected="false">الحساب</button>
+</div>
+<p class="r-hint">اختيار واحد: خط سفلي بعرض ٢. مختلفة عن مرشّحات الاختيار المتعدد التي تحمل مربعاً.</p>
+</div>
+<div class="stack">
+<div class="r-tabs" role="tablist" aria-label="لغة المحتوى">
+<button class="r-tab" role="tab" aria-selected="true">العربية <span class="r-status r-status--success" style="font-size: 12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
+<button class="r-tab" role="tab" aria-selected="false">English <span class="r-tag r-tag--draft" style="font-size: 11px; line-height: 1.6">ناقص</span></button>
+</div>
+<p class="r-hint">في لوحة التحكم: كل لغة تبويب، والتبويب يقول إن كانت الترجمة مكتملة.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

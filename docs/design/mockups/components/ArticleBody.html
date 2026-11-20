@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Article body — preview</title>
+<style>
+.art { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; }
+.art-meta { grid-column: span 3; }
+.prose { grid-column: 4 / span 6; display: flex; flex-direction: column; gap: 22px; }
+.prose p, .prose li { font-size: 18px; line-height: 2.05; }
+.prose h2 { font-size: 26px; line-height: 1.6; font-weight: 500; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.prose ol { list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 6px; }
+.prose ol li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; }
+.prose ol li::before { content: counter(s, arabic-indic) "."; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.prose blockquote { padding-inline-start: 20px; border-inline-start: var(--rule-heavy) solid var(--rule); font-size: 21px; line-height: 1.95; }
+.share { grid-column: span 3; align-self: start; display: flex; flex-direction: column; border-top: var(--rule-heavy) solid var(--rule); }
+.share > * { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border-bottom: 1px solid var(--line); font-size: 14px; text-decoration: none; background: none; border-inline: 0; border-top: 0; padding: 0; cursor: pointer; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<article class="art">
+<div class="art-meta">
+<dl class="r-ledger"><div><dt>نُشر</dt><dd>١٢ مارس ٢٠٢٦</dd></div><div><dt>القراءة</dt><dd>٧ دقائق</dd></div><div><dt>المجال</dt><dd>الحوكمة</dd></div></dl>
+</div>
+<div class="prose">
+<h1 class="ar-h1">لماذا تفشل أدلة الحوكمة في أسبوعها الأول</h1>
+<p>أغلب الأدلة التي رأيتها لم تفشل لأنها مكتوبة بشكل سيئ. فشلت لأن من كتبها لم يسأل من سيستعملها: ماذا تفعل حين يصلك قرار لا تعرف من يملكه؟</p>
+<h2>ثلاثة أسباب تتكرر</h2>
+<ol><li>الدليل يصف المؤسسة كما يجب أن تكون، لا كما هي.</li><li>لا أحد يملك تحديثه بعد اعتماده.</li><li>الموظف الجديد لا يعرف أنه موجود.</li></ol>
+<blockquote>القاعدة التي لا يستطيع الموظف شرحها لزميله، لن يطبّقها.</blockquote>
+<figure><img class="r-photo" style="aspect-ratio: 3 / 2" src="../../images/workshop-facilitation.jpg" alt="صورة مؤقتة: ورشة مع فريق"><figcaption class="r-caption"><span>ورشة كتابة الدليل مع فريق المديرية · صورة مؤقتة</span></figcaption></figure>
+<table class="r-table"><thead><tr><th>قبل</th><th>بعد</th></tr></thead><tbody><tr><td>٤٢ صفحة</td><td>٩ صفحات ومصفوفة واحدة</td></tr><tr><td>يُقرأ عند التعيين فقط</td><td>يُفتح عند كل قرار</td></tr></tbody></table>
+<p>إن كنت تعمل على دليل الآن، فابدأ من السؤال لا من القالب. <a href="#" class="r-link">قالب الأسئلة الذي أستعمله</a> متاح مجاناً.</p>
+</div>
+<aside class="share" aria-label="مشاركة">
+<button>انسخ الرابط<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 15l6-6M10 6l1.5-1.5a4 4 0 0 1 6 6L16 12M14 18l-1.5 1.5a4 4 0 0 1-6-6L8 12"/></svg></button>
+<span role="status" style="color: var(--success); justify-content: flex-start; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>نُسخ الرابط</span>
+<a href="#">LinkedIn<svg class="dir-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></a>
+<a href="#">X<svg class="dir-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></a>
+<a href="#">واتساب<svg class="dir-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></a>
+</aside>
+</article>
+</div>
+</body>
+</html>

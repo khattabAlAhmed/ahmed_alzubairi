@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Button — preview</title>
+<style>.bt { display: grid; grid-template-columns: 110px repeat(5, auto); gap: 14px 18px; align-items: center; justify-content: start; }</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="bt">
+<span class="state-label"></span><span class="state-label">افتراضي</span><span class="state-label">مرور</span><span class="state-label">تركيز</span><span class="state-label">معطّل</span><span class="state-label">تحميل</span>
+<span class="r-hint">أساسي</span>
+<a href="#" class="r-btn r-btn--primary">اطلب استشارة</a>
+<a href="#" class="r-btn r-btn--primary" style="background: var(--ink)">اطلب استشارة</a>
+<a href="#" class="r-btn r-btn--primary is-focus">اطلب استشارة</a>
+<button class="r-btn r-btn--primary" disabled>اطلب استشارة</button>
+<button class="r-btn r-btn--primary" aria-busy="true"><span class="spin" aria-hidden="true"></span>جارٍ الإرسال</button>
+<span class="r-hint">ثانوي</span>
+<a href="#" class="r-btn r-btn--secondary">تعرّف على خبرتي</a>
+<a href="#" class="r-btn r-btn--secondary" style="background: var(--surface-hover)">تعرّف على خبرتي</a>
+<a href="#" class="r-btn r-btn--secondary is-focus">تعرّف على خبرتي</a>
+<button class="r-btn r-btn--secondary" disabled>تعرّف على خبرتي</button>
+<span></span>
+<span class="r-hint">هادئ</span>
+<a href="#" class="r-btn r-btn--quiet">اقرأ السجل كاملاً</a>
+<a href="#" class="r-btn r-btn--quiet" style="text-decoration-thickness: 2px">اقرأ السجل كاملاً</a>
+<a href="#" class="r-btn r-btn--quiet is-focus">اقرأ السجل كاملاً</a>
+<span></span><span></span>
+<span class="r-hint">حذف</span>
+<button class="r-btn r-btn--danger">حذف المحادثة</button>
+<span></span><span></span><span></span><span></span>
+</div>
+<div class="row" style="margin-top: 20px; gap: 16px" dir="ltr">
+<a href="#" class="r-btn r-btn--primary r-btn--sm">Request a consultation</a>
+<a href="#" class="r-btn r-btn--secondary r-btn--sm">See my expertise</a>
+<a href="#" class="r-btn r-btn--primary r-btn--lg">Request a consultation <svg class="dir-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+</div>
+</div>
+</body>
+</html>

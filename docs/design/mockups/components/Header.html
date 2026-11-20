@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Header — preview</title>
+<style>
+.hd { display: flex; align-items: stretch; justify-content: space-between; gap: 24px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); background: var(--bg); }
+.hd nav { display: flex; }
+.hd nav a { display: flex; align-items: center; padding: 0 16px; font-size: 15px; }
+.brand { display: flex; flex-direction: column; justify-content: center; padding-block: 14px; text-decoration: none; }
+.brand b { font-size: 19px; font-weight: 600; line-height: 1.4; }
+.brand small { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.tools { display: flex; align-items: center; gap: 4px; }
+.me { display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; height: 44px; font-size: 14px; text-decoration: none; }
+.me i { display: grid; place-content: center; width: 28px; height: 28px; border-radius: var(--radius-round); background: var(--surface); font-style: normal; font-size: 12px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 28px">
+<header class="hd">
+<a href="#" class="brand"><b>أحمد الزبيري</b><small>الإدارة · الحوكمة · العمل الإنساني · التنمية</small></a>
+<nav aria-label="الرئيسية">
+<a href="#" class="r-nav-link" aria-current="page">الرئيسية</a><a href="#" class="r-nav-link">من أنا</a><a href="#" class="r-nav-link">مجالات الخبرة</a><a href="#" class="r-nav-link">الخدمات</a><a href="#" class="r-nav-link">المشاريع</a><a href="#" class="r-nav-link">المدونة</a><a href="#" class="r-nav-link">الوثائق</a>
+</nav>
+<div class="tools">
+<a href="#" class="r-icon-btn" lang="en" style="width: auto; padding: 0 10px; font-family: var(--font-mono); font-size: 13px; text-decoration: none" aria-label="English">EN</a>
+<button class="r-icon-btn" aria-label="الوضع: حسب الجهاز"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v11H3zM8 20h8M12 16v4"/></svg></button>
+<a href="#" class="r-icon-btn" style="width: auto; padding: 0 12px; font-size: 14px; text-decoration: none">دخول</a>
+<a href="#" class="r-btn r-btn--primary r-btn--sm">اطلب استشارة</a>
+</div>
+</header>
+<p class="state-label">بعد تسجيل الدخول</p>
+<header class="hd" style="margin-top: -18px">
+<a href="#" class="brand"><b>أحمد الزبيري</b><small>الإدارة · الحوكمة · العمل الإنساني · التنمية</small></a>
+<nav aria-label="الرئيسية">
+<a href="#" class="r-nav-link">الرئيسية</a><a href="#" class="r-nav-link">من أنا</a><a href="#" class="r-nav-link">مجالات الخبرة</a><a href="#" class="r-nav-link">الخدمات</a><a href="#" class="r-nav-link" aria-current="page">المشاريع</a><a href="#" class="r-nav-link">المدونة</a><a href="#" class="r-nav-link">الوثائق</a>
+</nav>
+<div class="tools">
+<a href="#" class="r-icon-btn" style="width: auto; padding: 0 10px; font-family: var(--font-mono); font-size: 13px; text-decoration: none" aria-label="English">EN</a>
+<button class="r-icon-btn" aria-label="الوضع: داكن"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></button>
+<a href="#" class="me"><i>س م</i>حسابي</a>
+<a href="#" class="r-btn r-btn--primary r-btn--sm">اطلب استشارة</a>
+</div>
+</header>
+<p class="state-label">الجوال · ٣٧٥ · عند التمرير يبقى الشريط وزر الاستشارة</p>
+<header class="hd" style="width: 375px; margin-top: -18px; padding-inline: 16px">
+<a href="#" class="brand"><b style="font-size: 17px">أحمد الزبيري</b></a>
+<div class="tools"><a href="#" class="r-btn r-btn--primary r-btn--sm" style="padding: 0 12px">اطلب استشارة</a><button class="r-icon-btn" aria-label="القائمة" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button></div>
+</header>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Registration panel — preview</title>
+<style>
+.rp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.rp > div { padding: 18px; background: var(--surface); border-top: var(--rule-heavy) solid var(--rule); display: flex; flex-direction: column; gap: 12px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="rp">
+<div><p class="state-label">غير مسجّل الدخول</p><dl class="r-ledger"><div><dt>الموعد</dt><dd>١٤–١٥ أبريل</dd></div><div><dt>المقاعد</dt><dd>٨ من ٢٠</dd></div></dl><a href="#" class="r-btn r-btn--primary r-btn--block">سجّل الدخول للتسجيل</a><p class="r-hint">ستعود إلى هذه الدورة بعد الدخول.</p></div>
+<div><p class="state-label">مسجّل الدخول</p><dl class="r-ledger"><div><dt>الموعد</dt><dd>١٤–١٥ أبريل</dd></div><div><dt>المقاعد</dt><dd>٨ من ٢٠</dd></div></dl><button class="r-btn r-btn--primary r-btn--block">سجّل في الدورة</button><p class="r-hint">التسجيل مجاني. يصلك تأكيد بالبريد.</p></div>
+<div><p class="state-label">مسجّل</p><p class="r-status r-status--success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>أنت مسجّل في هذه الدورة</p><p class="ar-small">أرسلنا التفاصيل إلى بريدك. تجدها أيضاً في «دوراتي».</p><a href="#" class="r-more" style="align-self: flex-start">دوراتي</a></div>
+<div><p class="state-label">اكتملت</p><p class="ar-small" style="font-weight: 500">اكتملت المقاعد في هذه الدورة.</p><p class="ar-small muted">أكرّر الدورات المطلوبة. اشترك في النشرة لتعرف الموعد القادم.</p><button class="r-btn r-btn--block" disabled>اكتملت المقاعد</button></div>
+</div>
+</div>
+</body>
+</html>

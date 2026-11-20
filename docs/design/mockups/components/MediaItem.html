@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Media item — preview</title>
+<style>
+.md { display: grid; grid-template-columns: 5fr 7fr; gap: 32px; }
+.vid { position: relative; display: block; }
+.vid .play { position: absolute; inset-inline-start: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg); color: var(--ink); font-size: 14px; }
+.log a { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 24px; align-items: baseline; padding-block: 14px; border-bottom: 1px solid var(--line); text-decoration: none; }
+.log .k { font-size: 13px; color: var(--ink-2); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="md">
+<a href="#" class="vid stack" style="gap: 10px; text-decoration: none">
+<span style="position: relative; display: block"><img class="r-photo" style="aspect-ratio: 16 / 9" src="../../images/workshop-facilitation.jpg" alt="صورة مؤقتة من الحلقة"><span class="play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l12 8-12 8z"/></svg>شاهد · ٢٤ دقيقة</span></span>
+<span class="r-record__meta" style="border-top: var(--rule-heavy) solid var(--rule)"><span>مقابلة · قناة إخبارية</span><span>فبراير ٢٠٢٦</span></span>
+<span class="ar-h3">عن الحماية حين يغيب القانون</span>
+</a>
+<div class="log" style="border-top: var(--rule-heavy) solid var(--rule)">
+<a href="#"><span class="k tnum">نوفمبر ٢٠٢٥</span><span class="stack" style="gap: 2px"><span class="ar-h3" style="font-size: 18px">متحدث في مؤتمر إقليمي للحوكمة</span><span class="ar-caption muted">مؤتمر · جلسة عن تفويض الصلاحيات</span></span><span class="r-tag">مؤتمرات</span></a>
+<a href="#"><span class="k tnum">يونيو ٢٠٢٥</span><span class="stack" style="gap: 2px"><span class="ar-h3" style="font-size: 18px">ورشة مفتوحة: الإحالة المجتمعية</span><span class="ar-caption muted">فعالية · ٦٠ مشاركاً</span></span><span class="r-tag">فعاليات</span></a>
+<a href="#"><span class="k tnum">مارس ٢٠٢٥</span><span class="stack" style="gap: 2px"><span class="ar-h3" style="font-size: 18px">حوار إذاعي عن الشباب وسوق العمل</span><span class="ar-caption muted">إذاعة · ٣٠ دقيقة · رابط خارجي</span></span><span class="r-tag">إعلام</span></a>
+</div>
+</div>
+</div>
+</body>
+</html>

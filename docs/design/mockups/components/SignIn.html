@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Sign in — preview</title>
+<style>
+.si { display: grid; grid-template-columns: 5fr 1fr 6fr; gap: 32px; align-items: start; }
+.card { padding: 28px; border-top: var(--rule-heavy) solid var(--rule); border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 18px; }
+.why li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding-block: 10px; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.8; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="si">
+<div class="card" aria-labelledby="si1">
+<h1 id="si1" class="ar-h2">تسجيل الدخول</h1>
+<div class="r-field"><label class="r-label" for="s1">البريد الإلكتروني</label><input class="r-input r-input--ltr" id="s1" type="email" value="name@example.org"></div>
+<div class="r-field"><div class="row" style="justify-content: space-between"><label class="r-label" for="s2">كلمة المرور</label><a href="#" class="r-link" style="font-size: 13px">نسيتها</a></div><input class="r-input r-input--ltr" id="s2" type="password" value="••••••••••••" aria-invalid="true" aria-describedby="s2e"><p class="r-error" id="s2e">كلمة المرور غير صحيحة. جرّب مرة أخرى أو استعدها.</p></div>
+<button class="r-btn r-btn--primary r-btn--block">دخول</button>
+<p class="r-hint" style="text-align: center">ليس لديك حساب؟ <a href="#" class="r-link">أنشئ حساباً</a></p>
+</div>
+<span></span>
+<div class="stack" style="gap: 14px; padding-top: 20px">
+<p class="ar-h3" style="font-weight: 500; max-width: 24em">الحساب يحفظ محادثتنا وملفاتك في مكان واحد، لا يراه غيرنا.</p>
+<ul class="why" style="border-top: 1px solid var(--line)">
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="margin-top: 7px"><path d="M4 5h16v11H8l-4 4z"/></svg>استشاراتك ومحادثاتها ومواعيدها</li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="margin-top: 7px"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></svg>الوثائق التي أتحتها لك</li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="margin-top: 7px"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>الدورات التي سجّلت فيها</li>
+</ul>
+<p class="r-hint">مكوّنات Clerk بخط Alexandria وألوان النظام وزوايا صفر. بالعربية تُستعمل ترجمة <span class="mono" dir="ltr">arSA</span>.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

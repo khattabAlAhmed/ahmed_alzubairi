@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Meeting card — preview</title>
+<style>
+.mt { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 0; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); max-width: 640px; }
+.day { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; background: var(--ink); color: var(--bg); padding: 14px 0; }
+.day b { font-size: 34px; line-height: 1.1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.day span { font-size: 13px; }
+.info { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 18px">
+<div class="mt">
+<div class="day"><span>الأحد</span><b>١٦</b><span>مارس</span></div>
+<div class="info">
+<p class="ar-h3">جلسة باب التفويض</p>
+<p class="ar-small">١١:٠٠ ص – ١٢:٠٠ م · <span class="muted">بتوقيت مكة (<span dir="ltr">GMT+3</span>)</span> · ساعة</p>
+<div class="row" style="justify-content: space-between"><span class="r-hint">Google Meet · <span class="mono" dir="ltr">meet.google.com/abc-defg-hij</span></span><a href="#" class="r-btn r-btn--primary r-btn--sm">انضم إلى الاجتماع</a></div>
+</div>
+</div>
+<p class="r-notice r-notice--info" style="max-width: 640px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="margin-top: 5px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span class="ar-small" style="color: var(--ink)">تغيّر رابط الاجتماع. أرسلنا التفاصيل الجديدة إلى بريدك.</span><span></span></p>
+</div>
+</div>
+</body>
+</html>

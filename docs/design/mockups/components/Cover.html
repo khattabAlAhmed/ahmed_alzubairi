@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Cover</title>
+<style>
+html, body { margin: 0; background: var(--bg); }
+.cv { position: relative; width: 960px; height: 300px; background: var(--bg); font-family: var(--font-sans); overflow: hidden; }
+.cv svg { position: absolute; top: 0; left: 480px; width: 480px; height: 300px; }
+.ink { fill: var(--ink); }
+.acc { fill: var(--accent); }
+.srf { fill: var(--surface); }
+.wash { fill: var(--accent-wash); }
+.hair { stroke: var(--line); stroke-width: 1; }
+.heavy { stroke: var(--rule); stroke-width: 2; }
+.txt { position: absolute; left: 40px; bottom: 40px; width: 420px; }
+.name { margin: 0; font-size: 72px; line-height: 0.95; font-weight: 500; color: var(--ink); }
+.tag { margin: 16px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+</style></head>
+<body>
+<div class="cv">
+<svg viewBox="0 0 480 300" aria-hidden="true">
+<!-- blocks: ink 160x112 (record head), accent 64x112 ("what changed"), surface 224x96, accent-wash 120x96; square corners = radius-0 -->
+<!-- arrangement: a ledger — blocks sit in label-col (120) and value columns, each row opened by a heavy rule -->
+<!-- pattern: editorial "borders not shadows" row — five hairline row rules plus two 2px opening rules crossing the blocks -->
+<!-- scales: space-6 32, space-5 24, label-col 120, rule-heavy 2, rule-hair 1, radius-0 -->
+<rect class="srf" x="32" y="40" width="224" height="96"/>
+<rect class="ink" x="288" y="40" width="160" height="112"/>
+<rect class="wash" x="32" y="168" width="120" height="96"/>
+<rect class="acc" x="152" y="168" width="64" height="96"/>
+<rect class="srf" x="248" y="184" width="200" height="80"/>
+<line class="heavy" x1="32" y1="40" x2="480" y2="40"/>
+<line class="heavy" x1="32" y1="168" x2="480" y2="168"/>
+<line class="hair" x1="32" y1="88" x2="480" y2="88"/>
+<line class="hair" x1="32" y1="136" x2="480" y2="136"/>
+<line class="hair" x1="32" y1="216" x2="480" y2="216"/>
+<line class="hair" x1="32" y1="264" x2="480" y2="264"/>
+<line class="hair" x1="152" y1="40" x2="152" y2="300"/>
+</svg>
+<div class="txt">
+<p class="name">Ahmed · The record</p>
+<p class="tag">مجلسٌ هادئ مع رجلٍ رأى الكثير، فصار هادئاً.</p>
+</div>
+</div>
+</body>
+</html>

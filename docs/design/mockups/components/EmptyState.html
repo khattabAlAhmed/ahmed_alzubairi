@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Empty state — preview</title>
+<style>
+.es { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.es > div { padding-block: 22px; border-top: var(--rule-heavy) solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+.es .blank { height: 64px; border: 1px dashed var(--line-strong); display: grid; grid-template-columns: var(--label-col) 1fr; }
+.es .blank span:first-child { border-inline-end: 1px dashed var(--line-strong); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="es">
+<div><div class="blank" aria-hidden="true"><span></span><span></span></div><p class="ar-h3">لم أنشر مقالات بالإنجليزية بعد</p><p class="ar-small muted">أكتب بالعربية أولاً. المقالات العربية هنا.</p><a href="#" class="r-more" style="align-self: flex-start">اقرأ بالعربية</a></div>
+<div><div class="blank" aria-hidden="true"><span></span><span></span></div><p class="ar-h3">لا مشاريع تطابق هذا الاختيار</p><p class="ar-small muted">التنمية مع شركة: لم أعمل على مشروع كهذا بعد.</p><button class="r-btn r-btn--secondary r-btn--sm" style="align-self: flex-start">امسح الاختيار</button></div>
+<div><div class="blank" aria-hidden="true"><span></span><span></span></div><p class="ar-h3">لا استشارات بعد</p><p class="ar-small muted">حين تبدأ استشارة، تجد هنا المحادثة والملفات والمواعيد.</p><a href="#" class="r-btn r-btn--primary r-btn--sm" style="align-self: flex-start">بدء استشارة جديدة</a></div>
+</div>
+<p class="r-hint" style="margin-top: 14px">الحالة الفارغة سجل فارغ بخط متقطع، لا رسم توضيحي. تقول لماذا هو فارغ وما الخطوة التالية، بصوته. قسم فارغ في الرئيسية لا يُعرض.</p>
+</div>
+</body>
+</html>

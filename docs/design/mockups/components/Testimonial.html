@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Testimonial — preview</title>
+<style>
+.tm { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; }
+.tm-main { grid-column: span 7; display: grid; grid-template-columns: var(--label-col) minmax(0, 1fr); gap: 24px; padding-block-start: 20px; border-top: var(--rule-heavy) solid var(--rule); }
+.tm-main blockquote { font-size: 26px; line-height: 1.8; font-weight: 400; text-wrap: pretty; }
+.tm-side { grid-column: span 5; border-top: var(--rule-heavy) solid var(--rule); }
+.tm-side figure { padding-block: 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.tm-side blockquote { font-size: 16px; line-height: 1.9; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="tm">
+<figure class="tm-main">
+<div class="stack" style="gap: 8px; color: var(--ink-2)">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5"/></svg>
+<p class="ar-caption">من رسالة شكر<br>يونيو ٢٠٢٣</p>
+</div>
+<div class="stack" style="gap: 18px">
+<blockquote>«كان يستمع أكثر مما يتكلم. وحين تكلّم، كان كلامه خطةً يمكن تنفيذها، وما زلنا نعمل بها بعد عامين.»</blockquote>
+<figcaption class="stack" style="gap: 2px"><span class="ar-small" style="font-weight: 500">مديرة برنامج الحماية</span><span class="ar-caption muted">منظمة إنسانية دولية</span></figcaption>
+</div>
+</figure>
+<div class="tm-side">
+<figure><blockquote>«ساعدنا على كتابة لوائح يفهمها الموظف قبل المدير.»</blockquote><figcaption class="ar-caption muted">وكيل وزارة · جهة حكومية · ٢٠٢٤</figcaption></figure>
+<figure><blockquote>«أول تدريب خرجنا منه بأدوات نستعملها في اليوم التالي.»</blockquote><figcaption class="ar-caption muted">منسّقة تدريب · منظمة محلية · ٢٠٢٢</figcaption></figure>
+<figure><blockquote>«لم يقدّم حلاً جاهزاً. ساعدنا على أن نجد حلّنا.»</blockquote><figcaption class="ar-caption muted">رئيس مجلس الإدارة · شركة عائلية · ٢٠٢٥</figcaption></figure>
+</div>
+</div>
+<p class="r-hint" style="margin-top: 14px">كل شهادة من رسالة شكر حقيقية، معاد صياغتها بموافقة الجهة، ولا تُعرض إلا بعد موافقة المدير. تُنسب إلى دور وجهة، لا إلى اسم شخص. الرسالة الأصلية لا تظهر للزوار.</p>
+</div>
+</body>
+</html>

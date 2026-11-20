@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>App shell — preview</title>
+<style>
+.as { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 480px; border: 1px solid var(--line); }
+.side { border-inline-end: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; }
+.side .b { padding: 14px 18px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+.side h3 { padding: 14px 18px 4px; font-size: 12px; font-weight: 500; color: var(--ink-2); }
+.side a { display: flex; justify-content: space-between; align-items: center; padding: 9px 18px; font-size: 15px; text-decoration: none; color: var(--ink-2); }
+.side a[aria-current="page"] { color: var(--ink); background: var(--bg); box-shadow: inset calc(-1 * var(--rule-heavy)) 0 0 var(--accent); }
+.side a .n { min-width: 22px; padding: 0 6px; text-align: center; font-size: 12px; background: var(--ink); color: var(--bg); font-variant-numeric: tabular-nums; }
+.main { display: flex; flex-direction: column; }
+.top { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="as">
+<nav class="side" aria-label="لوحة التحكم">
+<div class="b"><p class="ar-small" style="font-weight: 600">لوحة التحكم</p><p class="r-hint">سارة · مستشار مساعد</p></div>
+<h3>العمل</h3>
+<a href="#">الرئيسية</a>
+<a href="#" aria-current="page">الاستشارات <span class="n">٣</span></a>
+<a href="#">طلبات الوثائق <span class="n">٢</span></a>
+<a href="#">الرسائل</a>
+<h3>المحتوى</h3>
+<a href="#">المشاريع</a>
+<a href="#">المقالات</a>
+<a href="#">الشهادات والجهات</a>
+<p class="r-hint" style="padding: 16px 18px; margin-top: auto; border-top: 1px solid var(--line)">تظهر الأقسام التي تسمح بها صلاحياتك فقط.</p>
+</nav>
+<div class="main">
+<div class="top"><h1 class="ar-h3">الاستشارات</h1><div class="row"><div class="r-search" style="min-height: 40px; width: 280px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><input aria-label="بحث" placeholder="بحث بالعنوان أو العميل" style="font-size: 14px"></div><button class="r-icon-btn" aria-label="الإشعارات · ٤ غير مقروءة"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></svg></button></div></div>
+<div style="padding: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px" aria-hidden="true"><div class="r-skel" style="height: 90px"></div><div class="r-skel" style="height: 90px"></div><div class="r-skel" style="height: 90px"></div><div class="r-skel" style="grid-column: 1 / -1; height: 220px"></div></div>
+</div>
+</div>
+<p class="r-hint" style="margin-top: 12px">على الجوال: الشريط الجانبي يصبح قائمة من زر في الأعلى، والمحتوى بعرض كامل.</p>
+</div>
+</body>
+</html>

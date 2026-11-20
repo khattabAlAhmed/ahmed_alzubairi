@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Contact form — preview</title>
+<style>
+.ct { display: grid; grid-template-columns: 7fr 1fr 4fr; gap: 32px; }
+.ct form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 24px; padding-top: 22px; border-top: var(--rule-heavy) solid var(--rule); }
+.ch { border-top: var(--rule-heavy) solid var(--rule); }
+.ch > div { display: flex; flex-direction: column; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.sent { padding: 20px; background: var(--surface); border-top: var(--rule-heavy) solid var(--success); display: flex; flex-direction: column; gap: 8px; margin-top: 24px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="ct">
+<form onsubmit="return false" aria-label="راسلني">
+<div class="r-field"><label class="r-label" for="c1">اسمك</label><input class="r-input" id="c1"></div>
+<div class="r-field"><label class="r-label" for="c2">بريدك</label><input class="r-input r-input--ltr" id="c2" type="email"></div>
+<fieldset class="r-field" style="grid-column: 1 / -1; border: 0; padding: 0; margin: 0"><legend class="r-label" style="margin-bottom: 8px">نوع الجهة</legend><div class="row" style="gap: 24px"><label class="r-check"><input type="radio" name="ot" checked>حكومية</label><label class="r-check"><input type="radio" name="ot">منظمة</label><label class="r-check"><input type="radio" name="ot">شركة</label><label class="r-check"><input type="radio" name="ot">فرد</label></div></fieldset>
+<div class="r-field" style="grid-column: 1 / -1"><label class="r-label" for="c3">الموضوع</label><input class="r-input" id="c3"></div>
+<div class="r-field" style="grid-column: 1 / -1"><label class="r-label" for="c4">رسالتك</label><textarea class="r-textarea" id="c4"></textarea></div>
+<div class="row" style="grid-column: 1 / -1; justify-content: space-between"><p class="r-hint">لا تحتاج حساباً لإرسال رسالة.</p><button class="r-btn r-btn--primary">أرسل الرسالة</button></div>
+</form>
+<span></span>
+<div class="stack" style="gap: 0">
+<div class="ch">
+<div><span class="ar-caption muted">البريد</span><span class="mono" dir="ltr" style="text-align: right; user-select: all">hello@example.org</span></div>
+<div><span class="ar-caption muted">واتساب</span><span class="mono" dir="ltr" style="text-align: right; user-select: all">+967 77 000 0000</span></div>
+<div><span class="ar-caption muted">LinkedIn</span><a href="#" class="r-link">/in/ahmed-alzubairi</a></div>
+</div>
+<div class="sent" role="status"><p class="r-status r-status--success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>وصلت رسالتك</p><p class="ar-small">شكراً لك. سأقرأها بنفسي، وأرد على بريدك.</p><p class="state-label">حالة «أُرسلت» · بلا وعد بزمن الرد</p></div>
+</div>
+</div>
+</div>
+</body>
+</html>

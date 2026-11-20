@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Custom training request — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<form onsubmit="return false" aria-labelledby="ctr" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 22px 32px; padding-top: 22px; border-top: var(--rule-heavy) solid var(--rule)">
+<div style="grid-column: span 4" class="stack"><h2 id="ctr" class="ar-h2">تدريب مخصص لجهتك</h2><p class="ar-small muted">أخبرني بما يحتاجه فريقك. سأقترح محتوى ومدة تناسبه، ونتفق قبل أي التزام.</p></div>
+<div style="grid-column: span 8; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 24px">
+<div class="r-field"><label class="r-label" for="t1">عدد المتدرّبين</label><input class="r-input" id="t1" type="number" value="25" style="font-variant-numeric: tabular-nums"></div>
+<div class="r-field"><label class="r-label" for="t2">الموعد المقترح</label><input class="r-input r-input--ltr" id="t2" type="text" value="2026-06"><p class="r-hint">شهر تقريبي يكفي.</p></div>
+<div class="r-field" style="grid-column: 1 / -1"><label class="r-label" for="t3">الموضوع</label><input class="r-input" id="t3" value="الإحالة المجتمعية لفريق ميداني جديد"></div>
+<fieldset class="r-field" style="grid-column: 1 / -1; border: 0; padding: 0; margin: 0"><legend class="r-label" style="margin-bottom: 8px">المكان</legend><div class="row" style="gap: 24px"><label class="r-check"><input type="radio" name="pl" checked>عندكم</label><label class="r-check"><input type="radio" name="pl">قاعة خارجية</label><label class="r-check"><input type="radio" name="pl">أونلاين</label></div></fieldset>
+<div class="row" style="grid-column: 1 / -1; justify-content: flex-end"><button class="r-btn r-btn--primary">أرسل الطلب</button></div>
+</div>
+</form>
+</div>
+</body>
+</html>

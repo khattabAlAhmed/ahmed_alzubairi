@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Grid — preview</title>
+<style>
+.g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; position: relative; }
+.g span { height: 120px; background: var(--accent-wash); border-inline: 1px solid var(--line); }
+.bp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.bp div { padding-block: 10px; border-top: 2px solid var(--rule); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 28px">
+<div class="g" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<div class="bp">
+<div><p class="ar-h3">٣٧٥</p><p class="r-hint">٤ أعمدة · فاصل ١٦ · هامش ١٦. عمود التسمية ٨٨.</p></div>
+<div><p class="ar-h3">٧٦٨</p><p class="r-hint">٨ أعمدة · فاصل ٢٤ · هامش ٣٢.</p></div>
+<div><p class="ar-h3">١٢٨٠</p><p class="r-hint">١٢ عموداً · فاصل ٣٢ · هامش ٤٨.</p></div>
+<div><p class="ar-h3">١٤٤٠</p><p class="r-hint">١٢ عموداً · فاصل ٣٢ · محتوى ١٣١٢.</p></div>
+</div>
+<div class="r-record__row" style="border-top: 1px solid var(--line)"><p>عمود التسمية</p><p class="ar-small">كل سجل يبدأ بعمود ثابت عرضه ١٢٠ للتسميات (الحال، ما فعلتُ، ما تغيّر، المدة)، والقيمة بجانبه. هذا العمود هو ما يجعل الصفحات تُقرأ كسجل واحد.</p></div>
+</div>
+</div>
+</body>
+</html>

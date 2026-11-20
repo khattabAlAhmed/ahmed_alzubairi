@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Pagination — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 14px">
+<nav class="row" aria-label="الصفحات" style="justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px">
+<a href="#" class="r-btn r-btn--quiet" style="text-decoration: none; gap: 8px"><svg class="dir-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="transform: scaleX(-1)"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>السابقة</a>
+<div class="r-pages"><a href="#">١</a><span>…</span><a href="#">٤</a><a href="#" aria-current="page">٥</a><a href="#">٦</a><span>…</span><a href="#">١٢</a></div>
+<a href="#" class="r-btn r-btn--quiet" style="text-decoration: none; gap: 8px">التالية<svg class="dir-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+</nav>
+<nav class="row" aria-label="الصفحات" style="justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px">
+<span class="r-btn r-btn--quiet" aria-disabled="true" style="color: var(--ink-2); text-decoration: none; background: none">السابقة</span>
+<p class="r-hint">صفحة ١ من ١٢ · ١٠ مقالات في الصفحة</p>
+<a href="#" class="r-btn r-btn--quiet" style="text-decoration: none">التالية</a>
+</nav>
+</div>
+</div>
+</body>
+</html>

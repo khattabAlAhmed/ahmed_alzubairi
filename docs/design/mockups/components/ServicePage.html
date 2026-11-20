@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Service page parts — preview</title>
+<style>
+.stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: var(--rule-heavy) solid var(--rule); }
+.stages li { padding: 14px 16px 18px 0; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--line); position: relative; }
+.stages li + li { padding-inline-start: 16px; border-inline-start: 1px solid var(--line); }
+.stages b { font-size: 13px; font-weight: 500; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.gets li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding-block: 8px; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.8; }
+.req { position: sticky; top: 0; padding: 20px; background: var(--surface); border-top: var(--rule-heavy) solid var(--rule); display: flex; flex-direction: column; gap: 12px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px">
+<div style="grid-column: span 9; gap: 0" class="stack">
+<div class="grid-2" style="margin-bottom: 28px">
+<div class="r-record__row" style="border-top: 1px solid var(--line); grid-template-columns: 100px 1fr"><p>يناسب</p><p class="ar-small">مجلس إدارة يريد قواعد مكتوبة، أو وزارة تعيد توزيع الصلاحيات، أو شركة عائلية يدخلها جيل جديد.</p></div>
+<div class="stack" style="gap: 0"><p class="ar-small muted" style="padding-bottom: 6px">ما الذي تحصل عليه</p><ul class="gets">
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="margin-top: 6px"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>ميثاق حوكمة مكتوب بلغة يفهمها الجميع</li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="margin-top: 6px"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مصفوفة صلاحيات: من يقرّر، ومن يُستشار، ومن يُبلَّغ</li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="margin-top: 6px"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>جلستا تدريب للمجلس والإدارة التنفيذية</li>
+</ul></div>
+</div>
+<p class="ar-small muted" style="margin-bottom: 8px">مراحل العمل</p>
+<ol class="stages">
+<li><b>١</b><span class="ar-small" style="font-weight: 500">أستمع</span><span class="r-hint">مقابلات مع المجلس والإدارة والموظفين.</span></li>
+<li><b>٢</b><span class="ar-small" style="font-weight: 500">أقرأ</span><span class="r-hint">اللوائح القائمة وما يحدث فعلاً.</span></li>
+<li><b>٣</b><span class="ar-small" style="font-weight: 500">نكتب معاً</span><span class="r-hint">مسودة أولى في ورشتين.</span></li>
+<li><b>٤</b><span class="ar-small" style="font-weight: 500">نجرّب</span><span class="r-hint">ثلاثة أشهر على قرارات حقيقية.</span></li>
+<li><b>٥</b><span class="ar-small" style="font-weight: 500">نعتمد</span><span class="r-hint">نسخة نهائية وتدريب.</span></li>
+</ol>
+</div>
+<aside style="grid-column: span 3">
+<div class="req">
+<p class="ar-h3">الحوكمة المؤسسية</p>
+<p class="ar-small muted">سأعرف من طلبك أي مرحلة تناسبك. لا تحتاج أن تختار الآن.</p>
+<a href="#" class="r-btn r-btn--primary r-btn--block">اطلب هذه الخدمة</a>
+<p class="r-hint">تحتاج حساباً. إن لم يكن لديك، ستعود إلى الطلب نفسه بعد التسجيل.</p>
+</div>
+</aside>
+</div>
+</div>
+</body>
+</html>

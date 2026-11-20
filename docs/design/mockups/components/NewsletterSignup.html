@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Newsletter signup — preview</title>
+<style>
+.nl { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; align-items: end; padding-block: 24px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+.inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0; align-items: end; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 28px">
+<section class="nl" aria-labelledby="nl1">
+<div style="grid-column: span 5; gap: 6px" class="stack"><h2 id="nl1" class="ar-h2">رسالة حين يكون عندي ما يستحق</h2><p class="ar-small muted">ما أتعلّمه من المشاريع، ومقال أو أداة جديدة. لا أكثر من مرة في الشهر.</p></div>
+<form class="inline" style="grid-column: 7 / span 6" onsubmit="return false"><div class="r-field"><label class="r-label" for="n1">البريد الإلكتروني</label><input class="r-input r-input--ltr" id="n1" type="email" placeholder="name@example.org"></div><button class="r-btn r-btn--primary">اشترك</button></form>
+</section>
+<div class="grid-2">
+<div class="stack" style="gap: 8px; padding: 18px; background: var(--surface)"><p class="state-label">داخل المدونة · بعد المقال</p><p class="ar-small" style="font-weight: 500">هل أفادك هذا؟ أرسل لك المقال القادم.</p><form class="inline" onsubmit="return false"><input class="r-input r-input--ltr" aria-label="البريد الإلكتروني" placeholder="name@example.org"><button class="r-btn r-btn--secondary">اشترك</button></form></div>
+<div class="stack" style="gap: 8px; padding: 18px; border-top: var(--rule-heavy) solid var(--success)" role="status"><p class="state-label">بعد الاشتراك</p><p class="r-status r-status--success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>بقيت خطوة واحدة</p><p class="ar-small">أرسلت رابط تأكيد إلى <span class="mono" dir="ltr">name@example.org</span>. لن يصلك شيء قبل أن تضغطه.</p></div>
+</div>
+</div>
+</div>
+</body>
+</html>

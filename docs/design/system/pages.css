@@ -255,3 +255,24 @@
 @media (max-width: 900px) {
   .p-two.wide, .p-results.five, .p-jr a.img { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* English pages: Latin rhythm and measure */
+.page[lang="en"] .p-prose p, .page[lang="en"] .p-prose li { font-size: 17px; line-height: 1.7; max-width: var(--measure-en); }
+.page[lang="en"] .p-prose blockquote { font-size: 20px; line-height: 1.5; }
+.page[lang="en"] .p-story .r-record__row p:last-child { line-height: 1.7; max-width: var(--measure-en); }
+.page[lang="en"] .p-tm-side blockquote { line-height: 1.6; }
+.page[lang="en"] .p-qs .a { max-width: var(--measure-en); }
+
+/* Tabs scroll sideways instead of widening the page (long English labels, Documents categories) */
+.page .r-tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.page .r-tabs::-webkit-scrollbar { display: none; }
+.page .r-tab { flex: none; white-space: nowrap; }
+@media (max-width: 900px) {
+  .p-hd .wrap { gap: 12px; }
+  .p-toolbar .r-tabs { width: 100%; }
+}
+@media (max-width: 420px) {
+  .p-tools .r-btn--sm { padding-inline: 10px; font-size: 13px; }
+  .p-brand b { font-size: 17px; }
+}
+.p-tools > * { flex: none; white-space: nowrap; }

@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Course item — preview</title>
+<style>
+.cs { border-top: var(--rule-heavy) solid var(--rule); }
+.cs > div { display: grid; grid-template-columns: 88px minmax(0, 1fr) 220px 160px; gap: 28px; align-items: center; padding-block: 18px; border-bottom: 1px solid var(--line); }
+.date { display: flex; flex-direction: column; align-items: center; padding: 8px 0; border: 1px solid var(--line-strong); }
+.date b { font-size: 28px; line-height: 1.1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.date span { font-size: 12px; color: var(--ink-2); }
+.seats { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.bar { height: 4px; background: var(--line); }
+.bar i { display: block; height: 100%; background: var(--ink); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="cs">
+<div><span class="date"><b>١٤</b><span>أبريل</span></span><span class="stack" style="gap: 4px"><a href="#" class="ar-h3" style="text-decoration: none">كتابة مصفوفة الصلاحيات</a><span class="row" style="gap: 8px"><span class="r-tag">حضوري</span><span class="ar-caption muted">عمّان · يومان · ٩ص – ٣م</span></span></span><span class="seats"><span>بقي ٨ مقاعد من ٢٠</span><span class="bar"><i style="width: 60%"></i></span></span><a href="#" class="r-btn r-btn--primary r-btn--sm">سجّل الآن</a></div>
+<div><span class="date"><b>٣</b><span>مايو</span></span><span class="stack" style="gap: 4px"><a href="#" class="ar-h3" style="text-decoration: none">الإحالة المجتمعية: من التصميم إلى التشغيل</a><span class="row" style="gap: 8px"><span class="r-tag">أونلاين مباشرة</span><span class="ar-caption muted">Zoom · ٤ جلسات · ٦م بتوقيت مكة</span></span></span><span class="seats"><span>اكتملت المقاعد</span><span class="bar"><i style="width: 100%"></i></span></span><button class="r-btn r-btn--sm" disabled>اكتملت المقاعد</button></div>
+<div><span class="date" style="border-style: dashed"><b style="font-size: 16px; padding-block: 6px">قريباً</b></span><span class="stack" style="gap: 4px"><span class="ar-h3">أساسيات الحوكمة للمجالس الجديدة</span><span class="row" style="gap: 8px"><span class="r-tag r-tag--soon">مسجّلة · قريباً</span></span></span><span class="seats">لا موعد بعد</span><span></span></div>
+<div><span class="date" style="background: var(--surface); border-color: var(--surface)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="margin-block: 6px"><path d="M4 20V8l8-4 8 4v12M9 20v-6h6v6"/></svg></span><span class="stack" style="gap: 4px"><span class="ar-h3">تدريب مخصص لجهتك</span><span class="ar-small muted">موضوع ومكان وموعد يناسب فريقك.</span></span><span class="seats">من ١٠ متدرّبين</span><a href="#" class="r-btn r-btn--secondary r-btn--sm">اطلب تدريباً</a></div>
+</div>
+</div>
+</body>
+</html>

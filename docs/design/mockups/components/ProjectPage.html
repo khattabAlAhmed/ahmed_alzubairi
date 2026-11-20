@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Project page parts — preview</title>
+<style>
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: var(--rule-heavy) solid var(--rule); }
+.facts > div { padding: 14px 0 14px 20px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.facts > div + div { padding-inline-start: 20px; border-inline-start: 1px solid var(--line); }
+.results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.results > div { display: flex; flex-direction: column; gap: 6px; padding-block-start: 14px; border-top: 1px solid var(--line); }
+.results b { font-size: 44px; line-height: 1.1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.results .from { font-size: 13px; color: var(--ink-2); }
+.acts li { display: grid; grid-template-columns: 90px 1fr; gap: 20px; padding-block: 10px; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.8; }
+.acts li span:first-child { color: var(--ink-2); font-size: 13px; }
+.gal { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="stack" style="gap: 36px">
+<dl class="facts">
+<div><dt class="ar-caption muted">الهدف</dt><dd class="ar-small">طريقة إبلاغ يثق بها السكان</dd></div>
+<div><dt class="ar-caption muted">الجهة</dt><dd class="ar-small">منظمة دولية</dd></div>
+<div><dt class="ar-caption muted">دوري</dt><dd class="ar-small">مستشار رئيسي</dd></div>
+<div><dt class="ar-caption muted">المدة</dt><dd class="ar-small">١٤ شهراً · ٢٠٢٢–٢٠٢٣</dd></div>
+</dl>
+<div class="grid-2">
+<div class="stack" style="gap: 6px"><p class="ar-small muted">الأنشطة</p><ol class="acts" style="border-top: 1px solid var(--line)">
+<li><span>الشهر ١–٢</span><span>جلسات استماع مع اللجان الأربع، كلٌّ على حدة</span></li>
+<li><span>الشهر ٣</span><span>ورشتان لتصميم المسار مع السكان والمنظمة</span></li>
+<li><span>الشهر ٤–٦</span><span>تدريب ٤٠ متطوعاً، وتجربة المسار في مخيم واحد</span></li>
+<li><span>الشهر ٧–١٤</span><span>التوسع إلى المخيمات الأربعة، ومراجعة كل ثلاثة أشهر</span></li>
+</ol></div>
+<div class="stack" style="gap: 6px"><p class="ar-small muted">النتائج بالأرقام</p>
+<div class="results" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+<div><b>٧٠٪</b><span class="ar-small">من البلاغات تصل عبر اللجان</span><span class="from">كانت ١٠٪ قبل المشروع</span></div>
+<div><b>٤٠</b><span class="ar-small">متطوعاً يعرفون المسار</span><span class="from">من السكان أنفسهم</span></div>
+<div><b>٤</b><span class="ar-small">لجان تدير المسار</span><span class="from">بلا موظف من المنظمة</span></div>
+<div><b>٩ أيام</b><span class="ar-small">من البلاغ إلى الاستجابة</span><span class="from">كانت ٢٦ يوماً</span></div>
+</div></div>
+</div>
+<div class="gal">
+<img class="r-photo" style="aspect-ratio: 3 / 2; height: 100%" src="../../images/field-listening.jpg" alt="صورة مؤقتة: جلسة استماع">
+<img class="r-photo" style="height: 100%" src="../../images/workshop-facilitation.jpg" alt="صورة مؤقتة: ورشة تصميم المسار">
+<div class="stack" style="gap: 8px"><img class="r-photo" style="aspect-ratio: 1 / 1" src="../../images/hands-notes.jpg" alt="صورة مؤقتة: دفتر ملاحظات"><p class="r-hint">٣ من ١٢ صورة · <a href="#" class="r-link">كل الصور</a></p></div>
+</div>
+</div>
+</div>
+</body>
+</html>
