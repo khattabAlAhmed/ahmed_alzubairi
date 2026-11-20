@@ -6,6 +6,7 @@ import {
   MAX_ATTACHMENTS_PER_MESSAGE,
   type FileMime,
 } from "@repo/shared";
+import { intlLocale } from "@/components/public/home/format";
 
 /** Why a file is refused before or during upload (§6.17). */
 export type RefusalReason = "tooLarge" | "wrongType" | "tooMany" | "failed";
@@ -26,10 +27,13 @@ export function fileKind(mime: string): FileKind {
   return KIND_BY_MIME.get(mime) ?? "other";
 }
 
-/** "2.4 MB" / "2.4 ميغابايت". Arabic uses the long unit: the short one ("م.ب") isn't widely read. */
+/**
+ * "2.4 MB" / "٢٫٤ ميغابايت": Arabic-Indic digits in Arabic (DESIGN.md
+ * "Numbers"). Arabic uses the long unit: the short one ("م.ب") isn't widely read.
+ */
 export function formatBytes(bytes: number, locale: string): string {
   const mb = bytes >= 1024 * 1024;
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(intlLocale(locale), {
     style: "unit",
     unit: mb ? "megabyte" : "kilobyte",
     unitDisplay: locale === "ar" ? "long" : "short",
@@ -68,7 +72,12 @@ export function attachmentRefusal(
   return null;
 }
 
-/** The named part of a zone, such as "GMT+3" (short) or "Arabian Standard Time" (long). */
+/**
+ * The named part of a zone: "GMT+3" (short) or "Arabian Standard Time" (long).
+ * The short form is a code, so it stays Latin with Western digits in Arabic
+ * too ("بتوقيت مكة (GMT+3)", the Numbers board); the long form is prose, in
+ * the page's language.
+ */
 export function zoneName(
   value: Date,
   locale: string,
@@ -76,7 +85,7 @@ export function zoneName(
   timeZone?: string,
 ): string {
   return (
-    new Intl.DateTimeFormat(locale, { timeZoneName: style, timeZone })
+    new Intl.DateTimeFormat(style === "short" ? "en" : intlLocale(locale), { timeZoneName: style, timeZone })
       .formatToParts(value)
       .find((part) => part.type === "timeZoneName")?.value ?? ""
   );

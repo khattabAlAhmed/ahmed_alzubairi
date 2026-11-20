@@ -6,10 +6,20 @@ import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { Project } from "@/lib/content";
 
-/** The shared buttons' focus ring is navy, which vanishes on the navy band. */
-export const RING_ON_NAVY = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent!";
+/**
+ * The one focus ring (DESIGN.md "States"): 2px `focus`, 3px offset, solid,
+ * 3:1 or better on every surface in both themes. The name is from the navy
+ * band it was made for; it now forces the same ring as everywhere else, over
+ * a component's own older ring.
+ */
+export const RING_ON_NAVY =
+  "focus-visible:outline-2! focus-visible:outline-solid! focus-visible:outline-offset-3! focus-visible:outline-focus!";
 
-export const CONTAINER = "mx-auto w-full max-w-7xl px-4";
+/**
+ * The page column: `container` (1312) of content, centered, with the page
+ * margin outside it (16 on phones, 32 from 768, 48 from 1280; the Grid board).
+ */
+export const CONTAINER = "mx-auto w-full max-w-[calc(var(--container)+2*var(--page-margin))] px-page-margin";
 
 const TEXT_LINK =
   "inline-flex items-center gap-1.5 rounded-sm font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2";
@@ -18,7 +28,12 @@ const TEXT_LINK =
 export const CARD_LINK =
   "rounded-sm after:absolute after:inset-0 after:rounded-lg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
-export const CARD = "relative rounded-lg border border-text/10 bg-surface p-6 shadow-sm";
+/**
+ * A bounded item, until the content tasks turn each list into its own record
+ * shape. Square, a hairline edge, on the page ground: no shadow, no raised
+ * fill (DESIGN.md "Colour": `surface` is not a card behind every item).
+ */
+export const CARD = "relative border border-line bg-bg p-6";
 
 /** The top of a page on the navy band (§13: deep navy and gold for these sections). */
 export function PageHero({

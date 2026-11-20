@@ -12,7 +12,8 @@ export function Card({ as: Tag = "div", compact = false, className, ...props }: 
   return (
     <Tag
       className={cx(
-        "rounded-lg border border-text/10 bg-surface text-text shadow-sm",
+        // Square, a hairline edge, on the page ground (DESIGN.md "Shape").
+        "border border-line bg-bg text-ink",
         compact ? "p-4" : "p-6",
         className,
       )}

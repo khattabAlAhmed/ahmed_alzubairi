@@ -15,28 +15,56 @@ export const ABOVE_LINK = "relative z-10";
 
 export type ListingImage = { src: string; alt: string };
 
+/** The four photo crops (DESIGN.md "Imagery"). */
+export const PHOTO_CROPS = {
+  /** 4:5, for Ahmed. */
+  portrait: "aspect-[4/5]",
+  /** 3:2, for work: the field, workshops, meetings. */
+  work: "aspect-[3/2]",
+  /** 1:1, for a detail. */
+  detail: "aspect-square",
+  /** 16:9, for quiet backgrounds, and listing cards. */
+  wide: "aspect-video",
+} as const;
+
+export type PhotoCrop = keyof typeof PHOTO_CROPS;
+
 /**
- * A card's picture at 16:9, lazy and sized for a three-column grid. Without
- * one, a quiet panel with the card's icon keeps the grid even.
+ * A card's picture, lazy and sized for a three-column grid: square corners,
+ * true colors, no frame or shadow. Without one, the hatched missing-photo
+ * panel keeps the grid even and never shows a broken image. `missingLabel`
+ * says so in words (from messages); without it the panel is decorative, since the card's title already names the item.
  */
-export function CardCover({ image, fallback }: { image: ListingImage | null; fallback: ReactNode }) {
+export function CardCover({
+  image,
+  fallback,
+  crop = "wide",
+  missingLabel,
+  sizes = "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw",
+}: {
+  image: ListingImage | null;
+  /** The icon inside the missing-photo panel. */
+  fallback: ReactNode;
+  crop?: PhotoCrop;
+  missingLabel?: string;
+  sizes?: string;
+}) {
   return (
-    <div className="relative aspect-video shrink-0 bg-text/5">
+    <div className={cx("relative shrink-0 bg-surface", PHOTO_CROPS[crop])}>
       {image ? (
-        <Image
-          src={image.src}
-          alt={image.alt}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover"
-        />
+        <Image src={image.src} alt={image.alt} fill sizes={sizes} className="object-cover" />
       ) : (
-        <div aria-hidden="true" className="flex h-full items-center justify-center text-text-secondary/60">
-          {fallback}
+        <div
+          aria-hidden={missingLabel ? undefined : "true"}
+          className={cx(
+            "flex h-full flex-col items-center justify-center gap-1.5 border border-line p-4 text-center text-ink-2 type-caption",
+            "bg-[repeating-linear-gradient(135deg,var(--surface)_0_10px,var(--bg)_10px_20px)]",
+          )}
+        >
+          <span aria-hidden="true">{fallback}</span>
+          {missingLabel && <span>{missingLabel}</span>}
         </div>
       )}
-      {/* A thin gold line under the picture: gold as a divider (§13). */}
-      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />
     </div>
   );
 }

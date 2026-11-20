@@ -1,97 +1,443 @@
 @import "tailwindcss";
 
-/* `dark:` follows the .dark class on <html>, not the system setting. */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /*
- * Design tokens: docs/project.md §13. This block is the light theme, the
- * default. `.dark` below redefines the same names, so components never need a
- * `dark:` color.
+ * "The record": docs/design/DESIGN.md is the source for every value here, and
+ * docs/design/system/tokens.json holds the same tokens. This file is the port;
+ * nothing imports the docs/ CSS at runtime.
  *
- * `static` keeps every token in the output, used or not.
- *
- * Gold rule: `accent` is for buttons, dividers and icons, never long text.
- * Never `text-accent` on background or surface in the light theme (2.2:1).
- * Text on gold is `on-accent`.
- *
- * `primary` is a deep background in the dark theme, not a button color: it is
- * 1.1:1 against the dark background. Dark buttons use `accent`.
+ * How the theme is chosen: next-themes puts `.dark` or `.light` on <html>
+ * (components/theme-provider.tsx). `[data-theme]` does the same for a single
+ * panel, such as a dark sample on the design-system page. Before the script
+ * runs, or with JavaScript off, the system setting decides.
  */
-@theme static {
-  --color-background: #f7f3ea;
-  --color-surface: #ffffff;
-  --color-primary: #0b1f3a;
-  --color-accent: #c9a24d;
-  --color-text: #0b1f3a;
-  --color-text-secondary: #4a5568;
-  --color-on-primary: #f7f3ea;
-  --color-on-accent: #0b1f3a;
-  /* Not in §13's table: errors need a color, and these match the red the
-     forms already used (red-700 / red-300). AA on background and surface. */
-  --color-danger: #b91c1c;
-  /* Focus rings. Gold fails 3:1 on ivory, so light uses navy. */
-  --color-ring: #0b1f3a;
 
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+/* `dark:` follows the chosen theme, not only the system setting. */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
-  /* Tailwind inlines these into its utilities, so `.dark` can't redefine them.
-     Each theme sets --shadow-tint instead. */
-  --shadow-sm: 0 1px 2px var(--shadow-tint);
-  --shadow-md: 0 4px 12px var(--shadow-tint);
-  --shadow-lg: 0 12px 32px var(--shadow-tint);
+/* ---------------------------------------------------------------- color -- */
 
-  /* Arabic pair by default. :lang(en) below swaps in the English pair. */
-  --font-sans: var(--font-ibm-plex-sans-arabic), sans-serif;
-  --font-heading: var(--font-amiri), serif;
-}
-
-:root {
+:root,
+.light,
+[data-theme="light"] {
   color-scheme: light;
 
-  --shadow-tint: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --bg: #ffffff;
+  --surface: #f3f4f4;
+  --surface-hover: #eef0f0;
+  --accent-wash: #e6f0f0;
+  --ink: #1a1c1e;
+  --ink-2: #50555a;
+  --line: #d5d8da;
+  --line-strong: #7a8086;
+  --rule: var(--ink);
+  --accent: #0e5c61;
+  --on-accent: #ffffff;
+  --focus: var(--accent);
+  --success: #2f6b45;
+  --warning: #8a5a00;
+  --danger: #a3322a;
+  --info: #2c5a8a;
+  --scrim: rgba(16, 18, 19, 0.55);
+  --shadow-overlay: 0 16px 40px rgba(16, 18, 19, 0.16);
 }
 
-.dark {
+/* The same block twice: once for the chosen theme, once for the system
+   setting when nothing is chosen yet. Keep them identical. */
+.dark,
+[data-theme="dark"] {
   color-scheme: dark;
 
-  --color-background: #08162a;
-  --color-surface: #11274a;
-  --color-primary: #0b1f3a;
-  --color-accent: #d4b062;
-  --color-text: #f7f3ea;
-  --color-text-secondary: #a9b4c6;
-  --color-on-primary: #f7f3ea;
-  --color-on-accent: #0b1f3a;
-  --color-danger: #fca5a5;
-  --color-ring: #d4b062;
+  --bg: #101213;
+  --surface: #181b1c;
+  --surface-hover: #1f2324;
+  --accent-wash: #142a2b;
+  --ink: #e6e8e9;
+  --ink-2: #9da3a7;
+  --line: #2a2e30;
+  --line-strong: #6b7377;
+  --rule: var(--ink);
+  --accent: #74c7c7;
+  --on-accent: #101213;
+  --focus: var(--accent);
+  --success: #7fc19a;
+  --warning: #e0b45c;
+  --danger: #f0928a;
+  --info: #8db8e6;
+  --scrim: rgba(0, 0, 0, 0.66);
+  --shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
 
-  --shadow-tint: color-mix(in srgb, var(--color-background) 60%, transparent);
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #101213;
+    --surface: #181b1c;
+    --surface-hover: #1f2324;
+    --accent-wash: #142a2b;
+    --ink: #e6e8e9;
+    --ink-2: #9da3a7;
+    --line: #2a2e30;
+    --line-strong: #6b7377;
+    --rule: var(--ink);
+    --accent: #74c7c7;
+    --on-accent: #101213;
+    --focus: var(--accent);
+    --success: #7fc19a;
+    --warning: #e0b45c;
+    --danger: #f0928a;
+    --info: #8db8e6;
+    --scrim: rgba(0, 0, 0, 0.66);
+    --shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* -------------------------------------------- space, layout, type, motion -- */
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 112px;
+
+  --rule-hair: 1px;
+  --rule-heavy: 2px;
+  --radius-0: 0;
+  --radius-round: 999px;
+
+  --container: 1312px;
+  /* 88 on phones, 120 from 768 (Grid board). */
+  --label-col: 88px;
+  --measure-ar: 34em;
+  --measure-en: 36em;
+  /* The page margin: 16 on phones, 32 from 768, 48 from 1280 (Grid board). */
+  --page-margin: 16px;
+  --gutter: 16px;
+  /* Space between sections: 64 on phones, 112 from 768. */
+  --section-gap: var(--space-8);
+
+  --ease-settle-curve: cubic-bezier(0.2, 0, 0, 1);
+  --duration-settle: 600ms;
+  --duration-state: 200ms;
+  --settle-distance: 8px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-margin: 32px;
+    --gutter: 24px;
+    --section-gap: var(--space-9);
+    --label-col: 120px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --page-margin: 48px;
+    --gutter: 32px;
+  }
 }
 
 /*
- * The pair follows the language of the text, not only the page: an Arabic
- * label on an English page (the language switch) gets the Arabic pair, and
- * English text on an Arabic page gets the English pair.
+ * Type. One family for both scripts (Alexandria, app/fonts.ts); IBM Plex Mono
+ * only for Latin data. Each scale step is a pair of variables that the page
+ * language sets, so `type-h1` is ar-h1 on an Arabic page and en-h1 on an
+ * English one, and an English phrase inside Arabic text follows its own `lang`.
+ * Attribute selectors, not :lang(), so only elements that carry `lang` set
+ * them and the rest inherit.
  */
-:lang(ar) {
-  --font-sans: var(--font-ibm-plex-sans-arabic), sans-serif;
-  --font-heading: var(--font-amiri), serif;
+:root,
+[lang="ar"],
+[lang^="ar-"] {
+  --type-display: 56px;
+  --type-display-lh: 1.45;
+  --type-display-sm: 34px;
+  --type-display-sm-lh: 1.5;
+  --type-h1: 40px;
+  --type-h1-lh: 1.5;
+  --type-h2: 28px;
+  --type-h2-lh: 1.55;
+  --type-h3: 21px;
+  --type-h3-lh: 1.6;
+  --type-body: 17px;
+  --type-body-lh: 1.95;
+  --type-small: 15px;
+  --type-small-lh: 1.85;
+  --type-caption: 13px;
+  --type-caption-lh: 1.8;
+  --measure: var(--measure-ar);
 }
 
-:lang(en) {
-  --font-sans: var(--font-inter), sans-serif;
-  --font-heading: var(--font-playfair-display), serif;
+[lang="en"],
+[lang^="en-"] {
+  --type-display: 50px;
+  --type-display-lh: 1.1;
+  --type-display-sm: 32px;
+  --type-display-sm-lh: 1.15;
+  --type-h1: 36px;
+  --type-h1-lh: 1.15;
+  --type-h2: 26px;
+  --type-h2-lh: 1.25;
+  --type-h3: 20px;
+  --type-h3-lh: 1.35;
+  --type-body: 16px;
+  --type-body-lh: 1.6;
+  --type-small: 14px;
+  --type-small-lh: 1.5;
+  --type-caption: 13px;
+  --type-caption-lh: 1.45;
+  --measure: var(--measure-en);
 }
+
+/*
+ * Tailwind names. `inline` makes each utility use the role variable itself
+ * (`bg-ink` is `var(--ink)`), so a `[data-theme]` panel inside the page
+ * re-colors its own utilities. `static` keeps every token in the output.
+ */
+@theme static inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-accent-wash: var(--accent-wash);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-scrim: var(--scrim);
+
+  /*
+   * OLD NAMES, kept as aliases so every page switches palette at once.
+   * A later Phase 8 task moves each caller to the new name and deletes these.
+   *
+   *   background      → bg
+   *   text            → ink
+   *   text-secondary  → ink-2
+   *   ring            → focus
+   *   primary         → surface   (the old navy band becomes the quiet raised
+   *                                ground; the focus ring stays 3:1 on it)
+   *   on-primary      → ink
+   *   surface, accent, on-accent, danger: same names, new values
+   *   radius sm…4xl   → 0         (square everywhere; rounded-full stays for
+   *                                true circles)
+   *   shadow 2xs…md   → none      (nothing on the page casts a shadow)
+   *   shadow lg…2xl   → shadow-overlay (dialogs and menus)
+   *   font-heading    → the one sans family
+   */
+  --color-background: var(--bg);
+  --color-text: var(--ink);
+  --color-text-secondary: var(--ink-2);
+  --color-ring: var(--focus);
+  --color-primary: var(--surface);
+  --color-on-primary: var(--ink);
+
+  --radius: 0;
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
+  --radius-0: 0;
+  --radius-round: 999px;
+
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: var(--shadow-overlay);
+  --shadow-xl: var(--shadow-overlay);
+  --shadow-2xl: var(--shadow-overlay);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --font-sans: var(--font-alexandria), "Noto Sans Arabic", system-ui, sans-serif;
+  --font-heading: var(--font-alexandria), "Noto Sans Arabic", system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Widths: `max-w-page`, `max-w-measure` (by language), `w-label-col`. */
+  --container-page: var(--container);
+  --container-measure: var(--measure);
+  --container-measure-ar: var(--measure-ar);
+  --container-measure-en: var(--measure-en);
+  --spacing-label-col: var(--label-col);
+  --spacing-page-margin: var(--page-margin);
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-gap);
+
+  --ease-settle: var(--ease-settle-curve);
+}
+
+/* ------------------------------------------------------------ type scale -- */
+
+/* By page language. Display drops to display-sm on phones. */
+@utility type-display {
+  font-size: var(--type-display-sm);
+  line-height: var(--type-display-sm-lh);
+  font-weight: 500;
+  text-wrap: balance;
+  @media (min-width: 768px) {
+    font-size: var(--type-display);
+    line-height: var(--type-display-lh);
+  }
+}
+@utility type-display-sm {
+  font-size: var(--type-display-sm);
+  line-height: var(--type-display-sm-lh);
+  font-weight: 500;
+  text-wrap: balance;
+}
+@utility type-h1 {
+  font-size: var(--type-h1);
+  line-height: var(--type-h1-lh);
+  font-weight: 500;
+  text-wrap: balance;
+}
+@utility type-h2 {
+  font-size: var(--type-h2);
+  line-height: var(--type-h2-lh);
+  font-weight: 500;
+  text-wrap: balance;
+}
+@utility type-h3 {
+  font-size: var(--type-h3);
+  line-height: var(--type-h3-lh);
+  font-weight: 600;
+  text-wrap: balance;
+}
+@utility type-body {
+  font-size: var(--type-body);
+  line-height: var(--type-body-lh);
+  font-weight: 400;
+}
+@utility type-small {
+  font-size: var(--type-small);
+  line-height: var(--type-small-lh);
+  font-weight: 400;
+}
+@utility type-caption {
+  font-size: var(--type-caption);
+  line-height: var(--type-caption-lh);
+  font-weight: 400;
+}
+
+/* Fixed sets, for showing one language's scale inside the other's page. */
+@utility ar-display { font-size: 56px; line-height: 1.45; font-weight: 500; text-wrap: balance; }
+@utility ar-display-sm { font-size: 34px; line-height: 1.5; font-weight: 500; text-wrap: balance; }
+@utility ar-h1 { font-size: 40px; line-height: 1.5; font-weight: 500; text-wrap: balance; }
+@utility ar-h2 { font-size: 28px; line-height: 1.55; font-weight: 500; text-wrap: balance; }
+@utility ar-h3 { font-size: 21px; line-height: 1.6; font-weight: 600; text-wrap: balance; }
+@utility ar-body { font-size: 17px; line-height: 1.95; font-weight: 400; }
+@utility ar-small { font-size: 15px; line-height: 1.85; font-weight: 400; }
+@utility ar-caption { font-size: 13px; line-height: 1.8; font-weight: 400; }
+@utility en-display { font-size: 50px; line-height: 1.1; font-weight: 500; text-wrap: balance; }
+@utility en-display-sm { font-size: 32px; line-height: 1.15; font-weight: 500; text-wrap: balance; }
+@utility en-h1 { font-size: 36px; line-height: 1.15; font-weight: 500; text-wrap: balance; }
+@utility en-h2 { font-size: 26px; line-height: 1.25; font-weight: 500; text-wrap: balance; }
+@utility en-h3 { font-size: 20px; line-height: 1.35; font-weight: 600; text-wrap: balance; }
+@utility en-body { font-size: 16px; line-height: 1.6; font-weight: 400; }
+@utility en-small { font-size: 14px; line-height: 1.5; font-weight: 400; }
+@utility en-caption { font-size: 13px; line-height: 1.45; font-weight: 400; }
+
+/* Latin data only: file types, sizes, codes, Latin dates, phone numbers. */
+@utility mono-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+@utility mono-figure {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- focus and motion -- */
+
+/* The one focus ring. Components that still set their own offset get theirs
+   replaced by the primitives task; the color is already `focus` everywhere. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: var(--rule-heavy) solid var(--focus);
+    outline-offset: 3px;
+  }
+}
+
+/* The page's one orchestrated moment: it settles once on load. Give the
+   opening rule `settle`, the title `settle settle-2`, the rest `settle-3`. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(var(--settle-distance));
+  }
+}
+@utility settle {
+  animation: settle var(--duration-settle) var(--ease-settle-curve) both;
+}
+@utility settle-2 {
+  animation-delay: 120ms;
+}
+@utility settle-3 {
+  animation-delay: 240ms;
+}
+
+/* Hover and state changes: 200ms, color only. */
+@utility transition-state {
+  transition-property: color, background-color, border-color, text-decoration-color, outline-color;
+  transition-duration: var(--duration-state);
+  transition-timing-function: ease;
+}
+
+/* Directional icons are drawn for Arabic (pointing to the reading start) and
+   mirror in English. Uses `scale`, so a caller's `rotate-180` still adds up. */
+@utility dir-icon {
+  flex: none;
+  &:dir(ltr) {
+    scale: -1 1;
+  }
+}
+
+/* --------------------------------------------------------------- base -- */
 
 @layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--ink);
+    accent-color: var(--accent);
+    caret-color: var(--accent);
+    -webkit-text-size-adjust: 100%;
+  }
+
   /* `font-family` is inherited as a resolved value, so each element with its
-     own `lang` sets it again from its own variables. `:where` keeps this
-     weaker than the heading rule below. */
+     own `lang` sets it again: the language decides the size, not the font. */
   :where([lang]) {
     font-family: var(--font-sans);
+  }
+
+  body {
+    font-size: var(--type-body);
+    line-height: var(--type-body-lh);
+  }
+
+  ::selection {
+    background-color: var(--accent-wash);
+    color: var(--ink);
   }
 
   h1,
@@ -99,9 +445,50 @@
   h3,
   h4,
   h5,
-  h6,
-  :where(h1, h2, h3, h4, h5, h6) [lang] {
+  h6 {
     font-family: var(--font-heading);
-    font-weight: 700;
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-weight: 600;
+  }
+
+  /* No italics in Arabic: emphasis is weight. */
+  :lang(ar) :is(em, i, cite, var, dfn) {
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* Digits line up wherever figures are compared. */
+  table,
+  time,
+  dd,
+  output {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: var(--rule-heavy) solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  hr {
+    border-color: var(--line);
+  }
+}
+
+/* "Reduce motion" removes all of it: the settle, state transitions, spinners. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }
