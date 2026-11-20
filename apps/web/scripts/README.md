@@ -35,4 +35,5 @@ Full-page screenshots of `/[locale]/design-system` and every public page, at 375
 - The 404 shot opens `/<locale>/screenshots-no-such-page`.
 - Waits for `document.fonts.ready`, scrolls once to load lazy images, and runs with `reducedMotion: "reduce"`.
 - Previews: when `VERCEL_AUTOMATION_BYPASS_SECRET` is set and the base URL is an `https://*.vercel.app` host, it sends `x-vercel-protection-bypass` and `x-vercel-set-bypass-cookie: true` to that host only, through a route on that host. One request gets the bypass cookie, then the route is removed. The secret never goes to another host.
+- Before shooting, it opens `/robots.txt` once. If the app isn't running, or a preview redirects to Vercel's login (no secret), it stops with a clear message. A page that leaves the base host prints `warn`.
 - Exits with code 1 if any shot failed.

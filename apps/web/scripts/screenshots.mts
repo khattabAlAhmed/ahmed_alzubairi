@@ -204,20 +204,37 @@ export async function installBypass(
 }
 
 /**
- * Gets the bypass cookie with one request, then removes the route: a route
- * that rewrites headers keeps PostHog's `/ingest` posts from finishing.
+ * Opens `/robots.txt` once per context. It proves the app is reachable (so a
+ * stopped `pnpm dev` fails fast with a clear message) and, on a preview, gets
+ * the bypass cookie. The bypass route is removed right after: a route that
+ * rewrites headers keeps PostHog's `/ingest` posts from finishing.
  */
-async function warmUpBypass(context: BrowserContext, opts: Options) {
+async function warmUp(context: BrowserContext, opts: Options) {
   const secret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
   const host = previewHostFor(opts.baseUrl, secret);
-  if (!host || !secret) return;
-  const remove = await installBypass(context, host, secret);
+  const remove = host && secret ? await installBypass(context, host, secret) : null;
   const page = await context.newPage();
   try {
-    await page.goto(`${opts.baseUrl}/robots.txt`);
+    const res = await page.goto(`${opts.baseUrl}/robots.txt`);
+    const landed = new URL(page.url()).origin;
+    const status = res?.status() ?? 0;
+    // A protected preview without the bypass redirects to vercel.com/login.
+    if (landed !== opts.baseUrl || status === 401 || status === 403) {
+      throw new Error(
+        `${opts.baseUrl} answered ${status} at ${landed}. For a preview, set VERCEL_AUTOMATION_BYPASS_SECRET.`,
+      );
+    }
+  } catch (error) {
+    const message = (error as Error).message;
+    if (message.includes("net::")) {
+      throw new Error(
+        `Can't reach ${opts.baseUrl} (${message.split("\n")[0]}). Start the app with \`pnpm dev\`, or pass --base-url.`,
+      );
+    }
+    throw error;
   } finally {
     await page.close();
-    await remove();
+    await remove?.();
   }
 }
 
@@ -365,7 +382,7 @@ async function main() {
       for (const theme of THEMES) {
         const context = await newContext(browser, width, theme, opts.showConsent);
         try {
-          await warmUpBypass(context, opts);
+          await warmUp(context, opts);
           if (detailPaths.size === 0 && wanted.some((p) => p.detailOf)) {
             detailPaths = await discoverDetailPaths(context, opts, wanted);
           }
@@ -384,7 +401,9 @@ async function main() {
                 const seen = await look(page);
                 await page.screenshot({ path: resolve(opts.out, file), fullPage: true });
                 count++;
+                const landed = new URL(page.url()).origin;
                 const notes = [
+                  landed !== opts.baseUrl ? `left the site for ${landed}` : "",
                   status !== 200 && def.name !== "not-found" ? `status ${status}` : "",
                   seen.dark !== (theme === "dark") ? "theme NOT applied" : "",
                   seen.dir !== (locale === "ar" ? "rtl" : "ltr") ? `dir=${seen.dir}` : "",
@@ -407,7 +426,11 @@ async function main() {
       }
     }
   } finally {
-    await browser.close();
+    // Bounded: a crashed browser can make close() wait forever.
+    await Promise.race([
+      browser.close(),
+      new Promise((r) => setTimeout(r, 10_000)),
+    ]);
   }
   console.log(`\n${count} screenshot(s) in ${opts.out}; ${failures.length} failed`);
   if (failures.length > 0) process.exitCode = 1;
