@@ -2,17 +2,25 @@ import type { ReactNode } from "react";
 import { cx } from "./cx";
 
 /**
- * `neutral` for a draft or an inactive state, `strong` for published or
- * active, `danger` for something that needs attention.
+ * The Tag board: a hairline frame with no fill, small and quiet. Never the
+ * only signal: a tag is always a word.
+ *
+ * - `neutral`: a category or a type ("Governance", "In person", "PDF").
+ * - `soon`: "Coming soon", the only tag in the accent.
+ * - `draft`: "Draft", a dashed frame.
+ * - `strong`: published or active, filled with ink.
+ * - `danger`: needs attention, in the danger color.
+ *
+ * Statuses of a consultation or a document request use StatusPill, not a tag.
  */
-export type BadgeTone = "neutral" | "strong" | "danger";
+export type BadgeTone = "neutral" | "soon" | "draft" | "strong" | "danger";
 
-// `strong` inverts text and background, so it reads in both themes without a
-// new color. Gold is left out: badges are text.
 const TONES: Record<BadgeTone, string> = {
-  neutral: "border border-text/30 text-text-secondary",
-  strong: "bg-text text-background",
-  danger: "border border-danger text-danger",
+  neutral: "border-line-strong text-ink-2",
+  soon: "border-accent text-accent",
+  draft: "border-dashed border-line-strong text-ink-2",
+  strong: "border-ink bg-ink text-bg",
+  danger: "border-danger text-danger",
 };
 
 export function Badge({
@@ -27,7 +35,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-1.5 border px-2 py-px text-xs leading-[1.8] whitespace-nowrap",
         TONES[tone],
         className,
       )}
@@ -36,3 +44,6 @@ export function Badge({
     </span>
   );
 }
+
+/** The same component, by the design system's name. */
+export { Badge as Tag, type BadgeTone as TagTone };

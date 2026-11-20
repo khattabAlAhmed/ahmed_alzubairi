@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Card } from "@/components/ui";
-import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { cx } from "@/components/ui/cx";
+import { SWITCH_TRACK } from "@/components/ui/form-field";
 import { NoticeLine, type Notice } from "./notice";
 import { saveProfile } from "./send";
 
@@ -40,10 +41,10 @@ export function NotifySwitch({ saved }: { saved: boolean }) {
       </h2>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p id={`${id}-label`} className="font-semibold">
+          <p id={`${id}-label`} className="text-[15px] font-medium">
             {t("label")}
           </p>
-          <p id={`${id}-covers`} className="mt-1 text-sm text-text-secondary">
+          <p id={`${id}-covers`} className="mt-1 text-[13px] leading-[1.7] text-ink-2">
             {t("covers")}
           </p>
         </div>
@@ -55,21 +56,9 @@ export function NotifySwitch({ saved }: { saved: boolean }) {
           aria-describedby={`${id}-covers`}
           disabled={busy}
           onClick={toggle}
-          className={cx(
-            "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-text/50 transition-colors motion-reduce:transition-none disabled:opacity-60",
-            on ? "bg-text" : "bg-surface",
-            FOCUS_RING,
-          )}
+          className={cx(SWITCH_TRACK, "mt-1")}
         >
           <span className="sr-only">{on ? t("on") : t("off")}</span>
-          {/* Logical inset, so the knob moves to the end side in both directions. */}
-          <span
-            aria-hidden="true"
-            className={cx(
-              "absolute top-1/2 size-5 -translate-y-1/2 rounded-full transition-[inset-inline-start] motion-reduce:transition-none",
-              on ? "start-6 bg-background" : "start-0.5 bg-text/60",
-            )}
-          />
         </button>
       </div>
       <p className="text-sm text-text-secondary">{t("always")}</p>

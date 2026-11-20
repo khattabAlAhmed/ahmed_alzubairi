@@ -5,7 +5,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { Badge } from "./badge";
 import { Button, buttonClasses } from "./button";
 import { cx } from "./cx";
-import { Checkbox, Select, TextArea, TextField } from "./form-field";
+import { DatedDivider, Divider } from "./divider";
+import { FileInput } from "./file-input";
+import { Checkbox, Radio, Select, Switch, TextArea, TextField } from "./form-field";
 import { LanguageTabs } from "./language-tabs";
 
 vi.mock("@/i18n/navigation", () => ({
@@ -33,20 +35,22 @@ describe("cx", () => {
 });
 
 describe("buttonClasses", () => {
-  it("makes primary gold with navy text", () => {
+  it("makes primary the accent with on-accent text", () => {
     const classes = buttonClasses({ variant: "primary" });
     expect(classes).toContain("bg-accent");
     expect(classes).toContain("text-on-accent");
   });
 
-  it("never uses gold as a text color", () => {
-    for (const variant of ["primary", "secondary", "quiet"] as const) {
-      expect(buttonClasses({ variant })).not.toMatch(/\btext-accent\b/);
+  it("is square, with no shadow and no pill (DESIGN.md banned patterns)", () => {
+    for (const variant of ["primary", "secondary", "quiet", "danger"] as const) {
+      expect(buttonClasses({ variant })).not.toMatch(/\b(rounded|shadow)(-[\w[\]/.]+)?\b/);
     }
   });
 
-  it("has a visible focus ring", () => {
-    expect(buttonClasses()).toContain("focus-visible:outline-ring");
+  it("has the one focus ring", () => {
+    for (const variant of ["primary", "secondary", "quiet", "danger"] as const) {
+      expect(buttonClasses({ variant })).toContain("focus-ring");
+    }
   });
 });
 
@@ -247,5 +251,95 @@ describe("fields in a language panel", () => {
       expect(input.getAttribute("dir")).toBeNull();
     }
     expect(screen.getByLabelText("address").getAttribute("dir")).toBe("ltr");
+  });
+});
+
+describe("Tag", () => {
+  it("is a word in a square frame; draft is dashed and coming soon is the accent", () => {
+    render(
+      <>
+        <Badge tone="draft">Draft</Badge>
+        <Badge tone="soon">Soon</Badge>
+      </>,
+    );
+    expect(screen.getByText("Draft").className).toContain("border-dashed");
+    expect(screen.getByText("Soon").className).toContain("text-accent");
+    expect(screen.getByText("Draft").className).not.toMatch(/rounded/);
+  });
+});
+
+describe("email, phone and URL fields", () => {
+  it("read LTR in mono, even on an Arabic page", () => {
+    render(
+      <div lang="ar" dir="rtl">
+        <TextField label="email" type="email" />
+        <TextField label="phone" type="tel" />
+        <TextField label="name" />
+      </div>,
+    );
+    expect(screen.getByLabelText("email").getAttribute("dir")).toBe("ltr");
+    expect(screen.getByLabelText("phone").className).toContain("font-mono");
+    expect(screen.getByLabelText("name").getAttribute("dir")).toBeNull();
+  });
+
+  it("shows the label's mark, and an error as a glyph and words", () => {
+    render(<TextField label="Organization" mark="optional" error="Write it in full" />);
+    expect(screen.getByText("optional")).toBeTruthy();
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toBe("Write it in full");
+    expect(alert.querySelector("svg")).not.toBeNull();
+  });
+});
+
+describe("Radio and Switch", () => {
+  it("label their controls, and the switch has the switch role", () => {
+    render(
+      <>
+        <Radio name="kind" label="Government" defaultChecked />
+        <Switch label="Email me" defaultChecked />
+      </>,
+    );
+    expect((screen.getByLabelText("Government") as HTMLInputElement).checked).toBe(true);
+    expect(screen.getByRole("switch", { name: "Email me" })).toBeTruthy();
+  });
+});
+
+describe("FileInput", () => {
+  const text = { label: "Attachments", prompt: "Drag files here, or", browse: "choose", dropHere: "Drop", types: "PDF · PNG", limits: "up to 10 MB" };
+
+  it("shows the types and limits before anything is picked, and hands picked files up", () => {
+    const onFiles = vi.fn();
+    render(<FileInput {...text} onFiles={onFiles} />);
+    const input = screen.getByLabelText("Attachments") as HTMLInputElement;
+    expect(document.getElementById(input.getAttribute("aria-describedby") ?? "")?.textContent).toBe("PDF · PNG · up to 10 MB");
+    const file = new File(["x"], "a.pdf", { type: "application/pdf" });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(onFiles).toHaveBeenCalledWith([file]);
+  });
+
+  it("hands dropped files up", () => {
+    const onFiles = vi.fn();
+    const { container } = render(<FileInput {...text} onFiles={onFiles} />);
+    const zone = container.querySelector("label:has(input[type=file])") as HTMLElement;
+    const file = new File(["x"], "b.png", { type: "image/png" });
+    fireEvent.drop(zone, { dataTransfer: { files: [file] } });
+    expect(onFiles).toHaveBeenCalledWith([file]);
+  });
+});
+
+describe("Divider", () => {
+  it("draws a heavy opening rule or a hairline, hidden from screen readers", () => {
+    const { container } = render(
+      <>
+        <Divider variant="heavy" />
+        <Divider />
+        <DatedDivider>March 2025</DatedDivider>
+      </>,
+    );
+    const [heavy, hair] = [...container.querySelectorAll("hr")];
+    expect(heavy.className).toContain("border-rule");
+    expect(hair.className).toContain("border-line");
+    expect(heavy.getAttribute("aria-hidden")).toBe("true");
+    expect(screen.getByText("March 2025")).toBeTruthy();
   });
 });

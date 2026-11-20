@@ -3,6 +3,8 @@ export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-/** One focus ring for every interactive component. */
-export const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+/**
+ * One focus ring for every interactive component: the `focus-ring` utility in
+ * globals.css (2px `focus`, 3px offset, solid; DESIGN.md "States").
+ */
+export const FOCUS_RING = "focus-ring";

@@ -9,7 +9,8 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { cx, FOCUS_RING } from "./cx";
+import { AlertIcon } from "../icons";
+import { cx } from "./cx";
 
 export type LanguagePanel = {
   /** The tab and panel name, in its own language. */
@@ -21,6 +22,32 @@ export type LanguagePanel = {
 
 /** The language and direction of the content typed in a panel. */
 export type PanelLanguage = { lang: "ar" | "en"; dir: "rtl" | "ltr" };
+
+/*
+ * The Tabs board: single choice, a hairline under the row, and the chosen tab
+ * in ink with a 2px accent underline. Different from filter chips, which are
+ * multiple choice and carry a square.
+ */
+export const TAB_LIST = "flex overflow-x-auto border-b border-line [scrollbar-width:thin]";
+
+export function tabClasses(active: boolean) {
+  return cx(
+    "inline-flex min-h-12 shrink-0 cursor-pointer items-center gap-2 px-4.5 text-[15px] whitespace-nowrap transition-state focus-ring",
+    "focus-visible:-outline-offset-2",
+    active ? "text-ink shadow-[inset_0_-2px_0_var(--accent)]" : "text-ink-2 hover:text-ink",
+  );
+}
+
+/** A glyph and a hidden word, so an invalid tab never relies on color alone. */
+function InvalidMark({ label }: { label?: string }) {
+  return (
+    <>
+      {" "}
+      <AlertIcon aria-hidden="true" className="size-4 shrink-0 text-danger" />
+      {label && <span className="sr-only">{label}</span>}
+    </>
+  );
+}
 
 const PanelLanguageContext = createContext<PanelLanguage | null>(null);
 
@@ -105,7 +132,7 @@ export function LanguageTabs({
       <div
         role="tablist"
         aria-label={label}
-        className="mb-4 inline-flex gap-1 rounded-lg border border-text/15 bg-surface p-1 lg:hidden"
+        className={cx(TAB_LIST, "mb-5 lg:hidden")}
       >
         {panels.map((panel) => {
           const active = selected === panel.lang;
@@ -121,20 +148,10 @@ export function LanguageTabs({
               tabIndex={active ? 0 : -1}
               onClick={() => setSelected(panel.lang)}
               onKeyDown={onKeyDown}
-              className={cx(
-                "inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold",
-                FOCUS_RING,
-                active ? "bg-text text-background" : "text-text hover:bg-text/10",
-              )}
+              className={tabClasses(active)}
             >
               {panel.label}
-              {panel.invalid && (
-                <>
-                  {" "}
-                  <span aria-hidden="true" className="size-2 rounded-full bg-danger" />
-                  {invalidLabel && <span className="sr-only">{invalidLabel}</span>}
-                </>
-              )}
+              {panel.invalid && <InvalidMark label={invalidLabel} />}
             </button>
           );
         })}
@@ -149,7 +166,8 @@ export function LanguageTabs({
               ? { "aria-labelledby": `${id}-heading-${panel.lang}` }
               : { role: "tabpanel", "aria-labelledby": `${id}-tab-${panel.lang}` })}
             className={cx(
-              "min-w-0 rounded-lg border border-text/10 bg-surface p-4 md:p-6",
+              // Each panel opens with the heavy rule, like a record.
+              "min-w-0 border-t-2 border-rule pt-5 lg:pt-4",
               selected === panel.lang ? "block" : "hidden lg:block",
               panel.invalid && "lg:border-danger",
             )}
@@ -158,16 +176,10 @@ export function LanguageTabs({
             <Heading
               id={`${id}-heading-${panel.lang}`}
               lang={panel.lang}
-              className="mb-4 hidden items-center gap-2 text-lg lg:flex"
+              className="mb-4 hidden items-center gap-2 type-h3 lg:flex"
             >
               {panel.label}
-              {panel.invalid && (
-                <>
-                  {" "}
-                  <span aria-hidden="true" className="size-2 rounded-full bg-danger" />
-                  {invalidLabel && <span className="sr-only">{invalidLabel}</span>}
-                </>
-              )}
+              {panel.invalid && <InvalidMark label={invalidLabel} />}
             </Heading>
             <PanelLanguageContext.Provider value={panel.language}>
               <div className="space-y-4">{panel.content}</div>
