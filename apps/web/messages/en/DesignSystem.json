@@ -110,7 +110,7 @@
       "onGround": "On the ground",
       "onSurface": "On the surface",
       "onLink": "On a link",
-      "note": "A solid 2px line with a 3px gap, in the focus color. Over 3:1 on every surface in both themes. Never hidden. Press Tab to see it."
+      "note": "A solid 2px line with a 3px gap, in the focus color. Over 3:1 on every surface in both themes. Never hidden. These are pictures of the ring; press Tab through the page's links to see the real one."
     },
     "motion": {
       "title": "Motion",

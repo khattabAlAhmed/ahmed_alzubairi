@@ -88,14 +88,29 @@ async function ColorBlock({ locale }: Props) {
                     return (
                       <tr key={`${pair.fg}-${pair.bg}`} className="border-b border-line">
                         <td className="py-2 pe-3">
-                          <span
-                            className="inline-block px-2"
-                            style={{ color: `var(${fg.token})`, backgroundColor: `var(${bg.token})` }}
-                          >
-                            <span dir="ltr" className="mono-meta">
-                              {fg.token} / {bg.token}
+                          {pair.min === 3 ? (
+                            // A boundary color, shown as the line it draws: it
+                            // isn't for text, so the label stays in ink.
+                            <span className="inline-flex items-center gap-2 px-2" style={{ backgroundColor: `var(${bg.token})` }}>
+                              <span
+                                aria-hidden="true"
+                                className="inline-block w-6 border-t-2"
+                                style={{ borderColor: `var(${fg.token})` }}
+                              />
+                              <span dir="ltr" className="mono-meta text-ink">
+                                {fg.token} / {bg.token}
+                              </span>
                             </span>
-                          </span>
+                          ) : (
+                            <span
+                              className="inline-block px-2"
+                              style={{ color: `var(${fg.token})`, backgroundColor: `var(${bg.token})` }}
+                            >
+                              <span dir="ltr" className="mono-meta">
+                                {fg.token} / {bg.token}
+                              </span>
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 text-end">{ratio(value)}</td>
                       </tr>
@@ -370,8 +385,10 @@ async function PhotographyBlock({ locale }: Props) {
 
 /* ---------------------------------------------------------------- focus -- */
 
-// Always drawn here, so the ring shows without a keyboard; Tab shows the real one.
-const SHOWN_RING = "outline-2 outline-offset-3 outline-focus outline-solid transition-state";
+// Pictures of the ring, not controls: always drawn, so the ring shows
+// without a keyboard. Tab through the page's own links to see the real one,
+// which these would otherwise be impossible to tell apart from.
+const SHOWN_RING = "inline-flex items-center outline-2 outline-offset-3 outline-focus outline-solid";
 
 async function FocusBlock({ locale }: Props) {
   const t = await getTranslations({ locale, namespace: "DesignSystem" });
@@ -381,23 +398,12 @@ async function FocusBlock({ locale }: Props) {
       <DsThemes labels={{ light: t("light"), dark: t("dark") }}>
         {() => (
           <div className="flex flex-wrap items-center gap-6 py-2">
-            <button type="button" className={`min-h-12 bg-accent px-6 text-on-accent hover:bg-ink hover:text-bg ${SHOWN_RING}`}>
-              {f("onAccent")}
-            </button>
-            <button type="button" className={`min-h-12 border border-ink px-6 hover:bg-surface-hover ${SHOWN_RING}`}>
-              {f("onGround")}
-            </button>
+            <span className={`min-h-12 bg-accent px-6 text-on-accent ${SHOWN_RING}`}>{f("onAccent")}</span>
+            <span className={`min-h-12 border border-ink px-6 ${SHOWN_RING}`}>{f("onGround")}</span>
             <span className="bg-surface p-3">
-              <button type="button" className={`min-h-12 border border-ink px-6 hover:bg-surface-hover ${SHOWN_RING}`}>
-                {f("onSurface")}
-              </button>
+              <span className={`min-h-12 border border-ink px-6 ${SHOWN_RING}`}>{f("onSurface")}</span>
             </span>
-            <button
-              type="button"
-              className={`text-accent underline decoration-1 underline-offset-5 hover:decoration-2 ${SHOWN_RING}`}
-            >
-              {f("onLink")}
-            </button>
+            <span className={`text-accent underline decoration-1 underline-offset-5 ${SHOWN_RING}`}>{f("onLink")}</span>
           </div>
         )}
       </DsThemes>
