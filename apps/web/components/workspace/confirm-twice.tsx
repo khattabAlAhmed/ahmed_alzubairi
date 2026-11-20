@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import { Dialog } from "@/components/feedback/dialog";
 import { Button, TextField } from "@/components/ui";
 
 export type ConfirmTwiceProps = {
@@ -28,9 +29,10 @@ export function wordMatches(typed: string, word: string): boolean {
 }
 
 /**
- * The double confirmation for deletes (§6.17 retention): first a question,
- * then a word to type. The final button stays disabled until the word
- * matches. A native modal `<dialog>`, so focus stays inside and Esc cancels.
+ * The double confirmation for deletes (§6.17 retention, the Dialog board):
+ * first a question, then a word to type. The final button stays disabled
+ * until the word matches. Built on Dialog: a native modal, so focus stays
+ * inside, Escape cancels, and focus goes back to the opener.
  */
 export function ConfirmTwice(props: ConfirmTwiceProps) {
   // Mounted only while open, so each opening starts at step one with an empty field.
@@ -40,25 +42,9 @@ export function ConfirmTwice(props: ConfirmTwiceProps) {
 
 function ConfirmDialog({ onCancel, onConfirm, title, question, word, confirmLabel, busy = false, error }: ConfirmTwiceProps) {
   const t = useTranslations("Workspace.confirm");
-  const dialog = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
   const [step, setStep] = useState<1 | 2>(1);
   const [typed, setTyped] = useState("");
   const matches = wordMatches(typed, word);
-
-  useEffect(() => {
-    const element = dialog.current;
-    // Focus goes back to whatever opened the dialog.
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (element && !element.open) {
-      if (typeof element.showModal === "function") element.showModal();
-      else element.setAttribute("open", "");
-    }
-    return () => {
-      if (element?.open && typeof element.close === "function") element.close();
-      opener?.focus();
-    };
-  }, []);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,51 +56,44 @@ function ConfirmDialog({ onCancel, onConfirm, title, question, word, confirmLabe
   }
 
   return (
-    <dialog
-      ref={dialog}
-      aria-labelledby={titleId}
-      // Esc: the browser's cancel. The parent decides, so the dialog only closes through `open`.
-      onCancel={(event) => {
-        event.preventDefault();
-        if (!busy) onCancel();
-      }}
-      className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border border-text/15 bg-surface p-0 text-text shadow-lg backdrop:bg-primary/70 backdrop:backdrop-blur-[2px]"
-    >
-      <form noValidate onSubmit={submit} className="space-y-4 p-6">
-        <div>
-          <p className="text-xs font-semibold text-text-secondary">{t("step", { step })}</p>
-          <h2 id={titleId} className="mt-1 text-xl text-balance">
-            {title}
-          </h2>
-        </div>
-        <p className="max-w-prose text-pretty">{question}</p>
-        {step === 2 && (
-          <TextField
-            label={t("typeWord", { word })}
-            value={typed}
-            onChange={(event) => setTyped(event.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-            // A wrong word is shown only once something is typed.
-            error={typed.trim() !== "" && !matches ? t("mismatch") : error}
-            autoFocus
-          />
-        )}
-        <div className="flex flex-wrap-reverse justify-end gap-2">
-          <Button variant="secondary" disabled={busy} onClick={onCancel}>
+    <Dialog
+      open
+      onClose={onCancel}
+      busy={busy}
+      tone="danger"
+      title={title}
+      step={t("step", { step })}
+      onSubmit={submit}
+      footer={
+        <>
+          <Button variant="quiet" disabled={busy} onClick={onCancel}>
             {t("cancel")}
           </Button>
           {step === 1 ? (
-            <Button type="submit" autoFocus>
+            <Button type="submit" variant="danger" autoFocus>
               {t("continue")}
             </Button>
           ) : (
-            <Button type="submit" disabled={!matches} loading={busy} loadingLabel={confirmLabel}>
+            <Button type="submit" variant="danger" disabled={!matches} loading={busy} loadingLabel={confirmLabel}>
               {confirmLabel}
             </Button>
           )}
-        </div>
-      </form>
-    </dialog>
+        </>
+      }
+    >
+      <p className="max-w-prose">{question}</p>
+      {step === 2 && (
+        <TextField
+          label={t("typeWord", { word })}
+          value={typed}
+          onChange={(event) => setTyped(event.target.value)}
+          autoComplete="off"
+          spellCheck={false}
+          // A wrong word is shown only once something is typed.
+          error={typed.trim() !== "" && !matches ? t("mismatch") : error}
+          autoFocus
+        />
+      )}
+    </Dialog>
   );
 }

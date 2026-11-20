@@ -55,9 +55,12 @@
     "empty": "Nothing here yet."
   },
   "NotFound": {
-    "title": "Page not found",
-    "description": "The link may be wrong, or this page isn't published yet.",
-    "backHome": "Back to home"
+    "title": "This page is not in the record.",
+    "description": "It may have moved, or the link may be incomplete. These are the places people usually look.",
+    "backHome": "Back to home",
+    "code": "Error 404",
+    "searchLabel": "Search the writing",
+    "waysLabel": "Suggested links"
   },
   "Error": {
     "title": "Something went wrong",
