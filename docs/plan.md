@@ -147,7 +147,9 @@ Lane A adds a newsletter checkbox to the email gate after Lane B is merged.
 
 **Why:** the current pages follow the default AI pattern: a gold bar over a heading, two buttons and a framed photo, then grids of identical cards on every section. Its palette (ivory, serif, gold) is the most common "premium" cliché of generated sites. §13 fixed colors and fonts but said nothing about feeling, voice, layout or what to avoid, and the designer had no design skills and no way to see its own work.
 
-**Source of truth:** `docs/design/SOUL.md` (what it must feel like, and why) and, once approved, `docs/design/DESIGN.md` (how it looks). Read `SOUL.md` before any Phase 8 work.
+**Source of truth:** `docs/design/SOUL.md` (what it must feel like, and why), `docs/design/components.md` (every component the design system must contain) and, once approved, `docs/design/DESIGN.md` (how it looks). Read `SOUL.md` before any Phase 8 work.
+
+**Order:** the design system comes first, then pages. Claude Design builds every component before it designs a page, and the team builds every component in code before a page is restyled.
 
 ### Already in place
 
@@ -157,14 +159,15 @@ Lane A adds a newsletter checkbox to the email gate after Lane B is merged.
 
 ### Before the board (product owner and Ahmed)
 
-Agents don't start Phase 8 until these are done. The lead plans the board after step 5.
+Agents don't start Phase 8 until these are done. The lead plans the board after step 6.
 
 1. **Placeholder photos.** Generate the images listed in `docs/design/images/README.md` with the prompts there, and save them in that folder under the names given. They are dev placeholders.
-2. **Explore in Claude Design** (claude.ai → Design, included in the Claude Pro/Max plan). Attach `SOUL.md`, `project.md` and the photos, and paste `docs/design/claude-design-prompt.md`. It produces three directions, Arabic first.
-3. **Ahmed picks one direction**, in both languages and both themes. With it he settles §14 decision 3 (fonts and colors), decision 1 (name and logo) if he's ready, and three points where the soul meets §6.2: whether the quick stats animate, how the hero is composed, and whether the home page gets a short letter in his voice.
-4. **Ahmed's voice.** Ahmed writes, or approves, the words the design depends on: the letter (if kept), one sentence of his for each main page, and a first-person rewrite of the hero and section intros. A scan of his real signature if the letter is kept. Draft copy from Claude Design is never shipped as his words.
-5. **Hand off.** Ask Claude Design for the handoff. Put `DESIGN.md`, the bundle, and a screenshot of every screen (Arabic and English, light and dark) in `docs/design/`.
-6. **DaVinci's role in HQ** (Settings → Team → DaVinci → role). Replace its first bullet with: "`docs/design/SOUL.md` and `docs/design/DESIGN.md` are your source of truth; §13 keeps the rules that aren't style. Don't invent a new style, colors or fonts. If you think the design should change, ask the product owner."
+2. **Foundations in Claude Design** (claude.ai → Design, included in the Claude Pro/Max plan). Attach `SOUL.md`, `components.md`, `project.md` and the photos, and paste stage 1 of `docs/design/claude-design-prompt.md`. It produces three foundation options, each on one specimen board, Arabic first. **Ahmed picks one.** With it he settles §14 decision 3 (fonts and colors), and decision 1 (name and logo) if he's ready.
+3. **The design system in Claude Design.** Paste stage 2. Claude Design builds every component in `components.md`, in every state, Arabic and English, light and dark, and writes `DESIGN.md`. **Ahmed and the product owner approve the system** before any page is designed. If the plan allows it, save it as the design system in Claude Design.
+4. **Pages in Claude Design.** Paste stage 3: home and one project page first, then every public page, built only from the system. Before the home page, Ahmed settles three points where the soul meets §6.2: whether the quick stats animate, how the hero is composed, and whether the home page gets a short letter in his voice. **Ahmed approves the pages.**
+5. **Ahmed's voice.** Ahmed writes, or approves, the words the design depends on: the letter (if kept), one sentence of his for each main page, and a first-person rewrite of the hero and section intros. A scan of his real signature if the letter is kept. Draft copy from Claude Design is never shipped as his words.
+6. **Hand off.** Ask Claude Design for the handoff. Put `DESIGN.md`, the bundle, and a screenshot of every component board and every page (Arabic and English, light and dark) in `docs/design/`.
+7. **DaVinci's role in HQ** (Settings → Team → DaVinci → role). Replace its first bullet with: "`docs/design/SOUL.md` and `docs/design/DESIGN.md` are your source of truth; §13 keeps the rules that aren't style. Don't invent a new style, colors or fonts. If you think the design should change, ask the product owner."
 
 **Keys needed:** none. The inputs above are the product owner's and Ahmed's job.
 
@@ -173,6 +176,7 @@ Agents don't start Phase 8 until these are done. The lead plans the board after 
 ### Rules for this phase
 
 - `DESIGN.md` replaces §13's look. §13 keeps the rules that aren't style: contrast, RTL, states, responsive, performance, accessibility. Where they disagree with `SOUL.md`, ask the product owner.
+- Pages are composed only from the design system's components. If a page needs one the system doesn't have, add it to `components.md` and the system first (with DaVinci and the product owner), then use it. Never a one-off style inside a page.
 - Build to the approved mockups. If a screen has no mockup, follow `SOUL.md` and `DESIGN.md` and ask DaVinci, never the model's defaults.
 - Nothing from "What breaks the soul" in `SOUL.md`, and nothing `DESIGN.md` bans.
 - UI copy in `messages/` follows the voice in `SOUL.md`: first person, measured, no hype. Copy that changes meaning, and any button label named in `project.md`, needs the product owner's approval.
@@ -181,17 +185,17 @@ Agents don't start Phase 8 until these are done. The lead plans the board after 
 
 | Lane | Includes | project.md |
 | --- | --- | --- |
-| **Foundation — DaVinci, before the lanes** | `DESIGN.md` into code: tokens for both themes in `globals.css`, the chosen fonts with `next/font`, an Arabic and an English type scale (Arabic sits larger, with more line height), spacing, radius, motion. Restyle `components/ui` and the shared section shell. Optimize the **design** images into `apps/web/public/images/`. A `pnpm screenshots` script (Playwright, using the sandbox's Chromium) that captures the public pages at both widths, both languages, both themes. Update §13 and §14 in `project.md` to point to `docs/design/`. | §13, §14 |
+| **Foundation — the design system in code, before the lanes** | Every item in `components.md`, built to the approved component boards. Tokens for both themes in `globals.css`, the chosen fonts with `next/font`, an Arabic and an English type scale (Arabic sits larger, with more line height), spacing, radius, motion. Then the primitives, the site shell, his voice, content, forms and feedback components, restyling the files listed under "Code today". A design-system page at `/[locale]/design-system` that shows every component in every state: not linked, `noindex`, and a 404 in production. Optimize the **design** images into `apps/web/public/images/`. A `pnpm screenshots` script (Playwright, using the sandbox's Chromium) that captures the design-system page and the public pages at both widths, both languages, both themes. Update §13 and §14 in `project.md` to point to `docs/design/`. | §13, §14 |
 | **A — Identity pages** | Header, footer, mobile menu. Home, every section, including the letter if approved. About, expertise, services. | §6.1–6.5, §6.11 |
 | **B — Work and reading pages** | Projects as short stories, clients and testimonials, the public document list, training, blog, resources, media, FAQ, contact, legal pages, 404. Empty, loading and error states on all of them. Clerk sign-in and sign-up themed with the new tokens. | §6.6–6.14, §6.25 |
 
-Both lanes build on Foundation, so it merges first. The product owner uploads the **content** placeholder photos to the dev project through the dashboard (hero photo, project galleries) once Foundation is merged.
+Foundation is too large for one PR. The lead splits it into tasks by the groups in `components.md` (foundations and primitives first, then the shell, then the rest). DaVinci owns it; the lead may give later groups to a developer. Each task's PR shows its components on the design-system page next to the matching board. Both lanes wait until every Foundation task has merged. The product owner uploads the **content** placeholder photos to the dev project through the dashboard (hero photo, project galleries) once Foundation is merged.
 
 After each lane merges, DaVinci runs a polish task on those pages: `impeccable` critique and polish against the mockups and `SOUL.md`, and Vercel's guidelines check.
 
 The account and dashboard pages get the new tokens only, not a redesign. Lane B checks they still pass contrast and read well in both themes.
 
-**Done when:** Ahmed approved one direction, and `SOUL.md`, `DESIGN.md` and the handoff are in `docs/design/`; every public page matches its mockup on the latest preview, in Arabic and English, light and dark, at 375 px; `impeccable detect`, run against the running app (`detect http://localhost:3000/ar` and `/en`, every public page), finds no anti-patterns; contrast is WCAG AA in both themes; the home page still loads in under 3 seconds on a throttled mobile network; "reduce motion" turns motion off; account and dashboard pages still read correctly; **the soul check passes:** Ahmed and one person outside the team each look at the home page for a minute, then say in their own words what they felt, and it matches the one line in `SOUL.md`; Ahmed approved the preview.
+**Done when:** Ahmed approved the foundations, the design system and the pages, and `SOUL.md`, `components.md`, `DESIGN.md` and the handoff are in `docs/design/`; every component in `components.md` is on the design-system page and matches its board; every public page matches its mockup on the latest preview, in Arabic and English, light and dark, at 375 px; `impeccable detect`, run against the running app (`detect http://localhost:3000/ar` and `/en`, every public page), finds no anti-patterns; contrast is WCAG AA in both themes; the home page still loads in under 3 seconds on a throttled mobile network; "reduce motion" turns motion off; account and dashboard pages still read correctly; **the soul check passes:** Ahmed and one person outside the team each look at the home page for a minute, then say in their own words what they felt, and it matches the one line in `SOUL.md`; Ahmed approved the preview.
 
 **Before launch (Phase 7):** every placeholder photo of a person is replaced by a real one, with consent. `docs/design/images/README.md` lists the order.
 
