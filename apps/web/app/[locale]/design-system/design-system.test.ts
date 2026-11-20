@@ -22,7 +22,8 @@ describe("design-system page", () => {
     vi.stubEnv("VERCEL_ENV", "production");
     const { default: Page } = await import("./page");
     await expect(Page({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow("NEXT_NOT_FOUND");
-  });
+    // The first import of the page pulls in next-intl and every section.
+  }, 30_000);
 
   it("is noindex", async () => {
     const { generateMetadata } = await import("./page");

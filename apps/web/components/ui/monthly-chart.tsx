@@ -117,7 +117,7 @@ export function MonthlyChart({
                   return (
                     <li key={index} className="group relative flex h-full min-w-0 flex-1 items-end justify-center">
                       <span
-                        className="block w-full max-w-6 rounded-t-[4px] bg-primary group-hover:opacity-80 motion-safe:transition-opacity dark:bg-accent"
+                        className="block w-full max-w-6 rounded-t-[4px] bg-accent group-hover:opacity-80 motion-safe:transition-opacity"
                         style={{ height: percent(point.value) }}
                       />
                       <span
