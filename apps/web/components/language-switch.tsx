@@ -137,28 +137,31 @@ export function UntranslatedSwitch({
         hidden={!open}
         role="group"
         aria-labelledby={`${id}-title`}
-        lang={target}
-        dir={target === "ar" ? "rtl" : "ltr"}
-        className="absolute end-0 top-full z-50 mt-1 w-[300px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg p-4 text-start shadow-overlay"
+        className="absolute end-0 top-full z-50 mt-1 w-[300px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg shadow-overlay"
       >
-        <p id={`${id}-title`} className="type-small font-medium">
-          {t("untranslated.title")}
-        </p>
-        <p className="type-caption text-ink-2">{t("untranslated.body")}</p>
-        <div className="mt-2.5 flex flex-wrap items-center gap-4">
-          <Link href={{ pathname: href }} locale={target} hrefLang={target} className={buttonClasses({ variant: "secondary", size: "sm" })}>
-            {t("untranslated.go")}
-          </Link>
-          <button
-            type="button"
-            className={buttonClasses({ variant: "quiet", size: "sm" })}
-            onClick={() => {
-              setOpen(false);
-              button.current?.focus();
-            }}
-          >
-            {t("untranslated.stay")}
-          </button>
+        {/* The note is in the other language. Its direction sits on this inner
+            box: on the positioned box, `dir` would flip what `end-0` means and
+            open the note off the screen. */}
+        <div lang={target} dir={target === "ar" ? "rtl" : "ltr"} className="p-4 text-start">
+          <p id={`${id}-title`} className="type-small font-medium">
+            {t("untranslated.title")}
+          </p>
+          <p className="type-caption text-ink-2">{t("untranslated.body")}</p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-4">
+            <Link href={{ pathname: href }} locale={target} hrefLang={target} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              {t("untranslated.go")}
+            </Link>
+            <button
+              type="button"
+              className={buttonClasses({ variant: "quiet", size: "sm" })}
+              onClick={() => {
+                setOpen(false);
+                button.current?.focus();
+              }}
+            >
+              {t("untranslated.stay")}
+            </button>
+          </div>
         </div>
       </div>
     </div>

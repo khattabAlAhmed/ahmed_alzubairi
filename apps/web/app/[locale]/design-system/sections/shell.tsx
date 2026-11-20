@@ -40,7 +40,7 @@ async function Pair({ locale, children }: { locale: Locale; children: (theme: "l
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {(["light", "dark"] as const).map((theme) => (
-        <div key={theme} data-theme={theme} className="border border-line bg-bg p-5 text-ink">
+        <div key={theme} data-theme={theme} className="min-w-0 border border-line bg-bg p-5 text-ink">
           <p className="mb-4 text-ink-2 type-caption">{t(theme)}</p>
           {children(theme)}
         </div>
