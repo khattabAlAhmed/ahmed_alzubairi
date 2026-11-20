@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { zoneLabel } from "@/lib/time/format";
 import ar from "@/messages/ar/DashboardConsultations.json";
 import en from "@/messages/en/DashboardConsultations.json";
 import arWorkspace from "@/messages/ar/Workspace.json";
@@ -126,7 +127,7 @@ describe("MeetingForm", () => {
     const onDone = vi.fn();
     wrap(<MeetingForm consultationId={ID} onDone={onDone} create={create} />);
     const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    expect(screen.getByText(en.meeting.zone.replace("{zone}", zone))).toBeTruthy();
+    expect(screen.getByText(en.meeting.zone.replace("{zone}", `\u2066${zoneLabel(zone)}\u2069`))).toBeTruthy();
     fill({ platform: " Zoom ", url: "https://zoom.example/j/1", date: "2026-11-20", time: "14:30", duration: "45" });
     fireEvent.click(screen.getByRole("button", { name: en.meeting.save }));
     await waitFor(() => expect(onDone).toHaveBeenCalled());

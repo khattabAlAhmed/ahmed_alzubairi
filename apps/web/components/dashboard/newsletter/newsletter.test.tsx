@@ -3,6 +3,7 @@ import type { NewsletterSubscriber } from "@repo/shared";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatDateTime } from "@/lib/time/format";
 import ar from "@/messages/ar/DashboardNewsletter.json";
 import en from "@/messages/en/DashboardNewsletter.json";
 import { SubscriberList } from "./subscriber-list";
@@ -57,11 +58,9 @@ describe("SubscriberList", () => {
     const times = items[0]!.querySelectorAll("time");
     expect(times).toHaveLength(2);
     expect(times[0]?.getAttribute("datetime")).toBe("2026-11-01T07:59:00.000Z");
-    expect(times[0]?.textContent).toBe(
-      new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
-        new Date("2026-11-01T07:59:00.000Z"),
-      ),
-    );
+    expect(times[0]?.textContent).toBe(formatDateTime("2026-11-01T07:59:00.000Z", locale));
+    // Arabic-Indic digits in Arabic (DESIGN.md "Numbers").
+    expect(times[0]?.textContent).toMatch(locale === "ar" ? /٢٠٢٦/ : /2026/);
     expect(within(items[1]!).getByText(m.statuses.pending)).toBeTruthy();
     expect(within(items[1]!).getByText(m.row.none)).toBeTruthy();
     expect(within(items[2]!).getByText(m.statuses.unsubscribed)).toBeTruthy();

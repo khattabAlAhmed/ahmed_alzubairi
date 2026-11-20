@@ -1,4 +1,5 @@
 import type { StatChange } from "@/components/ui";
+import { intlLocale } from "@/lib/time/format";
 
 /** The latest month and the one before, from a monthly series. */
 export function lastTwo(values: readonly number[]): { current: number; previous: number } {
@@ -13,7 +14,7 @@ export function monthChange(values: readonly number[], locale: string, label: st
   if (values.length < 2) return undefined;
   const { current, previous } = lastTwo(values);
   const difference = current - previous;
-  const format = new Intl.NumberFormat(locale, { signDisplay: "exceptZero", maximumFractionDigits: 1 });
+  const format = new Intl.NumberFormat(intlLocale(locale), { signDisplay: "exceptZero", maximumFractionDigits: 1 });
   return {
     direction: difference > 0 ? "up" : difference < 0 ? "down" : "flat",
     tone: difference > 0 ? "better" : difference < 0 ? "worse" : "neutral",

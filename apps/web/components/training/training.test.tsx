@@ -477,7 +477,7 @@ describe("CourseList", () => {
   it("shows a card's date in the visitor's zone, not UTC", () => {
     const startsAt = "2027-03-01T00:30:00Z";
     show(<CourseList courses={[course({ startsAt })]} type={null} />);
-    const local = new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(startsAt));
+    const local = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(new Date(startsAt));
     expect(screen.getByRole("article").querySelector(`time[datetime="${startsAt}"]`)?.textContent).toBe(local);
   });
 

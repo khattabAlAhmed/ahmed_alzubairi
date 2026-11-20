@@ -1,8 +1,11 @@
 import type { Locale } from "@repo/shared";
+import { formatDateTime } from "@/lib/time/format";
 
 /**
  * The watermark's words (§6.18): the viewer's full name and the view date in
- * their language and time zone, e.g. "سارة أحمد · ١٤ نوفمبر ٢٠٢٦".
+ * their language and time zone, e.g. "سارة أحمد · ١٤ نوفمبر ٢٠٢٦" or
+ * "Sara Ahmed · 14 November 2026". Arabic-Indic digits in Arabic: the bundled
+ * IBM Plex Sans Arabic draws them (DESIGN.md "Numbers").
  */
 export function watermarkText(
   fullName: string,
@@ -12,10 +15,10 @@ export function watermarkText(
 ): string {
   let date: string;
   try {
-    date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone }).format(viewedAt);
+    date = formatDateTime(viewedAt, locale, { date: "long", time: false, timeZone });
   } catch {
     // An unknown zone on an old profile: the date in UTC rather than no mark.
-    date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(viewedAt);
+    date = formatDateTime(viewedAt, locale, { date: "long", time: false, timeZone: "UTC" });
   }
   return `${fullName.trim()} · ${date}`;
 }

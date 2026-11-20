@@ -13,6 +13,7 @@ import { useState, type FormEvent } from "react";
 import { Button, Card, Select, TextField } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { normalizePhone } from "@/lib/profile/phone";
+import { zoneLabel } from "@/lib/time/format";
 import { NoticeLine, type Notice } from "./notice";
 import { saveProfile } from "./send";
 
@@ -192,7 +193,7 @@ export function DetailsForm({
           >
             {zones.map((zone) => (
               <option key={zone} value={zone}>
-                {zone}
+                {zoneLabel(zone)}
               </option>
             ))}
           </Select>

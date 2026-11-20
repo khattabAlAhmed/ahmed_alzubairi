@@ -511,7 +511,7 @@ describe("RequestList", () => {
     expect(container.querySelector("script, img")).toBeNull();
     expect(screen.getByText("<script>alert(1)</script>")).toBeTruthy();
     expect(screen.getByText("<img src=x onerror=alert(1)>")).toBeTruthy();
-    expect(screen.getByText("January 15, 2027")).toBeTruthy();
+    expect(screen.getByText("15 January 2027")).toBeTruthy();
     expect(screen.getByText("Not given")).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });

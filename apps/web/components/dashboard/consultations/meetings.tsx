@@ -7,6 +7,7 @@ import { Button, Card, Label, TextField } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { MeetingCard } from "@/components/workspace";
 import { useRouter } from "@/i18n/navigation";
+import { zoneLabel } from "@/lib/time/format";
 import { createMeeting, updateMeeting } from "./send";
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -168,7 +169,8 @@ export function MeetingForm({
             required
           />
         </div>
-        <p className="text-sm text-text-secondary">{t("zone", { zone })}</p>
+        {/* The zone is isolated left to right: a Latin code inside an Arabic sentence. */}
+        <p className="text-sm text-text-secondary">{t("zone", { zone: `\u2066${zoneLabel(zone)}\u2069` })}</p>
         {error && (
           <p role="alert" className="text-sm font-semibold text-danger">
             {error}

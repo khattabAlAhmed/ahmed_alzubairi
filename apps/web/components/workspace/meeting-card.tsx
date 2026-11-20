@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { buttonClasses, Card } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { formatCount, formatDateTime, formatTimeRange } from "@/lib/time/format";
 import { zoneName } from "./format";
 import { VideoIcon } from "./icons";
 import { useInBrowser } from "./use-in-browser";
@@ -51,12 +52,10 @@ export function MeetingCard({
   const end = new Date(start.getTime() + durationMinutes * 60_000);
   const Heading = headingLevel === 2 ? "h2" : "h3";
 
-  const date = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone }).format(start);
-  const time = new Intl.DateTimeFormat(locale, { timeStyle: "short", timeZone }).formatRange(start, end);
+  const date = formatDateTime(start, locale, { date: "full", time: false, timeZone });
+  const time = formatTimeRange(start, end, locale, timeZone);
   const zone = `${zoneName(start, locale, "longGeneric", timeZone)} (${zoneName(start, locale, "short", timeZone)})`;
-  const duration = new Intl.NumberFormat(locale, { style: "unit", unit: "minute", unitDisplay: "long" }).format(
-    durationMinutes,
-  );
+  const duration = formatCount(durationMinutes, locale, { style: "unit", unit: "minute", unitDisplay: "long" });
 
   return (
     <Card as="section" compact className={cx("space-y-4", className)}>

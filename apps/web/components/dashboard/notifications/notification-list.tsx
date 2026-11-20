@@ -1,32 +1,13 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Badge, Button } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { LocalTime } from "@/components/consultations/local-time";
 import type { NotificationItem } from "./data";
 import { sendRead } from "./send";
-
-const subscribe = () => () => {};
-
-/**
- * A time in the viewer's locale and time zone. The server doesn't know the
- * zone, so the text is filled in by the browser.
- */
-function LocalTime({ value }: { value: string }) {
-  const locale = useLocale();
-  const inBrowser = useSyncExternalStore(subscribe, () => true, () => false);
-  return (
-    <time dateTime={value}>
-      {inBrowser &&
-        new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(value))}
-    </time>
-  );
-}
 
 type Notice = { tone: "status" | "alert"; text: string };
 

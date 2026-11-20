@@ -7,6 +7,7 @@ import {
 } from "@repo/shared";
 import { EMAIL_ACTIONS } from "@/emails/defaults";
 import type { NotificationEmailProps } from "@/emails/notification";
+import { formatDateTime } from "@/lib/time/format";
 
 /**
  * The preview's sample values that are words, in the email's language. They
@@ -37,11 +38,7 @@ export function sampleValues(
     url: SAMPLE_URL,
     confirmUrl: SAMPLE_CONFIRM_URL,
     timezone: SAMPLE_TIMEZONE,
-    startsAt: new Intl.DateTimeFormat(locale, {
-      dateStyle: "full",
-      timeStyle: "short",
-      timeZone: SAMPLE_TIMEZONE,
-    }).format(new Date(SAMPLE_STARTS_AT)),
+    startsAt: formatDateTime(SAMPLE_STARTS_AT, locale, { date: "full", timeZone: SAMPLE_TIMEZONE }),
   };
   return Object.fromEntries(
     EMAIL_PLACEHOLDERS[event].map((name) => [

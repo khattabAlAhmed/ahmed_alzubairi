@@ -112,7 +112,7 @@ describe("ChatMessage", () => {
 
   it("names the zone with the time", () => {
     wrap(<ChatMessage senderName="Sara" mine={false} body="hi" sentAt="2026-11-20T11:00:00Z" timeZone="Asia/Riyadh" />);
-    expect(screen.getByText(/2:00 PM GMT\+3/)).toBeTruthy();
+    expect(screen.getByText("20 Nov 2026, 2:00 pm (GMT+3)")).toBeTruthy();
   });
 });
 
@@ -262,8 +262,8 @@ describe("MeetingCard and DocumentCard", () => {
     wrap(
       <MeetingCard platform="Zoom" url="https://zoom.us/j/1" startsAt="2026-11-20T11:00:00Z" durationMinutes={45} timeZone="Asia/Riyadh" />,
     );
-    expect(screen.getByText("Friday, November 20, 2026")).toBeTruthy();
-    expect(screen.getByText(/2:00\s*–\s*2:45\s*PM/)).toBeTruthy();
+    expect(screen.getByText("Friday, 20 November 2026")).toBeTruthy();
+    expect(screen.getByText(/2:00\s*–\s*2:45\s*pm/)).toBeTruthy();
     expect(screen.getByText("45 minutes")).toBeTruthy();
     expect(screen.getByText("Arabian Standard Time (GMT+3)")).toBeTruthy();
     const join = screen.getByRole("link", { name: "Join the meeting on Zoom (opens in a new window)" });

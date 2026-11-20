@@ -1,4 +1,5 @@
 import { isIanaTimeZone } from "@repo/shared";
+import { formatMonth } from "@/lib/time/format";
 
 /** How many months the page shows, the current one last. */
 export const MONTHS = 12;
@@ -96,9 +97,5 @@ export function bucket(instants: readonly Date[], windows: readonly MonthWindow[
 /** A short month label in the viewer's language, e.g. "Nov" or "نوفمبر". */
 export function monthLabel(key: string, locale: string, withYear = false): string {
   const [year, month] = key.split("-").map(Number) as [number, number];
-  return new Intl.DateTimeFormat(locale, {
-    month: "short",
-    ...(withYear ? { year: "numeric" } : {}),
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(year, month - 1, 15)));
+  return formatMonth(new Date(Date.UTC(year, month - 1, 15)), locale, { year: withYear, timeZone: "UTC" });
 }

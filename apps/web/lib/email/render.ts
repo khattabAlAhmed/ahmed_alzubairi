@@ -22,6 +22,7 @@ import {
 } from "@/emails/defaults";
 import { NotificationEmail } from "@/emails/notification";
 import { createServiceClient } from "@/lib/supabase/service";
+import { formatDateTime } from "@/lib/time/format";
 
 /**
  * Turns an `email_outbox` row into the email to send (§6.21): the template of
@@ -87,12 +88,11 @@ function placeholderValues(payload: unknown, locale: Locale): EmailValues {
     values.confirmUrl = webLink(fields.confirmUrl, ["https:"]) ?? "";
   }
   if (typeof startsAt === "string" && !Number.isNaN(Date.parse(startsAt))) {
-    values.startsAt = new Intl.DateTimeFormat(locale, {
-      dateStyle: "full",
-      timeStyle: "short",
-      timeZone:
-        typeof timezone === "string" && isIanaTimeZone(timezone) ? timezone : "UTC",
-    }).format(new Date(startsAt));
+    // The recipient's language and digits, and their zone named (DESIGN.md "Numbers").
+    values.startsAt = formatDateTime(startsAt, locale, {
+      date: "full",
+      timeZone: typeof timezone === "string" && isIanaTimeZone(timezone) ? timezone : "UTC",
+    });
   }
   return values;
 }

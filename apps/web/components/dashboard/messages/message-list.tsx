@@ -1,31 +1,12 @@
 "use client";
 
 import type { ContactMessage } from "@repo/shared";
-import { useLocale, useTranslations } from "next-intl";
-import { useId, useState, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
+import { useId, useState } from "react";
 import { Badge, Button, buttonClasses } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
+import { LocalTime } from "@/components/consultations/local-time";
 import { replyHref, sendRead } from "./send";
-
-const subscribe = () => () => {};
-
-/**
- * A time in the viewer's locale and time zone. The server doesn't know the
- * zone, so the text is filled in by the browser.
- */
-function LocalTime({ value }: { value: string }) {
-  const locale = useLocale();
-  const inBrowser = useSyncExternalStore(subscribe, () => true, () => false);
-  return (
-    <time dateTime={value}>
-      {inBrowser &&
-        new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(value))}
-    </time>
-  );
-}
 
 type Notice = { tone: "status" | "alert"; text: string };
 
