@@ -21,7 +21,7 @@ import {
 import { ActivityList, ProjectFacts, ResultFigures } from "@/components/public/projects/project-detail";
 import { EmailGate, ResourceDownload } from "@/components/public/resources/resource-download";
 import { ARTICLE_PROSE, RichText } from "@/components/public/rich-text/rich-text";
-import { ButtonLink } from "@/components/ui";
+import { Button, ButtonLink } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { RegistrationFrame, RegistrationPanel } from "@/components/training/registration-panel";
 import type { Faq } from "@/lib/content";
@@ -479,17 +479,18 @@ async function CourseBlock({ t, locale }: { t: T; locale: Locale }) {
 
 /* --------------------------------------------------------- registration -- */
 
-function RegistrationBlock({ t, locale }: { t: T; locale: Locale }) {
+async function RegistrationBlock({ t, locale }: { t: T; locale: Locale }) {
+  const tt = await getTranslations({ locale, namespace: "Training" });
   const course = { id: "00000000-0000-4000-8000-000000000003", slug: "sample", type: "in_person" as const, startsAt: STARTS.first };
   const facts = (full: boolean) => [
     { label: t("registration.date"), value: t("registration.dateValue") },
     { label: t("registration.seats"), value: t(full ? "registration.seatsFull" : "registration.seatsValue") },
   ];
   const states = [
-    { label: t("states.signedOut"), seatsLeft: 8, viewer: { kind: "signed_out" as const } },
-    { label: t("states.signedIn"), seatsLeft: 8, viewer: { kind: "client" as const, registered: false, onlineUrl: null } },
-    { label: t("states.registered"), seatsLeft: 8, viewer: { kind: "client" as const, registered: true, onlineUrl: null } },
-    { label: t("states.full"), seatsLeft: 0, viewer: { kind: "client" as const, registered: false, onlineUrl: null } },
+    { label: t("states.signedOut"), seatsLeft: 8, live: true, viewer: { kind: "signed_out" as const } },
+    { label: t("states.signedIn"), seatsLeft: 8, live: false, viewer: { kind: "client" as const, registered: false, onlineUrl: null } },
+    { label: t("states.registered"), seatsLeft: 8, live: true, viewer: { kind: "client" as const, registered: true, onlineUrl: null } },
+    { label: t("states.full"), seatsLeft: 0, live: true, viewer: { kind: "client" as const, registered: false, onlineUrl: null } },
   ];
   return (
     <DsBlock title={t("registration.title")} intro={t("registration.intro")}>
@@ -497,7 +498,14 @@ function RegistrationBlock({ t, locale }: { t: T; locale: Locale }) {
         {states.map((state) => (
           <State key={state.label} label={state.label}>
             <RegistrationFrame facts={state.viewer.kind === "client" && state.viewer.registered ? [] : facts(state.seatsLeft === 0)}>
-              <RegistrationPanel course={{ ...course, seatsLeft: state.seatsLeft }} locale={locale} viewer={state.viewer} now={NOW} />
+              {state.live ? (
+                <RegistrationPanel course={{ ...course, seatsLeft: state.seatsLeft }} locale={locale} viewer={state.viewer} now={NOW} />
+              ) : (
+                // A picture of the register button: the live one would post to the registration API.
+                <Button type="button" className="w-full">
+                  {tt("register.button")}
+                </Button>
+              )}
             </RegistrationFrame>
           </State>
         ))}

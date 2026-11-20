@@ -23,6 +23,12 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
   const [open, setOpen] = useState(false);
+  // Each press of "Download by email" starts a fresh form, also after a finished download.
+  const [gate, setGate] = useState(0);
+  const openGate = () => {
+    setGate((n) => n + 1);
+    setOpen(true);
+  };
 
   async function download() {
     setBusy(true);
@@ -36,7 +42,7 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
       startDownload(result.url);
       // A request with no body is only ever invalid for want of the email: the
       // resource became email-gated after the page was cached. Ask for it.
-    } else if (result.code === "validation_failed") setOpen(true);
+    } else if (result.code === "validation_failed") openGate();
     else setError(result.message ?? t("failed"));
   }
 
@@ -50,7 +56,7 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
         loadingLabel={t("preparing")}
         aria-label={t(access === "email" ? "downloadByEmailLabel" : "downloadLabel", { title })}
         aria-expanded={access === "email" ? open : undefined}
-        onClick={access === "email" ? () => setOpen(true) : download}
+        onClick={access === "email" ? openGate : download}
       >
         <DownloadIcon aria-hidden="true" className="size-4" />
         {t(access === "email" ? "downloadByEmail" : "download")}
@@ -68,7 +74,7 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
           {error}
         </p>
       )}
-      {open && <EmailGate id={id} title={title} onClose={() => setOpen(false)} className={RESOURCE_BELOW} />}
+      {open && <EmailGate key={gate} id={id} title={title} onClose={() => setOpen(false)} className={RESOURCE_BELOW} />}
     </div>
   );
 }
@@ -128,6 +134,11 @@ export function EmailGate({
           {t("started")}
         </p>
         <p className="text-pretty text-ink-2 type-small">{t("startedText")}</p>
+        {onClose && (
+          <Button variant="quiet" size="sm" onClick={onClose} className="self-start">
+            {t("close")}
+          </Button>
+        )}
       </div>
     );
   }

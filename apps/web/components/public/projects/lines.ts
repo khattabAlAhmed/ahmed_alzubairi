@@ -31,8 +31,12 @@ export function activityRows(text: string | null): LabelledLine[] {
   });
 }
 
-/** A figure at the start of a line: "70%", "٧٠٪", "1,200", "9 days" is not one (the word stays in the text). */
-const FIGURE = /^([+~]?[0-9٠-٩][0-9٠-٩.,٫٬]*\s?[%٪]?)\s*(?:[:—–-]\s*)?(.+)$/;
+/**
+ * A figure at the start of a line: "70%", "٧٠٪", "1,200", or a range kept
+ * whole, "10–15". In "9 days" the word stays in the text.
+ */
+const NUMBER = "[0-9٠-٩][0-9٠-٩.,٫٬]*";
+const FIGURE = new RegExp(`^([+~]?${NUMBER}(?:\\s?[–-]\\s?${NUMBER})?\\s?[%٪]?)\\s*(?:[:—–-]\\s*)?(.+)$`);
 
 /**
  * Results that open with a number become "results in numbers"; the rest stay

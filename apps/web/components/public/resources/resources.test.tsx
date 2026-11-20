@@ -214,6 +214,11 @@ describe("ResourceDownload", () => {
     // The form gives way to the result, under the row.
     expect(screen.getByText("started")).toBeTruthy();
     expect(screen.queryByRole("form")).toBeNull();
+
+    // Pressing the button again starts a fresh form.
+    fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
+    expect(screen.getByRole("form")).toBeTruthy();
+    expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
   });
 
   it("has the newsletter box unticked, and sends consent only once it's ticked", async () => {

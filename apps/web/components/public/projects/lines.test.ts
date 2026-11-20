@@ -29,6 +29,13 @@ describe("resultLines", () => {
     });
   });
 
+  it("keeps a range whole, en dash or hyphen", () => {
+    expect(resultLines("10–15 participants trained\n٢٠-٣٠٪ أسرع").figures).toEqual([
+      { value: "10–15", text: "participants trained" },
+      { value: "٢٠-٣٠٪", text: "أسرع" },
+    ]);
+  });
+
   it("takes a figure followed by a dash or colon", () => {
     expect(resultLines("1,200 — trainees").figures).toEqual([{ value: "1,200", text: "trainees" }]);
   });
