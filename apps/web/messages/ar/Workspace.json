@@ -29,14 +29,14 @@
       "image": "صورة",
       "other": "ملف"
     },
-    "uploading": "جارٍ الرفع {percent}%",
+    "uploading": "جارٍ الرفع {percent, number}٪",
     "ready": "جاهز",
     "refused": "مرفوض",
     "remove": "إزالة {name}",
     "reasons": {
       "tooLarge": "حجمه أكبر من {size}.",
       "wrongType": "هذا النوع غير مسموح.",
-      "tooMany": "تجاوزت {count} ملفات في الرسالة.",
+      "tooMany": "تجاوزت {count, number} ملفات في الرسالة.",
       "failed": "تعذّر رفع الملف. حاول مرة أخرى."
     }
   },
@@ -44,7 +44,7 @@
     "label": "رسالتك",
     "placeholder": "اكتب رسالتك هنا",
     "attach": "إرفاق ملفات",
-    "limits": "حتى {count} ملفات في الرسالة، وحجم الملف حتى {size}. الأنواع المسموحة: {types}.",
+    "limits": "حتى {count, number} ملفات في الرسالة، وحجم الملف حتى {size}. الأنواع المسموحة: {types}.",
     "files": "الملفات المرفقة",
     "send": "إرسال",
     "sending": "جارٍ الإرسال"
@@ -81,6 +81,6 @@
     "cancel": "إلغاء",
     "typeWord": "للتأكيد، اكتب الكلمة: {word}",
     "mismatch": "الكلمة غير مطابقة.",
-    "step": "الخطوة {step} من 2"
+    "step": "الخطوة {step, number} من ٢"
   }
 }
