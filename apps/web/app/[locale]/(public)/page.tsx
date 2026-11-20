@@ -94,6 +94,7 @@ function plan(section: HomeSection, data: SectionData, locale: Locale): Planned 
   switch (section.key) {
     case "hero":
       return fixed(() => <HeroSection content={section.content} />);
+    case "letter": return null;
     case "stats":
       if (data.stats.length === 0) return null;
       return fixed(() => <StatsSection {...section.content} stats={data.stats} />);

@@ -88,6 +88,40 @@ describe("content routes", () => {
     },
   );
 
+  it("PATCH of the home letter without content.manage is 403, and no database client is created", async () => {
+    const deps = routeDeps("user_1", [PERMISSIONS.TESTIMONIALS_APPROVE, PERMISSIONS.TEAM_MANAGE]);
+    const response = await handleContentRequest(
+      "PATCH",
+      new Request("http://localhost/api/admin/content/home_sections", {
+        method: "PATCH",
+        headers: { referer: "http://localhost/ar/dashboard" },
+        body: JSON.stringify({ key: "letter", status: "draft", contentAr: { heading: "رسالة", salutation: "مرحبًا،", paragraphs: ["نص."], signOff: "أحمد", isPlaceholder: true } }),
+      }),
+      "home_sections",
+      deps,
+    );
+    expect(response.status).toBe(403);
+    expect((await response.json()).error.code).toBe("forbidden");
+    expect(deps.createStore).not.toHaveBeenCalled();
+  });
+
+  it("PATCH of the home letter with content.manage saves it", async () => {
+    const deps = routeDeps("user_1", [PERMISSIONS.CONTENT_MANAGE]);
+    vi.mocked(deps.created.get).mockResolvedValue({ key: "letter", status: "draft" });
+    const response = await handleContentRequest(
+      "PATCH",
+      new Request("http://localhost/api/admin/content/home_sections", {
+        method: "PATCH",
+        headers: { referer: "http://localhost/en/dashboard" },
+        body: JSON.stringify({ key: "letter", contentEn: { heading: "A letter", salutation: "Hello,", paragraphs: ["One."], signOff: "Ahmed", isPlaceholder: false } }),
+      }),
+      "home_sections",
+      deps,
+    );
+    expect(response.status).toBe(200);
+    expect(deps.created.update).toHaveBeenCalled();
+  });
+
   it("a body can't grant the permission", async () => {
     const deps = routeDeps("user_1", []);
     const response = await handleContentRequest(

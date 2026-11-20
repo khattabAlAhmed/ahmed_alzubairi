@@ -189,17 +189,26 @@ describe("tables", () => {
 });
 
 describe("seed", () => {
-  it("has the 12 home sections, in order, hidden and empty", () => {
-    expect(fresh.homeSections).toEqual(
+  it("has the 13 home sections, in order, hidden and draft", () => {
+    expect(
+      (fresh.homeSections as Record<string, unknown>[]).map(
+        ({ key, position, is_visible, status }) => ({ key, position, is_visible, status }),
+      ),
+    ).toEqual(
       HOME_SECTION_KEYS.map((key, index) => ({
         key,
         position: index + 1,
         is_visible: false,
-        content_ar: null,
-        content_en: null,
         status: "draft",
       })),
     );
+  });
+
+  it("leaves every section but the letter empty (the letter has placeholder text)", () => {
+    const filled = (fresh.homeSections as { key: string; content_ar: unknown; content_en: unknown }[])
+      .filter((row) => row.content_ar !== null || row.content_en !== null)
+      .map((row) => row.key);
+    expect(filled).toEqual(["letter"]);
   });
 
   it("has no other content", () => {

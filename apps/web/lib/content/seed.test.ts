@@ -64,16 +64,27 @@ describe("dev seed", () => {
     }
   });
 
-  it("makes all 12 home sections visible and available in both languages", async () => {
+  it("makes every home section but the letter visible and available in both languages", async () => {
     const sections = await rows("home_sections");
     expect(sections.map((row) => row.key).sort()).toEqual([...HOME_SECTION_KEYS].sort());
-    for (const row of sections) {
+    for (const row of sections.filter((section) => section.key !== "letter")) {
       expect(row.is_visible, String(row.key)).toBe(true);
       expect(row.status, String(row.key)).toBe("published");
       for (const locale of ["ar", "en"] as const) {
         expect(isAvailableIn("home_sections", camel(row), locale), `${row.key} ${locale}`).toBe(true);
       }
     }
+  });
+
+  it("gives the 13 home sections 13 different positions, hero then letter first", async () => {
+    const sections = (await rows("home_sections")).sort((a, b) => Number(a.position) - Number(b.position));
+    expect(new Set(sections.map((row) => row.position)).size).toBe(HOME_SECTION_KEYS.length);
+    expect(sections.map((row) => row.key)).toEqual([...HOME_SECTION_KEYS]);
+  });
+
+  it("leaves the letter as its migration seeds it: hidden and draft, until the home page renders it", async () => {
+    const letter = (await rows("home_sections")).find((row) => row.key === "letter");
+    expect(letter).toMatchObject({ is_visible: false, status: "draft" });
   });
 
   it("adds no project images, since none would point to a real file", async () => {

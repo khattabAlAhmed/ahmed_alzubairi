@@ -67,6 +67,15 @@ const both = (field: string, value: string) => ({
   [`${field}_en`]: `${value} (en)`,
 });
 
+const letterContent = (heading: string, extra: Record<string, unknown> = {}) => ({
+  heading,
+  salutation: "To whoever is reading this,",
+  paragraphs: ["One.", "Two."],
+  signOff: "Ahmed",
+  isPlaceholder: true,
+  ...extra,
+});
+
 function seed() {
   db.queries = [];
   db.fail = false;
@@ -80,6 +89,8 @@ function seed() {
         content_ar: { name: "مثال", title: "مستشار", valueStatement: "قيمة", photoKey: "media/hero.jpg" },
         content_en: { name: "Example", title: "Consultant", valueStatement: "Value" },
       },
+      // As the migration seeds it: hidden and draft.
+      { key: "letter", position: 1, is_visible: false, status: "draft", content_ar: letterContent("مسودة"), content_en: letterContent("Draft letter") },
       { key: "stats", position: 1, is_visible: true, status: "draft", content_ar: { heading: "مسودة" }, content_en: { heading: "Draft" } },
       { key: "services", position: 2, is_visible: false, status: "published", content_ar: { heading: "مخفي" }, content_en: { heading: "Hidden" } },
     ],
@@ -276,6 +287,43 @@ describe("drafts", () => {
 
   it("leave out draft and hidden home sections", async () => {
     expect((await content.getHomeSections("en")).map((section) => section.key)).toEqual(["hero"]);
+  });
+});
+
+describe("home letter (Phase 8)", () => {
+  it("is parsed when published and visible, with its signatures as public-media URLs", async () => {
+    db.rows.home_sections = [
+      {
+        key: "letter",
+        position: 2,
+        is_visible: true,
+        status: "published",
+        content_ar: letterContent("رسالة"),
+        content_en: letterContent("A letter", { signatureKey: "sig.png", signatureDarkKey: "sig-dark.png" }),
+      },
+    ];
+    const [en] = await content.getHomeSections("en");
+    expect(en).toEqual({
+      key: "letter",
+      position: 2,
+      content: {
+        heading: "A letter",
+        salutation: "To whoever is reading this,",
+        paragraphs: ["One.", "Two."],
+        signOff: "Ahmed",
+        isPlaceholder: true,
+        signatureUrl: "https://example.supabase.co/storage/v1/object/public/public-media/sig.png",
+        signatureDarkUrl: "https://example.supabase.co/storage/v1/object/public/public-media/sig-dark.png",
+      },
+    });
+    const [ar] = await content.getHomeSections("ar");
+    expect(ar?.key === "letter" && [ar.content.signatureUrl, ar.content.signatureDarkUrl]).toEqual([null, null]);
+    expect(JSON.stringify([en, ar])).not.toMatch(/signatureKey|signatureDarkKey/);
+  });
+
+  it("leaves the seeded hidden draft out, so the reader is unaffected", async () => {
+    const sections = await content.getHomeSections("ar");
+    expect(sections.map((section) => section.key)).toEqual(["hero"]);
   });
 });
 

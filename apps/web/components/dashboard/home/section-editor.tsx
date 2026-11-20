@@ -13,6 +13,7 @@ import { isolate, useFieldText, type FieldContext } from "../content/field-text"
 import type { Row } from "../content/form-values";
 import { saveContent } from "../content/save";
 import { UploadInput } from "../content/upload-input";
+import { LetterSharedFields, ParagraphList } from "./letter-fields";
 import { useRouter } from "@/i18n/navigation";
 import {
   buildSection,
@@ -20,6 +21,7 @@ import {
   sectionFields,
   sectionPublishState,
   sectionValues,
+  type LetterValues,
   type SectionErrors,
   type SectionField,
   type SectionValues,
@@ -36,7 +38,13 @@ function useSectionEditor(
   key: HomeSectionKey,
   row: Row,
   mediaBase: string,
-): ContentEditorState & { content: SectionValues; setContent: (next: SectionValues) => void } {
+): ContentEditorState & {
+  content: SectionValues;
+  setContent: (next: SectionValues) => void;
+  updateLetter: (patch: Partial<LetterValues>) => void;
+  setUploading: (field: string, busy: boolean) => void;
+} {
+  const tHome = useTranslations("DashboardHome");
   const text = useFieldText();
   const router = useRouter();
   const [content, setContentState] = useState<SectionValues>(() => sectionValues(key, row));
@@ -44,6 +52,8 @@ function useSectionEditor(
   const [errors, setErrors] = useState<SectionErrors>({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<ContentEditorState["message"]>(null);
+  // Signature uploads still running: saving waits for their keys.
+  const [uploading, setUploadingState] = useState<ReadonlySet<string>>(new Set());
 
   const publish = useMemo(
     () => sectionPublishState(key, content, status, row),
@@ -69,9 +79,28 @@ function useSectionEditor(
     setErrors((current) => (Object.keys(current).length === 0 ? current : {}));
   }
 
+  /** Merges into the latest letter, so an upload finishing late keeps newer edits. */
+  function updateLetter(patch: Partial<LetterValues>) {
+    setContentState((current) => (current.letter ? { ...current, letter: { ...current.letter, ...patch } } : current));
+    setErrors((current) => (Object.keys(current).length === 0 ? current : {}));
+  }
+
+  function setUploading(field: string, busy: boolean) {
+    setUploadingState((current) => {
+      const next = new Set(current);
+      if (busy) next.add(field);
+      else next.delete(field);
+      return next;
+    });
+  }
+
   async function save(event?: FormEvent) {
     event?.preventDefault();
     if (saving) return;
+    if (uploading.size > 0) {
+      setMessage({ tone: "error", text: tHome("letter.uploadPending") });
+      return;
+    }
     const built = buildSection(key, content, status, row);
     setErrors(built.errors);
     if (Object.keys(built.errors).length > 0) {
@@ -108,6 +137,8 @@ function useSectionEditor(
     save,
     content,
     setContent,
+    updateLetter,
+    setUploading,
   };
 }
 
@@ -125,6 +156,7 @@ export function SectionEditor({
   const editor = useSectionEditor(sectionKey, row, mediaBase);
   const { content, setContent, errors } = editor;
   const fields = sectionFields(sectionKey);
+  const originalLetter = useMemo(() => sectionValues(sectionKey, row).letter, [sectionKey, row]);
 
   const input = (locale: Locale, field: SectionField) => {
     const name = inputName(locale, field.path);
@@ -148,7 +180,19 @@ export function SectionEditor({
       invalid: Object.keys(errors).some((name) => name.startsWith(`${locale}.`)),
       content: (
         <div className="space-y-4">
-          {own.map((field) => input(locale, field))}
+          {own.filter((field) => field.path !== "signOff").map((field) => input(locale, field))}
+          {content.letter && (
+            <ParagraphList
+              locale={locale}
+              paragraphs={content.letter.paragraphs[locale]}
+              errors={errors}
+              onChange={(next) =>
+                content.letter &&
+                editor.updateLetter({ paragraphs: { ...content.letter.paragraphs, [locale]: next } })
+              }
+            />
+          )}
+          {own.filter((field) => field.path === "signOff").map((field) => input(locale, field))}
           {items.length > 0 && <p className="text-sm text-text-secondary">{isolate(t("fields.audiencesHint"))}</p>}
           {items.map((item) => (
             <fieldset key={item} className="space-y-3 rounded-md border border-text/10 p-3">
@@ -173,8 +217,8 @@ export function SectionEditor({
 
   return (
     <form noValidate onSubmit={(event) => void editor.save(event)} className="mt-4 space-y-6">
-      {/* Audiences edits its items here, so the note about the Content list doesn't apply. */}
-      {sectionKey !== "hero" && sectionKey !== "audiences" && (
+      {/* Hero, letter and audiences edit everything here, so the note about the Content list doesn't apply. */}
+      {sectionKey !== "hero" && sectionKey !== "letter" && sectionKey !== "audiences" && (
         <p className="text-sm text-text-secondary">{t("sections.rowsNote")}</p>
       )}
       <LanguageTabs
@@ -188,6 +232,16 @@ export function SectionEditor({
           <UploadInput field={PHOTO_FIELD} name="imageKey" ctx={photoCtx} />
           <p className="text-sm text-text-secondary">{t("fields.photoHint")}</p>
         </div>
+      )}
+      {content.letter && originalLetter && (
+        <LetterSharedFields
+          letter={content.letter}
+          original={originalLetter}
+          mediaBase={mediaBase}
+          errors={errors}
+          onChange={editor.updateLetter}
+          onUploading={editor.setUploading}
+        />
       )}
       <PublishPanel editor={editor} />
       <EditorActions editor={editor} />

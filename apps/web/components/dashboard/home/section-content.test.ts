@@ -2,6 +2,8 @@ import { contentUpdateBodySchemas, HOME_SECTION_KEYS } from "@repo/shared";
 import { describe, expect, it } from "vitest";
 import {
   buildSection,
+  isSignatureFile,
+  moveParagraph,
   sectionFields,
   sectionPublishState,
   sectionValues,
@@ -108,5 +110,72 @@ describe("sectionPublishState", () => {
       locales: ["ar"],
       problems: [],
     });
+  });
+});
+
+describe("letter", () => {
+  const saved = {
+    key: "letter",
+    contentAr: { heading: "رسالة", salutation: "إلى من يقرأ هذا،", paragraphs: ["أولى", "ثانية"], signOff: "أحمد", isPlaceholder: true },
+    contentEn: {
+      heading: "A letter",
+      salutation: "To you,",
+      paragraphs: ["One."],
+      signOff: "Ahmed",
+      signatureKey: "a.png",
+      signatureDarkKey: "b.png",
+      isPlaceholder: true,
+    },
+  };
+
+  it("reads paragraphs per language, and the signatures and switch once for both", () => {
+    const values = sectionValues("letter", saved);
+    expect(values.letter).toEqual({
+      paragraphs: { ar: ["أولى", "ثانية"], en: ["One."] },
+      signatureKey: "a.png",
+      signatureDarkKey: "b.png",
+      isPlaceholder: true,
+    });
+    expect(values.ar.salutation).toBe("إلى من يقرأ هذا،");
+  });
+
+  it("starts a new letter with one empty paragraph, as a placeholder", () => {
+    expect(blank("letter").letter).toEqual({
+      paragraphs: { ar: [""], en: [""] },
+      signatureKey: "",
+      signatureDarkKey: "",
+      isPlaceholder: true,
+    });
+    expect(blank("hero").letter).toBeUndefined();
+  });
+
+  it("saves the signatures and the switch with each language", () => {
+    const values = sectionValues("letter", saved);
+    values.letter!.isPlaceholder = false;
+    values.letter!.signatureDarkKey = "c.png";
+    const built = buildSection("letter", values, "draft", saved);
+    expect(built.errors).toEqual({});
+    expect(built.body.contentAr).toEqual({ ...saved.contentAr, signatureKey: "a.png", signatureDarkKey: "c.png", isPlaceholder: false });
+    expect(built.body.contentEn).toEqual({ ...saved.contentEn, signatureDarkKey: "c.png", isPlaceholder: false });
+    expect(contentUpdateBodySchemas.home_sections.safeParse(built.body).success).toBe(true);
+  });
+
+  it("points at a blank paragraph", () => {
+    const values = sectionValues("letter", saved);
+    values.letter!.paragraphs.en = ["One.", "  "];
+    expect(buildSection("letter", values, "draft", saved).errors).toEqual({ "en.paragraphs.1": "required" });
+  });
+
+  it("moves a paragraph, and stays put at the ends", () => {
+    expect(moveParagraph(["a", "b", "c"], 2, -1)).toEqual(["a", "c", "b"]);
+    expect(moveParagraph(["a", "b"], 0, -1)).toEqual(["a", "b"]);
+    expect(moveParagraph(["a", "b"], 1, 1)).toEqual(["a", "b"]);
+  });
+
+  it("takes only a PNG signature file, never an SVG", () => {
+    expect(isSignatureFile({ name: "sig.png", type: "image/png" })).toBe(true);
+    expect(isSignatureFile({ name: "sig.svg", type: "image/svg+xml" })).toBe(false);
+    expect(isSignatureFile({ name: "sig.svg", type: "image/png" })).toBe(false);
+    expect(isSignatureFile({ name: "sig.jpg", type: "image/jpeg" })).toBe(false);
   });
 });

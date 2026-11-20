@@ -45,7 +45,7 @@ export const contentTypeSchema = z.enum(CONTENT_TYPES);
 
 export type ContentType = z.infer<typeof contentTypeSchema>;
 
-/** `pages` keeps about, privacy and terms. The 12 home sections are hidden, never deleted. */
+/** `pages` keeps about, privacy and terms. The 13 home sections are hidden, never deleted. */
 export const UNDELETABLE_CONTENT_TYPES = ["home_sections", "pages"] as const;
 
 /** The `:type` of `DELETE /api/admin/:type/:id`. */
@@ -285,7 +285,7 @@ const mediaItemBody = z.strictObject({
   videoUrl: httpsUrlSchema.optional(),
 });
 
-/** `POST /api/admin/content/:type`. `home_sections` has none: the 12 are seeded. */
+/** `POST /api/admin/content/:type`. `home_sections` has none: the 13 are seeded. */
 export const contentCreateBodySchemas = {
   home_stats: homeStatBody,
   pages: pageBody,
@@ -335,6 +335,7 @@ const homeSectionRow = <Key extends HomeSectionKey>(key: Key) =>
 /** Listed one by one so each key keeps its own content type. */
 const homeSectionUpdateSchema = z.discriminatedUnion("key", [
   homeSectionUpdate("hero"),
+  homeSectionUpdate("letter"),
   homeSectionUpdate("stats"),
   homeSectionUpdate("expertise"),
   homeSectionUpdate("audiences"),
@@ -350,6 +351,7 @@ const homeSectionUpdateSchema = z.discriminatedUnion("key", [
 
 const homeSectionRowSchema = z.discriminatedUnion("key", [
   homeSectionRow("hero"),
+  homeSectionRow("letter"),
   homeSectionRow("stats"),
   homeSectionRow("expertise"),
   homeSectionRow("audiences"),

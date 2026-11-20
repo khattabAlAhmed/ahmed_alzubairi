@@ -672,7 +672,7 @@ describe("content routes", () => {
     expect(contentCreateBodySchemas[type].safeParse(body).success).toBe(false);
   });
 
-  it("POST home_sections has no body: the 12 are seeded", () => {
+  it("POST home_sections has no body: the 13 are seeded", () => {
     const route = ROUTES["POST /api/admin/content/:type"];
     expect(route.bodyFor("home_sections")).toBeUndefined();
   });

@@ -69,7 +69,7 @@ const sentBodies = () =>
 const sectionList = () => screen.getByRole("list", { name: home.sections.heading });
 
 describe("HomeEditor", () => {
-  it("lists the 12 sections in order, then the stats by position", () => {
+  it("lists the 13 sections in order, then the stats by position", () => {
     renderHome();
     const names = within(sectionList())
       .getAllByRole("heading", { level: 3 })
@@ -91,7 +91,7 @@ describe("HomeEditor", () => {
 
     await waitFor(() => expect(screen.getByText(home.order.saved)).toBeTruthy());
     expect(sentBodies()).toEqual([
-      { url: "/api/admin/content/home_sections", method: "PATCH", body: { key: "stats", position: 1 } },
+      { url: "/api/admin/content/home_sections", method: "PATCH", body: { key: "letter", position: 1 } },
       { url: "/api/admin/content/home_sections", method: "PATCH", body: { key: "hero", position: 2 } },
     ]);
     expect(refresh).toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("HomeEditor", () => {
   it("reorders by drag and drop", async () => {
     renderHome();
     const items = within(sectionList()).getAllByRole("listitem");
-    const handle = items[11].querySelector("[draggable]")!;
+    const handle = items[12].querySelector("[draggable]")!;
     const dataTransfer = { setData: () => {}, effectAllowed: "", dropEffect: "" };
     fireEvent.dragStart(handle, { dataTransfer });
     fireEvent.dragOver(items[0], { dataTransfer });
@@ -134,12 +134,12 @@ describe("HomeEditor", () => {
     });
     await waitFor(() => expect(screen.getByText(home.order.saved)).toBeTruthy());
     expect(sentBodies()[0].body).toEqual({ key: "contact", position: 1 });
-    expect(sentBodies()).toHaveLength(12);
+    expect(sentBodies()).toHaveLength(13);
   });
 
   it("hides a section through the content API", async () => {
     renderHome();
-    const item = within(sectionList()).getAllByRole("listitem")[8];
+    const item = within(sectionList()).getAllByRole("listitem")[9];
     await act(async () => {
       fireEvent.click(within(item).getByLabelText(home.sections.shown));
     });
@@ -178,6 +178,117 @@ describe("HomeEditor", () => {
     cleanup();
     renderHome({ kind: "section", key: "audiences" });
     expect(screen.queryByText(home.sections.rowsNote)).toBeNull();
+  });
+
+  it("edits the letter: paragraphs added, reordered and removed, placeholder switch, in both languages", async () => {
+    const row = {
+      key: "letter",
+      position: 2,
+      isVisible: false,
+      status: "draft",
+      contentAr: { heading: "رسالة", salutation: "إلى من يقرأ هذا،", paragraphs: ["أولى"], signOff: "أحمد", isPlaceholder: true },
+      contentEn: { heading: "A letter", salutation: "To you,", paragraphs: ["First.", "Second."], signOff: "Ahmed", isPlaceholder: true },
+    };
+    render(
+      <NextIntlClientProvider locale="en" messages={{ DashboardContent: content, DashboardHome: home }}>
+        <HomeEditor
+          sections={sections.map((section) => (section.key === "letter" ? row : section))}
+          stats={stats}
+          mediaBase="https://x.test/m/"
+          initialOpen={{ kind: "section", key: "letter" }}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.queryByText(home.sections.rowsNote)).toBeNull();
+    expect(screen.getAllByLabelText(/Salutation/)).toHaveLength(2);
+    expect(screen.getAllByLabelText(/Sign-off/)).toHaveLength(2);
+
+    // English is the second panel; its paragraphs come after Arabic's one.
+    fireEvent.click(screen.getAllByRole("button", { name: home.letter.add })[1]!);
+    const third = screen.getAllByLabelText(/Paragraph 3/)[0]!;
+    fireEvent.change(third, { target: { value: "Third." } });
+    fireEvent.click(screen.getAllByRole("button", { name: "Move paragraph 3 up" })[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: "Remove paragraph 1" })[1]!);
+    fireEvent.click(screen.getByLabelText(home.letter.placeholder));
+
+    // Arabic: one paragraph can't be removed.
+    expect(
+      (screen.getAllByRole("button", { name: "Remove paragraph 1" })[0] as HTMLButtonElement).disabled,
+    ).toBe(true);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    });
+    expect(sentBodies()).toEqual([
+      {
+        url: "/api/admin/content/home_sections",
+        method: "PATCH",
+        body: {
+          key: "letter",
+          status: "draft",
+          contentAr: { heading: "رسالة", salutation: "إلى من يقرأ هذا،", paragraphs: ["أولى"], signOff: "أحمد", isPlaceholder: false },
+          contentEn: { heading: "A letter", salutation: "To you,", paragraphs: ["Third.", "Second."], signOff: "Ahmed", isPlaceholder: false },
+        },
+      },
+    ]);
+  });
+
+  it("stops adding letter paragraphs at six", () => {
+    renderHome({ kind: "section", key: "letter" });
+    const [add] = screen.getAllByRole("button", { name: home.letter.add });
+    for (let i = 0; i < 5; i++) fireEvent.click(add!);
+    expect((add as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getAllByText((text) => text.includes(home.letter.full.replace("{max}", "6")))).toHaveLength(1);
+  });
+
+  it("refuses an SVG signature before uploading anything", async () => {
+    renderHome({ kind: "section", key: "letter" });
+    const [input] = document.querySelectorAll<HTMLInputElement>('input[type="file"][accept="image/png"]');
+    const svg = new File(["<svg/>"], "signature.svg", { type: "image/svg+xml" });
+    await act(async () => {
+      fireEvent.change(input!, { target: { files: [svg] } });
+    });
+    expect(screen.getByText((text) => text.includes(home.letter.pngOnly))).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("waits for a signature upload before saving, and keeps edits made meanwhile", async () => {
+    let finishUpload: () => void = () => {};
+    const uploadDone = new Promise<void>((resolve) => {
+      finishUpload = resolve;
+    });
+    fetchMock.mockImplementation(async (url) => {
+      const path = String(url);
+      if (path.endsWith("/upload-url")) {
+        await uploadDone;
+        return new Response(JSON.stringify({ url: "https://upload.test/put", key: "pending/x.png" }), { status: 200 });
+      }
+      if (path.endsWith("/finalize")) {
+        return new Response(JSON.stringify({ key: "123e4567-e89b-42d3-a456-426614174000.png" }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    });
+    renderHome({ kind: "section", key: "letter" });
+    const [input] = document.querySelectorAll<HTMLInputElement>('input[type="file"][accept="image/png"]');
+    await act(async () => {
+      fireEvent.change(input!, { target: { files: [new File(["png"], "sig.png", { type: "image/png" })] } });
+    });
+
+    // Edit while the upload runs, then try to save.
+    fireEvent.change(screen.getAllByLabelText(/Paragraph 1/)[1]!, { target: { value: "Written during upload." } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    });
+    expect(screen.getByText(home.letter.uploadPending)).toBeTruthy();
+    expect(sentBodies().some((call) => call.url.includes("/content/"))).toBe(false);
+
+    await act(async () => {
+      finishUpload();
+    });
+    await waitFor(() =>
+      expect(screen.getAllByAltText(home.letter.signatureAlt).length).toBe(1),
+    );
+    expect((screen.getAllByLabelText(/Paragraph 1/)[1] as HTMLTextAreaElement).value).toBe("Written during upload.");
   });
 
   it("won't publish a section with no complete language, and sends nothing", async () => {
