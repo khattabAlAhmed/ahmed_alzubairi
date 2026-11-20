@@ -252,6 +252,45 @@ describe("HomeEditor", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("waits for a signature upload before saving, and keeps edits made meanwhile", async () => {
+    let finishUpload: () => void = () => {};
+    const uploadDone = new Promise<void>((resolve) => {
+      finishUpload = resolve;
+    });
+    fetchMock.mockImplementation(async (url) => {
+      const path = String(url);
+      if (path.endsWith("/upload-url")) {
+        await uploadDone;
+        return new Response(JSON.stringify({ url: "https://upload.test/put", key: "pending/x.png" }), { status: 200 });
+      }
+      if (path.endsWith("/finalize")) {
+        return new Response(JSON.stringify({ key: "123e4567-e89b-42d3-a456-426614174000.png" }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    });
+    renderHome({ kind: "section", key: "letter" });
+    const [input] = document.querySelectorAll<HTMLInputElement>('input[type="file"][accept="image/png"]');
+    await act(async () => {
+      fireEvent.change(input!, { target: { files: [new File(["png"], "sig.png", { type: "image/png" })] } });
+    });
+
+    // Edit while the upload runs, then try to save.
+    fireEvent.change(screen.getAllByLabelText(/Paragraph 1/)[1]!, { target: { value: "Written during upload." } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    });
+    expect(screen.getByText(home.letter.uploadPending)).toBeTruthy();
+    expect(sentBodies().some((call) => call.url.includes("/content/"))).toBe(false);
+
+    await act(async () => {
+      finishUpload();
+    });
+    await waitFor(() =>
+      expect(screen.getAllByAltText(home.letter.signatureAlt).length).toBe(1),
+    );
+    expect((screen.getAllByLabelText(/Paragraph 1/)[1] as HTMLTextAreaElement).value).toBe("Written during upload.");
+  });
+
   it("won't publish a section with no complete language, and sends nothing", async () => {
     renderHome({ kind: "section", key: "media" });
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "published" } });

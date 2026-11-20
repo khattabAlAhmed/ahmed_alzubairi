@@ -70,7 +70,8 @@
     "signatureAlt": "Ahmed's signature",
     "pngOnly": "The signature must be a PNG file. SVG and other types aren't accepted.",
     "placeholder": "This is a placeholder letter and signature",
-    "placeholderHint": "While on, the home page tags the letter “Placeholder letter and signature”. Turn it off once Ahmed's own words and signature are in."
+    "placeholderHint": "While on, the home page tags the letter “Placeholder letter and signature”. Turn it off once Ahmed's own words and signature are in.",
+    "uploadPending": "A signature is still uploading. Save once it's done."
   },
   "order": {
     "moveUp": "Move {name} up",

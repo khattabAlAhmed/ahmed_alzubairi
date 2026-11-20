@@ -21,6 +21,7 @@ import {
   sectionFields,
   sectionPublishState,
   sectionValues,
+  type LetterValues,
   type SectionErrors,
   type SectionField,
   type SectionValues,
@@ -37,7 +38,13 @@ function useSectionEditor(
   key: HomeSectionKey,
   row: Row,
   mediaBase: string,
-): ContentEditorState & { content: SectionValues; setContent: (next: SectionValues) => void } {
+): ContentEditorState & {
+  content: SectionValues;
+  setContent: (next: SectionValues) => void;
+  updateLetter: (patch: Partial<LetterValues>) => void;
+  setUploading: (field: string, busy: boolean) => void;
+} {
+  const tHome = useTranslations("DashboardHome");
   const text = useFieldText();
   const router = useRouter();
   const [content, setContentState] = useState<SectionValues>(() => sectionValues(key, row));
@@ -45,6 +52,8 @@ function useSectionEditor(
   const [errors, setErrors] = useState<SectionErrors>({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<ContentEditorState["message"]>(null);
+  // Signature uploads still running: saving waits for their keys.
+  const [uploading, setUploadingState] = useState<ReadonlySet<string>>(new Set());
 
   const publish = useMemo(
     () => sectionPublishState(key, content, status, row),
@@ -70,9 +79,28 @@ function useSectionEditor(
     setErrors((current) => (Object.keys(current).length === 0 ? current : {}));
   }
 
+  /** Merges into the latest letter, so an upload finishing late keeps newer edits. */
+  function updateLetter(patch: Partial<LetterValues>) {
+    setContentState((current) => (current.letter ? { ...current, letter: { ...current.letter, ...patch } } : current));
+    setErrors((current) => (Object.keys(current).length === 0 ? current : {}));
+  }
+
+  function setUploading(field: string, busy: boolean) {
+    setUploadingState((current) => {
+      const next = new Set(current);
+      if (busy) next.add(field);
+      else next.delete(field);
+      return next;
+    });
+  }
+
   async function save(event?: FormEvent) {
     event?.preventDefault();
     if (saving) return;
+    if (uploading.size > 0) {
+      setMessage({ tone: "error", text: tHome("letter.uploadPending") });
+      return;
+    }
     const built = buildSection(key, content, status, row);
     setErrors(built.errors);
     if (Object.keys(built.errors).length > 0) {
@@ -109,6 +137,8 @@ function useSectionEditor(
     save,
     content,
     setContent,
+    updateLetter,
+    setUploading,
   };
 }
 
@@ -158,10 +188,7 @@ export function SectionEditor({
               errors={errors}
               onChange={(next) =>
                 content.letter &&
-                setContent({
-                  ...content,
-                  letter: { ...content.letter, paragraphs: { ...content.letter.paragraphs, [locale]: next } },
-                })
+                editor.updateLetter({ paragraphs: { ...content.letter.paragraphs, [locale]: next } })
               }
             />
           )}
@@ -212,7 +239,8 @@ export function SectionEditor({
           original={originalLetter}
           mediaBase={mediaBase}
           errors={errors}
-          onChange={(letter) => setContent({ ...content, letter })}
+          onChange={editor.updateLetter}
+          onUploading={editor.setUploading}
         />
       )}
       <PublishPanel editor={editor} />

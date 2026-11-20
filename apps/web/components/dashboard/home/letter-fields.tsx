@@ -139,6 +139,7 @@ function SignatureInput({
   mediaBase,
   error,
   onChange,
+  onUploading,
 }: {
   field: SignatureField;
   value: string;
@@ -146,6 +147,8 @@ function SignatureInput({
   mediaBase: string;
   error?: string;
   onChange: (key: string) => void;
+  /** Tells the editor an upload is running, so it won't save without the key. */
+  onUploading: (field: SignatureField, busy: boolean) => void;
 }) {
   const t = useTranslations("DashboardHome.letter");
   const text = useFieldText();
@@ -164,6 +167,7 @@ function SignatureInput({
       return;
     }
     setBusy(true);
+    onUploading(field, true);
     setUploadError(null);
     try {
       onChange(await uploadFile(file, "media"));
@@ -173,6 +177,7 @@ function SignatureInput({
       );
     } finally {
       setBusy(false);
+      onUploading(field, false);
       if (input.current) input.current.value = "";
     }
   }
@@ -239,12 +244,15 @@ export function LetterSharedFields({
   mediaBase,
   errors,
   onChange,
+  onUploading,
 }: {
   letter: LetterValues;
   original: LetterValues;
   mediaBase: string;
   errors: SectionErrors;
-  onChange: (next: LetterValues) => void;
+  /** A patch, merged into the editor's latest letter: never a copy of this render's. */
+  onChange: (patch: Partial<LetterValues>) => void;
+  onUploading: (field: SignatureField, busy: boolean) => void;
 }) {
   const t = useTranslations("DashboardHome.letter");
   const text = useFieldText();
@@ -260,7 +268,8 @@ export function LetterSharedFields({
             original={original[field]}
             mediaBase={mediaBase}
             error={errors[field] ? text.t(`editor.${errors[field]}`) : undefined}
-            onChange={(key) => onChange({ ...letter, [field]: key })}
+            onChange={(key) => onChange({ [field]: key })}
+            onUploading={onUploading}
           />
         ))}
       </div>
@@ -269,7 +278,7 @@ export function LetterSharedFields({
         label={t("placeholder")}
         hint={t("placeholderHint")}
         checked={letter.isPlaceholder}
-        onChange={(event) => onChange({ ...letter, isPlaceholder: event.target.checked })}
+        onChange={(event) => onChange({ isPlaceholder: event.target.checked })}
       />
     </div>
   );
