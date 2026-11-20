@@ -197,7 +197,7 @@ describe("ArticleCard", () => {
     expect(screen.getByRole("img", { name: "Cover" })).toBeTruthy();
     expect(screen.getByText("Governance")).toBeTruthy();
     expect(screen.getByText("Excerpt")).toBeTruthy();
-    expect(screen.getByText("October 21, 2026").getAttribute("datetime")).toBe("2026-10-21T09:00:00Z");
+    expect(screen.getByText("21 October 2026").getAttribute("datetime")).toBe("2026-10-21T09:00:00Z");
     expect(screen.getByText('readingTime:{"minutes":7}')).toBeTruthy();
   });
 
@@ -304,7 +304,7 @@ describe("MediaCard and VideoEmbed", () => {
     );
     expect(screen.getByText("mediaCategory.events")).toBeTruthy();
     expect(screen.getByText("Forum")).toBeTruthy();
-    expect(screen.getByText("May 11, 2026")).toBeTruthy();
+    expect(screen.getByText("11 May 2026")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Photo" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Open" })).toBeTruthy();
   });

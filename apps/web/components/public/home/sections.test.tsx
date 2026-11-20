@@ -241,7 +241,9 @@ describe("format helpers", () => {
   });
 
   it("shows a date-only value on its own day, in the page's language", () => {
-    expect(formatDate("2026-09-20", "en")).toBe("September 20, 2026");
+    // Day, month, year (the Numbers board), and Arabic-Indic digits in Arabic.
+    expect(formatDate("2026-09-20", "en")).toBe("20 September 2026");
+    expect(formatDate("2026-09-20", "ar")).toBe("٢٠ سبتمبر ٢٠٢٦");
     expect(formatDate("2026-09-20", "ar")).toContain("سبتمبر");
   });
 });
