@@ -18,7 +18,10 @@
     "documents": "الوثائق والشهادات",
     "faq": "الأسئلة الشائعة",
     "contact": "تواصل معي",
-    "requestConsultation": "اطلب استشارة"
+    "requestConsultation": "اطلب استشارة",
+    "footerSite": "الموقع",
+    "footerKnowledge": "المعرفة",
+    "footerContact": "تواصل"
   },
   "Header": {
     "openMenu": "فتح القائمة",
@@ -30,7 +33,26 @@
     "signIn": "تسجيل الدخول",
     "account": "حسابي",
     "signOut": "تسجيل الخروج",
-    "quickContact": "تواصل سريع"
+    "quickContact": "تواصل سريع",
+    "fields": "الإدارة · الحوكمة · العمل الإنساني · التنمية",
+    "themeLabel": "الوضع",
+    "theme": {
+      "system": "الجهاز",
+      "light": "فاتح",
+      "dark": "داكن"
+    },
+    "themeButton": {
+      "system": "الوضع: حسب الجهاز",
+      "light": "الوضع: فاتح",
+      "dark": "الوضع: داكن"
+    },
+    "menuLabel": "القائمة",
+    "untranslated": {
+      "title": "This page is in Arabic only.",
+      "body": "You'll go to this section's list in English instead.",
+      "go": "Go to the list",
+      "stay": "Stay here"
+    }
   },
   "Footer": {
     "sectionsLabel": "أقسام الموقع",

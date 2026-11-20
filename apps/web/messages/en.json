@@ -18,19 +18,41 @@
     "documents": "Documents and certificates",
     "faq": "FAQ",
     "contact": "Contact",
-    "requestConsultation": "Request a consultation"
+    "requestConsultation": "Request a consultation",
+    "footerSite": "Site",
+    "footerKnowledge": "Knowledge",
+    "footerContact": "Contact"
   },
   "Header": {
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "switchTheme": "Switch between dark and light",
     "switchLanguage": "العربية",
-    "switchLanguageShort": "ع",
+    "switchLanguageShort": "عربي",
     "switchLanguageLabel": "التبديل إلى العربية",
     "signIn": "Sign in",
     "account": "My account",
     "signOut": "Sign out",
-    "quickContact": "Quick contact"
+    "quickContact": "Quick contact",
+    "fields": "Management · Governance · Humanitarian work · Development",
+    "themeLabel": "Theme",
+    "theme": {
+      "system": "Device",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "themeButton": {
+      "system": "Theme: device",
+      "light": "Theme: light",
+      "dark": "Theme: dark"
+    },
+    "menuLabel": "Menu",
+    "untranslated": {
+      "title": "هذه الصفحة بالإنجليزية فقط.",
+      "body": "ستنتقل بدلاً منها إلى قائمة هذا القسم بالعربية.",
+      "go": "إلى القائمة",
+      "stay": "ابقَ هنا"
+    }
   },
   "Footer": {
     "sectionsLabel": "Site sections",

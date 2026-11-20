@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { Button } from "@/components/ui";
-import { FOCUS_RING, cx } from "@/components/ui/cx";
+import { cx, INLINE_LINK } from "@/components/ui/cx";
 
 /** The height the open banner covers at the bottom of the screen, set on <html>. */
 export const COVERED_VAR = "--consent-covered";
@@ -106,26 +106,36 @@ function OpenBanner({
     <section
       ref={ref}
       aria-label={t("label")}
-      className={cx(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-text/10 bg-surface text-text shadow-lg",
-        "sm:inset-x-4 sm:bottom-4 sm:mx-auto sm:max-w-3xl sm:rounded-lg sm:border",
-      )}
+      // The SkipAndConsent board: a calm bar along the bottom, never a wall. The
+      // 2px rule opens it, and it is the one thing on the page with a shadow
+      // (it floats over the content).
+      className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-rule bg-bg text-ink shadow-overlay"
     >
       {/* Tighter on short screens, so it takes less of the view. */}
-      <div className="flex flex-col gap-3 px-4 py-3 [@media(max-height:700px)]:gap-2 [@media(max-height:700px)]:py-2 sm:flex-row sm:items-center sm:gap-6 sm:p-4">
-        <p className="min-w-0 flex-1 text-sm text-pretty">
-          {t("text")}{" "}
-          <Link href={privacyHref} className={cx("font-semibold whitespace-nowrap underline underline-offset-4", FOCUS_RING)}>
-            {t("privacy")}
-          </Link>
-        </p>
-        {/* Same variant, same width: neither choice is the default. */}
-        <div className="grid shrink-0 grid-cols-2 gap-2 sm:w-64">
-          <Button variant="secondary" onClick={choose(onAccept)}>
-            {t("accept")}
-          </Button>
-          <Button variant="secondary" onClick={choose(onDecline)}>
+      <div
+        className={cx(
+          // The page column, as CONTAINER in public/parts.tsx (not imported: it would pull that module into the client bundle).
+          "mx-auto w-full max-w-[calc(var(--container)+2*var(--page-margin))] px-page-margin",
+          "flex flex-col gap-3 py-3 [@media(max-height:700px)]:gap-2 [@media(max-height:700px)]:py-2",
+          "sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6 sm:py-4",
+        )}
+      >
+        <div className="min-w-0">
+          <p className="type-small font-medium text-pretty">{t("text")}</p>
+          <p className="type-caption text-pretty text-ink-2">
+            {t("detail")}{" "}
+            <Link href={privacyHref} className={cx(INLINE_LINK, "whitespace-nowrap")}>
+              {t("privacy")}
+            </Link>
+          </p>
+        </div>
+        {/* Same variant, same size: declining is as easy as accepting. */}
+        <div className="grid shrink-0 grid-cols-2 gap-2">
+          <Button variant="secondary" size="sm" onClick={choose(onDecline)}>
             {t("decline")}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={choose(onAccept)}>
+            {t("accept")}
           </Button>
         </div>
       </div>
