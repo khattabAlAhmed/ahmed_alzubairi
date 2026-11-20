@@ -72,10 +72,10 @@ These carry the soul. Design them with care; they are what visitors remember.
 | Component | Variants and states | Code today |
 | --- | --- | --- |
 | Hero | Photo (4:5), name, title, one-line value statement, "تعرّف على خبرتي" and "اطلب استشارة". Not centered title-plus-two-buttons. | `public/home/hero.tsx` |
-| Quiet stat | A number as evidence in context, with its label. Static and (if Ahmed chooses) a calm count. Tabular figures. | `public/home/stats.tsx`, `stat-number.tsx`, `stat-value.ts` |
+| Quiet stat | A number as evidence in context, with its label. Static and (if Ahmed chooses) a calm count. Tabular figures. | `public/home/stats.tsx`, `public/home/stat-number.tsx`, `public/home/stat-value.ts` |
 | Expertise area | Name, short description, link. The three areas of §6.4. | `public/home/expertise.tsx`, `public/pages/expertise.tsx` |
 | Audience | Government, humanitarian, private (§6.2 "لمن أعمل"). | `public/home/audiences.tsx` |
-| Service | List item and featured item. Service page parts: who it suits, what you get, stages, FAQs, "اطلب هذه الخدمة". | `public/home/services.tsx`, `public/pages/services.tsx`, `request-service-button.tsx` |
+| Service | List item and featured item. Service page parts: who it suits, what you get, stages, FAQs, "اطلب هذه الخدمة". | `public/home/services.tsx`, `public/pages/services.tsx`, `public/pages/request-service-button.tsx` |
 | Project story | List item (situation, what he did, what changed, one key result) and featured item. Hidden organization shows a general label (§6.6). | `public/home/projects.tsx`, `public/parts.tsx` (`ProjectCards`), `public/projects/projects-list.tsx` |
 | Project page parts | Goal, organization, role, duration, activities, results in numbers, image gallery. | `public/projects/project-detail.tsx` |
 | Result in numbers | One result, its number and what it means. | same |
@@ -85,11 +85,11 @@ These carry the soul. Design them with care; they are what visitors remember.
 | Qualifications and values | About page lists. CV download link. | same |
 | Article item | Title, date, reading time, area. With and without image. | `public/listing/article-card.tsx` |
 | Article body | Long-form typography in both languages: headings, lists, quotes, images, links, tables. | `public/rich-text/rich-text.tsx`, `public/blog/article-page.tsx` |
-| Share and copy link | Article page. | `public/listing/share-buttons.tsx`, `copy-link-button.tsx` |
+| Share and copy link | Article page. | `public/listing/share-buttons.tsx`, `public/listing/copy-link-button.tsx` |
 | Resource item | Type (PDF, Word, Excel), area, direct download or download for an email (with the consent checkbox). | `public/listing/resource-card.tsx`, `public/resources/resource-download.tsx` |
 | Media item | Interview, conference, event: outlet, date, image, link or embedded video. | `public/listing/media-card.tsx`, `public/home/media.tsx` |
 | Course item | Type (in person, live online, recorded with "قريباً", custom), date and place, seats left, "اكتملت المقاعد". | `public/listing/course-card.tsx`, `training/course-list.tsx` |
-| Course registration panel | Signed out, signed in, registered, full. | `training/registration-panel.tsx`, `register-button.tsx` |
+| Course registration panel | Signed out, signed in, registered, full. | `training/registration-panel.tsx`, `training/register-button.tsx` |
 | Public document item | Title and category only, "طلب الاطلاع" (§6.12). Selected for a multi-document request. | `documents/request-card.tsx` |
 | FAQ | Question and answer, grouped by category, open and closed. | `apps/web/app/[locale]/(public)/faq/faq-list.tsx` |
 | Image with caption, gallery, video embed | Including a missing image and a video that hasn't loaded. | `public/listing/parts.tsx` |
@@ -99,7 +99,7 @@ These carry the soul. Design them with care; they are what visitors remember.
 | Component | States | Code today |
 | --- | --- | --- |
 | Contact form | Empty, errors, sending, sent (no response-time promise, §6.14). | `public/contact/contact-form.tsx` |
-| Newsletter signup | Inline (home, blog) and footer. Sent: "check your email" (double opt-in). | `newsletter/newsletter-form.tsx`, `newsletter-signup.tsx` |
+| Newsletter signup | Inline (home, blog) and footer. Sent: "check your email" (double opt-in). | `newsletter/newsletter-form.tsx`, `newsletter/newsletter-signup.tsx` |
 | Consultation request | Service selected or not, attachments, errors, sent. | `consultations/new-consultation-form.tsx` |
 | Document request dialog | One or several documents, purpose, sent. | `documents/request-dialog.tsx` |
 | Custom training request | §6.7 fields. | `training/custom-request-form.tsx` |

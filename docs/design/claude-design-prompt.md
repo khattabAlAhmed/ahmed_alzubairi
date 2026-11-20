@@ -160,7 +160,8 @@ dark:
 When I approve those two, extend to: about, services list and one service,
 expertise, contact, the projects list, the blog list and one article,
 resources, media, training list and one course, clients and testimonials, the
-public documents list, FAQ, a 404, and the sign-in screen. Every list shows its
+public documents list, FAQ, the legal pages (privacy and terms), a 404, and the
+sign-in and sign-up screens. Every list shows its
 empty, loading and error states.
 
 Then package the handoff for Claude Code: DESIGN.md (updated with any
