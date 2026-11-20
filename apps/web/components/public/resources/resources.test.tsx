@@ -168,7 +168,7 @@ describe("ResourceDownload", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(sentBody(fetchMock)).toEqual({});
     expect(screen.getByRole("status").textContent).toBe("started");
-    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.queryByRole("form")).toBeNull();
   });
 
   it("shows the server's message when a direct download is refused", async () => {
@@ -186,9 +186,9 @@ describe("ResourceDownload", () => {
     );
     render(<ResourceDownload id={ID} title="Board guide" access="email" />);
     fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
-    // Opening the dialog asks the server for nothing.
+    // Opening the form asks the server for nothing.
     expect(fetchMock).not.toHaveBeenCalled();
-    const dialog = within(screen.getByRole("dialog", { hidden: true }));
+    const dialog = within(screen.getByRole("form"));
 
     // No email: nothing is sent.
     fireEvent.click(dialog.getByRole("button", { name: "gateSubmit", hidden: true }));
@@ -211,14 +211,16 @@ describe("ResourceDownload", () => {
     fireEvent.click(dialog.getByRole("button", { name: "gateSubmit", hidden: true }));
     await waitFor(() => expect(startDownload).toHaveBeenCalledWith(URL_OK));
     expect(sentBody(fetchMock, 1)).toEqual({ email: "good@example.com" });
-    expect(dialog.getByText("started")).toBeTruthy();
+    // The form gives way to the result, under the row.
+    expect(screen.getByText("started")).toBeTruthy();
+    expect(screen.queryByRole("form")).toBeNull();
   });
 
   it("has the newsletter box unticked, and sends consent only once it's ticked", async () => {
     const fetchMock = stubFetch(reply(200, { url: URL_OK }));
     render(<ResourceDownload id={ID} title="Board guide" access="email" />);
     fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
-    const dialog = within(screen.getByRole("dialog", { hidden: true }));
+    const dialog = within(screen.getByRole("form"));
     const box = dialog.getByRole("checkbox", { name: "newsletterConsent", hidden: true }) as HTMLInputElement;
     expect(box.checked).toBe(false);
     expect(box.getAttribute("aria-describedby")).toBeTruthy();
@@ -240,11 +242,11 @@ describe("ResourceDownload", () => {
     expect(ar.newsletterConsentHint).toMatch(/تأكيد/);
   });
 
-  it("opens the email dialog when a resource became email-gated after the page was cached", async () => {
+  it("opens the email form when a resource became email-gated after the page was cached", async () => {
     stubFetch(reply(400, { error: { code: "validation_failed", message: "Enter your email" } }));
     render(<ResourceDownload id={ID} title="Board guide" access="direct" />);
     fireEvent.click(screen.getByRole("button", { name: /^downloadLabel/ }));
-    expect(await screen.findByRole("dialog", { hidden: true })).toBeTruthy();
+    expect(await screen.findByRole("form")).toBeTruthy();
     expect(startDownload).not.toHaveBeenCalled();
   });
 });
@@ -303,7 +305,7 @@ describe("ResourceDownload analytics", () => {
     stubFetch(reply(400, { error: { code: "validation_failed", message: "Bad email" } }), reply(200, { url: URL_OK }));
     render(<ResourceDownload id={ID} title="Board guide" access="email" />);
     fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
-    const dialog = within(screen.getByRole("dialog", { hidden: true }));
+    const dialog = within(screen.getByRole("form"));
     fireEvent.change(dialog.getByLabelText("email"), { target: { value: "bad@example.com" } });
     fireEvent.click(dialog.getByRole("button", { name: "gateSubmit", hidden: true }));
     expect(await dialog.findByText("Bad email")).toBeTruthy();

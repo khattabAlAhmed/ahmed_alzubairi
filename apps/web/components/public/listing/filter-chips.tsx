@@ -10,7 +10,7 @@ import { withParam, type ListingQuery } from "./links";
  * relies on color alone. Square, not pills.
  */
 const CHIP = cx(
-  "group inline-flex min-h-10 items-center gap-2 border px-3.5 text-sm whitespace-nowrap transition-state focus-ring",
+  "group inline-flex min-h-10 max-w-full items-center gap-2 border px-3.5 py-1.5 text-start text-sm transition-state focus-ring",
   "border-line-strong bg-bg text-ink hover:bg-surface-hover",
   "aria-[current=true]:border-accent aria-[current=true]:bg-accent-wash",
 );
@@ -56,12 +56,12 @@ export function FilterChips({
       <p aria-hidden="true" className="min-w-22 text-[13px] leading-[1.7] text-ink-2">
         {label}
       </p>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex min-w-0 flex-wrap gap-2">
         {chips.map((chip) => {
           const on = chip.value === active || (chip.value === null && !options.some((o) => o.value === active));
           const count = "count" in chip ? chip.count : undefined;
           return (
-            <li key={chip.value ?? ""}>
+            <li key={chip.value ?? ""} className="max-w-full">
               <Link
                 href={{ pathname, query: withParam(query, param, chip.value, ["page"]) }}
                 aria-current={on ? "true" : undefined}

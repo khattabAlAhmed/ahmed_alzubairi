@@ -185,7 +185,8 @@ describe("MediaList", () => {
     expect(within(first as HTMLElement).getByRole("link", { name: /^openLabel/ }).getAttribute("href")).toBe(
       "https://outlet.example/story",
     );
-    expect((second as HTMLElement).querySelector("img")?.getAttribute("src")).toBe("https://cdn.example/i.jpg");
+    // A press-log row: no image, and no frame without a video.
+    expect((second as HTMLElement).querySelector("img")).toBeNull();
     expect((second as HTMLElement).querySelector("iframe")).toBeNull();
   });
 

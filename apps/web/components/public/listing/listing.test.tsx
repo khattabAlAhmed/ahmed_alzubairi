@@ -214,7 +214,7 @@ describe("ArticleCard", () => {
 describe("ShareButtons", () => {
   it("links to every network without loading a script", () => {
     const { container } = render(<ShareButtons url="https://example.org/a" title="T" />);
-    const links = within(screen.getByRole("group", { name: "shareLabel" })).getAllByRole("link");
+    const links = within(screen.getByRole("complementary", { name: "shareLabel" })).getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual(
       SHARE_NETWORKS.map((network) => shareHref(network, "https://example.org/a", "T")),
     );
@@ -291,7 +291,7 @@ describe("ResourceCard", () => {
 });
 
 describe("MediaCard and VideoEmbed", () => {
-  it("shows the category, title, outlet, date, image and action", () => {
+  it("shows the category, title, outlet, date and action as a press-log row, without the image", () => {
     render(
       <MediaCard
         category="events"
@@ -305,8 +305,16 @@ describe("MediaCard and VideoEmbed", () => {
     expect(screen.getByText("mediaCategory.events")).toBeTruthy();
     expect(screen.getByText("Forum")).toBeTruthy();
     expect(screen.getByText("11 May 2026")).toBeTruthy();
-    expect(screen.getByRole("img", { name: "Photo" })).toBeTruthy();
+    expect(screen.queryByRole("img")).toBeNull();
     expect(screen.getByRole("link", { name: "Open" })).toBeTruthy();
+  });
+
+  it("shows the image first when featured", () => {
+    render(
+      <MediaCard variant="featured" category="events" title="Workshop" outlet="Forum" date={null} image={{ src: "/m.jpg", alt: "Photo" }} />,
+    );
+    expect(screen.getByRole("img", { name: "Photo" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Workshop" })).toBeTruthy();
   });
 
   it("puts the video frame in place of the image: lazy, titled and sandboxed", () => {
@@ -360,7 +368,9 @@ describe("CourseCard", () => {
 
   it("replaces the register action when the course is full", () => {
     render(<CourseCard {...base} type="in_person" seats={{ left: 0, total: 20 }} />);
-    expect(screen.getByText("courseFull")).toBeTruthy();
+    // In the seats column and as the disabled button.
+    expect(screen.getAllByText("courseFull")).toHaveLength(2);
+    expect((screen.getByRole("button", { name: "courseFull" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.queryByRole("button", { name: "Register" })).toBeNull();
   });
 
@@ -374,11 +384,11 @@ describe("CourseCard", () => {
 });
 
 describe("SeatsMeter", () => {
-  it("clamps the bar and the count", () => {
+  it("clamps the count, and fills the bar as seats are taken", () => {
     render(<SeatsMeter left={-2} total={10} />);
     const meter = screen.getByRole("meter");
     expect(meter.getAttribute("aria-valuenow")).toBe("0");
-    expect((meter.firstElementChild as HTMLElement).style.width).toBe("0%");
+    expect((meter.firstElementChild as HTMLElement).style.width).toBe("100%");
   });
 });
 

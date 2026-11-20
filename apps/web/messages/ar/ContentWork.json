@@ -1,0 +1,29 @@
+{
+  "record": {
+    "situation": "الحال",
+    "whatIDid": "ما فعلتُ",
+    "whatChanged": "ما تغيّر",
+    "whatChangedLead": "ما تغيّر:",
+    "readFull": "اقرأ السجل كاملاً",
+    "readFullLabel": "اقرأ السجل كاملاً: {title}"
+  },
+  "gallery": {
+    "photo": "صورة {n}",
+    "open": "افتح الصورة {n}",
+    "close": "إغلاق",
+    "previous": "الصورة السابقة",
+    "next": "الصورة التالية",
+    "position": "{n} من {total}",
+    "missing": "لم تُرفع بعد"
+  },
+  "article": {
+    "published": "نُشر",
+    "reading": "القراءة",
+    "area": "المجال"
+  },
+  "media": {
+    "videoTitle": "فيديو: {title}",
+    "play": "شغّل الفيديو",
+    "watchOnSite": "شاهده على موقعه"
+  }
+}

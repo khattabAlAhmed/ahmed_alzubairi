@@ -157,13 +157,14 @@ export function DocumentRequestProvider({
         <div
           role="region"
           aria-label={t("requestSelected")}
-          className="sticky bottom-0 z-10 border-t border-text/15 bg-surface/95 px-4 py-3 shadow-lg backdrop-blur"
+          // DocumentItem board: the selection bar in ink, its action inverted. No blur, no shadow.
+          className="sticky bottom-0 z-10 bg-ink px-4 py-3.5 text-bg"
         >
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+          <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3">
             <div aria-live="polite">
-              <p className="text-sm font-semibold">{t("selected", { count: selected.size })}</p>
+              <p className="type-small">{t("selected", { count: selected.size })}</p>
               {atLimit && (
-                <p role="alert" className="text-sm font-semibold text-danger">
+                <p role="alert" className="text-sm font-medium">
                   {t("limit", { max: MAX_REQUEST_IDS })}
                 </p>
               )}
@@ -172,6 +173,7 @@ export function DocumentRequestProvider({
               <Button
                 variant="quiet"
                 size="sm"
+                className="text-bg! hover:text-bg! focus-visible:outline-bg!"
                 onClick={() => {
                   setSelected(new Set());
                   setAtLimit(false);
@@ -179,7 +181,11 @@ export function DocumentRequestProvider({
               >
                 {t("clearSelection")}
               </Button>
-              <Button size="sm" onClick={() => start([...selected])}>
+              <Button
+                size="sm"
+                className="bg-bg! text-ink! hover:bg-surface-hover! focus-visible:outline-bg!"
+                onClick={() => start([...selected])}
+              >
                 {t("requestSelected")}
               </Button>
             </div>

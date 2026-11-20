@@ -1,0 +1,273 @@
+{
+  "intro": "The parts the work and reading pages are built from: projects, articles, resources, media, training, documents and questions. Every list is rows on hairlines under a heavy rule, never a grid of identical cards.",
+  "draftNote": "The text here is sample text, and the photos are placeholders.",
+  "placeholderPhoto": "Placeholder photo",
+  "states": {
+    "featured": "Featured · on the home page and at the top of the projects list",
+    "rows": "List rows · one result each",
+    "withImage": "With an image",
+    "withoutImage": "Without an image",
+    "otherLanguage": "In one language only",
+    "direct": "Direct download",
+    "gate": "For an email · form open",
+    "sent": "After sending",
+    "signedOut": "Signed out",
+    "signedIn": "Signed in",
+    "registered": "Registered",
+    "full": "Full",
+    "open": "Open",
+    "closed": "Closed",
+    "missing": "Missing photo",
+    "beforeLoad": "Video before it loads",
+    "caption": "Image with caption",
+    "sheet": "Project gallery",
+    "log": "Press log",
+    "shareCopied": "After copying the link"
+  },
+  "project": {
+    "title": "Project story",
+    "intro": "The record: a heavy rule, the meta line, the title, then the situation, what I did and what changed. \"What changed\" is the only line in the accent.",
+    "note": "A hidden organization shows a general label (\"A local organization\"), and its real name never reaches the browser.",
+    "featured": {
+      "title": "A referral path the residents run themselves",
+      "org": "An international organization",
+      "area": "Community protection",
+      "years": "2022–2023",
+      "situation": "Four camps, and no single way people trusted to report a risk.",
+      "did": "I sat with the camp committees first, then we designed a path together that starts with a neighbour and ends with the right agency.",
+      "changed": "A year later, most reports arrive through the local committees, not the organization's offices.",
+      "caption": "A listening session with a camp committee"
+    },
+    "rows": [
+      {
+        "title": "A guide to delegating authority",
+        "meta": "2024 · A ministry",
+        "changed": "Directorates now decide in a week instead of a month.",
+        "area": "Governance"
+      },
+      {
+        "title": "Training 40 volunteers in referral",
+        "meta": "2023 · An international organization",
+        "changed": "Every camp now has someone who knows where to turn.",
+        "area": "Humanitarian"
+      },
+      {
+        "title": "An income programme for women-led households",
+        "meta": "2021 · A local organization",
+        "changed": "60 families with a small business that still runs.",
+        "area": "Development"
+      }
+    ]
+  },
+  "projectPage": {
+    "title": "Project page parts",
+    "intro": "The facts on one line, the activities with their dates, results in numbers, and the photo gallery.",
+    "goal": "Goal",
+    "goalValue": "A way to report that residents trust",
+    "org": "Organization",
+    "orgValue": "An international organization",
+    "role": "My role",
+    "roleValue": "Lead consultant",
+    "duration": "Duration",
+    "durationValue": "14 months · 2022–2023",
+    "activities": "Activities",
+    "results": "Results in numbers",
+    "acts": [
+      {
+        "label": "Months 1–2",
+        "text": "Listening sessions with each of the four committees"
+      },
+      {
+        "label": "Month 3",
+        "text": "Two workshops to design the path with residents and the organization"
+      },
+      {
+        "label": "Months 4–6",
+        "text": "Training 40 volunteers, and a trial in one camp"
+      },
+      {
+        "label": "Months 7–14",
+        "text": "Extending to all four camps, with a review every three months"
+      }
+    ],
+    "figures": [
+      {
+        "value": "70%",
+        "text": "of reports come through the committees",
+        "from": "It was 10% before the project"
+      },
+      {
+        "value": "40",
+        "text": "volunteers who know the path",
+        "from": "Residents themselves"
+      },
+      {
+        "value": "4",
+        "text": "committees run the path",
+        "from": "With no staff from the organization"
+      },
+      {
+        "value": "9 days",
+        "text": "from a report to a response",
+        "from": "It was 26 days"
+      }
+    ]
+  },
+  "article": {
+    "title": "Article item",
+    "intro": "Articles as a journal index: a fixed date column, the title and one line, then reading time and area.",
+    "note": "An article in one language shows only in its language; if it appears in the other list, it carries its language mark.",
+    "rows": [
+      {
+        "title": "Why governance manuals fail in their first week",
+        "excerpt": "Three reasons I've seen again and again, and what we did each time.",
+        "area": "Governance"
+      },
+      {
+        "title": "What I learned from four camps",
+        "excerpt": "About trust, and about who should be asked first.",
+        "area": "Humanitarian"
+      }
+    ],
+    "otherTitle": "التفويض مسألة تصميم",
+    "otherExcerpt": "In Arabic only"
+  },
+  "body": {
+    "title": "Article body",
+    "intro": "Long-form type: paragraphs with a loose line, headings with a hairline above, numbered lists, and a quote with a heavy rule at its start. The share column sits beside it.",
+    "note": "The editor doesn't make images or tables inside the text today; a photo with its caption uses the \"Image with caption\" part.",
+    "heading": "Why governance manuals fail in their first week",
+    "p1": "Most manuals I've seen didn't fail because they were badly written. They failed because whoever wrote them never asked the people who would use them: what do you do when a decision lands on you and you don't know who owns it?",
+    "h2": "Three reasons that keep coming back",
+    "li1": "The manual describes the institution as it should be, not as it is.",
+    "li2": "No one owns updating it once it's approved.",
+    "li3": "New staff don't know it exists.",
+    "quote": "A rule that staff can't explain to a colleague is a rule they won't follow.",
+    "p2": "If you're working on a manual now, start from the question, not the template.",
+    "link": "The question template I use",
+    "p3": "is free to download.",
+    "area": "Governance"
+  },
+  "resource": {
+    "title": "Resource item",
+    "intro": "The file-type glyph, the title, one line, the tags, then the download. A resource for an email opens its form under the row.",
+    "rows": [
+      {
+        "title": "A short guide to writing a delegation matrix",
+        "text": "12 pages. What I use in the first session with any institution.",
+        "area": "Governance"
+      },
+      {
+        "title": "Community referral plan template",
+        "text": "A ready sheet with the columns we needed in four camps.",
+        "area": "Humanitarian"
+      },
+      {
+        "title": "Working paper: what makes protection acceptable to a community?",
+        "text": "",
+        "area": "Humanitarian"
+      }
+    ]
+  },
+  "media": {
+    "title": "Media item",
+    "intro": "A press log: a date column, the title with its kind, and the section tag. One featured item with a video.",
+    "featuredTitle": "On protection when the law is absent",
+    "featuredOutlet": "A news channel",
+    "rows": [
+      {
+        "title": "Speaker at a regional governance conference",
+        "outlet": "Conference",
+        "detail": "A session on delegating authority"
+      },
+      {
+        "title": "Open workshop: community referral",
+        "outlet": "Event",
+        "detail": "60 participants"
+      },
+      {
+        "title": "Radio conversation on young people and work",
+        "outlet": "Radio",
+        "detail": "30 minutes · external link"
+      }
+    ]
+  },
+  "frame": {
+    "title": "Image, gallery and video",
+    "intro": "An image with its caption, the gallery as a numbered contact sheet, and a video that doesn't load before a click.",
+    "note": "Clicking a photo opens it whole with its caption, and the arrows move between photos. If the video won't play: a link to it on its own site.",
+    "captions": [
+      "Listening session",
+      "Design workshop",
+      "The meeting room"
+    ],
+    "figureCaption": "Writing the manual with the directorate's team"
+  },
+  "course": {
+    "title": "Course item",
+    "intro": "Training as a schedule: the date block, the title with type and place, the seats left, then the action.",
+    "rows": [
+      {
+        "title": "Writing a delegation matrix",
+        "place": "Amman"
+      },
+      {
+        "title": "Community referral: from design to running it"
+      },
+      {
+        "title": "Governance basics for new boards"
+      },
+      {
+        "title": "Custom training for your organization",
+        "text": "A topic, place and date that suit your team."
+      }
+    ],
+    "action": "Register now"
+  },
+  "registration": {
+    "title": "Registration panel",
+    "intro": "The course page's panel in its four states. Someone registered sees that first, even when the course is full.",
+    "date": "Dates",
+    "dateValue": "14–15 April",
+    "seats": "Seats",
+    "seatsValue": "8 of 20",
+    "seatsFull": "0 of 20"
+  },
+  "document": {
+    "title": "Public document item",
+    "intro": "Title and category only, no content or preview. Choosing several documents opens one request.",
+    "samples": [
+      {
+        "category": "thank_you_letter",
+        "title": "Thank-you letter from an international organization · Protection programme"
+      },
+      {
+        "category": "experience_certificate",
+        "title": "Experience certificate · Governance consultant"
+      },
+      {
+        "category": "course_certificate",
+        "title": "Certificate in humanitarian protection"
+      }
+    ],
+    "hint": "Tick two or more documents to see the request bar."
+  },
+  "faq": {
+    "title": "FAQ",
+    "intro": "Questions grouped by section, opened one at a time.",
+    "items": [
+      {
+        "q": "Is a consultation paid through the website?",
+        "a": "No. The website is for getting in touch. We agree everything in writing in the conversation before any commitment."
+      },
+      {
+        "q": "Can our organization's name stay confidential?",
+        "a": "Yes. The project shows a general label for the organization, and its name appears nowhere on the site."
+      },
+      {
+        "q": "Do you work outside the Arab region?",
+        "a": "Yes, in person or remotely, as the work needs."
+      }
+    ]
+  }
+}
