@@ -299,7 +299,7 @@ describe("home letter (Phase 8)", () => {
         is_visible: true,
         status: "published",
         content_ar: letterContent("رسالة"),
-        content_en: letterContent("A letter", { signatureKey: "sig.png", signatureDarkKey: "sig-dark.webp" }),
+        content_en: letterContent("A letter", { signatureKey: "sig.png", signatureDarkKey: "sig-dark.png" }),
       },
     ];
     const [en] = await content.getHomeSections("en");
@@ -313,7 +313,7 @@ describe("home letter (Phase 8)", () => {
         signOff: "Ahmed",
         isPlaceholder: true,
         signatureUrl: "https://example.supabase.co/storage/v1/object/public/public-media/sig.png",
-        signatureDarkUrl: "https://example.supabase.co/storage/v1/object/public/public-media/sig-dark.webp",
+        signatureDarkUrl: "https://example.supabase.co/storage/v1/object/public/public-media/sig-dark.png",
       },
     });
     const [ar] = await content.getHomeSections("ar");

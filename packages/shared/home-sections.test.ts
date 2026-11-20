@@ -22,7 +22,7 @@ const VALID: Record<HomeSectionKey, object> = {
     paragraphs: ["First.", "Second."],
     signOff: "Ahmed Alzubairi",
     signatureKey: "123e4567-e89b-42d3-a456-426614174000.png",
-    signatureDarkKey: "123e4567-e89b-42d3-a456-426614174001.webp",
+    signatureDarkKey: "123e4567-e89b-42d3-a456-426614174001.png",
     isPlaceholder: true,
   },
   stats: { heading: "In numbers" },
@@ -131,12 +131,12 @@ describe("letter content", () => {
   });
 
   it.each(["signatureKey", "signatureDarkKey"])(
-    "%s takes only a PNG or WebP media key",
+    "%s takes only a PNG media key",
     (field) => {
-      for (const key of ["a.png", "b.WEBP"]) {
+      for (const key of ["a.png", "b.PNG"]) {
         expect(schema.safeParse({ ...letter, [field]: key }).success).toBe(true);
       }
-      for (const key of ["a.svg", "a.jpg", "a.pdf", "a.png.svg", "pending/a.png", ""]) {
+      for (const key of ["a.svg", "a.webp", "a.jpg", "a.pdf", "a.png.svg", "pending/a.png", ""]) {
         expect(schema.safeParse({ ...letter, [field]: key }).success).toBe(false);
       }
     },

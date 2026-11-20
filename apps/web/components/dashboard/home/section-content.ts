@@ -95,8 +95,8 @@ export const SIGNATURE_FIELDS = ["signatureKey", "signatureDarkKey"] as const;
 export type SignatureField = (typeof SIGNATURE_FIELDS)[number];
 
 /**
- * A signature scan is a PNG (the `media` target takes no WebP yet), never an
- * SVG: the picker offers only these, and a file of another type isn't sent.
+ * A signature scan is a PNG, never an SVG: the picker offers only PNG, and a
+ * file of another type isn't sent. The contract takes only `.png` keys.
  */
 export const SIGNATURE_MIMES = ["image/png"] as const;
 export const SIGNATURE_ACCEPT = SIGNATURE_MIMES.join(",");

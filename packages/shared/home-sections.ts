@@ -31,12 +31,12 @@ export type HomeSectionKey = z.infer<typeof homeSectionKeySchema>;
 /** The letter holds 1 to this many paragraphs. */
 export const LETTER_MAX_PARAGRAPHS = 6;
 
-/** A signature scan is a PNG or WebP from the `media` target: never SVG. */
+/** A signature scan is a PNG from the `media` target: never SVG. */
 const signatureKeySchema = z
   .string()
   .trim()
   .max(500)
-  .regex(/^[^/]+\.(png|webp)$/i);
+  .regex(/^[^/]+\.png$/i);
 
 /** "Who I work with" has exactly these three items: government, humanitarian, private. */
 export const AUDIENCE_ITEM_COUNT = 3;
