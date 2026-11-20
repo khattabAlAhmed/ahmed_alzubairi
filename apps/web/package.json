@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "screenshots": "node scripts/screenshots.mts"
   },
   "dependencies": {
     "@arcjet/next": "^1.15.0",
@@ -50,6 +51,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "jsdom": "^31.0.0",
+    "playwright-core": "1.65.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "^8.3.6",

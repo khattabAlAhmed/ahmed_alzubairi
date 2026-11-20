@@ -11,6 +11,7 @@
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
+    "screenshots": "pnpm --filter web screenshots",
     "db:types": "node -e \"const r=process.env.SUPABASE_PROJECT_REF;if(!r)throw new Error('Set SUPABASE_PROJECT_REF');const t=require('child_process').execSync('pnpm --package=supabase@3.0.0 --allow-build=supabase dlx supabase gen types --schema public --remote='+r,{stdio:['ignore','pipe','inherit']});require('fs').writeFileSync('packages/db/types.ts',t)\""
   },
   "devDependencies": {
