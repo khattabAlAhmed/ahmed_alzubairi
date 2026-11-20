@@ -29,10 +29,12 @@ const SIZES: Record<ButtonSize, string> = {
 
 const QUIET_SIZE = "min-h-11 gap-2 px-0.5";
 
-// Disabled is a flat surface with ink-2 text and a hairline, whatever the variant.
+// Disabled is a flat surface with ink-2 text and a hairline. Quiet has no
+// box, so its disabled state is ink-2 text alone.
 const DISABLED =
   "disabled:cursor-not-allowed disabled:border-line disabled:bg-surface disabled:text-ink-2 disabled:no-underline " +
   "aria-disabled:cursor-not-allowed";
+const DISABLED_QUIET = "disabled:cursor-not-allowed disabled:text-ink-2 disabled:no-underline aria-disabled:cursor-not-allowed";
 
 export function buttonClasses({
   variant = "primary",
@@ -48,7 +50,7 @@ export function buttonClasses({
     "focus-ring",
     VARIANTS[variant],
     variant === "quiet" ? cx(QUIET_SIZE, size === "sm" ? "text-sm" : "text-base") : SIZES[size],
-    DISABLED,
+    variant === "quiet" ? DISABLED_QUIET : DISABLED,
     className,
   );
 }
