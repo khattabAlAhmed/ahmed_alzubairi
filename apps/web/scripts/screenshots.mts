@@ -429,7 +429,8 @@ async function main() {
     // Bounded: a crashed browser can make close() wait forever.
     await Promise.race([
       browser.close(),
-      new Promise((r) => setTimeout(r, 10_000)),
+      // unref: a prompt close() doesn't wait for this timer.
+      new Promise((r) => setTimeout(r, 10_000).unref()),
     ]);
   }
   console.log(`\n${count} screenshot(s) in ${opts.out}; ${failures.length} failed`);
