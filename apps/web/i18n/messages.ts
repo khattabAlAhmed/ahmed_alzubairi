@@ -17,6 +17,8 @@
  * `request.ts` finds the files by glob, so nothing else changes.
  */
 
+import type { Formats } from "next-intl";
+
 type Messages = Record<string, unknown>;
 
 /** PascalCase, like the namespaces in `messages/{ar,en}.json`. */
@@ -74,4 +76,180 @@ export function pathsForLocale(
   locale: string,
 ): string[] {
   return paths.filter((path) => path.includes(`/messages/${locale}/`));
+}
+
+/*
+ * Arabic digits inside messages (DESIGN.md "Numbers"). next-intl formats a
+ * message's numbers with its locale, `ar`, and some engines (Node's ICU, for
+ * one) give Western digits for that. The routing locale has to stay `ar`, so
+ * instead the Arabic messages point their numbers at a named format that sets
+ * the numbering system: `{n, number}` and a plural's `#` become
+ * `{n, number, arab}`, and `request.ts` defines `arab`. A plain `{n}` is left
+ * alone: ICU can't tell a number from text there, and callers pass both.
+ */
+
+/** The global number format the rewritten Arabic messages use. */
+export const ARABIC_DIGITS_FORMAT = "arab";
+
+/** next-intl's global formats: `arab` is what the rewritten Arabic messages name. */
+export const MESSAGE_FORMATS = {
+  number: { [ARABIC_DIGITS_FORMAT]: { numberingSystem: "arab" } },
+} satisfies Formats;
+
+const isSpace = (char: string | undefined) => char !== undefined && /\s/.test(char);
+
+/**
+ * One ICU message with its unstyled numbers and plural `#` pointed at the
+ * `arab` format. Everything else is copied as written: text, quoted text,
+ * plain and styled arguments, selects and dates. A `#` under a plural with an
+ * `offset` is left alone (its value is the count minus the offset).
+ * A string that isn't valid ICU is returned unchanged: `ar.json` also holds
+ * Clerk's strings, which use `{{name}}`.
+ */
+export function withArabicDigits(message: string): string {
+  try {
+    return rewriteNumbers(message);
+  } catch {
+    return message;
+  }
+}
+
+class MalformedMessage extends Error {}
+
+function rewriteNumbers(message: string): string {
+  let at = 0;
+  const fail = (): never => {
+    throw new MalformedMessage(message);
+  };
+
+  // A quote starts literal text before a syntax character (and `#` in a plural).
+  function quoted(inPlural: boolean): string | null {
+    if (message[at] !== "'") return null;
+    const next = message[at + 1];
+    if (next === "'") {
+      at += 2;
+      return "''";
+    }
+    if (next !== "{" && next !== "}" && !(inPlural && next === "#")) {
+      at += 1;
+      return "'";
+    }
+    const start = at;
+    at += 1;
+    while (at < message.length) {
+      if (message[at] === "'" && message[at + 1] === "'") at += 2;
+      else if (message[at] === "'") {
+        at += 1;
+        return message.slice(start, at);
+      } else at += 1;
+    }
+    return message.slice(start);
+  }
+
+  function text(pluralVar: string | null, inPlural: boolean): string {
+    let out = "";
+    while (at < message.length && message[at] !== "}") {
+      const literal = quoted(inPlural);
+      if (literal !== null) out += literal;
+      else if (message[at] === "{") out += argument(pluralVar, inPlural);
+      else if (message[at] === "#" && inPlural && pluralVar !== null) {
+        out += `{${pluralVar}, number, ${ARABIC_DIGITS_FORMAT}}`;
+        at += 1;
+      } else out += message[at++];
+    }
+    return out;
+  }
+
+  // From a `{` to its `}`, copied as written (styles, skeletons, dates).
+  function verbatim(start: number): string {
+    let depth = 0;
+    while (at < message.length) {
+      const char = message[at];
+      if (char === "'" && quoted(false) !== null) continue;
+      at += 1;
+      if (char === "{") depth += 1;
+      else if (char === "}" && --depth === 0) return message.slice(start, at);
+    }
+    return fail();
+  }
+
+  function word(): string {
+    const start = at;
+    while (at < message.length && !/[\s,{}]/.test(message[at] ?? "")) at += 1;
+    return message.slice(start, at);
+  }
+
+  function spaces(): string {
+    const start = at;
+    while (isSpace(message[at])) at += 1;
+    return message.slice(start, at);
+  }
+
+  function argument(pluralVar: string | null, inPlural: boolean): string {
+    const start = at;
+    at += 1; // {
+    const nameStart = at;
+    while (at < message.length && message[at] !== "," && message[at] !== "}") at += 1;
+    const name = message.slice(nameStart, at).trim();
+    if (message[at] === "}") {
+      at += 1;
+      return message.slice(start, at);
+    }
+    if (message[at] !== ",") return fail();
+    at += 1;
+    const typeStart = at;
+    while (at < message.length && message[at] !== "," && message[at] !== "}") at += 1;
+    const type = message.slice(typeStart, at).trim();
+
+    if (type === "number" && message[at] === "}") {
+      at += 1;
+      return `{${name}, number, ${ARABIC_DIGITS_FORMAT}}`;
+    }
+    const cases = type === "plural" || type === "selectordinal" ? "plural" : type === "select" ? "select" : null;
+    if (cases === null || message[at] !== ",") {
+      at = start;
+      return verbatim(start);
+    }
+
+    let out = message.slice(start, at + 1);
+    at += 1; // ,
+    let offset = false;
+    for (;;) {
+      out += spaces();
+      if (message[at] === "}") {
+        at += 1;
+        return `${out}}`;
+      }
+      const selector = word();
+      if (selector === "") return fail();
+      out += selector;
+      if (selector.startsWith("offset:")) {
+        offset = true;
+        continue;
+      }
+      out += spaces();
+      if (message[at] !== "{") return fail();
+      at += 1;
+      // In a select, even one inside a plural, `#` is plain text (as FormatJS reads it).
+      const inner = cases === "plural" ? text(offset ? null : name, true) : text(null, false);
+      if (message[at] !== "}") return fail();
+      at += 1;
+      out += `{${inner}}`;
+    }
+  }
+
+  const out = text(null, false);
+  if (at !== message.length) fail();
+  return out;
+}
+
+/** Every message string in a tree, rewritten by `withArabicDigits`. Pure. */
+export function arabicDigitMessages<Tree>(messages: Tree): Tree {
+  const walk = (node: unknown): unknown => {
+    if (typeof node === "string") return withArabicDigits(node);
+    if (Array.isArray(node)) return node.map(walk);
+    if (isPlainObject(node)) return Object.fromEntries(Object.entries(node).map(([key, child]) => [key, walk(child)]));
+    return node;
+  };
+  return walk(messages) as Tree;
 }
