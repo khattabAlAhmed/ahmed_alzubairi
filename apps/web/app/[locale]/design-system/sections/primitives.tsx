@@ -3,7 +3,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { ArrowForwardIcon } from "@/components/icons";
-import { INLINE_LINK, NAV_LINK } from "@/components/nav-link";
 import { dateLocale, formatNumber } from "@/components/public/home/format";
 import { FilterChips } from "@/components/public/listing/filter-chips";
 import { Pagination } from "@/components/public/listing/pagination";
@@ -26,13 +25,11 @@ import {
   Tag,
   TextArea,
   TextField,
-  TAB_LIST,
-  tabClasses,
 } from "@/components/ui";
-import { cx } from "@/components/ui/cx";
+import { cx, INLINE_LINK, NAV_LINK, TAB_LIST, tabClasses } from "@/components/ui/cx";
 import { StatusPill } from "@/components/workspace/status-pill";
 import { DsBlock, DsCode, DsNote, DsSection } from "../parts";
-import { DemoFileChip } from "./primitives-client";
+import { DemoFileChip, DemoLoadingButton } from "./primitives-client";
 
 /*
  * components.md group 2. One DsBlock per primitive, every state its board
@@ -137,9 +134,7 @@ async function ButtonBlock({ locale }: Props) {
               </State>
               {row.loading && (
                 <State label={s("loading")}>
-                  <Button variant={row.variant} loading loadingLabel={t("button.sending")}>
-                    {t("button.sending")}
-                  </Button>
+                  <DemoLoadingButton variant={row.variant} label={t("button.sending")} />
                 </State>
               )}
             </div>

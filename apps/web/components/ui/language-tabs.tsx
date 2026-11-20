@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { AlertIcon } from "../icons";
-import { cx } from "./cx";
+import { cx, TAB_LIST, tabClasses } from "./cx";
 
 export type LanguagePanel = {
   /** The tab and panel name, in its own language. */
@@ -22,21 +22,6 @@ export type LanguagePanel = {
 
 /** The language and direction of the content typed in a panel. */
 export type PanelLanguage = { lang: "ar" | "en"; dir: "rtl" | "ltr" };
-
-/*
- * The Tabs board: single choice, a hairline under the row, and the chosen tab
- * in ink with a 2px accent underline. Different from filter chips, which are
- * multiple choice and carry a square.
- */
-export const TAB_LIST = "flex overflow-x-auto border-b border-line [scrollbar-width:thin]";
-
-export function tabClasses(active: boolean) {
-  return cx(
-    "inline-flex min-h-12 shrink-0 cursor-pointer items-center gap-2 px-4.5 text-[15px] whitespace-nowrap transition-state focus-ring",
-    "focus-visible:-outline-offset-2",
-    active ? "text-ink shadow-[inset_0_-2px_0_var(--accent)]" : "text-ink-2 hover:text-ink",
-  );
-}
 
 /** A glyph and a hidden word, so an invalid tab never relies on color alone. */
 function InvalidMark({ label }: { label?: string }) {

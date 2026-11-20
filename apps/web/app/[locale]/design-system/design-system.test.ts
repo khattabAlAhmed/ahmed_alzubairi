@@ -45,7 +45,8 @@ describe("design-system page", () => {
     for (const dir of ["app", "components", "lib"]) walk(join(web, dir));
     const linking = files.filter((path) => readFileSync(path, "utf8").includes("/design-system"));
     expect(linking.map((path) => relative(web, path))).toEqual([]);
-  });
+    // Reads every source file: slow when the whole suite runs at once.
+  }, 30_000);
 });
 
 describe("color tokens", () => {

@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { FOCUS_RING } from "@/components/ui/cx";
 
 const nav = vi.hoisted(() => ({ pathname: "/dashboard/content" }));
 
@@ -110,7 +111,7 @@ describe("DashboardNavMenu", () => {
   it("puts the focus ring on every entry", () => {
     render(<Menu />);
     for (const link of screen.getAllByRole("link", { hidden: true })) {
-      expect(link.className).toContain("focus-visible:outline-ring");
+      expect(link.className).toContain(FOCUS_RING);
     }
   });
 });
