@@ -34,8 +34,8 @@ export function ErrorState({
   action?: ReactNode;
   /** A short code a person can quote when they write in (page size). */
   reference?: string;
-  /** The page title's level: 1 when the error is the page. */
-  level?: 1 | 2;
+  /** The page title's level: 1 when the error is the page, lower when it sits inside a section. */
+  level?: 1 | 2 | 3 | 4;
   /** At field size, the id the field points to with `aria-describedby`. */
   id?: string;
   className?: string;

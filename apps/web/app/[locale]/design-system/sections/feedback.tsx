@@ -7,9 +7,10 @@ import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
 import { ListSkeleton, type ListSkeletonKind } from "@/components/feedback/list-skeletons";
 import { NotFoundContent } from "@/components/not-found-content";
-import { MoreLink } from "@/components/public/parts";
 import { ButtonLink, TextField } from "@/components/ui";
+import { ArrowForwardIcon } from "@/components/icons";
 import { cx } from "@/components/ui/cx";
+import { Link } from "@/i18n/navigation";
 import { DsBlock, DsCode, DsNote, DsSection } from "../parts";
 import {
   DemoButton,
@@ -67,7 +68,18 @@ async function EmptyBlock({ locale }: Props) {
           level={3}
           title={t("empty.englishTitle")}
           text={t("empty.englishText")}
-          action={<MoreLink href="/blog" label={t("empty.englishAction")} />}
+          action={
+            // Always the Arabic blog, whatever the page language.
+            <Link
+              href="/blog"
+              locale="ar"
+              hrefLang="ar"
+              className="inline-flex items-center gap-2 border-b border-current py-1 text-[15px] text-accent transition-state hover:text-ink focus-ring"
+            >
+              {t("empty.englishAction")}
+              <ArrowForwardIcon aria-hidden="true" className="size-4" />
+            </Link>
+          }
         />
         <EmptyState
           level={3}
@@ -118,7 +130,8 @@ async function ErrorBlock({ locale }: Props) {
         <Labeled label={t("error.page")}>
           <ErrorState
             size="page"
-            level={2}
+            // Inside a DsBlock (h3), so the example's title sits under it.
+            level={4}
             title={t("error.pageTitle")}
             text={t("error.pageText")}
             reference={t("error.reference")}

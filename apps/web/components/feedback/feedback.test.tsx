@@ -186,10 +186,13 @@ describe("EmptyState", () => {
 });
 
 describe("ListSkeleton", () => {
-  it("is busy and says so to screen readers, with its rows hidden", () => {
+  it("marks its rows busy and announces loading from outside them", () => {
     const { container } = render(<ListSkeleton kind="documents" rows={2} label="Loading" />);
-    expect(container.firstElementChild?.getAttribute("aria-busy")).toBe("true");
-    expect(screen.getByRole("status").textContent).toBe("Loading");
+    const busy = container.querySelector('[aria-busy="true"]');
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("Loading");
+    // The status sits outside the busy rows, so it isn't held back.
+    expect(busy?.contains(status)).toBe(false);
     expect(container.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThanOrEqual(2);
   });
 });

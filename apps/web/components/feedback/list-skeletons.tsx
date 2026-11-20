@@ -13,7 +13,8 @@ import { cx } from "@/components/ui/cx";
  * - `courses`: a date block and two lines.
  * - `documents`: a glyph, a title and a status column.
  *
- * The region is `aria-busy` and says `label` ("Loading") to screen readers.
+ * The rows are `aria-busy`; `label` ("Loading") is a status next to them,
+ * outside the busy subtree, so it's announced at once.
  */
 export type ListSkeletonKind = "projects" | "articles" | "resources" | "courses" | "documents";
 
@@ -31,10 +32,12 @@ export function ListSkeleton({
 }) {
   const items = Array.from({ length: rows }, (_, index) => index);
   return (
-    <div aria-busy="true" className={cx(kind !== "projects" && "border-t-2 border-rule", className)}>
+    <div className={className}>
+      {/* Outside the busy subtree, so screen readers announce it at once. */}
       <span className="sr-only" role="status">
         {label}
       </span>
+      <div aria-busy="true" className={cx(kind !== "projects" && "border-t-2 border-rule")}>
       {kind === "projects" && (
         <div className="flex flex-col gap-8">
           {items.slice(0, Math.min(rows, 2)).map((index) => (
@@ -71,6 +74,7 @@ export function ListSkeleton({
             <Skeleton className="h-3" />
           </div>
         ))}
+      </div>
     </div>
   );
 }
