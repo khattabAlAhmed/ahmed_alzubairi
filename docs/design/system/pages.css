@@ -15,7 +15,7 @@
 .p-brand b { font-size: 19px; font-weight: 600; line-height: 1.4; }
 .p-brand small { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
 .p-tools { display: flex; align-items: center; gap: 4px; }
-.p-lang { width: auto !important; padding: 0 10px !important; font-family: var(--font-mono); font-size: 13px; text-decoration: none; }
+.p-tools .p-lang { width: auto; padding: 0 10px; font-family: var(--font-mono); font-size: 13px; text-decoration: none; }
 
 /* hero: dossier */
 .p-hero { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; margin-block-start: 48px; padding-block-start: 28px; border-top: var(--rule-heavy) solid var(--rule); }
@@ -130,10 +130,11 @@
 /* ---------- phones and narrow windows ---------- */
 @media (max-width: 900px) {
   .sec { margin-block-start: 64px; }
-  .only-d { display: none !important; }
-  .only-m { display: flex; }
+  .page .only-d { display: none; }
+  .page .only-m { display: flex; }
   .p-hd .wrap { align-items: center; }
   .p-hero, .p-letter, .p-feat, .p-tm, .p-nl, .p-cta, .p-ft-grid, .p-ph, .p-story, .r-section__head { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  /* !important only where it overrides grid placement written inline on the element. */
   .p-hero > *, .p-letter > *, .p-feat > *, .p-tm > *, .p-nl > *, .p-cta > *, .p-ft-grid > *, .p-ph > *, .p-story > *, .r-section__head > * { grid-column: auto !important; }
   .r-section__head .r-more { justify-self: start !important; }
   .p-hero { margin-block-start: 24px; }
