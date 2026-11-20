@@ -28,6 +28,8 @@ const WAYS = [
 export function NotFoundContent({ embedded = false }: { embedded?: boolean } = {}) {
   const t = useTranslations("NotFound");
   const nav = useTranslations("Nav");
+  // The 404's own words beyond NotFound's title and description.
+  const extra = useTranslations("Feedback.notFound");
   const Root = embedded ? "div" : "main";
   const Title = embedded ? "h2" : "h1";
 
@@ -35,7 +37,7 @@ export function NotFoundContent({ embedded = false }: { embedded?: boolean } = {
     <Root id={embedded ? undefined : MAIN_CONTENT_ID} className={embedded ? undefined : cx(CONTAINER, "flex-1 py-12 md:py-16")}>
       <div className="grid gap-x-8 gap-y-8 border-t-2 border-rule pt-7 md:grid-cols-12">
         <div className="flex flex-col gap-2 md:col-span-3">
-          <p className="text-ink-2 type-caption">{t("code")}</p>
+          <p className="text-ink-2 type-caption">{extra("code")}</p>
           <div className="relative aspect-video bg-surface">
             <Image src="/images/the-table.webp" alt="" fill sizes="(min-width: 768px) 25vw, 100vw" className="object-cover" />
           </div>
@@ -43,9 +45,9 @@ export function NotFoundContent({ embedded = false }: { embedded?: boolean } = {
         <div className="flex flex-col gap-4 md:col-span-5">
           <Title className="type-h1">{t("title")}</Title>
           <p className="max-w-measure text-ink-2">{t("description")}</p>
-          <SearchField pathname="/blog" label={t("searchLabel")} className="mt-1.5" />
+          <SearchField pathname="/blog" label={extra("searchLabel")} className="mt-1.5" />
         </div>
-        <nav aria-label={t("waysLabel")} className="border-t border-line md:col-span-4">
+        <nav aria-label={extra("waysLabel")} className="border-t border-line md:col-span-4">
           <ul>
             {WAYS.map((way) => (
               <li key={way.key}>

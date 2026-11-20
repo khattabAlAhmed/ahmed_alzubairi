@@ -57,10 +57,7 @@
   "NotFound": {
     "title": "This page is not in the record.",
     "description": "It may have moved, or the link may be incomplete. These are the places people usually look.",
-    "backHome": "Back to home",
-    "code": "Error 404",
-    "searchLabel": "Search the writing",
-    "waysLabel": "Suggested links"
+    "backHome": "Back to home"
   },
   "Error": {
     "title": "Something went wrong",
