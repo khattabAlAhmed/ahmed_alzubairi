@@ -5,6 +5,7 @@ import { tiptapDocSchema, type TiptapDoc } from "@repo/shared";
 import type { Editor } from "@tiptap/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { FOCUS_RING } from "@/components/ui/cx";
 import ar from "@/messages/ar/DashboardEditor.json";
 import en from "@/messages/en/DashboardEditor.json";
 import { RichTextEditor } from "./rich-text-editor";
@@ -92,7 +93,7 @@ describe("RichTextEditor", () => {
     for (const button of buttons) {
       expect(button.getAttribute("type")).toBe("button");
       expect(button.getAttribute("aria-pressed")).toBe("false");
-      expect(button.className).toContain("focus-visible:outline-ring");
+      expect(button.className).toContain(FOCUS_RING);
     }
   });
 

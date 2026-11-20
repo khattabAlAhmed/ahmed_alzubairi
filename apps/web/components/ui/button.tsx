@@ -1,24 +1,40 @@
 import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { cx, FOCUS_RING } from "./cx";
+import { cx } from "./cx";
 import { Spinner } from "./icons";
 
-export type ButtonVariant = "primary" | "secondary" | "quiet";
+export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
-// Primary is gold with navy text (§13). Gold is never the text color, so no
-// variant puts gold text on ivory or white.
+/*
+ * The Button board (DESIGN.md "The record"): square corners, no shadow, 200ms
+ * color changes only. Primary is the one accent action on a screen and turns
+ * ink on hover; secondary is an ink outline; quiet is an accent underline;
+ * danger is a danger outline, for deletes behind a confirmation.
+ */
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-accent text-on-accent shadow-sm hover:opacity-90",
-  secondary: "border border-text/50 bg-surface text-text hover:bg-text/5",
-  quiet: "text-text hover:bg-text/10",
+  primary: "border-transparent bg-accent text-on-accent hover:bg-ink hover:text-bg active:bg-ink active:text-bg",
+  secondary: "border-ink bg-transparent text-ink hover:bg-surface-hover active:bg-ink active:text-bg",
+  quiet:
+    "border-transparent bg-transparent text-accent underline decoration-1 underline-offset-6 hover:decoration-2 active:text-ink",
+  danger: "border-danger bg-transparent text-danger hover:bg-surface-hover active:bg-danger active:text-bg",
 };
 
+// Quiet has no box, so it keeps only a 44px target and a sliver of padding.
 const SIZES: Record<ButtonSize, string> = {
-  sm: "h-9 gap-1.5 px-3 text-sm",
-  md: "h-11 gap-2 px-4 text-base",
-  lg: "h-12 gap-2 px-6 text-lg",
+  sm: "min-h-10 gap-2 px-4 text-sm",
+  md: "min-h-12 gap-2.5 px-6 text-base",
+  lg: "min-h-14 gap-2.5 px-8 text-[17px]",
 };
+
+const QUIET_SIZE = "min-h-11 gap-2 px-0.5";
+
+// Disabled is a flat surface with ink-2 text and a hairline. Quiet has no
+// box, so its disabled state is ink-2 text alone.
+const DISABLED =
+  "disabled:cursor-not-allowed disabled:border-line disabled:bg-surface disabled:text-ink-2 disabled:no-underline " +
+  "aria-disabled:cursor-not-allowed";
+const DISABLED_QUIET = "disabled:cursor-not-allowed disabled:text-ink-2 disabled:no-underline aria-disabled:cursor-not-allowed";
 
 export function buttonClasses({
   variant = "primary",
@@ -30,11 +46,11 @@ export function buttonClasses({
   className?: string;
 } = {}) {
   return cx(
-    "inline-flex items-center justify-center rounded-md font-semibold whitespace-nowrap transition-opacity motion-reduce:transition-none",
-    "disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
-    FOCUS_RING,
+    "inline-flex cursor-pointer items-center justify-center border leading-tight font-medium whitespace-nowrap transition-state",
+    "focus-ring",
     VARIANTS[variant],
-    SIZES[size],
+    variant === "quiet" ? cx(QUIET_SIZE, size === "sm" ? "text-sm" : "text-base") : SIZES[size],
+    variant === "quiet" ? DISABLED_QUIET : DISABLED,
     className,
   );
 }
@@ -46,7 +62,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   /** Read by screen readers while loading, e.g. "Sending…". Required with `loading`. */
   loadingLabel?: string;
-  /** An icon after the text. Directional icons must mirror themselves. */
+  /** An icon after the text. Directional icons (`dir-icon`) mirror themselves. */
   icon?: ReactNode;
 };
 

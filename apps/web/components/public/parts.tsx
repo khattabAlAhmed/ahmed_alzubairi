@@ -101,16 +101,31 @@ export function TextBlock({ text }: { text: string }) {
   return <p className="max-w-prose whitespace-pre-line text-pretty leading-relaxed">{text}</p>;
 }
 
-/** A link to a section's list page, after its content. */
 /**
- * A text link with an arrow. `back` turns it around and puts it first, like
- * PageHero's back link, for links that lead back up, such as "All services".
+ * The "more" link (the Link board): it says where it goes and how much is
+ * there ("All projects · 38"), in the accent with a hairline under it, and an
+ * arrow that mirrors with the language. `back` turns the arrow around and
+ * puts it first, for links that lead back up, such as "All services".
  */
-export function MoreLink({ href, label, back = false }: { href: string; label: string; back?: boolean }) {
+export function MoreLink({
+  href,
+  label,
+  back = false,
+  count,
+}: {
+  href: string;
+  label: string;
+  back?: boolean;
+  /** How many items wait there, formatted in the page's digits. */
+  count?: string;
+}) {
   return (
-    <Link href={href} className={cx(TEXT_LINK, "focus-visible:outline-ring")}>
+    <Link
+      href={href}
+      className="inline-flex items-center gap-2 border-b border-current py-1 text-[15px] text-accent transition-state hover:text-ink focus-ring"
+    >
       {back && <ArrowForwardIcon aria-hidden="true" className="size-4 rotate-180" />}
-      {label}
+      {count ? `${label} · ${count}` : label}
       {!back && <ArrowForwardIcon aria-hidden="true" className="size-4" />}
     </Link>
   );

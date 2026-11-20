@@ -1,20 +1,32 @@
 import { useTranslations } from "next-intl";
+import { CheckIcon } from "@/components/icons";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import { withParam, type ListingQuery } from "./links";
 
-const CHIP =
-  "inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
-const CHIP_OFF = "border-text/20 text-text hover:bg-text/10";
-const CHIP_ON = "border-text bg-text text-background";
+/*
+ * The FilterChips board: square chips with a hairline frame and a square
+ * check. The chosen chip takes the accent wash and a filled check, so it never
+ * relies on color alone. Square, not pills.
+ */
+const CHIP = cx(
+  "group inline-flex min-h-10 items-center gap-2 border px-3.5 text-sm whitespace-nowrap transition-state focus-ring",
+  "border-line-strong bg-bg text-ink hover:bg-surface-hover",
+  "aria-[current=true]:border-accent aria-[current=true]:bg-accent-wash",
+);
 
-export type FilterChip = { value: string; label: string };
+export type FilterChip = {
+  value: string;
+  label: string;
+  /** How many items this filter shows. Passed formatted, in the page's digits. */
+  count?: string;
+};
 
 /**
  * One row of filter links that set `param`. "All" comes first and clears it.
  * Each chip is a plain link (filters work without JavaScript), keeps the
- * page's other params, and goes back to page 1. On phones the row scrolls
- * sideways instead of wrapping; on wider screens it wraps.
+ * page's other params, and goes back to page 1. The row wraps at every width,
+ * with its name at the start.
  */
 export function FilterChips({
   label,
@@ -40,23 +52,30 @@ export function FilterChips({
   const chips = [{ value: null, label: allLabel ?? t("filterAll") }, ...options];
 
   return (
-    <nav aria-label={label} className={cx("min-w-0", className)}>
-      <p aria-hidden="true" className="mb-2 text-sm font-semibold text-text-secondary">
+    <nav aria-label={label} className={cx("flex min-w-0 flex-wrap items-center gap-2", className)}>
+      <p aria-hidden="true" className="min-w-22 text-[13px] leading-[1.7] text-ink-2">
         {label}
       </p>
-      {/* Negative margins let the row scroll to the screen edge on phones; the padding puts the first chip back in line. */}
-      <ul className="-mx-4 flex gap-2 overflow-x-auto overscroll-x-contain px-4 pb-1 [scrollbar-width:thin] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+      <ul className="flex flex-wrap gap-2">
         {chips.map((chip) => {
           const on = chip.value === active || (chip.value === null && !options.some((o) => o.value === active));
+          const count = "count" in chip ? chip.count : undefined;
           return (
-            <li key={chip.value ?? ""} className="shrink-0">
+            <li key={chip.value ?? ""}>
               <Link
                 href={{ pathname, query: withParam(query, param, chip.value, ["page"]) }}
                 aria-current={on ? "true" : undefined}
                 scroll={false}
-                className={cx(CHIP, on ? CHIP_ON : CHIP_OFF)}
+                className={CHIP}
               >
+                <span
+                  aria-hidden="true"
+                  className="grid size-3.5 shrink-0 place-content-center border-[1.5px] border-line-strong group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent"
+                >
+                  {on && <CheckIcon strokeWidth={2.5} className="size-2.5 text-on-accent" />}
+                </span>
                 {chip.label}
+                {count && <span className="text-xs text-ink-2 tabular-nums">{count}</span>}
               </Link>
             </li>
           );
