@@ -343,7 +343,7 @@ describe("CourseCard", () => {
     expect(screen.getByText("courseType.in_person")).toBeTruthy();
     // The card shows the date in the runner's zone, so expect what Intl gives
     // for the same instant there (Jan 13 in UTC+12..+14), not a fixed string.
-    const local = new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(base.startsAt));
+    const local = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(new Date(base.startsAt));
     expect(screen.getByText(local)).toBeTruthy();
     expect(screen.getByText(local).closest("time")?.getAttribute("dateTime")).toBe(base.startsAt);
     expect(screen.getByText("Riyadh")).toBeTruthy();

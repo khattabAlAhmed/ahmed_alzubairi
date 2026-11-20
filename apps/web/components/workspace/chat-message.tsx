@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
+import { formatDateTime } from "@/lib/time/format";
 import { FileChip, type FileChipData } from "./file-chip";
 import { useInBrowser } from "./use-in-browser";
 
@@ -57,17 +58,7 @@ export function ChatMessage({
           </p>
           <p className="text-xs text-text-secondary">
             <time dateTime={sentAt}>
-              {showTime &&
-                // Explicit fields: `dateStyle` can't be combined with `timeZoneName`.
-                new Intl.DateTimeFormat(locale, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                  timeZoneName: "short",
-                  timeZone,
-                }).format(date)}
+              {showTime && formatDateTime(date, locale, { timeZone })}
             </time>
           </p>
         </header>

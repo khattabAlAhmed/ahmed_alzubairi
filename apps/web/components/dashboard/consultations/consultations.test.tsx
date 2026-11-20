@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { zoneLabel } from "@/lib/time/format";
 import ar from "@/messages/ar/DashboardConsultations.json";
 import en from "@/messages/en/DashboardConsultations.json";
 import arWorkspace from "@/messages/ar/Workspace.json";
@@ -12,7 +13,7 @@ const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => router }));
 
 const { AssignControl, StatusControl } = await import("./consultation-controls");
-const { MeetingForm, toLocalInputs, toUtc } = await import("./meetings");
+const { MeetingForm, meetingStart, toLocalInputs, toUtc } = await import("./meetings");
 const { DeleteConsultation } = await import("./delete-consultation");
 const send = await import("./send");
 
@@ -126,8 +127,11 @@ describe("MeetingForm", () => {
     const onDone = vi.fn();
     wrap(<MeetingForm consultationId={ID} onDone={onDone} create={create} />);
     const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    expect(screen.getByText(en.meeting.zone.replace("{zone}", zone))).toBeTruthy();
+    const note = (text: string) => en.meeting.zone.replace("{zone}", `\u2066${text}\u2069`);
+    // No date yet: the zone's name alone. Then the offset on the meeting's own date.
+    expect(screen.getByText(note(zone))).toBeTruthy();
     fill({ platform: " Zoom ", url: "https://zoom.example/j/1", date: "2026-11-20", time: "14:30", duration: "45" });
+    expect(screen.getByText(note(zoneLabel(zone, new Date(toUtc("2026-11-20", "14:30")!))))).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: en.meeting.save }));
     await waitFor(() => expect(onDone).toHaveBeenCalled());
     expect(create).toHaveBeenCalledWith(ID, {
@@ -137,6 +141,53 @@ describe("MeetingForm", () => {
       durationMinutes: 45,
     });
     expect(router.refresh).toHaveBeenCalled();
+  });
+
+  it("names the zone with the meeting date's offset, not today's (winter now, summer meeting in New York)", () => {
+    const tz = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2027-01-15T15:00:00Z"));
+    try {
+      wrap(<MeetingForm consultationId={ID} onDone={() => {}} create={vi.fn(ok)} />);
+      const note = (text: string) => en.meeting.zone.replace("{zone}", `\u2066${text}\u2069`);
+      expect(screen.getByText(note("America/New_York"))).toBeTruthy();
+      fill({ date: "2027-07-15", time: "14:30" });
+      expect(screen.getByText(note("America/New_York (GMT-4)"))).toBeTruthy();
+      expect(screen.queryByText(note("America/New_York (GMT-5)"))).toBeNull();
+    } finally {
+      vi.useRealTimers();
+      process.env.TZ = tz;
+      if (tz === undefined) delete process.env.TZ;
+    }
+  });
+
+  it("names the stored start's offset for a meeting in the repeated hour when New York's clocks go back", () => {
+    const tz = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    try {
+      // 06:30 UTC is the second 01:30 that night (EST, GMT-5); reparsing 01:30 would pick 05:30 UTC (EDT).
+      const stored = "2017-11-05T06:30:00.000Z";
+      const { date, time } = toLocalInputs(stored);
+      expect([date, time]).toEqual(["2017-11-05", "01:30"]);
+      expect(meetingStart(stored, date, time)).toBe(stored);
+      expect(toUtc(date, time)).toBe("2017-11-05T05:30:00.000Z");
+      expect(meetingStart(stored, date, "02:30")).toBe(toUtc(date, "02:30"));
+      expect(meetingStart(null, date, time)).toBe(toUtc(date, time));
+
+      wrap(
+        <MeetingForm
+          consultationId={ID}
+          meeting={{ id: ID, platform: "Zoom", url: "https://zoom.example/j/1", startsAt: stored, durationMinutes: 30, createdAt: "2017-10-01T00:00:00.000Z" }}
+          onDone={() => {}}
+          update={vi.fn(ok)}
+        />,
+      );
+      expect(screen.getByText(en.meeting.zone.replace("{zone}", "\u2066America/New_York (GMT-5)\u2069"))).toBeTruthy();
+    } finally {
+      process.env.TZ = tz;
+      if (tz === undefined) delete process.env.TZ;
+    }
   });
 
   it("refuses a link that isn't https, sending nothing", async () => {

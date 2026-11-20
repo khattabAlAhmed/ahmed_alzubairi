@@ -7,6 +7,7 @@ import { canCreate, editPath, isEditable, newPath } from "./registry";
 import { StatusBadges } from "./status-badges";
 import { ButtonLink, Card, PageHeader } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
+import { formatDateTime } from "@/lib/time/format";
 
 /** One content type's rows, with status and languages. The page checks access first. */
 export async function TypeList({ type, locale }: { type: ContentType; locale: Locale }) {
@@ -16,7 +17,6 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
   ]);
   const editable = isEditable(type, { customEditor: hasCustomEditor(type) });
   const creatable = editable && canCreate(type);
-  const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
   return (
     <div className="space-y-6">
@@ -72,7 +72,7 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
                   )}
                   {updated && (
                     <p className="mt-0.5 text-xs text-text-secondary">
-                      {t("list.updated", { date: date.format(updated) })}
+                      {t("list.updated", { date: formatDateTime(updated, locale, { time: false, timeZone: "UTC" }) })}
                     </p>
                   )}
                 </div>

@@ -1,26 +1,9 @@
 "use client";
 
 import type { NewsletterStatus, NewsletterSubscriber } from "@repo/shared";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Badge, type BadgeTone } from "@/components/ui";
-import { useInBrowser } from "@/components/workspace/use-in-browser";
-
-/**
- * A date and time in the viewer's locale and time zone. The server doesn't
- * know the zone, so the text is filled in by the browser.
- */
-function LocalTime({ value }: { value: string }) {
-  const locale = useLocale();
-  const inBrowser = useInBrowser();
-  return (
-    <time dateTime={value}>
-      {inBrowser &&
-        new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
-          new Date(value),
-        )}
-    </time>
-  );
-}
+import { LocalTime } from "@/components/consultations/local-time";
 
 const TONES: Record<NewsletterStatus, BadgeTone> = {
   confirmed: "strong",

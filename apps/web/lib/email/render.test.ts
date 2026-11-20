@@ -257,18 +257,12 @@ describe("renderOutboxRow", () => {
     };
     const en = await renderOutboxRow(row({ event: "meeting", locale: "en", payload }));
     // 22:30 UTC is 01:30 the next day in Riyadh.
-    expect(en.text).toContain("Friday, November 13, 2026");
-    expect(en.text).toContain("1:30");
+    expect(en.text).toContain("Friday, 13 November 2026 at 1:30 am (GMT+3)");
     const ar = await renderOutboxRow(row({ event: "meeting", locale: "ar", payload }));
     // The date is the body's first line, after the site's name; the meeting
     // link follows it.
-    expect(ar.text.split("\n")[2]).toBe(
-      new Intl.DateTimeFormat("ar", {
-        dateStyle: "full",
-        timeStyle: "short",
-        timeZone: "Asia/Riyadh",
-      }).format(new Date(payload.startsAt)),
-    );
+    // Arabic-Indic digits, the zone named as a Latin code (DESIGN.md "Numbers").
+    expect(ar.text.split("\n")[2]).toBe("الجمعة، ١٣ نوفمبر ٢٠٢٦ في ١:٣٠ ص (GMT+3)");
     expect(ar.text).not.toBe(en.text);
   });
 
@@ -280,7 +274,7 @@ describe("renderOutboxRow", () => {
         payload: { startsAt: "2026-11-12T22:30:00.000Z", timezone: "Nowhere/Land" },
       }),
     );
-    expect(email.text).toContain("Thursday, November 12, 2026");
+    expect(email.text).toContain("Thursday, 12 November 2026 at 10:30 pm (UTC)");
   });
 
   it("writes payload values as text, never as HTML", async () => {

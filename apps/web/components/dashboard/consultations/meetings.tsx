@@ -7,6 +7,7 @@ import { Button, Card, Label, TextField } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { MeetingCard } from "@/components/workspace";
 import { useRouter } from "@/i18n/navigation";
+import { zoneLabel } from "@/lib/time/format";
 import { createMeeting, updateMeeting } from "./send";
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -25,6 +26,21 @@ export function toUtc(date: string, time: string): string | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return null;
   const at = new Date(`${date}T${time}`);
   return Number.isNaN(at.getTime()) ? null : at.toISOString();
+}
+
+/**
+ * The meeting's start as UTC ISO 8601, or null when the inputs are unreadable.
+ * Unchanged date and time keep the stored start, to the second: editing only
+ * the link never moves the meeting, and a start in a repeated hour (when the
+ * clocks go back) stays the occurrence it was, where reparsing would pick the
+ * earlier one.
+ */
+export function meetingStart(storedStartsAt: string | null, date: string, time: string): string | null {
+  if (storedStartsAt) {
+    const initial = toLocalInputs(storedStartsAt);
+    if (initial.date === date && initial.time === time) return storedStartsAt;
+  }
+  return toUtc(date, time);
 }
 
 function isHttps(value: string): boolean {
@@ -99,6 +115,10 @@ export function MeetingForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // The offset at the start that saving would send (a summer meeting set in
+  // winter gets its summer offset); just the zone's name until it's complete.
+  const enteredAt = meetingStart(meeting?.startsAt ?? null, fields.date, fields.time);
+  const zoneText = enteredAt ? zoneLabel(zone, new Date(enteredAt)) : zone;
   const set = (key: keyof Fields) => (event: { target: { value: string } }) =>
     setFields((current) => ({ ...current, [key]: event.target.value }));
 
@@ -106,13 +126,7 @@ export function MeetingForm({
     event.preventDefault();
     const platform = fields.platform.trim();
     const url = fields.url.trim();
-    // Unchanged date and time keep the stored start, to the second: editing
-    // only the link never moves the meeting.
-    const initial = meeting ? toLocalInputs(meeting.startsAt) : null;
-    const startsAt =
-      meeting && initial && initial.date === fields.date && initial.time === fields.time
-        ? meeting.startsAt
-        : toUtc(fields.date, fields.time);
+    const startsAt = meetingStart(meeting?.startsAt ?? null, fields.date, fields.time);
     const durationMinutes = Number(fields.duration);
     if (!platform || !url || !startsAt || !fields.duration) return setError(t("required"));
     if (!isHttps(url)) return setError(t("invalidUrl"));
@@ -168,7 +182,8 @@ export function MeetingForm({
             required
           />
         </div>
-        <p className="text-sm text-text-secondary">{t("zone", { zone })}</p>
+        {/* The zone is isolated left to right: a Latin code inside an Arabic sentence. */}
+        <p className="text-sm text-text-secondary">{t("zone", { zone: `\u2066${zoneText}\u2069` })}</p>
         {error && (
           <p role="alert" className="text-sm font-semibold text-danger">
             {error}

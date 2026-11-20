@@ -9,10 +9,11 @@ import {
   type UpdateProfileRequest,
 } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Button, Card, Select, TextField } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { normalizePhone } from "@/lib/profile/phone";
+import { zoneLabel } from "@/lib/time/format";
 import { NoticeLine, type Notice } from "./notice";
 import { saveProfile } from "./send";
 
@@ -77,7 +78,11 @@ export function DetailsForm({
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
-  const zones = timeZones(saved.timezone, values.timezone);
+  // Built once per zone list: a label runs Intl for each of ~400 zones, and every keystroke re-renders.
+  const zoneOptions = useMemo(
+    () => timeZones(saved.timezone, values.timezone).map((zone) => ({ zone, label: zoneLabel(zone) })),
+    [saved.timezone, values.timezone],
+  );
   const set = <K extends keyof DetailsValues>(key: K, value: DetailsValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
@@ -190,9 +195,9 @@ export function DetailsForm({
             onChange={(event) => set("timezone", event.target.value)}
             className="min-w-0 flex-1 basis-64"
           >
-            {zones.map((zone) => (
+            {zoneOptions.map(({ zone, label }) => (
               <option key={zone} value={zone}>
-                {zone}
+                {label}
               </option>
             ))}
           </Select>

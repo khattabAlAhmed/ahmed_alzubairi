@@ -2,6 +2,7 @@ import type { Locale } from "@repo/shared";
 import { useFormatter, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { CustomRequestRow } from "./data";
+import { formatDateTime } from "@/lib/time/format";
 import { clientPagePath } from "./format";
 import { LocalTime } from "./local-time";
 
@@ -10,7 +11,7 @@ function calendarDate(value: string, locale: Locale): string {
   const at = new Date(`${value}T00:00:00Z`);
   return Number.isNaN(at.getTime())
     ? value
-    : new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(at);
+    : formatDateTime(at, locale, { date: "long", time: false, timeZone: "UTC" });
 }
 
 /**

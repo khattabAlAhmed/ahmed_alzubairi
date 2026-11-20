@@ -3,6 +3,7 @@ import type { ContactMessage } from "@repo/shared";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { formatDateTime } from "@/lib/time/format";
 import ar from "@/messages/ar/DashboardMessages.json";
 import en from "@/messages/en/DashboardMessages.json";
 import { MessageList } from "./message-list";
@@ -70,11 +71,9 @@ describe("MessageList", () => {
     const { container } = show([UNREAD]);
     const time = container.querySelector("time");
     expect(time?.getAttribute("datetime")).toBe(UNREAD.createdAt);
-    expect(time?.textContent).toBe(
-      new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(
-        new Date(UNREAD.createdAt),
-      ),
-    );
+    // Day month year, a 12-hour clock and the zone named (the runner's zone).
+    expect(time?.textContent).toBe(formatDateTime(UNREAD.createdAt, "en"));
+    expect(time?.textContent).toMatch(/^\d{1,2} [A-Z][a-z]{2} \d{4}, \d{1,2}:\d{2} [ap]m \(.+\)$/);
   });
 
   it("opening an unread message shows its text and marks it read", async () => {

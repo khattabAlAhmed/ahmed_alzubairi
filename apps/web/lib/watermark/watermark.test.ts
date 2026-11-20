@@ -51,18 +51,19 @@ function imageOrigins(pdf: PDFDocument, pageIndex: number): Array<{ x: number; y
 
 describe("watermarkText", () => {
   it("joins the full name and the view date in the viewer's language and zone", () => {
-    expect(watermarkText("Sara Ahmed", AT, "en", "Asia/Aden")).toBe("Sara Ahmed · November 14, 2026");
-    expect(watermarkText("  سارة أحمد ", AT, "ar", "Asia/Aden")).toMatch(/^سارة أحمد · .*2026/);
+    expect(watermarkText("Sara Ahmed", AT, "en", "Asia/Aden")).toBe("Sara Ahmed · 14 November 2026");
+    // Arabic-Indic digits: the bundled IBM Plex Sans Arabic draws them.
+    expect(watermarkText("  سارة أحمد ", AT, "ar", "Asia/Aden")).toBe("سارة أحمد · ١٤ نوفمبر ٢٠٢٦");
   });
 
   it("uses the viewer's time zone for the date", () => {
     const lateUtc = new Date("2026-11-14T22:30:00.000Z");
-    expect(watermarkText("A", lateUtc, "en", "Asia/Aden")).toBe("A · November 15, 2026");
-    expect(watermarkText("A", lateUtc, "en", "America/New_York")).toBe("A · November 14, 2026");
+    expect(watermarkText("A", lateUtc, "en", "Asia/Aden")).toBe("A · 15 November 2026");
+    expect(watermarkText("A", lateUtc, "en", "America/New_York")).toBe("A · 14 November 2026");
   });
 
   it("falls back to UTC for a zone the runtime doesn't know", () => {
-    expect(watermarkText("A", AT, "en", "Mars/Olympus")).toBe("A · November 14, 2026");
+    expect(watermarkText("A", AT, "en", "Mars/Olympus")).toBe("A · 14 November 2026");
   });
 });
 

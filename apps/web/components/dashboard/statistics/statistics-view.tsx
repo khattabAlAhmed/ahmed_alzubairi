@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { MonthlyChart, StatTile, type MonthlyValue } from "@/components/ui";
+import { intlLocale } from "@/lib/time/format";
 import type { KpiResult, Statistics } from "./data";
 import { FIRST_REPLY_DAYS, FIRST_REPLY_ROW_CAP } from "./data";
 import { lastTwo, monthChange, plotted, sharePercent } from "./format";
@@ -15,7 +16,7 @@ type Tile = { key: string; tile: React.ReactNode; chart?: React.ReactNode };
 export async function StatisticsView({ statistics, locale }: { statistics: Statistics; locale: "ar" | "en" }) {
   const t = await getTranslations("DashboardStatistics");
   const keys = statistics.windows.map((window) => window.key);
-  const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const number = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 1 });
   const series = (values: readonly (number | null)[]): MonthlyValue[] =>
     keys.flatMap((key, index) => {
       const value = values[index];
@@ -28,7 +29,8 @@ export async function StatisticsView({ statistics, locale }: { statistics: Stati
         title={title}
         description={extra.description}
         data={extra.keepZeros ? data : plotted(data)}
-        locale={locale}
+        // The chart formats with Intl as given: name the digits, so Arabic gets Arabic-Indic ones.
+        locale={intlLocale(locale)}
         valueFormat={extra.valueFormat}
         monthHeader={t("chart.month")}
         valueHeader={t("chart.value")}
@@ -92,7 +94,7 @@ export async function StatisticsView({ statistics, locale }: { statistics: Stati
               value={
                 current === null
                   ? undefined
-                  : new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(current / 100)
+                  : new Intl.NumberFormat(intlLocale(locale), { style: "percent", maximumFractionDigits: 1 }).format(current / 100)
               }
               hint={t("kpis.signupShare.hint", {
                 signups: number.format(lastTwo(kpi.signups).current),
