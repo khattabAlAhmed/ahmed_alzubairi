@@ -13,9 +13,9 @@ vi.mock("./nav-link", () => ({
     </a>
   ),
 }));
-vi.mock("./language-switch", () => ({ LanguageSwitch: () => <a href="/ar">language</a> }));
+vi.mock("./language-switch", () => ({ LanguageSwitch: () => <button type="button">language</button> }));
 vi.mock("./theme-switch", () => ({ ThemeSwitch: () => <button type="button">theme</button> }));
-vi.mock("./consultation-button", () => ({ ConsultationButton: () => <a href="/sign-up">consult</a> }));
+vi.mock("./consultation-button", () => ({ ConsultationButton: () => <button type="button">consult</button> }));
 
 afterEach(cleanup);
 
@@ -35,7 +35,7 @@ describe("MobileMenu", () => {
     const links = within(within(dialog).getByRole("navigation")).getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual(MENU_NAV.map((item) => item.href));
     // Language, theme and the consultation button sit under the index.
-    expect(within(dialog).getByRole("link", { name: "consult" })).toBeTruthy();
+    expect(within(dialog).getByRole("button", { name: "consult" })).toBeTruthy();
   });
 
   it("puts focus on the close button when it opens", () => {
@@ -65,7 +65,7 @@ describe("MobileMenu", () => {
     open();
     const dialog = screen.getByRole("dialog");
     const close = screen.getByRole("button", { name: "closeMenu" });
-    const last = within(dialog).getByRole("link", { name: "consult" });
+    const last = within(dialog).getByRole("button", { name: "consult" });
 
     last.focus();
     fireEvent.keyDown(document, { key: "Tab" });
