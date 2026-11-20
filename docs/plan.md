@@ -161,6 +161,8 @@ Lane A adds a newsletter checkbox to the email gate after Lane B is merged.
 
 Agents don't start Phase 8 until these are done. The lead plans the board after step 6.
 
+**Status (2026-11-20):** steps 1 and 2 are done: Ahmed chose the foundation "The record". Step 3 is built and waits for approval: the design system lives at https://claude.ai/artifact/SzbYLxMUnJ5HRR2m6UXqNs, `docs/design/DESIGN.md` is generated from it, and `docs/design/system/` holds its tokens and reference stylesheet.
+
 1. **Placeholder photos.** Generate the images listed in `docs/design/images/README.md` with the prompts there, and save them in that folder under the names given. They are dev placeholders.
 2. **Foundations in Claude Design** (claude.ai → Design, included in the Claude Pro/Max plan). Attach `SOUL.md`, `components.md`, `project.md` and the photos, and paste stage 1 of `docs/design/claude-design-prompt.md`. It produces three foundation options, each on one specimen board, Arabic first. **Ahmed picks one.** With it he settles §14 decision 3 (fonts and colors), and decision 1 (name and logo) if he's ready.
 3. **The design system in Claude Design.** Paste stage 2. Claude Design builds every component in `components.md`, in every state, Arabic and English, light and dark, and writes `DESIGN.md`. **Ahmed and the product owner approve the system** before any page is designed. If the plan allows it, save it as the design system in Claude Design.
