@@ -2,7 +2,12 @@ import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import { notFound } from "next/navigation";
 import * as rootParams from "next/root-params";
-import { mergeMessages, pathsForLocale } from "./messages";
+import {
+  arabicDigitMessages,
+  MESSAGE_FORMATS,
+  mergeMessages,
+  pathsForLocale,
+} from "./messages";
 import { routing } from "./routing";
 
 // Every namespace file, found at build time. See `messages.ts`.
@@ -28,8 +33,12 @@ export default getRequestConfig(async ({ locale }) => {
     loadNamespaces(resolved),
   ]);
 
+  const messages = mergeMessages(base.default, namespaces);
   return {
+    // The routing locale stays `ar`: URLs, hreflang and Clerk read it.
     locale: resolved,
-    messages: mergeMessages(base.default, namespaces),
+    // Arabic messages format their numbers with Arabic-Indic digits (see `withArabicDigits`).
+    messages: resolved === "ar" ? arabicDigitMessages(messages) : messages,
+    formats: MESSAGE_FORMATS,
   };
 });
