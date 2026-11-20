@@ -13,7 +13,7 @@ const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => router }));
 
 const { AssignControl, StatusControl } = await import("./consultation-controls");
-const { MeetingForm, toLocalInputs, toUtc } = await import("./meetings");
+const { MeetingForm, meetingStart, toLocalInputs, toUtc } = await import("./meetings");
 const { DeleteConsultation } = await import("./delete-consultation");
 const send = await import("./send");
 
@@ -157,6 +157,34 @@ describe("MeetingForm", () => {
       expect(screen.queryByText(note("America/New_York (GMT-5)"))).toBeNull();
     } finally {
       vi.useRealTimers();
+      process.env.TZ = tz;
+      if (tz === undefined) delete process.env.TZ;
+    }
+  });
+
+  it("names the stored start's offset for a meeting in the repeated hour when New York's clocks go back", () => {
+    const tz = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    try {
+      // 06:30 UTC is the second 01:30 that night (EST, GMT-5); reparsing 01:30 would pick 05:30 UTC (EDT).
+      const stored = "2017-11-05T06:30:00.000Z";
+      const { date, time } = toLocalInputs(stored);
+      expect([date, time]).toEqual(["2017-11-05", "01:30"]);
+      expect(meetingStart(stored, date, time)).toBe(stored);
+      expect(toUtc(date, time)).toBe("2017-11-05T05:30:00.000Z");
+      expect(meetingStart(stored, date, "02:30")).toBe(toUtc(date, "02:30"));
+      expect(meetingStart(null, date, time)).toBe(toUtc(date, time));
+
+      wrap(
+        <MeetingForm
+          consultationId={ID}
+          meeting={{ id: ID, platform: "Zoom", url: "https://zoom.example/j/1", startsAt: stored, durationMinutes: 30, createdAt: "2017-10-01T00:00:00.000Z" }}
+          onDone={() => {}}
+          update={vi.fn(ok)}
+        />,
+      );
+      expect(screen.getByText(en.meeting.zone.replace("{zone}", "\u2066America/New_York (GMT-5)\u2069"))).toBeTruthy();
+    } finally {
       process.env.TZ = tz;
       if (tz === undefined) delete process.env.TZ;
     }

@@ -28,6 +28,21 @@ export function toUtc(date: string, time: string): string | null {
   return Number.isNaN(at.getTime()) ? null : at.toISOString();
 }
 
+/**
+ * The meeting's start as UTC ISO 8601, or null when the inputs are unreadable.
+ * Unchanged date and time keep the stored start, to the second: editing only
+ * the link never moves the meeting, and a start in a repeated hour (when the
+ * clocks go back) stays the occurrence it was, where reparsing would pick the
+ * earlier one.
+ */
+export function meetingStart(storedStartsAt: string | null, date: string, time: string): string | null {
+  if (storedStartsAt) {
+    const initial = toLocalInputs(storedStartsAt);
+    if (initial.date === date && initial.time === time) return storedStartsAt;
+  }
+  return toUtc(date, time);
+}
+
 function isHttps(value: string): boolean {
   try {
     return new URL(value).protocol === "https:";
@@ -100,9 +115,9 @@ export function MeetingForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // The offset on the meeting's own date (a summer meeting set in winter gets
-  // its summer offset); just the zone's name until the date and time are complete.
-  const enteredAt = toUtc(fields.date, fields.time);
+  // The offset at the start that saving would send (a summer meeting set in
+  // winter gets its summer offset); just the zone's name until it's complete.
+  const enteredAt = meetingStart(meeting?.startsAt ?? null, fields.date, fields.time);
   const zoneText = enteredAt ? zoneLabel(zone, new Date(enteredAt)) : zone;
   const set = (key: keyof Fields) => (event: { target: { value: string } }) =>
     setFields((current) => ({ ...current, [key]: event.target.value }));
@@ -111,13 +126,7 @@ export function MeetingForm({
     event.preventDefault();
     const platform = fields.platform.trim();
     const url = fields.url.trim();
-    // Unchanged date and time keep the stored start, to the second: editing
-    // only the link never moves the meeting.
-    const initial = meeting ? toLocalInputs(meeting.startsAt) : null;
-    const startsAt =
-      meeting && initial && initial.date === fields.date && initial.time === fields.time
-        ? meeting.startsAt
-        : toUtc(fields.date, fields.time);
+    const startsAt = meetingStart(meeting?.startsAt ?? null, fields.date, fields.time);
     const durationMinutes = Number(fields.duration);
     if (!platform || !url || !startsAt || !fields.duration) return setError(t("required"));
     if (!isHttps(url)) return setError(t("invalidUrl"));
