@@ -19,6 +19,7 @@
   },
   "keys": {
     "hero": "الواجهة",
+    "letter": "الرسالة",
     "stats": "أرقام سريعة",
     "expertise": "مجالات الخبرة",
     "audiences": "لمن أعمل",
@@ -42,7 +43,34 @@
     "audience": "الفئة {number}",
     "audiencesHint": "الحكومية، الإنسانية، الخاصة، بهذا الترتيب.",
     "itemTitle": "العنوان",
-    "itemDescription": "الوصف"
+    "itemDescription": "الوصف",
+    "salutation": "التحية",
+    "signOff": "التوقيع باسمه"
+  },
+  "letter": {
+    "paragraphs": "الفقرات",
+    "paragraphsHint": "من فقرة واحدة إلى {max} فقرات، بترتيب قراءتها.",
+    "paragraph": "الفقرة {number}",
+    "up": "أعلى",
+    "down": "أسفل",
+    "moveUp": "انقل الفقرة {number} إلى الأعلى",
+    "moveDown": "انقل الفقرة {number} إلى الأسفل",
+    "moved": "نُقلت الفقرة {number} إلى الموضع {position} من {total}.",
+    "remove": "احذف",
+    "removeLabel": "احذف الفقرة {number}",
+    "removed": "حُذفت الفقرة {number}.",
+    "add": "أضف فقرة",
+    "added": "أُضيفت الفقرة {number}.",
+    "full": "في الرسالة {max} فقرات، وهو أقصى عدد لها.",
+    "sharedNote": "التوقيعان ومفتاح النص المؤقت واحدة في اللغتين، وتُحفظ مع نص كل لغة.",
+    "signature": "التوقيع للمظهر الفاتح",
+    "signatureHint": "حبر داكن على خلفية شفافة. بصيغة PNG فقط.",
+    "signatureDark": "التوقيع للمظهر الداكن",
+    "signatureDarkHint": "حبر فاتح على خلفية شفافة. بصيغة PNG فقط.",
+    "signatureAlt": "توقيع أحمد",
+    "pngOnly": "يجب أن يكون التوقيع ملف PNG. لا تُقبل ملفات SVG ولا غيرها.",
+    "placeholder": "هذه رسالة وتوقيع مؤقتان",
+    "placeholderHint": "ما دام مفعّلًا، تظهر بجانب الرسالة في الصفحة الرئيسية عبارة «نص وتوقيع مؤقتان». أوقفه حين يُضاف نص أحمد وتوقيعه."
   },
   "order": {
     "moveUp": "انقل «{name}» إلى الأعلى",

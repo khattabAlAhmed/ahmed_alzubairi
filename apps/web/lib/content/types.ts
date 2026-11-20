@@ -27,9 +27,17 @@ type HeroContent = Omit<HomeSectionContent<"hero">, "photoKey"> & {
   photoUrl: string | null;
 };
 
+/** The letter's signatures as public-media URLs: dark ink, then light ink. */
+type LetterContent = Omit<HomeSectionContent<"letter">, "signatureKey" | "signatureDarkKey"> & {
+  signatureUrl: string | null;
+  signatureDarkUrl: string | null;
+};
+
 type PublicSectionContent<Key extends HomeSectionKey> = Key extends "hero"
   ? HeroContent
-  : HomeSectionContent<Key>;
+  : Key extends "letter"
+    ? LetterContent
+    : HomeSectionContent<Key>;
 
 export type HomeSection = {
   [Key in HomeSectionKey]: {

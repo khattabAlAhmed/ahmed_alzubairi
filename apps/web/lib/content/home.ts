@@ -38,6 +38,20 @@ export async function getHomeSections(locale: Locale): Promise<HomeSection[]> {
           { key, position: row.position, content: { ...content, photoUrl: publicMediaUrl(photoKey ?? null) } },
         ];
       }
+      if (key === "letter") {
+        const { signatureKey, signatureDarkKey, ...content } = homeSectionContentSchemas.letter.parse(raw);
+        return [
+          {
+            key,
+            position: row.position,
+            content: {
+              ...content,
+              signatureUrl: publicMediaUrl(signatureKey ?? null),
+              signatureDarkUrl: publicMediaUrl(signatureDarkKey ?? null),
+            },
+          },
+        ];
+      }
       const content = homeSectionContentSchemas[key].parse(raw);
       return [{ key, position: row.position, content } as HomeSection];
     });

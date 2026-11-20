@@ -3,6 +3,7 @@ import { contentRowSchemas, contentUpdateBodySchemas } from "./content";
 import {
   HOME_SECTION_KEYS,
   homeSectionContentSchemas,
+  LETTER_MAX_PARAGRAPHS,
   type HomeSectionKey,
 } from "./home-sections";
 
@@ -14,6 +15,15 @@ const VALID: Record<HomeSectionKey, object> = {
     title: "Consultant",
     valueStatement: "Governance that works.",
     photoKey: "media/hero.jpg",
+  },
+  letter: {
+    heading: "A letter",
+    salutation: "To whoever is reading this,",
+    paragraphs: ["First.", "Second."],
+    signOff: "Ahmed Alzubairi",
+    signatureKey: "123e4567-e89b-42d3-a456-426614174000.png",
+    signatureDarkKey: "123e4567-e89b-42d3-a456-426614174001.webp",
+    isPlaceholder: true,
   },
   stats: { heading: "In numbers" },
   expertise: heading,
@@ -37,6 +47,13 @@ const VALID: Record<HomeSectionKey, object> = {
 
 const REFUSED: Record<HomeSectionKey, unknown> = {
   hero: { name: "Ahmed", title: "Consultant" },
+  letter: {
+    heading: "A letter",
+    salutation: "Hello,",
+    paragraphs: [],
+    signOff: "Ahmed",
+    isPlaceholder: false,
+  },
   stats: { intro: "No heading" },
   expertise: { heading: "  " },
   audiences: {
@@ -81,6 +98,55 @@ describe("home section content", () => {
   });
 });
 
+describe("letter content", () => {
+  const schema = homeSectionContentSchemas.letter;
+  const letter = {
+    heading: "A letter",
+    salutation: "Hello,",
+    paragraphs: ["One."],
+    signOff: "Ahmed",
+    isPlaceholder: false,
+  };
+
+  it("comes right after the hero", () => {
+    expect(HOME_SECTION_KEYS.slice(0, 2)).toEqual(["hero", "letter"]);
+  });
+
+  it("takes 1 to 6 paragraphs", () => {
+    const paragraphs = (count: number) =>
+      Array.from({ length: count }, (_, index) => `Paragraph ${index}.`);
+    expect(schema.safeParse({ ...letter, paragraphs: paragraphs(1) }).success).toBe(true);
+    expect(
+      schema.safeParse({ ...letter, paragraphs: paragraphs(LETTER_MAX_PARAGRAPHS) }).success,
+    ).toBe(true);
+    expect(
+      schema.safeParse({ ...letter, paragraphs: paragraphs(LETTER_MAX_PARAGRAPHS + 1) }).success,
+    ).toBe(false);
+    expect(schema.safeParse({ ...letter, paragraphs: ["One.", "  "] }).success).toBe(false);
+  });
+
+  it("needs the placeholder flag", () => {
+    expect(schema.safeParse({ ...letter, isPlaceholder: undefined }).success).toBe(false);
+    expect(schema.safeParse({ ...letter, isPlaceholder: "yes" }).success).toBe(false);
+  });
+
+  it.each(["signatureKey", "signatureDarkKey"])(
+    "%s takes only a PNG or WebP media key",
+    (field) => {
+      for (const key of ["a.png", "b.WEBP"]) {
+        expect(schema.safeParse({ ...letter, [field]: key }).success).toBe(true);
+      }
+      for (const key of ["a.svg", "a.jpg", "a.pdf", "a.png.svg", "pending/a.png", ""]) {
+        expect(schema.safeParse({ ...letter, [field]: key }).success).toBe(false);
+      }
+    },
+  );
+
+  it("refuses unknown fields", () => {
+    expect(schema.safeParse({ ...letter, html: "<p>x</p>" }).success).toBe(false);
+  });
+});
+
 describe("home section PATCH body", () => {
   const schema = contentUpdateBodySchemas.home_sections;
 
@@ -90,6 +156,12 @@ describe("home section PATCH body", () => {
     ).toBe(true);
     expect(
       schema.safeParse({ key: "hero", contentEn: VALID.expertise }).success,
+    ).toBe(false);
+    expect(
+      schema.safeParse({ key: "letter", contentAr: VALID.letter }).success,
+    ).toBe(true);
+    expect(
+      schema.safeParse({ key: "letter", contentAr: VALID.hero }).success,
     ).toBe(false);
     expect(
       schema.safeParse({ key: "audiences", contentAr: VALID.audiences })

@@ -148,17 +148,18 @@ Goal: show the expertise first, then direct the visitor. Sections in default ord
 | # | Section | Content |
 | --- | --- | --- |
 | 1 | Hero | Personal photo, name and brand, professional title, one-line value statement. Primary button "تعرّف على خبرتي", secondary button "اطلب استشارة". |
-| 2 | Quick stats | Years of experience, projects, organizations, trainees. Numbers animate calmly on view. |
-| 3 | Expertise | Three cards |
-| 4 | Who I work with (لمن أعمل) | Government, humanitarian, private |
-| 5 | Featured services | |
-| 6 | Selected projects | Three projects, each with one key result |
-| 7 | Organization logos | Approved only |
-| 8 | Testimonials | From real thank-you letters, approved only |
-| 9 | Media | Latest appearance or event |
-| 10 | Latest articles and resources | |
-| 11 | Newsletter signup | |
-| 12 | Quick contact | |
+| 2 | Letter (رسالة) | A short letter in his voice, signed by hand. Placeholder text and signature until Ahmed's own. |
+| 3 | Quick stats | Years of experience, projects, organizations, trainees. Static numbers, no count-up (Ahmed, Phase 8). |
+| 4 | Expertise | Three cards |
+| 5 | Who I work with (لمن أعمل) | Government, humanitarian, private |
+| 6 | Featured services | |
+| 7 | Selected projects | Three projects, each with one key result |
+| 8 | Organization logos | Approved only |
+| 9 | Testimonials | From real thank-you letters, approved only |
+| 10 | Media | Latest appearance or event |
+| 11 | Latest articles and resources | |
+| 12 | Newsletter signup | |
+| 13 | Quick contact | |
 
 | Done when |
 | --- |
@@ -527,7 +528,7 @@ All content tables also have `id`, `created_at`, `updated_at`. `*_ar` / `*_en` m
 | Table | Columns | Notes |
 | --- | --- | --- |
 | `site_settings` | `key` (PK), `value` | Contact details, social links, CV visibility. No status. |
-| `home_sections` | `key` (PK), `position`, `is_visible`, `content_ar`, `content_en` | The 12 sections in §6.2 |
+| `home_sections` | `key` (PK), `position`, `is_visible`, `content_ar`, `content_en` | The 13 sections in §6.2 |
 | `home_stats` | `label_ar`, `label_en`, `value`, `position` | Quick stats |
 | `pages` | `key`, `title_*`, `body_*` | About, privacy, terms |
 | `timeline_items` | `kind` (`career`/`qualification`), `title_*`, `description_*`, `period`, `position` | |

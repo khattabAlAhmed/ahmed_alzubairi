@@ -13,6 +13,7 @@ import { isolate, useFieldText, type FieldContext } from "../content/field-text"
 import type { Row } from "../content/form-values";
 import { saveContent } from "../content/save";
 import { UploadInput } from "../content/upload-input";
+import { LetterSharedFields, ParagraphList } from "./letter-fields";
 import { useRouter } from "@/i18n/navigation";
 import {
   buildSection,
@@ -125,6 +126,7 @@ export function SectionEditor({
   const editor = useSectionEditor(sectionKey, row, mediaBase);
   const { content, setContent, errors } = editor;
   const fields = sectionFields(sectionKey);
+  const originalLetter = useMemo(() => sectionValues(sectionKey, row).letter, [sectionKey, row]);
 
   const input = (locale: Locale, field: SectionField) => {
     const name = inputName(locale, field.path);
@@ -148,7 +150,22 @@ export function SectionEditor({
       invalid: Object.keys(errors).some((name) => name.startsWith(`${locale}.`)),
       content: (
         <div className="space-y-4">
-          {own.map((field) => input(locale, field))}
+          {own.filter((field) => field.path !== "signOff").map((field) => input(locale, field))}
+          {content.letter && (
+            <ParagraphList
+              locale={locale}
+              paragraphs={content.letter.paragraphs[locale]}
+              errors={errors}
+              onChange={(next) =>
+                content.letter &&
+                setContent({
+                  ...content,
+                  letter: { ...content.letter, paragraphs: { ...content.letter.paragraphs, [locale]: next } },
+                })
+              }
+            />
+          )}
+          {own.filter((field) => field.path === "signOff").map((field) => input(locale, field))}
           {items.length > 0 && <p className="text-sm text-text-secondary">{isolate(t("fields.audiencesHint"))}</p>}
           {items.map((item) => (
             <fieldset key={item} className="space-y-3 rounded-md border border-text/10 p-3">
@@ -173,8 +190,8 @@ export function SectionEditor({
 
   return (
     <form noValidate onSubmit={(event) => void editor.save(event)} className="mt-4 space-y-6">
-      {/* Audiences edits its items here, so the note about the Content list doesn't apply. */}
-      {sectionKey !== "hero" && sectionKey !== "audiences" && (
+      {/* Hero, letter and audiences edit everything here, so the note about the Content list doesn't apply. */}
+      {sectionKey !== "hero" && sectionKey !== "letter" && sectionKey !== "audiences" && (
         <p className="text-sm text-text-secondary">{t("sections.rowsNote")}</p>
       )}
       <LanguageTabs
@@ -188,6 +205,15 @@ export function SectionEditor({
           <UploadInput field={PHOTO_FIELD} name="imageKey" ctx={photoCtx} />
           <p className="text-sm text-text-secondary">{t("fields.photoHint")}</p>
         </div>
+      )}
+      {content.letter && originalLetter && (
+        <LetterSharedFields
+          letter={content.letter}
+          original={originalLetter}
+          mediaBase={mediaBase}
+          errors={errors}
+          onChange={(letter) => setContent({ ...content, letter })}
+        />
       )}
       <PublishPanel editor={editor} />
       <EditorActions editor={editor} />

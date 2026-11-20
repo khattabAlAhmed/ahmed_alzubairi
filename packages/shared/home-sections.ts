@@ -7,9 +7,10 @@ import { longTextSchema, shortTextSchema } from "./fields";
  * the rows come from those tables. Button labels are UI copy in `messages/`.
  */
 
-/** The 12 sections of §6.2, in default order. */
+/** The 13 sections of §6.2, in default order. */
 export const HOME_SECTION_KEYS = [
   "hero",
+  "letter",
   "stats",
   "expertise",
   "audiences",
@@ -26,6 +27,16 @@ export const HOME_SECTION_KEYS = [
 export const homeSectionKeySchema = z.enum(HOME_SECTION_KEYS);
 
 export type HomeSectionKey = z.infer<typeof homeSectionKeySchema>;
+
+/** The letter holds 1 to this many paragraphs. */
+export const LETTER_MAX_PARAGRAPHS = 6;
+
+/** A signature scan is a PNG or WebP from the `media` target: never SVG. */
+const signatureKeySchema = z
+  .string()
+  .trim()
+  .max(500)
+  .regex(/^[^/]+\.(png|webp)$/i);
 
 /** "Who I work with" has exactly these three items: government, humanitarian, private. */
 export const AUDIENCE_ITEM_COUNT = 3;
@@ -45,6 +56,21 @@ const heroContentSchema = z.strictObject({
   photoKey: z.string().trim().min(1).max(500).optional(),
 });
 
+/**
+ * Ahmed's letter, signed by hand. `signatureKey` is dark ink for the light
+ * theme, `signatureDarkKey` light ink for the dark theme. While
+ * `isPlaceholder` is true the page tags it «نص وتوقيع مؤقتان».
+ */
+const letterContentSchema = z.strictObject({
+  heading: shortTextSchema,
+  salutation: shortTextSchema,
+  paragraphs: z.array(longTextSchema).min(1).max(LETTER_MAX_PARAGRAPHS),
+  signOff: shortTextSchema,
+  signatureKey: signatureKeySchema.optional(),
+  signatureDarkKey: signatureKeySchema.optional(),
+  isPlaceholder: z.boolean(),
+});
+
 const audienceItemSchema = z.strictObject({
   title: shortTextSchema,
   description: longTextSchema.optional(),
@@ -57,6 +83,7 @@ const audiencesContentSchema = z.strictObject({
 
 export const homeSectionContentSchemas = {
   hero: heroContentSchema,
+  letter: letterContentSchema,
   stats: headingContentSchema,
   expertise: headingContentSchema,
   audiences: audiencesContentSchema,
