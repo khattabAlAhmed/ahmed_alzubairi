@@ -5,12 +5,13 @@
 /* ---------- base ---------- */
 .r { font-family: var(--font-sans); color: var(--ink); background: var(--bg); font-size: 17px; line-height: 1.95; -webkit-font-smoothing: antialiased; }
 .r[dir="ltr"], .r [dir="ltr"] { line-height: 1.6; }
-.r *, .r *::before, .r *::after { box-sizing: border-box; }
-.r p, .r h1, .r h2, .r h3, .r h4, .r figure, .r blockquote, .r dl, .r dd, .r ul, .r ol { margin: 0; }
-.r ul, .r ol { padding: 0; list-style: none; }
-.r img { display: block; max-width: 100%; }
-.r a { color: inherit; }
-.r button, .r input, .r select, .r textarea { font: inherit; color: inherit; }
+:where(.r) *, :where(.r) *::before, :where(.r) *::after { box-sizing: border-box; }
+:where(.r) :where(p, h1, h2, h3, h4, figure, blockquote, dl, dd, ul, ol) { margin: 0; }
+:where(.r) :where(ul, ol) { padding: 0; list-style: none; }
+:where(.r) :where(img) { display: block; max-width: 100%; }
+/* Zero-specificity resets: component classes always win over them. */
+:where(.r) :where(a) { color: inherit; }
+:where(.r) :where(button, input, select, textarea) { font: inherit; color: inherit; }
 .r .muted { color: var(--ink-2); }
 .r .mono { font-family: var(--font-mono); }
 .r .tnum { font-variant-numeric: tabular-nums; }
@@ -93,7 +94,8 @@
 .r-check input { appearance: none; flex: none; width: 20px; height: 20px; margin: 4px 0 0; border: 1.5px solid var(--line-strong); background: var(--bg); border-radius: var(--radius-0); display: grid; place-content: center; cursor: pointer; }
 .r-check input[type="radio"] { border-radius: var(--radius-round); }
 .r-check input:checked { background: var(--accent); border-color: var(--accent); }
-.r-check input[type="checkbox"]:checked::after { content: ""; width: 10px; height: 6px; border-inline-start: 2px solid var(--on-accent); border-bottom: 2px solid var(--on-accent); transform: rotate(-45deg) translate(1px, -1px); }
+/* The check is an SVG mask, so its shape is the same in RTL and LTR. */
+.r-check input[type="checkbox"]:checked::after { content: ""; width: 14px; height: 14px; background: var(--on-accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M2 6.5l2.5 2.5L10 3.5%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272%27/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M2 6.5l2.5 2.5L10 3.5%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272%27/%3E%3C/svg%3E") center / contain no-repeat; }
 .r-check input[type="radio"]:checked { background: var(--bg); border: 6px solid var(--accent); }
 .r-check input:disabled { background: var(--surface); border-color: var(--line); cursor: not-allowed; }
 .r-check input:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
@@ -118,7 +120,7 @@
 .r-chip .box { width: 14px; height: 14px; border: 1.5px solid var(--line-strong); display: grid; place-content: center; }
 .r-chip[aria-pressed="true"] { background: var(--accent-wash); border-color: var(--accent); }
 .r-chip[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
-.r-chip[aria-pressed="true"] .box::after { content: ""; width: 7px; height: 4px; border-inline-start: 1.5px solid var(--on-accent); border-bottom: 1.5px solid var(--on-accent); transform: rotate(-45deg) translate(0, -1px); }
+.r-chip[aria-pressed="true"] .box::after { content: ""; width: 10px; height: 10px; background: var(--on-accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M2 6.5l2.5 2.5L10 3.5%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272%27/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M2 6.5l2.5 2.5L10 3.5%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272%27/%3E%3C/svg%3E") center / contain no-repeat; }
 .r-chip .n { font-family: var(--font-sans); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .r-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); }
 .r-tab { min-height: 48px; padding: 0 18px; border: 0; background: none; color: var(--ink-2); font-size: 15px; cursor: pointer; }

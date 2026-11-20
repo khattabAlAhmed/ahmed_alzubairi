@@ -261,7 +261,7 @@ These break the soul. They are not allowed anywhere, in any theme:
 ## Using it in the codebase
 
 - Tokens go into `apps/web/app/globals.css` as CSS custom properties for both themes (`[data-theme="dark"]` plus `prefers-color-scheme`), exposed to Tailwind v4 through `@theme`. Names stay as they are here (`--bg`, `--ink`, `--accent`, `--rule`, …).
-- `components/bundle.css` is the reference stylesheet. Port each class into the matching React component in `apps/web/components`. `docs/design/components.md` names the file for each item.
+- The reference stylesheet is `components/bundle.css` here, exported to the repo as `docs/design/system/components.css`. Port each class into the matching React component in `apps/web/components`. `docs/design/components.md` names the file for each item.
 - Every UI string comes from `apps/web/messages/{ar,en}.json`.
 
 ## Components
