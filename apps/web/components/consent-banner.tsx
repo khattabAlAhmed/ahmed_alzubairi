@@ -27,14 +27,17 @@ export function ConsentBanner({
   onAccept,
   onDecline,
   privacyHref,
+  sample = false,
 }: {
   open: boolean;
   onAccept: () => void;
   onDecline: () => void;
   privacyHref: string;
+  /** The design-system page: in place instead of fixed, and it measures nothing. */
+  sample?: boolean;
 }) {
   if (!open) return null;
-  return <OpenBanner onAccept={onAccept} onDecline={onDecline} privacyHref={privacyHref} />;
+  return <OpenBanner onAccept={onAccept} onDecline={onDecline} privacyHref={privacyHref} sample={sample} />;
 }
 
 /**
@@ -43,11 +46,11 @@ export function ConsentBanner({
  * the spacer at the end of the page. Measured before paint, and again when
  * the banner's size changes (text wrapping, a breakpoint, the language).
  */
-function useCoveredHeight() {
+function useCoveredHeight(enabled = true) {
   const ref = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     const element = ref.current;
-    if (!element) return;
+    if (!element || !enabled) return;
     const root = document.documentElement;
     const measure = () => {
       const covered = Math.max(0, Math.ceil(window.innerHeight - element.getBoundingClientRect().top));
@@ -63,7 +66,7 @@ function useCoveredHeight() {
       window.removeEventListener("resize", measure);
       root.style.removeProperty(COVERED_VAR);
     };
-  }, []);
+  }, [enabled]);
   return ref;
 }
 
@@ -87,13 +90,15 @@ function OpenBanner({
   onAccept,
   onDecline,
   privacyHref,
+  sample,
 }: {
   onAccept: () => void;
   onDecline: () => void;
   privacyHref: string;
+  sample: boolean;
 }) {
   const t = useTranslations("Consent");
-  const ref = useCoveredHeight();
+  const ref = useCoveredHeight(!sample);
   // Move focus only when it is in the banner (a keyboard choice, or a click
   // that focused the button); a choice made otherwise leaves focus alone.
   const choose = (handler: () => void) => () => {
@@ -109,7 +114,7 @@ function OpenBanner({
       // The SkipAndConsent board: a calm bar along the bottom, never a wall. The
       // 2px rule opens it, and it is the one thing on the page with a shadow
       // (it floats over the content).
-      className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-rule bg-bg text-ink shadow-overlay"
+      className={cx("border-t-2 border-rule bg-bg text-ink shadow-overlay", !sample && "fixed inset-x-0 bottom-0 z-40")}
     >
       {/* Tighter on short screens, so it takes less of the view. */}
       <div
@@ -127,6 +132,7 @@ function OpenBanner({
             <Link href={privacyHref} className={cx(INLINE_LINK, "whitespace-nowrap")}>
               {t("privacy")}
             </Link>
+            .
           </p>
         </div>
         {/* Same variant, same size: declining is as easy as accepting. */}

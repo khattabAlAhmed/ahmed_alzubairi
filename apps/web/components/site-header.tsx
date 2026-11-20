@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
 import { connection } from "next/server";
-import { Suspense, type SVGProps } from "react";
-import { contactChannels } from "@/components/public/contact";
+import { Suspense } from "react";
+import { whatsappHref } from "@/components/public/home/format";
+import { CONTAINER } from "@/components/public/parts";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { getSiteSettings } from "@/lib/content";
 import { AuthLink } from "./auth-link";
@@ -11,38 +11,18 @@ import { LanguageSwitch } from "./language-switch";
 import { MobileMenu } from "./mobile-menu";
 import { MAIN_NAV } from "./nav-items";
 import { NavLink } from "./nav-link";
+import { QuickContact as QuickContactTab } from "./quick-contact";
 import { SiteLogo } from "./site-logo";
 import { ThemeSwitch } from "./theme-switch";
 
-function MailIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-5" {...props}>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m3 7 9 6 9-6" />
-    </svg>
-  );
-}
-
-function ChatIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-5" {...props}>
-      <path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3 3z" />
-    </svg>
-  );
-}
-
-type Variant = "bar" | "menu";
-
 /**
- * WhatsApp and email from site settings, always present (§6.1). It renders on
- * request inside a Suspense boundary, so the header's shell stays static and
- * the build never reads Supabase. It reads no session.
+ * WhatsApp and email from site settings, always within reach (§6.1), as the
+ * QuickContact tab. It renders on request inside a Suspense boundary, so the
+ * header's shell stays static and the build never reads Supabase. It reads no
+ * session.
  */
-export async function QuickContact({ variant }: { variant: Variant }) {
+export async function QuickContact() {
   await connection();
-  const t = await getTranslations("Contact");
-  const tHeader = await getTranslations("Header");
-
   let settings;
   try {
     settings = await getSiteSettings();
@@ -51,124 +31,75 @@ export async function QuickContact({ variant }: { variant: Variant }) {
     console.error("quick contact: site settings failed", error);
     return null;
   }
-
-  const channels = contactChannels(
-    { ...settings, linkedinUrl: null, socialLinks: [] },
-    (key) => t(key),
-  );
-  if (channels.length === 0) return null;
-
   return (
-    <ul
-      aria-label={tHeader("quickContact")}
-      className={variant === "bar" ? "flex items-center gap-1" : "grid gap-1"}
-    >
-      {channels.map((channel) => {
-        const Icon = channel.key === "email" ? MailIcon : ChatIcon;
-        const newTab = channel.newTab
-          ? ({ target: "_blank", rel: "noopener noreferrer" } as const)
-          : {};
-        return (
-          <li key={channel.key}>
-            {variant === "bar" ? (
-              <a
-                href={channel.href}
-                {...newTab}
-                className={cx("inline-flex size-9 items-center justify-center rounded-md hover:bg-text/10", FOCUS_RING)}
-              >
-                <Icon />
-                <span className="sr-only">
-                  {channel.label}
-                  {channel.newTab && ` ${t("opensInNewTab")}`}
-                </span>
-              </a>
-            ) : (
-              <a
-                href={channel.href}
-                {...newTab}
-                className={cx("flex items-center gap-3 rounded-md px-3 py-3 hover:bg-text/10", FOCUS_RING, "focus-visible:-outline-offset-2")}
-              >
-                <Icon />
-                <span>{channel.label}</span>
-                {/* Numbers and addresses read left to right in both languages. */}
-                <bdi dir="ltr" className="ms-auto truncate text-sm text-text-secondary">
-                  {channel.value}
-                </bdi>
-                {channel.newTab && <span className="sr-only">{t("opensInNewTab")}</span>}
-              </a>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <QuickContactTab
+      whatsapp={settings.whatsappNumber ? { number: settings.whatsappNumber, href: whatsappHref(settings.whatsappNumber) } : null}
+      email={settings.contactEmail ?? null}
+    />
   );
 }
 
-/** The public top bar: logo, main nav, consultation button, quick contact and switches (§6.1). */
+/**
+ * The public header (the Header board): his name and fields on the start side,
+ * the sections, then the language, the theme, sign-in and «اطلب استشارة» on
+ * the end side. It stays at the top while the page scrolls, opened by the 2px
+ * rule. On phones it keeps only his name, the consultation button and the
+ * menu; the rest moves into the menu.
+ */
 export function SiteHeader() {
+  return (
+    <>
+      <HeaderBar className="sticky top-0 z-40" />
+      <Suspense>
+        <QuickContact />
+      </Suspense>
+    </>
+  );
+}
+
+/** The header's bar alone, without the quick-contact tab: the design-system page shows it in place. */
+export function HeaderBar({ className }: { className?: string }) {
   const t = useTranslations("Nav");
 
   return (
-    <header className="relative z-40 border-b border-text/10 bg-surface">
-      {/*
-        The inline nav needs about 1,540 px in English (ten links, the button
-        and the switches), so it shows from 2xl, where the row may grow to the
-        full 2xl width. Below that, the menu button holds the links.
-      */}
-      <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center gap-x-2 gap-y-3 px-4 py-3 2xl:max-w-(--breakpoint-2xl)">
-        <SiteLogo />
-        <nav aria-label={t("mainLabel")} className="ms-4 hidden 2xl:block">
-          <ul className="flex items-center gap-0.5">
-            {MAIN_NAV.map((item) => (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  className={cx(
-                    "relative block rounded-md px-2 py-2 text-sm whitespace-nowrap hover:bg-text/10 aria-[current=page]:font-semibold",
-                    // A gold bar under the current page: gold as an accent, never as text (§13).
-                    "after:absolute after:inset-x-2 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-accent after:opacity-0 aria-[current=page]:after:opacity-100",
-                    FOCUS_RING,
-                  )}
-                >
-                  {t(item.label)}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        {/*
-          Phones get two rows: logo and controls, then the full-width button.
-          Sign-in and quick contact move into the menu there, so the first row
-          always fits at 375 px.
-        */}
-        <ConsultationButton className="order-last w-full justify-center sm:order-none sm:ms-auto sm:w-auto" />
-        <div className="ms-auto flex shrink-0 items-center gap-1 sm:ms-0">
-          <div className="hidden md:block">
-            <Suspense>
-              <QuickContact variant="bar" />
-            </Suspense>
-          </div>
-          <div className="hidden sm:contents">
-            <AuthLink />
-          </div>
-          <LanguageSwitch />
-          <ThemeSwitch />
-          <MobileMenu
-            extra={
-              <>
-                <div className="border-t border-text/10 px-1 py-2 sm:hidden">
-                  <AuthLink />
+      <header className={cx("border-t-2 border-b border-t-rule border-b-line bg-bg text-ink", className)}>
+        <div className={cx(CONTAINER, "flex min-h-14 items-stretch justify-between gap-6")}>
+          <SiteLogo fields />
+          <nav aria-label={t("mainLabel")} className="hidden xl:flex">
+            <ul className="flex">
+              {MAIN_NAV.map((item) => (
+                <li key={item.href} className="flex">
+                  <NavLink
+                    href={item.href}
+                    className={cx(
+                      "flex items-center px-3.5 text-[15px] whitespace-nowrap text-ink-2 no-underline transition-state hover:text-ink",
+                      "aria-[current=page]:text-ink aria-[current=page]:shadow-[inset_0_-2px_0_var(--accent)]",
+                      FOCUS_RING,
+                      "focus-visible:-outline-offset-2",
+                    )}
+                  >
+                    {t(item.label)}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="flex shrink-0 items-center gap-1">
+            <div className="hidden items-center gap-1 md:flex">
+              <LanguageSwitch />
+              <ThemeSwitch />
+              <AuthLink />
+            </div>
+            <ConsultationButton className="max-sm:px-3" />
+            <MobileMenu
+              extra={
+                <div className="md:hidden">
+                  <AuthLink className="w-full" />
                 </div>
-                <div className="border-t border-text/10 py-2 md:hidden">
-                  <Suspense>
-                    <QuickContact variant="menu" />
-                  </Suspense>
-                </div>
-              </>
-            }
-          />
+              }
+            />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
   );
 }

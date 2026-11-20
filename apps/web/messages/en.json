@@ -7,21 +7,22 @@
     "mainLabel": "Main menu",
     "home": "Home",
     "about": "About",
-    "expertise": "Areas of expertise",
+    "expertise": "Expertise",
     "services": "Services",
-    "projects": "Past projects",
+    "projects": "Projects",
     "training": "Training",
-    "blog": "Blog",
+    "blog": "Writing",
     "resources": "Free resources",
     "media": "Media and events",
     "clients": "Clients and testimonials",
-    "documents": "Documents and certificates",
+    "documents": "Documents",
     "faq": "FAQ",
     "contact": "Contact",
     "requestConsultation": "Request a consultation",
     "footerSite": "Site",
     "footerKnowledge": "Knowledge",
-    "footerContact": "Contact"
+    "footerContact": "Contact",
+    "documentsShort": "Documents"
   },
   "Header": {
     "openMenu": "Open menu",
@@ -52,14 +53,21 @@
       "body": "ستنتقل بدلاً منها إلى قائمة هذا القسم بالعربية.",
       "go": "إلى القائمة",
       "stay": "ابقَ هنا"
-    }
+    },
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copiedAnnounce": "Address copied.",
+    "opensInNewTab": "(opens in a new tab)"
   },
   "Footer": {
     "sectionsLabel": "Site sections",
     "legalLabel": "Legal links",
     "privacy": "Privacy policy",
     "terms": "Terms of use",
-    "contactLabel": "Contact channels"
+    "contactLabel": "Contact channels",
+    "line": "I work with ministries, organizations and companies when decisions are hard. I write here what I learn, and I answer every message myself."
   },
   "Account": {
     "navLabel": "Account menu",

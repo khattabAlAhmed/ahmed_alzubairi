@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -73,14 +73,39 @@ describe("LanguageSwitch", () => {
     expect(href()).toBe("/ar/services/example");
   });
 
-  it("goes to the section's list when the page has no translation (§6.1)", () => {
+  it("says the page has no translation first, then offers the section's list (§6.1)", () => {
     render(
       <LanguageFallbackProvider>
         <LanguageSwitch />
         <LanguageFallback href="/services" />
       </LanguageFallbackProvider>,
     );
+    const toggle = screen.getByRole("button", { name: "switchLanguageLabel" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    // Focus moves into the note; its link goes to the section's list.
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "untranslated.go" }));
     expect(href()).toBe("/ar/services");
+  });
+
+  it("closes the note on Escape or Stay, with focus back on the switch", () => {
+    render(
+      <LanguageFallbackProvider>
+        <LanguageSwitch />
+        <LanguageFallback href="/services" />
+      </LanguageFallbackProvider>,
+    );
+    const toggle = screen.getByRole("button", { name: "switchLanguageLabel" });
+    fireEvent.click(toggle);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(toggle);
+
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "untranslated.stay" }));
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(toggle);
   });
 
   it("drops the fallback once the page that set it is gone", () => {

@@ -2,7 +2,7 @@
 
 import { SITE_NAME } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import { cx, FOCUS_RING } from "./ui/cx";
 import { ConsultationButton } from "./consultation-button";
 import { CloseIcon, MenuIcon } from "./icons";
@@ -10,8 +10,6 @@ import { LanguageSwitch } from "./language-switch";
 import { MENU_NAV } from "./nav-items";
 import { NavLink } from "./nav-link";
 import { ThemeSwitch } from "./theme-switch";
-
-const PANEL_ID = "mobile-menu";
 
 const ICON_BUTTON = cx(
   "inline-flex size-11 cursor-pointer items-center justify-center text-ink transition-state hover:bg-surface-hover",
@@ -54,8 +52,8 @@ export function trapTab(panel: HTMLElement, event: Pick<KeyboardEvent, "key" | "
  */
 export function MobileMenu({ extra }: { extra?: ReactNode }) {
   const t = useTranslations("Header");
-  const tNav = useTranslations("Nav");
   const [open, setOpen] = useState(false);
+  const panelId = useId();
   const toggle = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef<HTMLButtonElement>(null);
@@ -95,7 +93,7 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
         className={ICON_BUTTON}
         aria-label={t("openMenu")}
         aria-expanded={open}
-        aria-controls={PANEL_ID}
+        aria-controls={panelId}
         onClick={() => setOpen(true)}
       >
         <MenuIcon size={24} />
@@ -105,55 +103,77 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
         <div aria-hidden="true" className="absolute inset-0 bg-scrim" onClick={() => shut(true)} />
         <div
           ref={panel}
-          id={PANEL_ID}
+          id={panelId}
           role="dialog"
           aria-modal="true"
           aria-label={t("menuLabel")}
           className="absolute inset-y-0 end-0 flex w-full max-w-[400px] flex-col overflow-y-auto overscroll-contain bg-bg text-ink shadow-overlay"
         >
-          <div className="flex shrink-0 items-center justify-between border-t-2 border-b border-t-rule border-b-line ps-4 pe-2 py-1">
-            <span className="text-[17px] font-semibold">{SITE_NAME}</span>
-            <button
-              ref={close}
-              type="button"
-              className={ICON_BUTTON}
-              aria-label={t("closeMenu")}
-              onClick={() => shut(true)}
-            >
-              <CloseIcon size={24} />
-            </button>
-          </div>
-          <nav aria-label={tNav("mainLabel")}>
-            <ol>
-              {MENU_NAV.map((item) => (
-                <li key={item.href}>
-                  <NavLink
-                    href={item.href}
-                    onClick={() => shut(false)}
-                    className={cx(
-                      "block border-b border-line px-4 py-3.5 text-[19px] text-ink no-underline transition-state hover:bg-surface-hover",
-                      // The current page: a vertical accent line on the start edge (the board).
-                      "rtl:aria-[current=page]:shadow-[inset_-2px_0_0_var(--accent)] ltr:aria-[current=page]:shadow-[inset_2px_0_0_var(--accent)]",
-                      FOCUS_RING,
-                      "focus-visible:-outline-offset-2",
-                    )}
-                  >
-                    {tNav(item.label)}
-                  </NavLink>
-                </li>
-              ))}
-            </ol>
-          </nav>
-          <div className="grid shrink-0 grid-cols-2 border-b border-line [&>*]:min-h-13 [&>*]:w-full [&>*+*]:border-s [&>*+*]:border-line">
-            <LanguageSwitch long />
-            <ThemeSwitch withText />
-          </div>
-          {extra && <div className="shrink-0 border-b border-line px-2 py-1">{extra}</div>}
-          <div className="shrink-0 p-4">
-            <ConsultationButton block />
-          </div>
+          <MenuPanel closeRef={close} onClose={shut} extra={extra} />
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * What the menu holds, from his name and the close button down to «اطلب
+ * استشارة». The design-system page shows it in place, open.
+ */
+export function MenuPanel({
+  closeRef,
+  onClose,
+  extra,
+}: {
+  closeRef?: RefObject<HTMLButtonElement | null>;
+  onClose: (giveFocusBack: boolean) => void;
+  extra?: ReactNode;
+}) {
+  const t = useTranslations("Header");
+  const tNav = useTranslations("Nav");
+  return (
+    <>
+      <div className="flex shrink-0 items-center justify-between border-t-2 border-b border-t-rule border-b-line ps-4 pe-2 py-1">
+        <span className="text-[17px] font-semibold">{SITE_NAME}</span>
+        <button
+          ref={closeRef}
+          type="button"
+          className={ICON_BUTTON}
+          aria-label={t("closeMenu")}
+          onClick={() => onClose(true)}
+        >
+          <CloseIcon size={24} />
+        </button>
+      </div>
+      <nav aria-label={tNav("mainLabel")}>
+        <ol>
+          {MENU_NAV.map((item) => (
+            <li key={item.href}>
+              <NavLink
+                href={item.href}
+                onClick={() => onClose(false)}
+                className={cx(
+                  "block border-b border-line px-4 py-3.5 text-[19px] text-ink no-underline transition-state hover:bg-surface-hover",
+                  // The current page: a vertical accent line on the start edge (the board).
+                  "rtl:aria-[current=page]:shadow-[inset_-2px_0_0_var(--accent)] ltr:aria-[current=page]:shadow-[inset_2px_0_0_var(--accent)]",
+                  FOCUS_RING,
+                  "focus-visible:-outline-offset-2",
+                )}
+              >
+                {tNav(item.label)}
+              </NavLink>
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div className="grid shrink-0 grid-cols-2 border-b border-line [&>*]:min-h-13 [&>*]:w-full [&>*+*]:border-s [&>*+*]:border-line">
+        <LanguageSwitch long />
+        <ThemeSwitch withText />
+      </div>
+      {extra && <div className="shrink-0 border-b border-line px-2 py-1">{extra}</div>}
+      <div className="shrink-0 p-4">
+        <ConsultationButton block />
+      </div>
+    </>
   );
 }

@@ -82,18 +82,29 @@ function SwitchLabel({ long }: { long: boolean }) {
  * A page with no translation (§6.1): the switch says so first, in the language
  * the visitor asked for, and offers the section's list there, or to stay.
  */
-function UntranslatedSwitch({ href, long }: { href: string; long: boolean }) {
+export function UntranslatedSwitch({
+  href,
+  long = false,
+  initiallyOpen = false,
+}: {
+  href: string;
+  long?: boolean;
+  /** The design-system page shows the note open. */
+  initiallyOpen?: boolean;
+}) {
   const t = useTranslations("Header");
   const locale = useLocale();
   const target = otherLocale(locale);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
+  // Focus moves into the note only when a person opens it.
+  const opened = useRef(false);
   const button = useRef<HTMLButtonElement>(null);
   const popover = useRef<HTMLDivElement>(null);
   const id = useId();
 
   useEffect(() => {
     if (!open) return;
-    popover.current?.querySelector<HTMLElement>("a, button")?.focus();
+    if (opened.current) popover.current?.querySelector<HTMLElement>("a, button")?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       setOpen(false);
@@ -113,7 +124,10 @@ function UntranslatedSwitch({ href, long }: { href: string; long: boolean }) {
         aria-controls={id}
         lang={target}
         className={cx(SWITCH, "w-full")}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          opened.current = !open;
+          setOpen(!open);
+        }}
       >
         <SwitchLabel long={long} />
       </button>
@@ -132,7 +146,7 @@ function UntranslatedSwitch({ href, long }: { href: string; long: boolean }) {
         </p>
         <p className="type-caption text-ink-2">{t("untranslated.body")}</p>
         <div className="mt-2.5 flex flex-wrap items-center gap-4">
-          <Link href={href} locale={target} hrefLang={target} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+          <Link href={{ pathname: href }} locale={target} hrefLang={target} className={buttonClasses({ variant: "secondary", size: "sm" })}>
             {t("untranslated.go")}
           </Link>
           <button

@@ -15,7 +15,7 @@ export const MAIN_NAV = [
   { href: "/services", label: "services" },
   { href: "/projects", label: "projects" },
   { href: "/blog", label: "blog" },
-  { href: "/documents", label: "documents" },
+  { href: "/documents", label: "documentsShort" },
 ] as const satisfies readonly NavItem<NavLabel>[];
 
 /** The phone menu's index of sections (the MobileMenu board). */

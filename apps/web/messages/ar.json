@@ -9,11 +9,11 @@
     "about": "من أنا",
     "expertise": "مجالات الخبرة",
     "services": "الخدمات",
-    "projects": "المشاريع السابقة",
+    "projects": "المشاريع",
     "training": "التدريب",
     "blog": "المدونة",
-    "resources": "مكتبة الموارد المجانية",
-    "media": "الظهور الإعلامي والفعاليات",
+    "resources": "الموارد المجانية",
+    "media": "الظهور الإعلامي",
     "clients": "الجهات وآراء العملاء",
     "documents": "الوثائق والشهادات",
     "faq": "الأسئلة الشائعة",
@@ -21,7 +21,8 @@
     "requestConsultation": "اطلب استشارة",
     "footerSite": "الموقع",
     "footerKnowledge": "المعرفة",
-    "footerContact": "تواصل"
+    "footerContact": "تواصل",
+    "documentsShort": "الوثائق"
   },
   "Header": {
     "openMenu": "فتح القائمة",
@@ -30,7 +31,7 @@
     "switchLanguage": "English",
     "switchLanguageShort": "EN",
     "switchLanguageLabel": "Switch to English, EN",
-    "signIn": "تسجيل الدخول",
+    "signIn": "دخول",
     "account": "حسابي",
     "signOut": "تسجيل الخروج",
     "quickContact": "تواصل سريع",
@@ -52,14 +53,21 @@
       "body": "You'll go to this section's list in English instead.",
       "go": "Go to the list",
       "stay": "Stay here"
-    }
+    },
+    "whatsapp": "واتساب",
+    "email": "البريد",
+    "copy": "انسخ",
+    "copied": "نُسخ",
+    "copiedAnnounce": "نُسخ العنوان.",
+    "opensInNewTab": "(يفتح في تبويب جديد)"
   },
   "Footer": {
     "sectionsLabel": "أقسام الموقع",
     "legalLabel": "روابط قانونية",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الاستخدام",
-    "contactLabel": "قنوات التواصل"
+    "contactLabel": "قنوات التواصل",
+    "line": "أعمل مع الوزارات والمنظمات والشركات حين يصعب القرار. أكتب هنا ما أتعلّمه، وأردّ على كل رسالة بنفسي."
   },
   "Account": {
     "navLabel": "قائمة الحساب",

@@ -1,7 +1,10 @@
-import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+import { useId, type ReactNode } from "react";
 import { ConsultationButton } from "@/components/consultation-button";
 import { ArrowForwardIcon } from "@/components/icons";
+import { formatNumber } from "@/components/public/home/format";
+import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { Project } from "@/lib/content";
@@ -21,9 +24,6 @@ export const RING_ON_NAVY =
  */
 export const CONTAINER = "mx-auto w-full max-w-[calc(var(--container)+2*var(--page-margin))] px-page-margin";
 
-const TEXT_LINK =
-  "inline-flex items-center gap-1.5 rounded-sm font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2";
-
 /** A card link whose whole card is the target. */
 export const CARD_LINK =
   "rounded-sm after:absolute after:inset-0 after:rounded-lg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
@@ -35,63 +35,117 @@ export const CARD_LINK =
  */
 export const CARD = "relative border border-line bg-bg p-6";
 
-/** The top of a page on the navy band (§13: deep navy and gold for these sections). */
+/** One fact in a page header's ledger, its value already in the page's digits. */
+export type PageFact = { label: string; value: string };
+
+/**
+ * The top of every main page (the PageHeader board): the 2px rule, then three
+ * columns. The start one says where you are (the section, or the way back);
+ * the middle one holds the title and one sentence of his; the end one lists
+ * the page's facts as a ledger. Never a centred hero. On phones the columns
+ * stack.
+ */
 export function PageHero({
   eyebrow,
   back,
   title,
   intro,
   actions,
+  facts,
 }: {
+  /** Where the page sits, e.g. the section's name. */
   eyebrow?: string;
   back?: { href: string; label: string };
   title: string;
+  /** One sentence of his (SOUL.md principle 1). */
   intro?: ReactNode;
   actions?: ReactNode;
+  facts?: readonly PageFact[];
 }) {
   return (
-    <header className="bg-primary text-on-primary">
-      <div className={cx(CONTAINER, "py-12 md:py-16")}>
-        {back && (
-          <Link href={back.href} className={cx(TEXT_LINK, "mb-6 text-sm text-on-primary/85 focus-visible:outline-accent")}>
-            {/* Points back: the forward arrow, turned around. */}
-            <ArrowForwardIcon aria-hidden="true" className="size-4 rotate-180" />
-            {back.label}
-          </Link>
-        )}
-        {eyebrow && (
-          <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-on-primary/85">
-            <span aria-hidden="true" className="h-0.5 w-8 shrink-0 rounded-full bg-accent" />
-            {eyebrow}
-          </p>
-        )}
-        <h1 className="text-balance text-3xl leading-tight md:text-5xl">{title}</h1>
-        {intro && <div className="mt-4 max-w-prose text-pretty text-lg text-on-primary/85">{intro}</div>}
-        {actions && <div className="mt-8 flex flex-wrap gap-3">{actions}</div>}
+    <header className={cx(CONTAINER, "mt-8 md:mt-12")}>
+      <div className="grid gap-5 border-t-2 border-rule pt-6 pb-10 md:grid-cols-12 md:gap-gutter">
+        <div className="type-small flex flex-col items-start gap-2 text-ink-2 md:col-span-3">
+          {back && <MoreLink href={back.href} label={back.label} back />}
+          {eyebrow && <p>{eyebrow}</p>}
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 md:col-span-9 lg:col-span-6">
+          <h1 className="type-h1 settle">{title}</h1>
+          {intro && <div className="type-body max-w-measure text-pretty text-ink-2 settle settle-2">{intro}</div>}
+          {actions && <div className="mt-2 flex flex-wrap items-center gap-4">{actions}</div>}
+        </div>
+        {facts && facts.length > 0 && <Ledger facts={facts} className="self-start md:col-span-12 lg:col-span-3" />}
       </div>
     </header>
   );
 }
 
-/** A titled block in a page's body. */
+/** Numbers as evidence: label and value on one line, hairlines between. */
+export function Ledger({ facts, className }: { facts: readonly PageFact[]; className?: string }) {
+  return (
+    <dl className={cx("border-t border-line", className)}>
+      {facts.map((fact) => (
+        <div key={fact.label} className="flex items-baseline justify-between gap-3 border-b border-line py-3">
+          <dt className="text-sm text-ink-2">{fact.label}</dt>
+          <dd className="font-medium">{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/**
+ * A section's head (the SectionShell board): the 2px rule, the title on the
+ * start side, a line of his in the middle, and "see all" with the count on the
+ * end side. It stands alone: a section can be hidden or moved without
+ * breaking what's around it. On phones the three stack.
+ */
+export function SectionHead({
+  id,
+  title,
+  intro,
+  more,
+}: {
+  id: string;
+  title: string;
+  intro?: ReactNode;
+  more?: { href: string; label: string; count?: string };
+}) {
+  return (
+    <div className="grid items-baseline gap-3 border-t-2 border-rule pt-5 md:grid-cols-12 md:gap-gutter">
+      <h2 id={id} className="type-h2 md:col-span-4">
+        {title}
+      </h2>
+      {intro && <p className="type-small text-pretty text-ink-2 md:col-span-5">{intro}</p>}
+      {more && (
+        <div className={cx("md:justify-self-end", intro ? "md:col-span-3" : "md:col-span-8")}>
+          <MoreLink href={more.href} label={more.label} count={more.count} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A titled block in a page's body, with the section head of the SectionShell board. */
 export function PageSection({
   id,
   title,
+  intro,
+  more,
   children,
   className,
 }: {
   id: string;
   title: string;
+  intro?: ReactNode;
+  more?: { href: string; label: string; count?: string };
   children: ReactNode;
   className?: string;
 }) {
   return (
     <section aria-labelledby={id} className={className}>
-      <span aria-hidden="true" className="mb-3 block h-0.5 w-10 rounded-full bg-accent" />
-      <h2 id={id} className="text-balance text-2xl md:text-3xl">
-        {title}
-      </h2>
-      <div className="mt-5">{children}</div>
+      <SectionHead id={id} title={title} intro={intro} more={more} />
+      <div className="mt-8">{children}</div>
     </section>
   );
 }
@@ -165,22 +219,55 @@ export function ProjectCards({ projects }: { projects: Project[] }) {
   );
 }
 
-/** Ends a page with the way to a consultation request. */
+/**
+ * The closing invitation on public pages (the ConsultationCta board): a quiet
+ * photo, his invitation with «اطلب استشارة» and a direct line, and what happens
+ * next in three steps. An invitation to talk, never a coloured banner.
+ */
 export function ConsultationCta() {
   const t = useTranslations("Pages");
+  const locale = useLocale();
+  const steps = [t("ctaSteps.write"), t("ctaSteps.reply"), t("ctaSteps.meet")];
+  const titleId = useId();
 
   return (
-    <section aria-labelledby="page-cta-title" className="bg-primary text-on-primary">
-      <div className={cx(CONTAINER, "flex flex-wrap items-center justify-between gap-6 py-12")}>
-        <div className="min-w-0 flex-1 basis-72">
-          <h2 id="page-cta-title" className="text-2xl md:text-3xl">
+    <aside aria-labelledby={titleId} className={cx(CONTAINER, "mt-section")}>
+      <div className="grid gap-6 border-t-2 border-b border-t-rule border-b-line py-7 md:grid-cols-12 md:gap-gutter">
+        <Image
+          src="/images/the-table.webp"
+          alt={t("ctaPhotoAlt")}
+          width={600}
+          height={400}
+          sizes="(min-width: 1280px) 300px, (min-width: 768px) 25vw, 100vw"
+          className="aspect-[3/2] w-full object-cover max-md:hidden md:col-span-3"
+        />
+        <div className="flex min-w-0 flex-col gap-3 md:col-span-9 lg:col-span-5">
+          <h2 id={titleId} className="type-h2">
             {t("ctaTitle")}
           </h2>
-          <p className="mt-2 text-on-primary/85">{t("ctaText")}</p>
+          <p className="type-body max-w-[30em] text-pretty text-ink-2">{t("ctaText")}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-6 gap-y-2">
+            <ConsultationButton size="md" />
+            <Link href="/contact" className={buttonClasses({ variant: "quiet" })}>
+              {t("ctaDirect")}
+            </Link>
+          </div>
         </div>
-        <ConsultationButton className={`h-12! px-6! text-lg! ${RING_ON_NAVY}`} />
+        <ol aria-label={t("ctaStepsLabel")} className="md:col-span-12 lg:col-span-4">
+          {steps.map((step, index) => (
+            <li
+              key={step}
+              className="type-small grid grid-cols-[28px_minmax(0,1fr)] gap-2.5 border-b border-line py-2.5 first:border-t"
+            >
+              <span aria-hidden="true" className="font-medium text-ink-2 tabular-nums">
+                {formatNumber(index + 1, locale === "ar" ? "ar" : "en")}
+              </span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
       </div>
-    </section>
+    </aside>
   );
 }
 

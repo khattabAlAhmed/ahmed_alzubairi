@@ -73,7 +73,7 @@ describe("ConsentBanner covered height", () => {
 
   it("measures again when the banner changes size", () => {
     renderBanner();
-    expect(observedTarget).toBe(screen.getByRole("region", { name: "Cookies" }));
+    expect(observedTarget).toBe(screen.getByRole("region", { name: "Privacy" }));
     bannerTop = window.innerHeight - 78;
     act(() => observed?.());
     expect(covered()).toBe("78px");
@@ -101,7 +101,7 @@ describe("ConsentBanner covered height", () => {
       </NextIntlClientProvider>,
     );
     expect(observed).not.toBeNull();
-    expect(observedTarget).toBe(screen.getByRole("region", { name: "Cookies" }));
+    expect(observedTarget).toBe(screen.getByRole("region", { name: "Privacy" }));
     view.rerender(
       <NextIntlClientProvider locale="en" messages={{ Consent: enConsent }}>
         <ConsentBanner open={false} onAccept={() => {}} onDecline={() => {}} privacyHref="/privacy" />
@@ -142,7 +142,7 @@ describe("ConsentBanner focus after a choice", () => {
     document.querySelector("main")?.remove();
   });
 
-  it.each(["Accept", "Decline"])("moves focus to <main> after %s by keyboard, without scrolling", async (name) => {
+  it.each(["Agree", "No, thanks"])("moves focus to <main> after %s by keyboard, without scrolling", async (name) => {
     const main = page();
     const focus = vi.spyOn(main, "focus");
     const user = userEvent.setup();
@@ -160,7 +160,7 @@ describe("ConsentBanner focus after a choice", () => {
     main.append(after);
     const user = userEvent.setup();
     renderBanner();
-    screen.getByRole("button", { name: "Accept" }).focus();
+    screen.getByRole("button", { name: "Agree" }).focus();
     await user.keyboard("{Enter}");
     after.focus();
     expect(main.hasAttribute("tabindex")).toBe(false);
@@ -172,7 +172,7 @@ describe("ConsentBanner focus after a choice", () => {
     document.body.append(outside);
     outside.focus();
     renderBanner();
-    fireEvent.click(screen.getByRole("button", { name: "Decline" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, thanks" }));
     expect(document.activeElement).toBe(outside);
     expect(main.hasAttribute("tabindex")).toBe(false);
     outside.remove();
@@ -180,21 +180,21 @@ describe("ConsentBanner focus after a choice", () => {
 });
 
 describe("ConsentBanner choices", () => {
-  it("is reached by Tab: privacy link, then accept, then decline", async () => {
+  it("is reached by Tab: privacy link, then decline, then accept (the board's order)", async () => {
     const user = userEvent.setup();
     renderBanner();
     await user.tab();
-    expect(document.activeElement).toBe(screen.getByRole("link", { name: "Privacy policy" }));
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "privacy policy" }));
     await user.tab();
-    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Accept" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "No, thanks" }));
     await user.tab();
-    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Decline" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Agree" }));
   });
 
   it("keeps accept and decline equal, and calls their handlers", () => {
     const { onAccept, onDecline } = renderBanner();
-    const accept = screen.getByRole("button", { name: "Accept" });
-    const decline = screen.getByRole("button", { name: "Decline" });
+    const accept = screen.getByRole("button", { name: "Agree" });
+    const decline = screen.getByRole("button", { name: "No, thanks" });
     expect(accept.className).toBe(decline.className);
     fireEvent.click(accept);
     fireEvent.click(decline);

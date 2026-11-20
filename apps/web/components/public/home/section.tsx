@@ -1,35 +1,34 @@
 import type { ReactNode } from "react";
-import { ArrowForwardIcon } from "@/components/icons";
+import { CONTAINER, SectionHead } from "@/components/public/parts";
 import { cx } from "@/components/ui/cx";
-import { Link } from "@/i18n/navigation";
 
 /**
- * `plain` and `raised` alternate down the page, so neighbouring sections stay
- * apart whatever order the dashboard sets. `navy` is the deep band of §13.
+ * Kept for the home page's callers. Every section now sits on the page ground,
+ * opened by its rule (the SectionShell board): the navy and raised bands are
+ * gone, and neighbouring sections stay apart by the space between them.
  */
 export type SectionBand = "plain" | "raised" | "navy";
 
-const BANDS: Record<SectionBand, string> = {
-  plain: "bg-background text-text",
-  raised: "bg-surface text-text",
-  // The hairline keeps two navy sections in a row (hero, then stats) apart.
-  navy: "border-t border-on-primary/10 bg-primary text-on-primary",
-};
-
-/** A card that stands out from either band. */
-export const CARD =
-  "rounded-lg border border-text/10 bg-surface p-6 shadow-sm group-data-[band=raised]/band:bg-background";
+/**
+ * A bounded item, until Lane A gives each home list its own record shape.
+ * Square, a hairline edge, on the page ground: no shadow, no raised fill.
+ */
+export const CARD = "relative border border-line bg-bg p-6";
 
 /** A link on a card's title, with the whole card as its target. */
-export const CARD_LINK =
-  "rounded-sm after:absolute after:inset-0 after:rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring hover:underline";
+export const CARD_LINK = "after:absolute after:inset-0 hover:underline focus-ring";
 
 /** The id a home section's h2 gets, for its `aria-labelledby`. */
 export function sectionHeadingId(key: string) {
   return `home-${key}-title`;
 }
 
-/** A home section: gold divider, h2, optional intro and "see all" link, then its content. */
+/**
+ * A home section (the SectionShell board): the rule, the title, a line of his,
+ * "see all" with the count, then the content. It stands alone, so the
+ * dashboard can hide or reorder it without breaking its neighbours; an empty
+ * section is never rendered (the caller leaves it out).
+ */
 export function HomeSectionShell({
   sectionKey,
   heading,
@@ -41,50 +40,16 @@ export function HomeSectionShell({
   sectionKey: string;
   heading: string;
   intro?: string;
+  /** No longer changes the look; see `SectionBand`. */
   band: SectionBand;
-  /** A link to the section's full page, after the heading. */
-  action?: { href: string; label: string };
+  /** "See all", to the section's full page, with its count in the page's digits. */
+  action?: { href: string; label: string; count?: string };
   children: ReactNode;
 }) {
-  const headingId = sectionHeadingId(sectionKey);
-  const navy = band === "navy";
-
   return (
-    <section
-      aria-labelledby={headingId}
-      data-section={sectionKey}
-      data-band={band}
-      className={cx("group/band", BANDS[band])}
-    >
-      <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
-        <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
-          <div className="min-w-0 flex-1 basis-64">
-            {/* Gold as a divider, never as text (§13). */}
-            <span aria-hidden="true" className="mb-3 block h-0.5 w-10 rounded-full bg-accent" />
-            <h2 id={headingId} className="text-balance text-2xl md:text-3xl">
-              {heading}
-            </h2>
-            {intro && (
-              <p className={cx("mt-2 max-w-prose text-pretty", navy ? "text-on-primary/80" : "text-text-secondary")}>
-                {intro}
-              </p>
-            )}
-          </div>
-          {action && (
-            <Link
-              href={action.href}
-              className={cx(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-sm font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2",
-                navy ? "focus-visible:outline-accent" : "focus-visible:outline-ring",
-              )}
-            >
-              {action.label}
-              <ArrowForwardIcon aria-hidden="true" className="size-4" />
-            </Link>
-          )}
-        </div>
-        <div className="mt-8">{children}</div>
-      </div>
+    <section aria-labelledby={sectionHeadingId(sectionKey)} data-section={sectionKey} data-band={band} className={cx(CONTAINER, "mt-section")}>
+      <SectionHead id={sectionHeadingId(sectionKey)} title={heading} intro={intro} more={action} />
+      <div className="mt-8">{children}</div>
     </section>
   );
 }
