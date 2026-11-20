@@ -276,3 +276,4 @@
   .p-brand b { font-size: 17px; }
 }
 .p-tools > * { flex: none; white-space: nowrap; }
+.p-sig-img { display: block; width: 220px; height: 84px; color: var(--ink); }
