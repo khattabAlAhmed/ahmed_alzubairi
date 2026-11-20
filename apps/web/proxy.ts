@@ -91,8 +91,27 @@ function decodedSlug(value: string) {
   }
 }
 
+/**
+ * The slash-less URL for a page path ending in "/" ("/ar/about/" → "/ar/about"),
+ * or null. Next's own trailing-slash redirect is off (`skipTrailingSlashRedirect`
+ * in next.config.ts), so PostHog's "/ingest/e/" reaches its rewrite without a
+ * 308, which a keepalive request may never finish. This keeps one URL per page
+ * (§6.24). API paths and "/ingest" are left as they are.
+ */
+export function slashlessPath(pathname: string): string | null {
+  if (pathname === "/" || !pathname.endsWith("/")) return null;
+  if (/^\/(api|ingest)(\/|$)/.test(pathname)) return null;
+  // One leading slash: "//host/" must never become a link to another host.
+  return pathname.replace(/\/+$/, "").replace(/^\/+/, "/") || "/";
+}
+
 export default clerkMiddleware(async (auth, request) => {
   const { pathname, search } = request.nextUrl;
+  const slashless = slashlessPath(pathname);
+  if (slashless) {
+    // A plain URL: NextURL puts the trailing slash back when it formats.
+    return NextResponse.redirect(new URL(`${slashless}${search}`, request.url), 308);
+  }
   // A path we can't decode can't be checked, and no real page has one.
   const path = decodePath(pathname);
   if (path === null) {
@@ -100,7 +119,9 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   if (isApiPath(path)) {
-    if (!isPublicApiPath(path) && !(await auth()).isAuthenticated) {
+    // "/api/x/" reaches the same route as "/api/x" now that Next's slash
+    // redirect is off, so it is checked as that route.
+    if (!isPublicApiPath(path.replace(/\/+$/, "")) && !(await auth()).isAuthenticated) {
       const locale = localeFromReferer(request.headers.get("referer"));
       const body: ErrorResponse = {
         error: {

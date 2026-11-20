@@ -1,3 +1,5 @@
+import { NextRequest } from "next/server";
+import createMiddleware from "next-intl/middleware";
 import { describe, expect, it } from "vitest";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
@@ -23,6 +25,15 @@ describe("routing", () => {
 
   it("sets no cookie, so public pages stay cacheable", () => {
     expect(routing.localeCookie).toBe(false);
+  });
+
+  it("sends no hreflang Link header: only the page's own metadata names its alternates", async () => {
+    expect(routing.alternateLinks).toBe(false);
+    const handle = createMiddleware(routing);
+    for (const path of ["/ar", "/en/services/english-only-service", "/ar/blog/مقال"]) {
+      const response = handle(new NextRequest(new URL(encodeURI(path), "https://example.test")));
+      expect(response.headers.get("link") ?? "").not.toMatch(/hreflang/i);
+    }
   });
 });
 

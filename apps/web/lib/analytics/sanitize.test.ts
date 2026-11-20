@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_DEPTH, maskAttribute, sanitizeEvent, stripUrl } from "./sanitize";
+import { MAX_DEPTH, maskAttribute, maskIds, sanitizeEvent, stripUrl } from "./sanitize";
 
 describe("stripUrl", () => {
   it.each([
@@ -15,6 +15,41 @@ describe("stripUrl", () => {
   it("leaves a value that isn't text", () => {
     expect(stripUrl(null)).toBeNull();
     expect(stripUrl(3)).toBe(3);
+  });
+});
+
+describe("maskIds", () => {
+  const UUID = "d66ead78-8d93-48fc-bd11-144f48abcfc7";
+  it.each([
+    [`https://site.test/ar/account/consultations/${UUID}`, "https://site.test/ar/account/consultations/:id"],
+    ["/ar/dashboard/clients/user_3MLNrB0rI1hd19tRinVFY9qZBt9", "/ar/dashboard/clients/:id"],
+    [`/en/account/documents/${UUID.toUpperCase()}`, "/en/account/documents/:id"],
+    [`/en/dashboard/document-requests/${UUID}`, "/en/dashboard/document-requests/:id"],
+    ["/en/dashboard/training/42", "/en/dashboard/training/:id"],
+    [`/api/consultations/${UUID}/messages`, "/api/consultations/:id/messages"],
+    [`/en/account/consultations/%36${UUID.slice(1)}`, "/en/account/consultations/:id"],
+    ["/ar/dashboard/clients/%75ser_3MLNrB0rI1hd19tRinVFY9qZBt9", "/ar/dashboard/clients/:id"],
+    ["/en/dashboard/training/%34%32", "/en/dashboard/training/:id"],
+  ])("%s → %s", (input, output) => {
+    expect(maskIds(input)).toBe(output);
+  });
+
+  it.each([
+    "https://site.test/en/services/governance-review",
+    "/ar/blog/مقال-أول",
+    "/en/training/example-governance-course",
+    "/en/blog/2024-annual-report",
+    "/en/projects/user-research",
+    "$direct",
+    "https://12345.example.test/en",
+    "/en/blog/%E0%A4%A",
+    "/ar/blog/%D9%85%D9%82%D8%A7%D9%84",
+  ])("keeps %s", (value) => {
+    expect(maskIds(value)).toBe(value);
+  });
+
+  it("is applied by stripUrl, after the query is cut", () => {
+    expect(stripUrl(`/en/account/consultations/${UUID}?tab=files#x`)).toBe("/en/account/consultations/:id");
   });
 });
 
@@ -161,6 +196,32 @@ describe("sanitizeEvent", () => {
     const out = sanitizeEvent({ event: "$web_vitals", properties: { $web_vitals_CLS_event: deep } });
     expect(out).not.toBeNull();
     expect(JSON.stringify(out)).not.toMatch(/token|\?/);
+  });
+
+  it("masks ids in every URL property at any depth, $set_once and replay records too", () => {
+    const url = "https://site.test/ar/dashboard/clients/user_3MLNrB0rI1hd19tRinVFY9qZBt9";
+    const pageview = sanitizeEvent({
+      event: "$pageview",
+      properties: {
+        $current_url: url,
+        $pathname: "/ar/dashboard/clients/user_3MLNrB0rI1hd19tRinVFY9qZBt9",
+        $session_entry_url: url,
+        $prev_pageview_pathname: "/ar/account/consultations/d66ead78-8d93-48fc-bd11-144f48abcfc7",
+      },
+      $set_once: { $initial_current_url: url },
+    });
+    expect(JSON.stringify(pageview)).not.toMatch(/user_3M|d66ead78/);
+    expect(pageview?.properties?.$pathname).toBe("/ar/dashboard/clients/:id");
+    const vitals = sanitizeEvent({ event: "$web_vitals", properties: { $web_vitals_LCP_event: { navigationURL: url } } });
+    expect(vitals?.properties?.$web_vitals_LCP_event).toEqual({ navigationURL: "https://site.test/ar/dashboard/clients/:id" });
+    const snapshot = sanitizeEvent({ event: "$snapshot", properties: { $snapshot_data: [{ type: 4, data: { href: url } }] } });
+    expect(JSON.stringify(snapshot)).not.toContain("user_3M");
+    expect(maskAttribute("href", "/en/account/consultations/d66ead78-8d93-48fc-bd11-144f48abcfc7")).toBe("/en/account/consultations/:id");
+  });
+
+  it("keeps service and blog slugs, which the funnel matches", () => {
+    const out = sanitizeEvent({ event: "$pageview", properties: { $pathname: "/en/services/governance-review", $current_url: "https://site.test/ar/blog/first-article" } });
+    expect(out?.properties).toEqual({ $pathname: "/en/services/governance-review", $current_url: "https://site.test/ar/blog/first-article" });
   });
 
   it("keeps text that isn't a URL as it is, at any depth", () => {

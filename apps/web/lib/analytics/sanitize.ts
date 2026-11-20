@@ -113,11 +113,58 @@ function cutCampaign(properties: Properties, keep: boolean): void {
   }
 }
 
-/** The URL without its query string and hash. Text that isn't a URL is kept as it is. */
+/** What an id-shaped path segment becomes. */
+export const ID_SEGMENT = ":id";
+
+/**
+ * Path segments that name a record or a person (§9): a uuid (consultation,
+ * request, document, course), a Clerk id (`user_…`, `org_…`, `sess_…`) or a
+ * number. Public slugs never look like these, so funnels keep them.
+ */
+const ID_SHAPED = [
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  /^(user|org|sess|inv|sms|idn)_[A-Za-z0-9]{8,}$/,
+  /^\d+$/,
+] as const;
+
+/** Where the path starts: after `scheme://host`, or at a leading "/"; -1 when the text isn't a URL or path. */
+function pathStart(value: string): number {
+  const absolute = /^[a-z][a-z0-9+.-]*:\/\/[^/]*/i.exec(value);
+  if (absolute) return absolute[0].length;
+  return value.startsWith("/") ? 0 : -1;
+}
+
+/** True when a path segment is id-shaped, as written or percent-decoded ("%36…" is "6…"). */
+function isIdSegment(segment: string): boolean {
+  let decoded = segment;
+  try {
+    decoded = decodeURIComponent(segment);
+  } catch {
+    // A malformed escape is classified as written.
+  }
+  return ID_SHAPED.some((shape) => shape.test(decoded));
+}
+
+/** The URL or path with every id-shaped segment replaced by `:id`. Other text is kept. */
+export function maskIds(value: string): string {
+  const start = pathStart(value);
+  if (start === -1) return value;
+  const path = value
+    .slice(start)
+    .split("/")
+    .map((segment) => (isIdSegment(segment) ? ID_SEGMENT : segment))
+    .join("/");
+  return value.slice(0, start) + path;
+}
+
+/**
+ * The URL without its query string and hash, and with id-shaped path
+ * segments as `:id`. Text that isn't a URL is kept as it is.
+ */
 export function stripUrl(value: unknown): unknown {
   if (typeof value !== "string") return value;
   const cut = value.search(/[?#]/);
-  return cut === -1 ? value : value.slice(0, cut);
+  return maskIds(cut === -1 ? value : value.slice(0, cut));
 }
 
 /** DOM attributes that hold a URL, which replay records on every element. */

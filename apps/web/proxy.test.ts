@@ -52,7 +52,7 @@ vi.mock("./lib/content", () => ({
 vi.mock("./lib/content/posts", () => ({ hasPost: check("blog") }));
 vi.mock("./lib/content/courses", () => ({ hasCourse: check("training") }));
 
-const { default: proxy, DETAIL_LOOKUP_TIMEOUT_MS, config } = await import("./proxy");
+const { default: proxy, DETAIL_LOOKUP_TIMEOUT_MS, config, slashlessPath } = await import("./proxy");
 const { unstable_doesMiddlewareMatch } = await import("next/experimental/testing/server");
 
 const ORIGIN = "http://localhost:3000";
@@ -351,4 +351,47 @@ describe("the PostHog reverse proxy path", () => {
       expect(runs(path)).toBe(true);
     },
   );
+});
+
+describe("trailing slash (Next's own redirect is off)", () => {
+  it.each([
+    ["/ar/about/", "/ar/about"],
+    ["/en/blog/", "/en/blog"],
+    ["/en/services/governance-review/", "/en/services/governance-review"],
+    ["/ar//", "/ar"],
+    ["/ar/about/?ref=x", "/ar/about?ref=x"],
+  ])("sends %s to the slash-less URL with a 308", async (path, target) => {
+    const response = await request(path);
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe(`${ORIGIN}${target}`);
+  });
+
+  it("checks nothing else first: a protected page with a slash goes to its slash-less URL", async () => {
+    const response = await request("/en/account/");
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe(`${ORIGIN}/en/account`);
+  });
+
+  it.each(["/api/posthog-config/", "/api/", "/ingest/e/", "/"])("never redirects %s", async (path) => {
+    expect(slashlessPath(path)).toBeNull();
+  });
+
+  it("checks an API path with a slash as the route without it", async () => {
+    const open = await request("/api/posthog-config/");
+    expect(open.status).toBe(200);
+    expect(open.headers.get("location")).toBeNull();
+    const closed = await request("/api/consultations/");
+    expect(closed.status).toBe(401);
+  });
+
+  it("never redirects to another host", async () => {
+    const response = (await proxy(new NextRequest(`${ORIGIN}//evil.example/`), {} as NextFetchEvent)) as Response;
+    expect(response.status).toBe(308);
+    expect(new URL(response.headers.get("location") ?? "", ORIGIN).origin).toBe(ORIGIN);
+    expect(slashlessPath("//evil.example/")).toBe("/evil.example");
+  });
+
+  it("leaves a path without a trailing slash alone", () => {
+    expect(slashlessPath("/ar/about")).toBeNull();
+  });
 });

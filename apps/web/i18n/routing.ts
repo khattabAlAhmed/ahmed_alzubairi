@@ -8,6 +8,10 @@ export const routing = defineRouting({
   localeDetection: false,
   // No cookie: public pages stay cacheable, and the URL alone sets the language.
   localeCookie: false,
+  // No `Link: …hreflang` header. The middleware builds it from the path alone,
+  // so it named translations that don't exist and the other language's slug
+  // wrongly. Pages and the sitemap announce the real alternates (§6.24).
+  alternateLinks: false,
 });
 
 const DIRECTIONS = { ar: "rtl", en: "ltr" } as const satisfies Record<

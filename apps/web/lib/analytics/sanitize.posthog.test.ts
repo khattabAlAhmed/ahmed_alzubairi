@@ -60,3 +60,16 @@ describe("sanitizeEvent with posthog-js events from a campaign link", () => {
     expect(JSON.stringify(sent)).not.toMatch(/utm_source=|email=|%40|#top|\?/);
   });
 });
+
+describe("sanitizeEvent with posthog-js pageviews of private records", () => {
+  it("sends `:id` instead of the record or user id after a client-side navigation", async () => {
+    window.history.pushState(null, "", "/ar/account/consultations/d66ead78-8d93-48fc-bd11-144f48abcfc7");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    window.history.pushState(null, "", "/ar/dashboard/clients/user_3MLNrB0rI1hd19tRinVFY9qZBt9?tab=notes");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const paths = sent.filter((event) => event.event === "$pageview").map((event) => event.properties?.$pathname);
+    expect(paths).toContain("/ar/account/consultations/:id");
+    expect(paths).toContain("/ar/dashboard/clients/:id");
+    expect(JSON.stringify(sent)).not.toMatch(/d66ead78|user_3M|tab=/);
+  });
+});
