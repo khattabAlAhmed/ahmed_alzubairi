@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Consultation request — preview</title>
+<style>
+.cr { display: grid; grid-template-columns: 8fr 4fr; gap: 48px; }
+.cr form { display: flex; flex-direction: column; gap: 22px; padding-top: 22px; border-top: var(--rule-heavy) solid var(--rule); }
+.filed { border-top: var(--rule-heavy) solid var(--rule); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="cr">
+<form onsubmit="return false" aria-label="طلب استشارة جديدة">
+<h2 class="ar-h2">بدء استشارة جديدة</h2>
+<div class="grid-2" style="gap: 22px 24px">
+<div class="r-field"><label class="r-label" for="q1">الخدمة</label><select class="r-select" id="q1"><option selected>الحوكمة المؤسسية</option><option>الاستشارات الإدارية</option><option>لست متأكداً بعد</option></select><p class="r-hint">اخترناها من الصفحة التي جئت منها.</p></div>
+<div class="r-field"><label class="r-label" for="q2">الجهة <span class="r-req">اختياري</span></label><input class="r-input" id="q2"></div>
+</div>
+<div class="r-field"><label class="r-label" for="q3">عنوان قصير</label><input class="r-input" id="q3" value="مراجعة نظام داخلي قبل اعتماده"></div>
+<div class="r-field"><label class="r-label" for="q4">ما الذي تواجهه؟</label><textarea class="r-textarea" id="q4" style="min-height: 150px"></textarea><p class="r-hint">الخلفية، وما جربتموه، ومتى تحتاجون القرار. ما تكتبه يراه أحمد ومن يكلّفه فقط.</p></div>
+<label class="r-drop" style="padding: 18px"><span class="ar-small">أرفق ملفات <span class="r-hint">(<span class="mono" dir="ltr">PDF · DOCX · XLSX · JPG · PNG</span> · حتى ١٠ م.ب · ٥ ملفات)</span></span></label>
+<div class="row" style="justify-content: space-between"><p class="r-hint">ستصلك رسالة حين أرد.</p><button class="r-btn r-btn--primary">أرسل الطلب</button></div>
+</form>
+<div class="stack" style="gap: 10px">
+<p class="state-label">بعد الإرسال</p>
+<div class="r-record">
+<div class="r-record__meta"><span class="r-status r-status--info"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="currentColor"/></svg>جديد</span><span>اليوم · ٢:٣٠ م</span></div>
+<p class="ar-h3" style="padding-block: 14px">مراجعة نظام داخلي قبل اعتماده</p>
+<div class="r-record__row" style="grid-template-columns: 80px 1fr"><p>الخدمة</p><p class="ar-small">الحوكمة المؤسسية</p></div>
+<div class="r-record__row" style="grid-template-columns: 80px 1fr"><p>المرفقات</p><p class="ar-small">ملفان</p></div>
+</div>
+<p class="ar-small">وصل طلبك. سأقرؤه وأرد عليك في المحادثة نفسها.</p>
+<a href="#" class="r-more" style="align-self: flex-start">افتح المحادثة</a>
+</div>
+</div>
+</div>
+</body>
+</html>

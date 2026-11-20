@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>File input — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-2">
+<div class="stack">
+<p class="r-label">المرفقات <span class="r-req">اختياري</span></p>
+<label class="r-drop" for="fi1">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>
+<span class="ar-small">اسحب الملفات إلى هنا، أو <span class="r-link">اخترها من جهازك</span></span>
+<span class="r-hint"><span class="mono" dir="ltr">PDF · DOCX · XLSX · JPG · PNG</span> · حتى ١٠ م.ب للملف · ٥ ملفات في الرسالة</span>
+<input id="fi1" type="file" multiple style="position: absolute; opacity: 0; width: 1px; height: 1px">
+</label>
+<div class="r-drop is-over"><span class="ar-small">أفلت الملفات للإرفاق</span><span class="state-label">عند السحب</span></div>
+</div>
+<div class="stack" style="gap: 10px">
+<div class="r-file"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4"/></svg><div><p class="ar-small" style="line-height: 1.5">دليل-الحوكمة-مسودة.pdf</p><p class="r-hint"><span class="mono" dir="ltr">2.4 MB</span> · يُرفع ٦٤٪</p></div><button class="r-icon-btn" aria-label="إلغاء الرفع"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="meter"><span style="width: 64%"></span></div></div>
+<div class="r-file"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="color: var(--success)"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><div><p class="ar-small" style="line-height: 1.5">الهيكل-التنظيمي.xlsx</p><p class="r-hint"><span class="mono" dir="ltr">310 KB</span> · أُرفق</p></div><button class="r-icon-btn" aria-label="إزالة الملف"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<div class="r-file r-file--bad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="color: var(--danger)"><path d="M6 6l12 12M18 6L6 18"/></svg><div><p class="ar-small" style="line-height: 1.5">عرض-تقديمي.pptx</p><p class="r-error">لم يُرفع: هذا النوع غير مقبول. حوّله إلى PDF.</p></div><span></span></div>
+<div class="r-file r-file--bad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="color: var(--danger)"><path d="M12 3l9 16H3zM12 10v4M12 17v.5"/></svg><div><p class="ar-small" style="line-height: 1.5">صور-الورشة.png</p><p class="r-error">انقطع الرفع. ما كتبته محفوظ.</p></div><button class="r-btn r-btn--quiet r-btn--sm">أعد المحاولة</button></div>
+</div>
+</div>
+</div>
+</body>
+</html>

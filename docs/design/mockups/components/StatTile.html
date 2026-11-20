@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Stat tile and monthly chart — preview</title>
+<style>
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: var(--rule-heavy) solid var(--rule); }
+.tiles a { padding: 16px 20px 16px 0; display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--line); text-decoration: none; }
+.tiles a + a { padding-inline-start: 20px; border-inline-start: 1px solid var(--line); }
+.tiles b { font-size: 36px; line-height: 1.15; font-weight: 500; font-variant-numeric: tabular-nums; }
+.tiles .need b { color: var(--accent); }
+.chart { margin-top: 24px; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; }
+.axis { display: flex; flex-direction: column; justify-content: space-between; height: 180px; font-size: 12px; color: var(--ink-2); text-align: end; font-variant-numeric: tabular-nums; }
+.plot { position: relative; height: 180px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; align-items: end; border-bottom: 1px solid var(--ink-2); background: repeating-linear-gradient(to top, transparent 0 59px, var(--line) 59px 60px); }
+.plot i { display: block; background: var(--line-strong); }
+.plot i.now { background: var(--accent); }
+.months { grid-column: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; font-size: 12px; color: var(--ink-2); text-align: center; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="tiles">
+<a href="#" class="need"><span class="ar-caption muted">طلبات جديدة</span><b>٣</b><span class="r-hint">تنتظر أول رد</span></a>
+<a href="#" class="need"><span class="ar-caption muted">طلبات وثائق</span><b>٢</b><span class="r-hint">بانتظار قرارك</span></a>
+<a href="#"><span class="ar-caption muted">استشارات نشطة</span><b>١١</b><span class="r-hint">+٢ عن الشهر الماضي</span></a>
+<a href="#"><span class="ar-caption muted">مشتركون جدد</span><b>٤٨</b><span class="r-hint">هذا الشهر</span></a>
+</div>
+<div class="chart" role="img" aria-label="الاستشارات الجديدة شهرياً خلال آخر ١٢ شهراً، أعلاها ١٤ في مارس">
+<div class="axis"><span>١٥</span><span>١٠</span><span>٥</span><span>٠</span></div>
+<div class="plot"><i style="height: 27%"></i><i style="height: 40%"></i><i style="height: 33%"></i><i style="height: 53%"></i><i style="height: 47%"></i><i style="height: 60%"></i><i style="height: 40%"></i><i style="height: 67%"></i><i style="height: 73%"></i><i style="height: 60%"></i><i style="height: 80%"></i><i class="now" style="height: 93%"></i></div>
+<div class="months"><span>أبر</span><span>مايو</span><span>يون</span><span>يول</span><span>أغس</span><span>سبت</span><span>أكت</span><span>نوف</span><span>ديس</span><span>ينا</span><span>فبر</span><span>مارس</span></div>
+</div>
+<p class="r-hint" style="margin-top: 10px">ما يحتاج تصرفاً يأتي أولاً وبرقم باللون المميز. الرسم أعمدة بلا تدرج، والشهر الحالي وحده باللون المميز، والمحور يبدأ من صفر.</p>
+</div>
+</body>
+</html>

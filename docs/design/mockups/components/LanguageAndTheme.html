@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Language and theme — preview</title>
+<style>
+.seg { display: inline-flex; border: 1px solid var(--line-strong); }
+.seg button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 0; background: none; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-inline-start: 1px solid var(--line-strong); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.pop { width: 300px; padding: 16px; background: var(--bg); box-shadow: var(--shadow-overlay); border-top: var(--rule-heavy) solid var(--rule); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-3">
+<div class="stack">
+<p class="r-label">اللغة</p>
+<div class="seg" role="group" aria-label="اللغة"><button aria-pressed="true">العربية</button><button aria-pressed="false" lang="en">English</button></div>
+<p class="r-hint">في الترويسة يظهر اسم اللغة الأخرى فقط (<span class="mono" dir="ltr">EN</span> أو «عربي»). هذا الشكل في الإعدادات والتذييل.</p>
+</div>
+<div class="stack">
+<p class="r-label">صفحة بلا ترجمة</p>
+<div class="pop" role="status">
+<p class="ar-small" style="font-weight: 500">This article is in Arabic only.</p>
+<p class="r-hint" dir="ltr" style="text-align: left">You'll go to the English blog list instead.</p>
+<div class="row" style="margin-top: 10px" dir="ltr"><a href="#" class="r-btn r-btn--secondary r-btn--sm">Go to the blog</a><button class="r-btn r-btn--quiet r-btn--sm">Stay here</button></div>
+</div>
+</div>
+<div class="stack">
+<p class="r-label">الوضع</p>
+<div class="seg" role="group" aria-label="الوضع">
+<button aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v11H3zM8 20h8M12 16v4"/></svg>الجهاز</button>
+<button aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>فاتح</button>
+<button aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>داكن</button>
+</div>
+<p class="r-hint">الافتراضي يتبع الجهاز، والاختيار يُحفظ. في الترويسة زر واحد يدور بين الثلاثة ويقول حالته في اسمه.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

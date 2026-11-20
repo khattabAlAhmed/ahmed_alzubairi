@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Mobile menu — preview</title>
+<style>
+.mm { width: 375px; background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shadow-overlay); }
+.mm-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+.mm ol a { display: grid; grid-template-columns: 1fr auto; align-items: baseline; padding: 14px 16px; border-bottom: 1px solid var(--line); text-decoration: none; font-size: 19px; }
+.mm ol a span { font-size: 13px; color: var(--ink-2); }
+.mm ol a[aria-current="page"] { box-shadow: inset calc(-1 * var(--rule-heavy)) 0 0 var(--accent); }
+.mm-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-bottom: 1px solid var(--line); }
+.mm-foot > * { min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; text-decoration: none; background: none; border: 0; }
+.mm-foot > * + * { border-inline-start: 1px solid var(--line); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl" style="display: flex; gap: 32px; align-items: flex-start">
+<div class="mm" role="dialog" aria-label="القائمة">
+<div class="mm-top"><b style="font-size: 17px; font-weight: 600">أحمد الزبيري</b><button class="r-icon-btn" aria-label="إغلاق القائمة"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<ol>
+<li><a href="#">الرئيسية</a></li>
+<li><a href="#">من أنا</a></li>
+<li><a href="#">مجالات الخبرة <span>٣</span></a></li>
+<li><a href="#">الخدمات <span>٦</span></a></li>
+<li><a href="#" aria-current="page">المشاريع <span>٣٨</span></a></li>
+<li><a href="#">التدريب</a></li>
+<li><a href="#">المدونة</a></li>
+<li><a href="#">الوثائق والشهادات</a></li>
+<li><a href="#">تواصل معي</a></li>
+</ol>
+<div class="mm-foot"><a href="#" lang="en">English</a><button>الوضع الداكن</button></div>
+<div style="padding: 16px"><a href="#" class="r-btn r-btn--primary r-btn--block">اطلب استشارة</a></div>
+</div>
+<div class="stack" style="max-width: 280px">
+<p class="r-label">السلوك</p>
+<p class="r-hint">تفتح فوق الصفحة بغطاء <span class="mono" dir="ltr">scrim</span>، ويبقى التركيز داخلها حتى تُغلق. Esc يغلقها ويعيد التركيز إلى زر القائمة. الصفحة الحالية عليها خط عمودي باللون المميز على طرف البداية. الأرقام عدد ما في القسم، وتُحذف إن لم تكن مفيدة.</p>
+</div>
+</div>
+</body>
+</html>

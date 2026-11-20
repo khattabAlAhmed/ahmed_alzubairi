@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Choice — preview</title></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-3">
+<fieldset class="stack" style="border: 0; padding: 0; margin: 0; gap: 10px">
+<legend class="r-label" style="margin-bottom: 8px">مربعات الاختيار</legend>
+<label class="r-check"><input type="checkbox" checked>الحوكمة</label>
+<label class="r-check"><input type="checkbox">العمل الإنساني</label>
+<label class="r-check"><input type="checkbox" disabled>التنمية · لا توجد مشاريع</label>
+<label class="r-check"><input type="checkbox" checked style="outline: 2px solid var(--focus); outline-offset: 3px">عند التركيز</label>
+</fieldset>
+<fieldset class="stack" style="border: 0; padding: 0; margin: 0; gap: 10px">
+<legend class="r-label" style="margin-bottom: 8px">نوع الجهة</legend>
+<label class="r-check"><input type="radio" name="org" checked>حكومية</label>
+<label class="r-check"><input type="radio" name="org">منظمة</label>
+<label class="r-check"><input type="radio" name="org">شركة</label>
+<label class="r-check"><input type="radio" name="org">فرد</label>
+</fieldset>
+<div class="stack" style="gap: 14px">
+<p class="r-label">المفتاح</p>
+<label class="r-switch">رسائل عند كل رد جديد<input type="checkbox" role="switch" checked></label>
+<label class="r-switch">تذكير قبل الموعد بيوم<input type="checkbox" role="switch"></label>
+<hr class="r-hair">
+<label class="r-check"><input type="checkbox">أوافق على <a href="#" class="r-link">شروط الاستخدام</a> و<a href="#" class="r-link">سياسة الخصوصية</a>.</label>
+</div>
+</div>
+</div>
+</body>
+</html>

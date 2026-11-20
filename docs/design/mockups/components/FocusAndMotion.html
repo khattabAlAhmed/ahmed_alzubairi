@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Focus and motion — preview</title>
+<style>
+.settle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.settle div { padding: 14px; border-top: 2px solid var(--rule); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="grid-2">
+<div class="stack">
+<p class="r-label">حلقة التركيز</p>
+<div class="row" style="gap: 20px">
+<a href="#" class="r-btn r-btn--primary is-focus">على اللون المميز</a>
+<a href="#" class="r-btn r-btn--secondary is-focus">على الأرضية</a>
+<a href="#" class="r-link" style="outline: 2px solid var(--focus); outline-offset: 3px">على رابط</a>
+</div>
+<p class="r-hint">خط ثابت بعرض ٢ ومسافة ٣، بلون <span class="mono" dir="ltr">focus</span>. يتجاوز ٣ : ١ على كل الأسطح في الوضعين. لا يُخفى أبداً.</p>
+</div>
+<div class="stack">
+<p class="r-label">الحركة</p>
+<div class="settle" aria-hidden="true">
+<div><p class="state-label">0ms</p><p class="ar-small">الخط العلوي يظهر</p></div>
+<div><p class="state-label">+120ms</p><p class="ar-small">العنوان يستقر</p></div>
+<div><p class="state-label">+240ms</p><p class="ar-small">الباقي يظهر معاً</p></div>
+</div>
+<p class="r-hint">لحظة واحدة فقط في كل صفحة: الصفحة «تستقر» عند فتحها في ٦٠٠ مللي ثانية، بتلاشٍ وانزياح ٨ بكسل. لا حركة عند التمرير، ولا أرقام تعدّ، ولا شيء يقفز أو يدور. مع «تقليل الحركة» تظهر الصفحة ساكنة.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

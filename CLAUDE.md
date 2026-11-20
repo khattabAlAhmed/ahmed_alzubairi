@@ -87,7 +87,7 @@ Arabic text in the docs is exact UI copy or a domain term. Use it as written.
 | API errors | `{ error: { code, message } }` with the right HTTP status. Error text shown to users comes from `messages/`, in their language. |
 | Tests | Vitest. At least one test per route and per pure function. Every permission gets a refused-case test. |
 | New dependency | Allowed. Name it and the reason in the PR body. |
-| UI | Follow `project.md` §13 Design, and `docs/design/DESIGN.md` once it exists. Reuse components in `apps/web/components`. For UI work, use the `frontend-design` and `impeccable` skills in `.claude/skills`, and look at the rendered page before you open a PR. |
+| UI | Follow `project.md` §13 Design, and `docs/design/DESIGN.md` once it exists. Build pages from the design-system components (`docs/design/components.md`) in `apps/web/components`; add a missing one to the system first, never a one-off style. For UI work, use the `frontend-design` and `impeccable` skills in `.claude/skills`, and look at the rendered page before you open a PR. |
 | UI text | Every string lives in `apps/web/messages/{ar,en}.json`. Never hardcode text. |
 | RTL | Logical Tailwind utilities only (`ms-`, `pe-`, `start-`). Never `ml-`, `pr-`, `left-`. |
 | Dates and times | Stored in UTC. Shown with `Intl` in the user's locale and time zone. |

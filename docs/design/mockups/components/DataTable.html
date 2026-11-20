@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Data table — preview</title>
+<style>
+.tbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px; }
+.sort { display: inline-flex; align-items: center; gap: 4px; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.r-table td.act { text-align: end; white-space: nowrap; }
+.stacked { width: 340px; border-top: var(--rule-heavy) solid var(--rule); }
+.stacked > div { padding-block: 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 32px">
+<div>
+<div class="tbar"><div class="row" style="gap: 8px"><button class="r-chip" aria-pressed="true"><span class="box"></span>مفتوحة<span class="n">١٢</span></button><button class="r-chip" aria-pressed="false"><span class="box"></span>مسندة إليّ<span class="n">٤</span></button></div><p class="r-hint">١ محدّد · <a href="#" class="r-link">إسناد</a> · <a href="#" class="r-link">تغيير الحالة</a></p></div>
+<table class="r-table">
+<thead><tr><th style="width: 32px"><span class="r-check"><input type="checkbox" aria-label="تحديد الكل"></span></th><th><button class="sort">العنوان</button></th><th>العميل</th><th>الحالة</th><th><button class="sort" aria-sort="descending">آخر نشاط <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></th><th></th></tr></thead>
+<tbody>
+<tr class="is-selected"><td><span class="r-check"><input type="checkbox" checked aria-label="تحديد"></span></td><td style="font-weight: 500">مراجعة نظام داخلي قبل اعتماده</td><td class="muted">ليلى م. · منظمة</td><td><span class="r-status r-status--accent"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>موعد مجدول</span></td><td class="tnum muted">اليوم ٢:١٦ م</td><td class="act"><a href="#" class="r-link">فتح</a></td></tr>
+<tr><td><span class="r-check"><input type="checkbox" aria-label="تحديد"></span></td><td style="font-weight: 500">ميثاق حوكمة لشركة عائلية</td><td class="muted">خالد ع. · شركة</td><td><span class="r-status r-status--info"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="currentColor"/></svg>جديد</span></td><td class="tnum muted">أمس</td><td class="act"><a href="#" class="r-link">فتح</a></td></tr>
+<tr><td><span class="r-check"><input type="checkbox" aria-label="تحديد"></span></td><td style="font-weight: 500">تدريب فريق ميداني</td><td class="muted">منى س. · منظمة</td><td><span class="r-status r-status--warning"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>قيد المراجعة</span></td><td class="tnum muted">١٠ مارس</td><td class="act"><a href="#" class="r-link">فتح</a></td></tr>
+<tr><td><span class="r-check"><input type="checkbox" aria-label="تحديد"></span></td><td style="font-weight: 500">طلب وثيقة · تأهيل مناقصة</td><td class="muted">عمر ح. · فرد</td><td><span class="r-status r-status--muted"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="currentColor"/></svg>مغلق</span></td><td class="tnum muted">٢ مارس</td><td class="act"><a href="#" class="r-link">فتح</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="stack" style="gap: 6px"><p class="state-label">الجوال · كل صف كتلة</p><div class="stacked">
+<div><span class="row" style="justify-content: space-between"><span class="ar-small" style="font-weight: 500">مراجعة نظام داخلي</span><span class="r-hint tnum">٢:١٦ م</span></span><span class="r-hint">ليلى م. · منظمة</span><span class="r-status r-status--accent" style="font-size: 13px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>موعد مجدول</span></div>
+<div><span class="row" style="justify-content: space-between"><span class="ar-small" style="font-weight: 500">ميثاق حوكمة لشركة عائلية</span><span class="r-hint">أمس</span></span><span class="r-hint">خالد ع. · شركة</span><span class="r-status r-status--info" style="font-size: 13px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="currentColor"/></svg>جديد</span></div>
+</div></div>
+</div>
+</div>
+</body>
+</html>

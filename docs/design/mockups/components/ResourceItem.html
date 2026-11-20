@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Resource item — preview</title>
+<style>
+.rs { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 20px; align-items: start; padding-block: 18px; border-bottom: 1px solid var(--line); }
+.ft { position: relative; width: 44px; height: 56px; border: 1.5px solid var(--ink); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.ft::before { content: ""; position: absolute; top: -1.5px; inset-inline-end: -1.5px; width: 12px; height: 12px; background: var(--bg); border-inline-start: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+.gate { grid-column: 2 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 16px; padding: 16px; background: var(--surface); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div style="border-top: var(--rule-heavy) solid var(--rule)">
+<div class="rs">
+<span class="ft" dir="ltr">PDF</span>
+<div class="stack" style="gap: 4px"><p class="ar-h3">دليل مختصر لكتابة مصفوفة الصلاحيات</p><p class="ar-small muted">١٢ صفحة. ما أستعمله في الجلسة الأولى مع أي مؤسسة.</p><p class="r-hint"><span class="r-tag">الحوكمة</span> <span class="r-tag">دليل</span> · <span class="mono" dir="ltr">1.1 MB</span></p></div>
+<a href="#" class="r-btn r-btn--secondary r-btn--sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>تنزيل</a>
+</div>
+<div class="rs">
+<span class="ft" dir="ltr">XLSX</span>
+<div class="stack" style="gap: 4px"><p class="ar-h3">قالب خطة إحالة مجتمعية</p><p class="ar-small muted">جدول جاهز بالأعمدة التي احتجناها في أربعة مخيمات.</p><p class="r-hint"><span class="r-tag">الإنساني</span> <span class="r-tag">قالب</span> · <span class="mono" dir="ltr">86 KB</span></p></div>
+<span class="r-tag">مقابل بريد إلكتروني</span>
+<form class="gate" onsubmit="return false">
+<div class="r-field"><label class="r-label" for="rg1">بريدك لنرسل الرابط</label><input class="r-input r-input--ltr" id="rg1" type="email" placeholder="name@example.org"></div>
+<button class="r-btn r-btn--primary" style="align-self: end">أرسل الرابط</button>
+<label class="r-check" style="grid-column: 1 / -1; font-size: 14px"><input type="checkbox">أرسل لي النشرة البريدية أيضاً. (اختياري، ولن أضيفك دون موافقتك)</label>
+</form>
+</div>
+<div class="rs">
+<span class="ft" dir="ltr">DOCX</span>
+<div class="stack" style="gap: 4px"><p class="ar-h3">ورقة عمل: ما الذي يجعل الحماية مقبولة مجتمعياً؟</p><p class="r-hint"><span class="mono" dir="ltr">240 KB</span></p></div>
+<p class="r-status r-status--success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>أرسلنا الرابط إلى بريدك</p>
+</div>
+</div>
+</div>
+</body>
+</html>

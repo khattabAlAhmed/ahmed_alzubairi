@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Content editor — preview</title>
+<style>
+.ed { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; }
+.ed-head { display: flex; justify-content: space-between; align-items: center; padding-block: 12px; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.pub { padding: 18px; background: var(--surface); border-top: var(--rule-heavy) solid var(--rule); display: flex; flex-direction: column; gap: 14px; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="ed">
+<div>
+<div class="ed-head"><div class="row"><p class="ar-h3">مسار إحالةٍ يديره السكان أنفسهم</p><span class="r-tag r-tag--draft">مسودة</span></div><p class="r-hint">حُفظ تلقائياً قبل دقيقة</p></div>
+<div class="r-tabs" role="tablist" aria-label="اللغة" style="margin-bottom: 18px"><button class="r-tab" role="tab" aria-selected="true">العربية</button><button class="r-tab" role="tab" aria-selected="false">English <span class="r-tag r-tag--draft" style="font-size: 11px; line-height: 1.6">ناقص</span></button></div>
+<div class="stack" style="gap: 20px">
+<div class="r-field"><label class="r-label" for="ce1">العنوان</label><input class="r-input" id="ce1" value="مسار إحالةٍ يديره السكان أنفسهم"></div>
+<div class="grid-3" style="gap: 20px">
+<div class="r-field"><label class="r-label" for="ce2">الحال</label><textarea class="r-textarea" id="ce2" style="min-height: 96px">أربعة مخيمات، ولا طريقة واحدة يثق بها الناس للإبلاغ عن الخطر.</textarea></div>
+<div class="r-field"><label class="r-label" for="ce3">ما فعلتُ</label><textarea class="r-textarea" id="ce3" style="min-height: 96px">جلستُ مع لجان المخيمات أولاً…</textarea></div>
+<div class="r-field"><label class="r-label" for="ce4">ما تغيّر</label><textarea class="r-textarea" id="ce4" style="min-height: 96px">بعد عام، صار أغلب البلاغات يصل عبر اللجان المحلية.</textarea></div>
+</div>
+<label class="r-switch" style="max-width: 420px">إخفاء اسم الجهة وإظهار «منظمة دولية»<input type="checkbox" role="switch" checked></label>
+</div>
+</div>
+<aside class="pub" aria-label="النشر">
+<p class="ar-small" style="font-weight: 500">النشر</p>
+<dl class="r-ledger"><div><dt>الحالة</dt><dd>مسودة</dd></div><div><dt>العربية</dt><dd>مكتملة</dd></div><div><dt>English</dt><dd>ناقصة</dd></div></dl>
+<p class="r-hint">ما لم تكتمل الإنجليزية، لا يظهر المشروع في الموقع الإنجليزي.</p>
+<a href="#" class="r-btn r-btn--secondary r-btn--block">معاينة</a>
+<button class="r-btn r-btn--primary r-btn--block">انشر</button>
+</aside>
+</div>
+</div>
+</body>
+</html>

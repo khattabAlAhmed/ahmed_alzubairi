@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Letter — preview</title>
+<style>
+.lt { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; padding-block: 28px 36px; border-top: var(--rule-heavy) solid var(--rule); }
+.lt-margin { grid-column: span 3; display: flex; flex-direction: column; gap: 14px; }
+.lt-body { grid-column: 4 / span 6; display: flex; flex-direction: column; gap: 22px; }
+.lt-body p { font-size: 19px; line-height: 2.05; max-width: 32em; }
+.lt-body .salute { font-size: 19px; color: var(--ink-2); }
+.lt-photo { grid-column: span 3; display: flex; flex-direction: column; gap: 8px; }
+.sig { width: 220px; height: 84px; border: 1.5px dashed var(--line-strong); display: grid; place-content: center; color: var(--ink-2); font-size: 12px; text-align: center; line-height: 1.6; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<article class="lt" aria-labelledby="lt1">
+<div class="lt-margin">
+<h2 id="lt1" class="ar-small muted">رسالة إلى من يزور هذه الصفحة</h2>
+<dl class="r-ledger"><div><dt>كُتبت</dt><dd>مارس ٢٠٢٦</dd></div><div><dt>بقلم</dt><dd>أحمد</dd></div></dl>
+<span class="r-tag r-tag--draft" style="align-self: flex-start">مسودة · النص من أحمد</span>
+</div>
+<div class="lt-body">
+<p class="salute">إلى من يقرأ هذا،</p>
+<p>عملتُ سنواتٍ طويلة مع وزارات ومنظمات وشركات، وفي أماكن كان القرار فيها صعباً على الجميع. تعلّمت أن أغلب المؤسسات لا ينقصها الخبراء، بل ينقصها وقتٌ هادئ تسمع فيه نفسها.</p>
+<p>هذا ما أحاول أن أقدّمه: أن أجلس معكم، وأسمع، ثم أكتب معكم ما يمكن تنفيذه والدفاع عنه. ستجد هنا المشاريع كما حدثت، والوثائق التي تثبتها، وكلامي بصوتي.</p>
+<p>إن كان عندك ما يقلقك، فاكتب لي. سأقرأ رسالتك بنفسي.</p>
+<div class="stack" style="gap: 8px; margin-top: 8px">
+<div class="sig" role="img" aria-label="توقيع أحمد">توقيع أحمد الحقيقي<br><span class="mono" dir="ltr">signature.svg · scan</span></div>
+<p class="ar-small">أحمد الزبيري</p>
+</div>
+</div>
+<figure class="lt-photo">
+<img class="r-photo" style="aspect-ratio: 4 / 5" src="../../images/ahmed-at-work.jpg" alt="صورة مؤقتة: أحمد يكتب في دفتر أثناء جلسة عمل">
+<figcaption class="r-caption"><span>صورة مؤقتة</span></figcaption>
+</figure>
+</article>
+<p class="r-hint" style="max-width: 70em">الرسالة هي «لحظة الصوت» الأهم في الموقع: ثلاث فقرات قصيرة على الأكثر، بعرض قراءة ضيق وسطر أعلى قليلاً (١٩ / ٢٫٠٥). التوقيع صورة ممسوحة من أحمد، بنسختين للوضعين. لا يُستعمل خط يدوي يقلّد التوقيع. القسم يظهر فقط إذا اعتمده أحمد.</p>
+</div>
+</body>
+</html>

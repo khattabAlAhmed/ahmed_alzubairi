@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Status — preview</title>
+<style>.st { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 2px solid var(--rule); } .st > div { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<p class="r-label" style="margin-bottom: 8px">الاستشارات</p>
+<div class="st">
+<div><span class="r-status r-status--info"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="currentColor"/></svg>جديد</span><span class="state-label">new</span></div>
+<div><span class="r-status r-status--warning"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>قيد المراجعة</span><span class="state-label">in_review</span></div>
+<div><span class="r-status r-status--accent"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="7" width="11" height="5.5" fill="currentColor"/></svg>قيد المتابعة</span><span class="state-label">in_progress</span></div>
+<div><span class="r-status r-status--accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>موعد مجدول</span><span class="state-label">scheduled</span></div>
+<div><span class="r-status r-status--muted"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="currentColor"/></svg>مغلق</span><span class="state-label">closed</span></div>
+</div>
+<p class="r-label" style="margin: 20px 0 8px">طلبات الوثائق</p>
+<div class="st">
+<div><span class="r-status r-status--warning"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>بانتظار المراجعة</span><span class="state-label">pending_review</span></div>
+<div><span class="r-status r-status--info"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="currentColor"/></svg>قيد التواصل</span><span class="state-label">in_contact</span></div>
+<div><span class="r-status r-status--success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>متاحة</span><span class="state-label">granted</span></div>
+<div><span class="r-status r-status--muted"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>منتهية</span><span class="state-label">expired</span></div>
+<div><span class="r-status r-status--danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>مسحوبة</span><span class="state-label">revoked</span></div>
+</div>
+</div>
+</body>
+</html>

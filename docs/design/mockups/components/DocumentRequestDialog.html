@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Document request dialog — preview</title>
+<style>
+.stage { position: relative; padding: 32px; }
+.stage::before { content: ""; position: absolute; inset: 0; background: var(--scrim); }
+.dlg { position: relative; width: 520px; margin-inline: auto; }
+.dlg header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.dlg .body { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+.dlg ul li { display: flex; gap: 10px; align-items: center; padding-block: 8px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.dlg footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--line); }
+</style></head>
+<body>
+<div class="r" dir="rtl">
+<div class="stage">
+<div class="dlg r-dialog" role="dialog" aria-modal="true" aria-labelledby="dr1">
+<header><h2 id="dr1" class="ar-h3">طلب الاطلاع على وثيقتين</h2><button class="r-icon-btn" aria-label="إغلاق"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+<div class="body">
+<ul style="border-top: 1px solid var(--line)">
+<li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></svg>رسالة شكر من منظمة دولية · برنامج الحماية</li>
+<li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></svg>شهادة خبرة · مستشار حوكمة</li>
+</ul>
+<div class="r-field"><label class="r-label" for="dp">لماذا تحتاج الاطلاع عليها؟</label><textarea class="r-textarea" id="dp" style="min-height: 100px">نُعدّ ملف تأهيل مستشارين لمناقصة، ونحتاج التحقق من الخبرة.</textarea><p class="r-hint">يقرأ أحمد الطلب ويقرر. قد يتواصل معك أولاً ليفهم الغرض.</p></div>
+</div>
+<footer><button class="r-btn r-btn--quiet">إلغاء</button><button class="r-btn r-btn--primary">أرسل الطلب</button></footer>
+</div>
+</div>
+</div>
+</body>
+</html>

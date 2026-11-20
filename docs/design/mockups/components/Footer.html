@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Footer — preview</title>
+<style>
+.ft { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; padding-block: 28px 20px; border-top: var(--rule-heavy) solid var(--rule); }
+.ft h2 { font-size: 13px; font-weight: 500; color: var(--ink-2); margin-bottom: 10px; }
+.ft li a { display: block; padding-block: 4px; font-size: 15px; text-decoration: none; }
+.ft li a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.legal { display: flex; justify-content: space-between; gap: 16px; padding-block: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<footer>
+<div class="ft">
+<div style="grid-column: span 4" class="stack">
+<p class="ar-h3">أحمد الزبيري</p>
+<p class="ar-small muted" style="max-width: 28em">أعمل مع الوزارات والمنظمات والشركات حين يصعب القرار. أكتب هنا ما أتعلّمه، وأردّ على كل رسالة بنفسي.</p>
+</div>
+<nav style="grid-column: span 2" aria-label="الموقع"><h2>الموقع</h2><ul><li><a href="#">من أنا</a></li><li><a href="#">مجالات الخبرة</a></li><li><a href="#">الخدمات</a></li><li><a href="#">المشاريع</a></li><li><a href="#">التدريب</a></li></ul></nav>
+<nav style="grid-column: span 2" aria-label="المعرفة"><h2>المعرفة</h2><ul><li><a href="#">المدونة</a></li><li><a href="#">الموارد المجانية</a></li><li><a href="#">الظهور الإعلامي</a></li><li><a href="#">الوثائق والشهادات</a></li><li><a href="#">الأسئلة الشائعة</a></li></ul></nav>
+<div style="grid-column: span 4" class="stack">
+<h2 style="margin: 0">النشرة البريدية</h2>
+<p class="ar-small">رسالة واحدة حين يكون عندي ما يستحق. لا أكثر من مرة في الشهر.</p>
+<form class="row" style="gap: 0; flex-wrap: nowrap" onsubmit="return false"><label class="r-field" style="flex: 1"><span class="r-label" style="position: absolute; width: 1px; height: 1px; overflow: hidden">البريد الإلكتروني</span><input class="r-input r-input--ltr" type="email" placeholder="name@example.org"></label><button class="r-btn r-btn--secondary" style="border-bottom-width: 2px">اشترك</button></form>
+<p class="r-hint">واتساب <span class="mono" dir="ltr">+967 77 000 0000</span> · <span class="mono" dir="ltr">hello@example.org</span> · <a href="#" class="r-link">LinkedIn</a></p>
+</div>
+</div>
+<div class="legal"><span>© ٢٠٢٦ أحمد الزبيري</span><span class="row" style="gap: 20px"><a href="#" class="r-link" style="color: var(--ink-2)">سياسة الخصوصية</a><a href="#" class="r-link" style="color: var(--ink-2)">شروط الاستخدام</a></span></div>
+</footer>
+</div>
+</body>
+</html>

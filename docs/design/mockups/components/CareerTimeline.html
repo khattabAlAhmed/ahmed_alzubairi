@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Career timeline — preview</title>
+<style>
+.tl { position: relative; }
+.tl li { display: grid; grid-template-columns: 110px 20px minmax(0, 1fr); gap: 16px; padding-block: 14px; }
+.tl li .yr { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: end; padding-top: 2px; }
+.tl li .spine { position: relative; display: flex; justify-content: center; }
+.tl li .spine::before { content: ""; position: absolute; top: -14px; bottom: -14px; border-inline-start: 1px solid var(--line-strong); }
+.tl li:first-child .spine::before { top: 10px; }
+.tl li:last-child .spine::before { bottom: calc(100% - 10px); }
+.tl li .spine i { position: relative; width: 9px; height: 9px; margin-top: 9px; background: var(--bg); border: 1.5px solid var(--ink); }
+.tl li.now .spine i { background: var(--accent); border-color: var(--accent); }
+.tl li.now .yr { color: var(--accent); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<ol class="tl" aria-label="المسيرة">
+<li class="now"><span class="yr">٢٠٢٠ – الآن</span><span class="spine"><i></i></span><div><p class="ar-h3">مستشار مستقل</p><p class="ar-small muted">مع وزارات ومنظمات دولية ومحلية وشركات، في الحوكمة والحماية والتنمية.</p></div></li>
+<li><span class="yr">٢٠١٦ – ٢٠٢٠</span><span class="spine"><i></i></span><div><p class="ar-h3">مدير برنامج الحماية</p><p class="ar-small muted">منظمة إنسانية دولية · فريق من ٣٠ شخصاً في أربع محافظات.</p></div></li>
+<li><span class="yr">٢٠١٣ – ٢٠١٦</span><span class="spine"><i></i></span><div><p class="ar-h3">مستشار حوكمة</p><p class="ar-small muted">مشروع إصلاح إداري مع جهة حكومية.</p></div></li>
+<li><span class="yr">٢٠١٢</span><span class="spine"><i></i></span><div><p class="ar-h3">أول مشروع مع مجتمع نازح</p><p class="ar-small muted">حيث تعلّمت أن أسأل قبل أن أخطط.</p></div></li>
+</ol>
+<p class="r-hint" style="margin-top: 10px">العمود الفقري خط رفيع، والعلامة مربع صغير. الدور الحالي وحده باللون المميز. محتوى مؤقت.</p>
+</div>
+</body>
+</html>

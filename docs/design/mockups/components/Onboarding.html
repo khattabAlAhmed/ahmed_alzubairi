@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Onboarding — preview</title>
+<style>
+.ob { max-width: 640px; display: flex; flex-direction: column; gap: 20px; }
+.steps { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.steps span { padding: 10px 0; font-size: 13px; color: var(--ink-2); }
+.steps span.on { color: var(--ink); box-shadow: inset 0 var(--rule-heavy) 0 var(--accent); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<form class="ob" onsubmit="return false" aria-labelledby="ob1">
+<div class="steps" aria-hidden="true"><span>١ · الحساب</span><span class="on">٢ · بياناتك</span></div>
+<div class="stack" style="gap: 4px"><h1 id="ob1" class="ar-h2">خطوة أخيرة</h1><p class="ar-small muted">بعدها تعود إلى طلب الاستشارة الذي بدأته.</p></div>
+<div class="grid-2" style="gap: 20px 24px">
+<div class="r-field"><label class="r-label" for="o1">رقم الهاتف</label><input class="r-input r-input--ltr" id="o1" type="tel" placeholder="+967 77 000 0000"><p class="r-hint">للتواصل عند الحاجة فقط.</p></div>
+<div class="r-field"><label class="r-label" for="o2">نوع الجهة <span class="r-req">اختياري</span></label><select class="r-select" id="o2"><option>—</option><option>حكومية</option><option>منظمة</option><option>شركة</option><option>فرد</option></select></div>
+<div class="r-field"><label class="r-label" for="o3">اسم الجهة <span class="r-req">اختياري</span></label><input class="r-input" id="o3"></div>
+<div class="r-field"><label class="r-label" for="o4">المسمى الوظيفي <span class="r-req">اختياري</span></label><input class="r-input" id="o4"></div>
+</div>
+<label class="r-check"><input type="checkbox" aria-describedby="o5e" aria-invalid="true">أوافق على <a href="#" class="r-link">شروط الاستخدام</a> و<a href="#" class="r-link">سياسة الخصوصية</a>.</label>
+<p class="r-error" id="o5e" style="margin-top: -12px">الموافقة مطلوبة لإكمال الحساب.</p>
+<div class="row" style="justify-content: flex-end"><button class="r-btn r-btn--primary">أكمل وعُد إلى طلبك</button></div>
+</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Chat thread — preview</title>
+<style>
+.th { max-width: 860px; }
+.th-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-top: var(--rule-heavy) solid var(--rule); border-bottom: 1px solid var(--line); }
+.msg { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 24px; padding-block: 16px; border-bottom: 1px solid var(--line); }
+.msg .who { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.msg .who span { font-size: 12px; color: var(--ink-2); }
+.msg.mine { background: var(--surface); padding-inline: 16px; margin-inline: -16px; }
+.msg .files { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--line-strong); font-size: 13px; text-decoration: none; }
+.comp { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding-top: 16px; }
+.comp .bar { display: flex; justify-content: space-between; align-items: center; }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="th">
+<div class="th-head"><div class="stack" style="gap: 2px"><p class="ar-h3">مراجعة نظام داخلي قبل اعتماده</p><p class="r-hint">الحوكمة المؤسسية · بدأت ١٢ مارس</p></div><span class="r-status r-status--accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>موعد مجدول</span></div>
+<p class="r-dated" style="margin-block: 12px">١٢ مارس ٢٠٢٦</p>
+<div class="msg"><p class="who">ليلى م.<span>العميل · ١٠:٠٤ ص</span></p><div><p class="ar-small" style="font-size: 16px">أرفقت المسودة الحالية والهيكل. أكثر ما يقلقنا باب التفويض: من يوقّع على ماذا.</p><div class="files"><a href="#" class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4"/></svg>النظام-الداخلي.pdf <span class="mono" dir="ltr" style="color: var(--ink-2)">2.4 MB</span></a><a href="#" class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4"/></svg>الهيكل.xlsx</a></div></div></div>
+<div class="msg mine"><p class="who">أحمد<span>المستشار · ٢:١٥ م</span></p><p class="ar-small" style="font-size: 16px">قرأتها. باب التفويض يحتاج جلسة واحدة معك ومع المدير المالي قبل أي تعديل. اقترحتُ موعداً بالأسفل.</p></div>
+<div class="msg"><p class="who" style="color: var(--ink-2)">النظام<span>٢:١٦ م</span></p><p class="ar-small muted">أُضيف اجتماع: الأحد ١٦ مارس، ١١:٠٠ ص بتوقيت مكة · Google Meet</p></div>
+<form class="comp" onsubmit="return false"><label class="r-label" for="cm" style="position: absolute; width: 1px; height: 1px; overflow: hidden">ردك</label><textarea class="r-textarea" id="cm" style="min-height: 96px" placeholder="اكتب ردك"></textarea><div class="bar"><div class="row"><button class="r-btn r-btn--quiet r-btn--sm" style="text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 7l-6.5 6.5a2 2 0 0 0 3 3L18 10a4 4 0 0 0-6-6l-6.5 6.5a6 6 0 0 0 8.5 8.5L19 14"/></svg>أرفق</button><span class="r-hint">حتى ٥ ملفات</span></div><div class="row"><button class="r-btn r-btn--quiet r-btn--sm">تحديث المحادثة</button><button class="r-btn r-btn--primary r-btn--sm">أرسل</button></div></div></form>
+</div>
+</div>
+</body>
+</html>

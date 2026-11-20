@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../system/tokens.css">
+<link rel="stylesheet" href="../../system/components.css">
+<style>body{margin:0;background:var(--bg);color:var(--ink)}</style>
+<script>if(/[?&]theme=dark/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-theme]').forEach(function(e){e.setAttribute('data-theme','dark')});document.documentElement.setAttribute('data-theme','dark')});</script><meta charset="utf-8"><title>Error state — preview</title>
+<style>
+.er { display: grid; grid-template-columns: 3fr 5fr 4fr; gap: 32px; align-items: start; }
+.sec { padding: 20px; border: 1px solid var(--line); border-top: var(--rule-heavy) solid var(--danger); display: flex; flex-direction: column; gap: 10px; }
+.pg { padding-block: 20px; border-top: var(--rule-heavy) solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+.code { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+</style></head>
+<body>
+<div class="r pad" dir="rtl">
+<div class="er">
+<div class="stack"><p class="state-label">حقل</p><div class="r-field"><label class="r-label" for="e1">رقم الهاتف</label><input class="r-input r-input--ltr" id="e1" value="77-12" aria-invalid="true" aria-describedby="e1e"><p class="r-error" id="e1e">الرقم قصير. اكتبه مع رمز الدولة، مثل +967 77 000 0000</p></div></div>
+<div class="stack"><p class="state-label">قسم لم يُحمَّل</p><div class="sec" role="alert"><p class="r-status r-status--danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>لم تُحمَّل المقالات</p><p class="ar-small">قد يكون الاتصال ضعيفاً. باقي الصفحة يعمل.</p><button class="r-btn r-btn--secondary r-btn--sm" style="align-self: flex-start">أعد المحاولة</button></div></div>
+<div class="stack"><p class="state-label">صفحة</p><div class="pg"><p class="ar-h2">حدث خطأ من جهتنا</p><p class="ar-small muted">ليس خطأك. جرّب بعد قليل، أو راسلني إن تكرّر.</p><div class="row"><button class="r-btn r-btn--primary r-btn--sm">أعد تحميل الصفحة</button><a href="#" class="r-btn r-btn--quiet r-btn--sm">الرئيسية</a></div><p class="code" dir="ltr" style="text-align: right">ref 7f3a-21c</p></div></div>
+</div>
+</div>
+</body>
+</html>
