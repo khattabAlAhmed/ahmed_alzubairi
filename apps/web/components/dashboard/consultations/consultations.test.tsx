@@ -143,6 +143,25 @@ describe("MeetingForm", () => {
     expect(router.refresh).toHaveBeenCalled();
   });
 
+  it("names the zone with the meeting date's offset, not today's (winter now, summer meeting in New York)", () => {
+    const tz = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2027-01-15T15:00:00Z"));
+    try {
+      wrap(<MeetingForm consultationId={ID} onDone={() => {}} create={vi.fn(ok)} />);
+      const note = (text: string) => en.meeting.zone.replace("{zone}", `\u2066${text}\u2069`);
+      expect(screen.getByText(note("America/New_York"))).toBeTruthy();
+      fill({ date: "2027-07-15", time: "14:30" });
+      expect(screen.getByText(note("America/New_York (GMT-4)"))).toBeTruthy();
+      expect(screen.queryByText(note("America/New_York (GMT-5)"))).toBeNull();
+    } finally {
+      vi.useRealTimers();
+      process.env.TZ = tz;
+      if (tz === undefined) delete process.env.TZ;
+    }
+  });
+
   it("refuses a link that isn't https, sending nothing", async () => {
     const create = vi.fn(ok);
     wrap(<MeetingForm consultationId={ID} onDone={() => {}} create={create} />);
