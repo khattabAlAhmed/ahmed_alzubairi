@@ -8,12 +8,12 @@
     "readFullLabel": "اقرأ السجل كاملاً: {title}"
   },
   "gallery": {
-    "photo": "صورة {n}",
-    "open": "افتح الصورة {n}",
+    "photo": "صورة {n, number}",
+    "open": "افتح الصورة {n, number}",
     "close": "إغلاق",
     "previous": "الصورة السابقة",
     "next": "الصورة التالية",
-    "position": "{n} من {total}",
+    "position": "{n, number} من {total, number}",
     "missing": "لم تُرفع بعد"
   },
   "article": {

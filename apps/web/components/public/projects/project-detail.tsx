@@ -21,13 +21,13 @@ export type ProjectFact = { label: string; value: ReactNode };
 export function ProjectFacts({ facts, className }: { facts: ProjectFact[]; className?: string }) {
   if (facts.length === 0) return null;
   return (
-    <dl className={cx("grid border-t-2 border-rule sm:grid-cols-2 lg:grid-cols-4", className)}>
+    <dl className={cx("grid border-t-2 border-rule sm:grid-cols-2 lg:flex", className)}>
       {facts.map((fact, index) => (
         <div
           key={index}
           className={cx(
-            "flex flex-col gap-0.5 border-b border-line py-3.5",
-            "sm:[&:nth-child(2n)]:border-s sm:[&:nth-child(2n)]:ps-5",
+            "flex flex-col gap-0.5 border-b border-line py-3.5 lg:min-w-0 lg:flex-1",
+            "sm:max-lg:[&:nth-child(2n)]:border-s sm:max-lg:[&:nth-child(2n)]:ps-5",
             "lg:[&:not(:first-child)]:border-s lg:[&:not(:first-child)]:ps-5",
           )}
         >
@@ -169,7 +169,13 @@ export function ProjectDetailPage({
                   </dl>
                 )}
                 <ResultFigures figures={figures} className="mt-3" />
-                {rest.length > 0 && <ActivityList rows={rest.map((text) => ({ label: null, text }))} className="mt-3" />}
+                {rest.length > 0 && (
+                  <ActivityList
+                    rows={rest.map((text) => ({ label: null, text }))}
+                    // Right under the key result, its hairline already draws the edge.
+                    className={project.keyResult && figures.length === 0 ? "border-t-0" : "mt-3"}
+                  />
+                )}
               </Part>
             )}
           </div>

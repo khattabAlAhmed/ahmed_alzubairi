@@ -19,14 +19,14 @@ export function textLines(text: string | null): string[] {
     .filter(Boolean);
 }
 
-/** A short lead before ":" or " — " (three words at most), as in "Month 1–2: listening sessions". */
+/** A short time lead before ":" or " — " (three words at most, with a digit), as in "Month 1–2: listening sessions". */
 const LEAD = /^([^:—]{1,40}?)\s*(?::|\s—\s)\s*(.+)$/;
 
-/** Activities as rows: a short time label when the line starts with one, then the text. */
+/** Activities as rows: a short time label (it has a digit) when the line starts with one, then the text. */
 export function activityRows(text: string | null): LabelledLine[] {
   return textLines(text).map((line) => {
     const match = LEAD.exec(line);
-    if (match && match[1].trim().split(/\s+/).length <= 3) return { label: match[1].trim(), text: match[2].trim() };
+    if (match && /[0-9٠-٩]/.test(match[1]) && match[1].trim().split(/\s+/).length <= 3) return { label: match[1].trim(), text: match[2].trim() };
     return { label: null, text: line };
   });
 }

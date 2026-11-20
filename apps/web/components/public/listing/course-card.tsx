@@ -1,5 +1,5 @@
 import type { CourseType } from "@repo/shared";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Button, Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
@@ -16,9 +16,8 @@ import { ABOVE_LINK, Heading, LIST_ROW, LIST_RULE, TITLE_LINK } from "./parts";
  */
 export function SeatsMeter({ left, total, className }: { left: number; total: number; className?: string }) {
   const t = useTranslations("PublicListing");
-  const format = useFormatter();
   const shown = Math.min(Math.max(left, 0), total);
-  const text = shown === 0 ? t("courseFull") : t("seatsLeft", { left: shown, total: format.number(total) });
+  const text = shown === 0 ? t("courseFull") : t("seatsLeft", { left: shown, total });
 
   return (
     <div className={cx("flex flex-col gap-1.5 text-[13px] text-ink-2", className)}>

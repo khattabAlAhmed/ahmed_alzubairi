@@ -8,12 +8,12 @@
     "readFullLabel": "Read the full record: {title}"
   },
   "gallery": {
-    "photo": "Photo {n}",
-    "open": "Open photo {n}",
+    "photo": "Photo {n, number}",
+    "open": "Open photo {n, number}",
     "close": "Close",
     "previous": "Previous photo",
     "next": "Next photo",
-    "position": "{n} of {total}",
+    "position": "{n, number} of {total, number}",
     "missing": "Not uploaded yet"
   },
   "article": {
