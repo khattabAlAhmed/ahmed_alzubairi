@@ -22,7 +22,15 @@ export function intlLocale(locale: Locale | string): string {
  * the server, and a date-only value has no time to shift.
  */
 export function formatDate(value: string, locale: Locale): string {
-  return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone: "UTC" }).format(new Date(value));
+  return new Intl.DateTimeFormat(dateLocale(locale), { dateStyle: "long", timeZone: "UTC" }).format(new Date(value));
+}
+
+/**
+ * The Intl locale for dates. English dates read day, month, year ("14 March
+ * 2025", the Numbers board), which is British order; numbers stay plain `en`.
+ */
+export function dateLocale(locale: Locale | string): string {
+  return locale === "ar" ? intlLocale(locale) : "en-GB";
 }
 
 /** A count or amount in prose: "١٬٢٠٠" / "1,200". */
