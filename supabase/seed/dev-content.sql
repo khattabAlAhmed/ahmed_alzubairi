@@ -3,14 +3,16 @@
 -- (§14 #6): "مثال" / "Example". Storage keys under `dev-seed/` point to no file.
 --
 -- Idempotent: fixed ids (prefix de5eed00-) and `on conflict ... do update`, so
--- it can run again to reset the seed rows. It overwrites the 12 home sections
+-- it can run again to reset the seed rows. It overwrites 12 of the 13 home sections
 -- and the site settings it sets. Rows not created here are never touched.
 --
 -- Cases it covers: a project with a hidden organization name (602), a published
 -- testimonial without consent (903) and one without approval (904), the same for
 -- partners (803, 804), English-only rows (service 504, FAQ 704), Arabic-only
 -- rows (service 505, post 1002), a draft in every table with a status, and the
--- 12 home sections, all visible and published.
+-- 12 home sections, all visible and published. It never writes the letter: that
+-- row stays as its migration seeds it (position 2, hidden, draft), so positions
+-- here skip 2.
 
 begin;
 
@@ -24,17 +26,17 @@ on conflict (key) do update set value = excluded.value;
 
 insert into public.home_sections (key, position, is_visible, status, content_ar, content_en) values
   ('hero', 1, true, 'published', '{"name": "مثال الاسم", "title": "مستشار في الإدارة والحوكمة (مثال)", "valueStatement": "نص تجريبي لعبارة القيمة، يُستبدل بالمحتوى الحقيقي."}'::jsonb, '{"name": "Example Name", "title": "Management and governance consultant (example)", "valueStatement": "Placeholder value statement, replaced by real content."}'::jsonb),
-  ('stats', 2, true, 'published', '{"heading": "أرقام سريعة (مثال)"}'::jsonb, '{"heading": "Quick stats (example)"}'::jsonb),
-  ('expertise', 3, true, 'published', '{"heading": "مجالات الخبرة", "intro": "نص تمهيدي تجريبي."}'::jsonb, '{"heading": "Areas of expertise", "intro": "Placeholder intro text."}'::jsonb),
-  ('audiences', 4, true, 'published', '{"heading": "لمن أعمل", "items": [{"title": "الجهات الحكومية", "description": "وصف تجريبي."}, {"title": "المنظمات الإنسانية", "description": "وصف تجريبي."}, {"title": "القطاع الخاص", "description": "وصف تجريبي."}]}'::jsonb, '{"heading": "Who I work with", "items": [{"title": "Government", "description": "Placeholder description."}, {"title": "Humanitarian organizations", "description": "Placeholder description."}, {"title": "Private sector", "description": "Placeholder description."}]}'::jsonb),
-  ('services', 5, true, 'published', '{"heading": "خدمات مميزة"}'::jsonb, '{"heading": "Featured services"}'::jsonb),
-  ('projects', 6, true, 'published', '{"heading": "مشاريع مختارة"}'::jsonb, '{"heading": "Selected projects"}'::jsonb),
-  ('partners', 7, true, 'published', '{"heading": "جهات عملت معها"}'::jsonb, '{"heading": "Organizations I''ve worked with"}'::jsonb),
-  ('testimonials', 8, true, 'published', '{"heading": "آراء العملاء"}'::jsonb, '{"heading": "Testimonials"}'::jsonb),
-  ('media', 9, true, 'published', '{"heading": "الظهور الإعلامي"}'::jsonb, '{"heading": "Media"}'::jsonb),
-  ('latest', 10, true, 'published', '{"heading": "أحدث المقالات والموارد"}'::jsonb, '{"heading": "Latest articles and resources"}'::jsonb),
-  ('newsletter', 11, true, 'published', '{"heading": "النشرة البريدية", "intro": "نص تجريبي عن النشرة."}'::jsonb, '{"heading": "Newsletter", "intro": "Placeholder newsletter text."}'::jsonb),
-  ('contact', 12, true, 'published', '{"heading": "تواصل سريع"}'::jsonb, '{"heading": "Quick contact"}'::jsonb)
+  ('stats', 3, true, 'published', '{"heading": "أرقام سريعة (مثال)"}'::jsonb, '{"heading": "Quick stats (example)"}'::jsonb),
+  ('expertise', 4, true, 'published', '{"heading": "مجالات الخبرة", "intro": "نص تمهيدي تجريبي."}'::jsonb, '{"heading": "Areas of expertise", "intro": "Placeholder intro text."}'::jsonb),
+  ('audiences', 5, true, 'published', '{"heading": "لمن أعمل", "items": [{"title": "الجهات الحكومية", "description": "وصف تجريبي."}, {"title": "المنظمات الإنسانية", "description": "وصف تجريبي."}, {"title": "القطاع الخاص", "description": "وصف تجريبي."}]}'::jsonb, '{"heading": "Who I work with", "items": [{"title": "Government", "description": "Placeholder description."}, {"title": "Humanitarian organizations", "description": "Placeholder description."}, {"title": "Private sector", "description": "Placeholder description."}]}'::jsonb),
+  ('services', 6, true, 'published', '{"heading": "خدمات مميزة"}'::jsonb, '{"heading": "Featured services"}'::jsonb),
+  ('projects', 7, true, 'published', '{"heading": "مشاريع مختارة"}'::jsonb, '{"heading": "Selected projects"}'::jsonb),
+  ('partners', 8, true, 'published', '{"heading": "جهات عملت معها"}'::jsonb, '{"heading": "Organizations I''ve worked with"}'::jsonb),
+  ('testimonials', 9, true, 'published', '{"heading": "آراء العملاء"}'::jsonb, '{"heading": "Testimonials"}'::jsonb),
+  ('media', 10, true, 'published', '{"heading": "الظهور الإعلامي"}'::jsonb, '{"heading": "Media"}'::jsonb),
+  ('latest', 11, true, 'published', '{"heading": "أحدث المقالات والموارد"}'::jsonb, '{"heading": "Latest articles and resources"}'::jsonb),
+  ('newsletter', 12, true, 'published', '{"heading": "النشرة البريدية", "intro": "نص تجريبي عن النشرة."}'::jsonb, '{"heading": "Newsletter", "intro": "Placeholder newsletter text."}'::jsonb),
+  ('contact', 13, true, 'published', '{"heading": "تواصل سريع"}'::jsonb, '{"heading": "Quick contact"}'::jsonb)
 on conflict (key) do update set position = excluded.position, is_visible = excluded.is_visible, status = excluded.status, content_ar = excluded.content_ar, content_en = excluded.content_en;
 
 insert into public.home_stats (id, label_ar, label_en, value, position, status) values
