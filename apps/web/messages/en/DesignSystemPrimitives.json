@@ -139,7 +139,7 @@
     "international": "International",
     "local": "Local",
     "company": "Company",
-    "note": "Multiple choice: a square and a count. A chosen chip has a light wash and a filled square, not color alone. Rows wrap on phones."
+    "note": "One choice per row: a square and a count. The chosen chip has a light wash and a filled square, not color alone. Rows wrap on phones."
   },
   "tabs": {
     "title": "Tabs",

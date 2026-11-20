@@ -26,8 +26,8 @@ export const NAV_LINK =
 
 /*
  * The Tabs board: single choice, a hairline under the row, and the chosen tab
- * in ink with a 2px accent underline. Different from filter chips, which are
- * multiple choice and carry a square.
+ * in ink with a 2px accent underline. Filter chips are the other single-choice
+ * row: they filter a list, and carry a square and a count.
  */
 export const TAB_LIST = "flex overflow-x-auto border-b border-line [scrollbar-width:thin]";
 
