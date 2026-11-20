@@ -141,7 +141,7 @@ async function TypeBlock({ locale }: Props) {
     <ul lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className="border-t-2 border-rule">
       {rows.map(([name, spec]) => (
         <li key={name} className="flex flex-col gap-1 border-b border-line py-4 md:flex-row md:items-baseline md:gap-6">
-          <span className="flex shrink-0 flex-col md:w-label-col">
+          <span className="flex shrink-0 flex-col items-start md:w-label-col">
             <DsCode>{name}</DsCode>
             <DsCode>{spec}</DsCode>
           </span>
@@ -371,7 +371,7 @@ async function PhotographyBlock({ locale }: Props) {
 /* ---------------------------------------------------------------- focus -- */
 
 // Always drawn here, so the ring shows without a keyboard; Tab shows the real one.
-const SHOWN_RING = "outline-2 outline-offset-3 outline-focus outline-solid";
+const SHOWN_RING = "outline-2 outline-offset-3 outline-focus outline-solid transition-state";
 
 async function FocusBlock({ locale }: Props) {
   const t = await getTranslations({ locale, namespace: "DesignSystem" });
@@ -381,20 +381,20 @@ async function FocusBlock({ locale }: Props) {
       <DsThemes labels={{ light: t("light"), dark: t("dark") }}>
         {() => (
           <div className="flex flex-wrap items-center gap-6 py-2">
-            <button type="button" className={`min-h-12 bg-accent px-6 text-on-accent ${SHOWN_RING}`}>
+            <button type="button" className={`min-h-12 bg-accent px-6 text-on-accent hover:bg-ink hover:text-bg ${SHOWN_RING}`}>
               {f("onAccent")}
             </button>
-            <button type="button" className={`min-h-12 border border-ink px-6 ${SHOWN_RING}`}>
+            <button type="button" className={`min-h-12 border border-ink px-6 hover:bg-surface-hover ${SHOWN_RING}`}>
               {f("onGround")}
             </button>
             <span className="bg-surface p-3">
-              <button type="button" className={`min-h-12 border border-ink px-6 ${SHOWN_RING}`}>
+              <button type="button" className={`min-h-12 border border-ink px-6 hover:bg-surface-hover ${SHOWN_RING}`}>
                 {f("onSurface")}
               </button>
             </span>
             <button
               type="button"
-              className={`text-accent underline decoration-1 underline-offset-5 ${SHOWN_RING}`}
+              className={`text-accent underline decoration-1 underline-offset-5 hover:decoration-2 ${SHOWN_RING}`}
             >
               {f("onLink")}
             </button>

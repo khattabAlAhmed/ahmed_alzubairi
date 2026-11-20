@@ -58,7 +58,7 @@ export function DsNote({ children, className }: { children: ReactNode; className
 /** A state or token name: Latin, mono, read left to right in both pages. */
 export function DsCode({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span dir="ltr" className={cx("mono-meta text-ink-2", className)}>
+    <span dir="ltr" translate="no" className={cx("mono-meta text-ink-2", className)}>
       {children}
     </span>
   );
