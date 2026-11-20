@@ -65,6 +65,43 @@ describe("Dialog", () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  it("focuses the data-autofocus control, and returns focus to the opener", () => {
+    function AutoOpener() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Delete
+          </button>
+          <Dialog
+            open={open}
+            onClose={() => setOpen(false)}
+            title="Delete?"
+            footer={
+              <>
+                <button type="button" onClick={() => setOpen(false)}>
+                  Cancel
+                </button>
+                <button type="button" data-autofocus>
+                  Continue
+                </button>
+              </>
+            }
+          >
+            <p>Sure?</p>
+          </Dialog>
+        </>
+      );
+    }
+    render(<AutoOpener />);
+    const opener = screen.getByRole("button", { name: "Delete" });
+    opener.focus();
+    fireEvent.click(opener);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(document.activeElement).toBe(opener);
+  });
+
   it("ignores Escape while busy", () => {
     const onClose = vi.fn();
     render(

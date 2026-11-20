@@ -99,7 +99,7 @@ export function DemoFormDialog({ text, field, hint }: { text: DialogText; field:
         }
       >
         <p>{text.text}</p>
-        <TextField label={field} hint={hint} name="ds-suggested-time" autoFocus />
+        <TextField label={field} hint={hint} name="ds-suggested-time" data-autofocus />
       </Dialog>
     </>
   );

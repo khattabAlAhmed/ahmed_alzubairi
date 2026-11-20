@@ -70,7 +70,7 @@ function ConfirmDialog({ onCancel, onConfirm, title, question, word, confirmLabe
             {t("cancel")}
           </Button>
           {step === 1 ? (
-            <Button type="submit" variant="danger" autoFocus>
+            <Button type="submit" variant="danger" data-autofocus>
               {t("continue")}
             </Button>
           ) : (
