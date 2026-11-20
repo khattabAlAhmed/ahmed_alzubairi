@@ -376,6 +376,9 @@ async function main() {
   });
   const failures: string[] = [];
   let count = 0;
+  // Fail by default: if a hung close() lets the event loop drain before the
+  // end of main, the run must not exit 0. Cleared only on full success.
+  process.exitCode = 1;
   try {
     let detailPaths = new Map<string, string>();
     for (const width of WIDTHS) {
@@ -434,7 +437,7 @@ async function main() {
     ]);
   }
   console.log(`\n${count} screenshot(s) in ${opts.out}; ${failures.length} failed`);
-  if (failures.length > 0) process.exitCode = 1;
+  process.exitCode = failures.length > 0 ? 1 : 0;
 }
 
 async function shootMockups(
