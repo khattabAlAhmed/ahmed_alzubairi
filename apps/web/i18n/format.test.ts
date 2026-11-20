@@ -23,12 +23,25 @@ describe("withArabicDigits", () => {
     );
   });
 
-  it("keeps # pointing at its own plural, through a select and a nested plural", () => {
+  it("keeps # pointing at its own plural, and literal inside a select", () => {
     expect(
-      withArabicDigits("{total, plural, other {{kind, select, a {# أ} other {{left, plural, other {# ب}}}}}}"),
+      withArabicDigits("{total, plural, other {# {kind, select, a {# أ} other {{left, plural, other {# ب}}}}}}"),
     ).toBe(
-      "{total, plural, other {{kind, select, a {{total, number, arab} أ} other {{left, plural, other {{left, number, arab} ب}}}}}}",
+      "{total, plural, other {{total, number, arab} {kind, select, a {# أ} other {{left, plural, other {{left, number, arab} ب}}}}}}",
     );
+  });
+
+  it("formats a # inside a select as FormatJS does: as text", () => {
+    const message = "{n, plural, other {# {kind, select, a {#} other {-}}}}";
+    const values = { n: 3, kind: "a" };
+    const expected = createTranslator({ locale: "ar-u-nu-arab" as "ar", messages: { m: message } })("m" as never, values as never);
+    const actual = createTranslator({
+      locale: "ar",
+      messages: { m: withArabicDigits(message) },
+      formats: MESSAGE_FORMATS,
+    })("m" as never, values as never);
+    expect(expected).toBe("٣ #");
+    expect(actual).toBe(expected);
   });
 
   it("leaves everything else as written", () => {

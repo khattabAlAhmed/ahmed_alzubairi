@@ -230,8 +230,8 @@ function rewriteNumbers(message: string): string {
       out += spaces();
       if (message[at] !== "{") return fail();
       at += 1;
-      const inner =
-        cases === "plural" ? text(offset ? null : name, true) : text(pluralVar, inPlural);
+      // In a select, even one inside a plural, `#` is plain text (as FormatJS reads it).
+      const inner = cases === "plural" ? text(offset ? null : name, true) : text(null, false);
       if (message[at] !== "}") return fail();
       at += 1;
       out += `{${inner}}`;
