@@ -78,11 +78,13 @@ export async function ShellSection({ locale }: Props) {
         </DsBlock>
 
         <DsBlock title={t("language.title")} intro={t("language.intro")}>
-          <Pair locale={locale}>
+          <Themed locale={locale}>
             {() => (
-              <LanguageAndThemeSample />
+              <div className="px-5">
+                <LanguageAndThemeSample />
+              </div>
             )}
-          </Pair>
+          </Themed>
           <DsNote className="mt-3">{t("language.note")}</DsNote>
         </DsBlock>
 

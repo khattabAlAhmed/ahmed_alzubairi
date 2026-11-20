@@ -30,7 +30,7 @@ export function MenuSample() {
 export function LanguageAndThemeSample() {
   const t = useTranslations("DesignSystemShell.language");
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_300px]">
       <div className="flex flex-col items-start gap-2">
         <DsCode>{t("header")}</DsCode>
         <div className="flex items-center gap-1">
@@ -49,10 +49,13 @@ export function LanguageAndThemeSample() {
         <DsCode>{t("choice")}</DsCode>
         <ThemeChoiceSwitch />
       </div>
-      {/* Tall enough for the open note under the switch. */}
+      {/* Tall enough for the open note under the switch. The switch sits at
+          the end, as in the header, so the note opens back across its column. */}
       <div className="flex min-h-56 flex-col items-start gap-2">
         <DsCode>{t("untranslated")}</DsCode>
-        <UntranslatedSwitch href="/blog" initiallyOpen />
+        <div className="self-end">
+          <UntranslatedSwitch href="/blog" initiallyOpen />
+        </div>
       </div>
     </div>
   );

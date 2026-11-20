@@ -1,10 +1,13 @@
 import { SITE_NAME } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import type { Locale } from "@repo/shared";
+import { getLocale, getTranslations } from "next-intl/server";
+import { cacheLife } from "next/cache";
 import { connection } from "next/server";
 import { Fragment, Suspense } from "react";
 import { NewsletterSignup } from "@/components/newsletter";
 import { contactChannels } from "@/components/public/contact";
+import { formatNumber } from "@/components/public/home/format";
 import { CONTAINER } from "@/components/public/parts";
 import { cx, FOCUS_RING, INLINE_LINK } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
@@ -59,7 +62,11 @@ export async function FooterChannels() {
             >
               {channel.key === "email" || channel.key === "whatsapp" ? (
                 <>
-                  <span className="sr-only">{channel.label}: </span>
+                  {/* WhatsApp says its name, as on the board; the address speaks for itself. */}
+                  <span className={channel.key === "whatsapp" ? undefined : "sr-only"}>
+                    {channel.label}
+                    {channel.key === "whatsapp" ? " " : ": "}
+                  </span>
                   {/* Numbers and addresses read left to right in both languages. */}
                   <bdi dir="ltr" className="font-mono text-xs">
                     {channel.value}
@@ -75,6 +82,19 @@ export async function FooterChannels() {
       ))}
     </ul>
   );
+}
+
+/** This year in UTC. Cached for a day, so the footer's shell stays static. */
+async function thisYear(): Promise<number> {
+  "use cache";
+  cacheLife("days");
+  return new Date().getUTCFullYear();
+}
+
+/** "© 2026 Ahmed Alzubairi", with the year in the reader's digits. */
+async function Copyright() {
+  const [t, locale, year] = await Promise.all([getTranslations("Footer"), getLocale(), thisYear()]);
+  return <p>{t("copyright", { year: formatNumber(year, locale as Locale, { useGrouping: false }), name: SITE_NAME })}</p>;
 }
 
 /**
@@ -126,7 +146,7 @@ export function SiteFooter() {
           aria-label={t("legalLabel")}
           className="type-caption flex flex-wrap justify-between gap-4 border-t border-line pt-3.5 pb-20 text-ink-2"
         >
-          <p>© {SITE_NAME}</p>
+          <Copyright />
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
             <li>
               <Link href="/privacy" className={cx(INLINE_LINK, "text-ink-2")}>
