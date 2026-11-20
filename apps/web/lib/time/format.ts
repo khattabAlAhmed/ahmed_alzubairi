@@ -83,13 +83,17 @@ export function formatMonth(
 }
 
 /**
- * An IANA zone as a picker or note shows it: "Asia/Riyadh (GMT+3)". Both
- * parts are codes, Latin with Western digits in every language. An unknown
- * zone shows as written.
+ * An IANA zone as a picker or note shows it: "Asia/Riyadh (GMT+3)", with the
+ * offset on `at` (daylight saving moves it). Both parts are codes, Latin with
+ * Western digits in every language. The offset, not a short name, since some
+ * zones' short names are letters ("EST"). An unknown zone shows as written.
  */
 export function zoneLabel(zone: string, at: Date = new Date()): string {
   try {
-    return `${zone} (${zoneName(at, "en", "short", zone)})`;
+    const offset = new Intl.DateTimeFormat("en", { timeZone: zone, timeZoneName: "shortOffset" })
+      .formatToParts(at)
+      .find((part) => part.type === "timeZoneName")?.value;
+    return offset ? `${zone} (${offset})` : zone;
   } catch {
     return zone;
   }

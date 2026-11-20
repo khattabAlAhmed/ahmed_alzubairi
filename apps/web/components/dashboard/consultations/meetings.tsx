@@ -100,6 +100,10 @@ export function MeetingForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // The offset on the meeting's own date (a summer meeting set in winter gets
+  // its summer offset); just the zone's name until the date and time are complete.
+  const enteredAt = toUtc(fields.date, fields.time);
+  const zoneText = enteredAt ? zoneLabel(zone, new Date(enteredAt)) : zone;
   const set = (key: keyof Fields) => (event: { target: { value: string } }) =>
     setFields((current) => ({ ...current, [key]: event.target.value }));
 
@@ -170,7 +174,7 @@ export function MeetingForm({
           />
         </div>
         {/* The zone is isolated left to right: a Latin code inside an Arabic sentence. */}
-        <p className="text-sm text-text-secondary">{t("zone", { zone: `\u2066${zoneLabel(zone)}\u2069` })}</p>
+        <p className="text-sm text-text-secondary">{t("zone", { zone: `\u2066${zoneText}\u2069` })}</p>
         {error && (
           <p role="alert" className="text-sm font-semibold text-danger">
             {error}

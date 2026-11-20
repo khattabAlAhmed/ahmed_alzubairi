@@ -49,4 +49,9 @@ describe("other helpers", () => {
     expect(zoneLabel(RIYADH, AT)).toBe("Asia/Riyadh (GMT+3)");
     expect(zoneLabel("Not/AZone", AT)).toBe("Not/AZone");
   });
+
+  it("gives a zone the offset of the date it's for, across daylight saving", () => {
+    expect(zoneLabel("America/New_York", new Date("2027-01-15T15:00:00Z"))).toBe("America/New_York (GMT-5)");
+    expect(zoneLabel("America/New_York", new Date("2027-07-15T15:00:00Z"))).toBe("America/New_York (GMT-4)");
+  });
 });

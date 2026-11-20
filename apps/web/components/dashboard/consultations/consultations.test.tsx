@@ -127,8 +127,11 @@ describe("MeetingForm", () => {
     const onDone = vi.fn();
     wrap(<MeetingForm consultationId={ID} onDone={onDone} create={create} />);
     const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    expect(screen.getByText(en.meeting.zone.replace("{zone}", `\u2066${zoneLabel(zone)}\u2069`))).toBeTruthy();
+    const note = (text: string) => en.meeting.zone.replace("{zone}", `\u2066${text}\u2069`);
+    // No date yet: the zone's name alone. Then the offset on the meeting's own date.
+    expect(screen.getByText(note(zone))).toBeTruthy();
     fill({ platform: " Zoom ", url: "https://zoom.example/j/1", date: "2026-11-20", time: "14:30", duration: "45" });
+    expect(screen.getByText(note(zoneLabel(zone, new Date(toUtc("2026-11-20", "14:30")!))))).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: en.meeting.save }));
     await waitFor(() => expect(onDone).toHaveBeenCalled());
     expect(create).toHaveBeenCalledWith(ID, {
