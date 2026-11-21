@@ -31,6 +31,11 @@ afterEach(() => {
 
 function fill(values: Partial<Record<"name" | "email" | "orgType" | "subject" | "message", string>>) {
   for (const [name, value] of Object.entries(values)) {
+    // The organization type is a radio group: choose the one with this value.
+    if (name === "orgType") {
+      if (value) fireEvent.click(document.querySelector<HTMLInputElement>(`[name="orgType"][value="${value}"]`)!);
+      continue;
+    }
     const field = document.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
     fireEvent.change(field, { target: { value } });
   }
@@ -94,7 +99,8 @@ describe("ContactForm", () => {
     submit();
     expect((await screen.findByRole("alert")).textContent).toBe("Slow down.");
     for (const [name, value] of Object.entries(VALID)) {
-      expect(document.querySelector<HTMLInputElement>(`[name="${name}"]`)!.value).toBe(value);
+      const selector = name === "orgType" ? '[name="orgType"]:checked' : `[name="${name}"]`;
+      expect(document.querySelector<HTMLInputElement>(selector)!.value).toBe(value);
     }
   });
 

@@ -3,6 +3,8 @@
 import { MAX_LONG_TEXT_LENGTH } from "@repo/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { InlineNotice } from "@/components/account/notice";
+import { CheckIcon, CloseIcon, LockIcon } from "@/components/icons";
 import { Button, ButtonLink, TextArea } from "@/components/ui";
 import { onboardingPath } from "@/lib/auth/return-path";
 import { track } from "@/lib/analytics/track";
@@ -86,6 +88,27 @@ export function RequestDialog({
     });
   }
 
+  // The finished dialog closes from its footer, so its header has no second "Close".
+  const header = (title: string, role?: "status") => (
+    <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+      <h2 id={titleId} role={role} className="text-balance type-h3">
+        {title}
+      </h2>
+      {role !== "status" && (
+      <button
+        type="button"
+        onClick={onClose}
+        disabled={busy}
+        aria-label={t("close")}
+        className="inline-flex size-11 shrink-0 items-center justify-center text-ink-2 transition-state hover:text-ink disabled:opacity-40 focus-ring"
+      >
+        <CloseIcon aria-hidden="true" className="size-5" />
+      </button>
+      )}
+    </header>
+  );
+  const footer = "flex flex-wrap-reverse justify-end gap-2.5 border-t border-line px-5 py-3.5";
+
   return (
     <dialog
       ref={dialog}
@@ -94,71 +117,74 @@ export function RequestDialog({
         event.preventDefault();
         if (!busy) onClose();
       }}
-      className="m-auto w-[min(34rem,calc(100%-2rem))] rounded-lg border border-text/15 bg-surface p-0 text-text shadow-lg backdrop:bg-primary/70 backdrop:backdrop-blur-[2px]"
+      // DocumentRequestDialog board: the record's 2px rule on top, on the scrim; the one shadow on the page.
+      className="m-auto w-[min(32.5rem,calc(100%-2rem))] border-t-2 border-rule bg-bg p-0 text-ink shadow-overlay backdrop:bg-scrim"
     >
       {state.step === "done" ? (
-        <div className="space-y-4 p-6">
-          <h2 id={titleId} role="status" className="text-xl text-balance">
-            {t("done")}
-          </h2>
-          <p className="max-w-prose text-pretty text-text-secondary">{t("doneText")}</p>
-          <div className="flex flex-wrap-reverse justify-end gap-2">
-            <Button variant="secondary" onClick={onClose}>
+        <div>
+          {header(t("done"), "status")}
+          <div className="flex flex-col gap-2 p-5">
+            <p className="flex items-start gap-2 text-pretty type-small">
+              <CheckIcon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-success" />
+              {t("doneText")}
+            </p>
+          </div>
+          <div className={footer}>
+            <Button variant="quiet" onClick={onClose}>
               {t("close")}
             </Button>
             <ButtonLink href={MY_DOCUMENTS_PATH}>{t("myDocuments")}</ButtonLink>
           </div>
         </div>
       ) : (
-        <form noValidate onSubmit={submit} className="space-y-4 p-6">
-          <h2 id={titleId} className="text-xl text-balance">
-            {t("title")}
-          </h2>
-          <p className="max-w-prose text-pretty text-text-secondary">
-            {t("intro", { count: documents.length })}
-          </p>
-          <div>
-            <p className="text-sm font-semibold">{t("documents")}</p>
+        <form noValidate onSubmit={submit}>
+          {header(t("title"))}
+          <div className="flex flex-col gap-4.5 p-5">
+            <p className="text-pretty text-ink-2 type-small">{t("intro", { count: documents.length })}</p>
             {/* Titles are text, never HTML (§9). */}
-            <ul className="mt-1 list-disc space-y-1 ps-5">
+            <ul aria-label={t("documents")} className="border-t border-line">
               {documents.map((document) => (
-                <li key={document.id} className="wrap-anywhere">
+                <li key={document.id} className="flex items-center gap-2.5 border-b border-line py-2 text-[15px] wrap-anywhere">
+                  <LockIcon aria-hidden="true" className="size-4.5 shrink-0 text-ink-2" />
                   {document.title}
                 </li>
               ))}
             </ul>
+            <fieldset disabled={busy} className="min-w-0">
+              <TextArea
+                label={t("purpose")}
+                hint={t("purposeHint")}
+                value={purpose}
+                onChange={(event) => {
+                  setPurpose(event.target.value);
+                  setMissing(false);
+                }}
+                error={missing ? t("purposeRequired") : undefined}
+                maxLength={MAX_LONG_TEXT_LENGTH}
+                rows={4}
+                required
+                autoFocus
+              />
+            </fieldset>
+            {state.step === "form" && state.error && (
+              <InlineNotice
+                tone="danger"
+                title={state.error}
+                text={
+                  state.profileNeeded ? (
+                    <a
+                      href={onboardingPath(locale, `/${locale}${requestPath(documents.map((d) => d.id))}`)}
+                      className="text-accent underline decoration-1 underline-offset-5 transition-state hover:decoration-2 focus-ring"
+                    >
+                      {t("finishProfile")}
+                    </a>
+                  ) : undefined
+                }
+              />
+            )}
           </div>
-          <fieldset disabled={busy} className="min-w-0">
-            <TextArea
-              label={t("purpose")}
-              hint={t("purposeHint")}
-              value={purpose}
-              onChange={(event) => {
-                setPurpose(event.target.value);
-                setMissing(false);
-              }}
-              error={missing ? t("purposeRequired") : undefined}
-              maxLength={MAX_LONG_TEXT_LENGTH}
-              rows={4}
-              required
-              autoFocus
-            />
-          </fieldset>
-          {state.step === "form" && state.error && (
-            <div role="alert" className="space-y-2 text-sm font-semibold text-danger">
-              <p>{state.error}</p>
-              {state.profileNeeded && (
-                <a
-                  href={onboardingPath(locale, `/${locale}${requestPath(documents.map((d) => d.id))}`)}
-                  className="text-text underline"
-                >
-                  {t("finishProfile")}
-                </a>
-              )}
-            </div>
-          )}
-          <div className="flex flex-wrap-reverse justify-end gap-2">
-            <Button variant="secondary" disabled={busy} onClick={onClose}>
+          <div className={footer}>
+            <Button variant="quiet" disabled={busy} onClick={onClose}>
               {t("cancel")}
             </Button>
             <Button type="submit" loading={busy} loadingLabel={t("sending")}>

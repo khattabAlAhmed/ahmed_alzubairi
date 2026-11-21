@@ -7,7 +7,9 @@ import {
 } from "@repo/shared";
 import { useLocale } from "next-intl";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { CheckIcon } from "@/components/icons";
 import { Button, TextField } from "@/components/ui";
+import { cx } from "@/components/ui/cx";
 import { routing } from "@/i18n/routing";
 
 /** The form's words, in the page's language. `NewsletterSignup` fills them in. */
@@ -30,9 +32,17 @@ export type NewsletterFormLabels = {
 export function NewsletterForm({
   source,
   labels,
+  compact = false,
+  className,
 }: {
   source: NewsletterSource;
   labels: NewsletterFormLabels;
+  /**
+   * The inline signup after an article: the label is read by screen readers
+   * only, and the button is the quiet outline (NewsletterSignup board).
+   */
+  compact?: boolean;
+  className?: string;
 }) {
   const pageLocale = useLocale();
   const [error, setError] = useState<string | null>(null);
@@ -80,32 +90,45 @@ export function NewsletterForm({
   }
 
   if (done) {
+    // One fixed text whatever the address's state: "check your email" (double opt-in).
     return (
       <p
         ref={doneText}
         role="status"
         tabIndex={-1}
-        className="mt-3 text-sm text-text focus:outline-none"
+        className={cx("flex items-start gap-2 text-pretty type-small focus:outline-none", className)}
       >
-        {labels.done}
+        <CheckIcon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-success" />
+        <span>{labels.done}</span>
       </p>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="mt-3 flex flex-wrap items-start gap-3">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className={cx("grid grid-cols-[minmax(0,1fr)_auto] items-start", className)}
+    >
       <TextField
         name="email"
         type="email"
         label={labels.email}
         autoComplete="email"
+        inputMode="email"
         dir="ltr"
         required
         error={error ?? undefined}
-        className="min-w-0 flex-1 basis-56"
+        className={cx("min-w-0", compact && "[&>label]:sr-only")}
       />
-      {/* The label's line and its gap, so the button sits level with the field. */}
-      <Button type="submit" loading={sending} loadingLabel={labels.subscribing} className="mt-6">
+      {/* Joined to the field and level with the input: under the label (24px line + 8px gap) when it shows. */}
+      <Button
+        type="submit"
+        variant={compact ? "secondary" : "primary"}
+        loading={sending}
+        loadingLabel={labels.subscribing}
+        className={compact ? undefined : "mt-8"}
+      >
         {labels.subscribe}
       </Button>
     </form>

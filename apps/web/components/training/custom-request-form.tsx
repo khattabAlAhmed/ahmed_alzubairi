@@ -10,6 +10,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuthState } from "@/components/clerk/auth-state";
 import { Button, TextField } from "@/components/ui";
+import { InlineNotice } from "@/components/account/notice";
+import { CheckIcon } from "@/components/icons";
 
 type Field = keyof CustomTrainingRequest;
 type FieldErrors = Partial<Record<Field, string>>;
@@ -133,15 +135,18 @@ export function CustomRequestForm() {
   }
 
   if (sent) {
+    // The sent state on the raised ground, opened by the success rule; no promise of a reply time.
     return (
-      <div role="status" className="rounded-lg border border-text/15 bg-surface p-6 shadow-sm">
-        <h3 ref={sentHeading} tabIndex={-1} className="text-2xl focus:outline-none">
+      <div role="status" className="flex flex-col gap-2 border-t-2 border-success bg-surface p-5">
+        <h3 ref={sentHeading} tabIndex={-1} className="flex items-center gap-2 font-medium text-success type-small focus:outline-none">
+          <CheckIcon aria-hidden="true" className="size-4" />
           {t("sentTitle")}
         </h3>
-        <p className="mt-2 text-text-secondary">{t("sentText")}</p>
+        <p className="text-pretty type-small">{t("sentText")}</p>
         <Button
-          variant="secondary"
-          className="mt-6"
+          variant="quiet"
+          size="sm"
+          className="self-start"
           onClick={() => {
             setSent(false);
             setErrors({});
@@ -154,13 +159,16 @@ export function CustomRequestForm() {
     );
   }
 
+  // CustomTrainingRequest board: under the record's rule, the short fields in a pair, the rest across, in the order focus checks them.
   return (
-    <form ref={formRef} key={formKey} onSubmit={onSubmit} noValidate className="grid max-w-2xl gap-5">
-      {formError && (
-        <p role="alert" className="rounded-md border-2 border-danger p-3 text-sm font-semibold text-danger">
-          {formError}
-        </p>
-      )}
+    <form
+      ref={formRef}
+      key={formKey}
+      onSubmit={onSubmit}
+      noValidate
+      className="grid gap-x-6 gap-y-5.5 border-t-2 border-rule pt-5.5 sm:grid-cols-2"
+    >
+      {formError && <InlineNotice tone="danger" title={formError} className="sm:col-span-2" />}
       <TextField
         name="orgName"
         label={t("orgName")}
@@ -168,6 +176,7 @@ export function CustomRequestForm() {
         maxLength={MAX_SHORT_TEXT_LENGTH}
         required
         error={errors.orgName}
+        className="sm:col-span-2"
       />
       <TextField
         name="topic"
@@ -175,45 +184,47 @@ export function CustomRequestForm() {
         maxLength={MAX_SHORT_TEXT_LENGTH}
         required
         error={errors.topic}
+        className="sm:col-span-2"
       />
-      <div className="grid gap-5 sm:grid-cols-2">
-        <TextField
-          name="traineeCount"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          dir="ltr"
-          label={t("traineeCount")}
-          required
-          error={errors.traineeCount}
-        />
-        <TextField
-          name="suggestedDate"
-          type="date"
-          label={t("suggestedDate")}
-          required
-          error={errors.suggestedDate}
-        />
-      </div>
+      <TextField
+        name="traineeCount"
+        type="number"
+        inputMode="numeric"
+        min={1}
+        step={1}
+        dir="ltr"
+        label={t("traineeCount")}
+        required
+        error={errors.traineeCount}
+      />
+      <TextField
+        name="suggestedDate"
+        type="date"
+        label={t("suggestedDate")}
+        required
+        error={errors.suggestedDate}
+      />
       <TextField
         name="place"
         label={t("place")}
         hint={t("placeHint")}
         maxLength={MAX_SHORT_TEXT_LENGTH}
         error={errors.place}
+        className="sm:col-span-2"
       />
       <TextField
         name="contactEmail"
         type="email"
         label={t("contactEmail")}
         autoComplete="email"
+        inputMode="email"
         dir="ltr"
         required
         error={errors.contactEmail}
+        className="sm:col-span-2"
       />
-      <div>
-        <Button type="submit" size="lg" loading={sending} loadingLabel={t("sending")}>
+      <div className="flex justify-end sm:col-span-2">
+        <Button type="submit" loading={sending} loadingLabel={t("sending")}>
           {t("send")}
         </Button>
       </div>

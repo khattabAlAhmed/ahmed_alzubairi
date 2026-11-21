@@ -9,8 +9,10 @@ import {
   type ContactRequest,
 } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Button, Select, TextArea, TextField } from "@/components/ui";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { InlineNotice } from "@/components/account/notice";
+import { CheckIcon } from "@/components/icons";
+import { Button, FieldError, Radio, TextArea, TextField } from "@/components/ui";
 import { track } from "@/lib/analytics/track";
 
 type Field = keyof ContactRequest;
@@ -38,6 +40,7 @@ export function ContactForm() {
   // A new key gives a fresh, empty form after "send another".
   const [formKey, setFormKey] = useState(0);
   const sentHeading = useRef<HTMLHeadingElement>(null);
+  const orgTypeErrorId = useId();
 
   useEffect(() => {
     if (sent) sentHeading.current?.focus();
@@ -105,15 +108,19 @@ export function ContactForm() {
   }
 
   if (sent) {
+    // ContactForm board: the sent state on the raised ground, opened by the
+    // success rule. It thanks; it never promises when the reply comes.
     return (
-      <div role="status" className="rounded-lg border border-text/15 bg-surface p-6 shadow-sm">
-        <h2 ref={sentHeading} tabIndex={-1} className="text-2xl focus:outline-none">
+      <div role="status" className="flex flex-col gap-2 border-t-2 border-success bg-surface p-5">
+        <h2 ref={sentHeading} tabIndex={-1} className="flex items-center gap-2 font-medium text-success type-small focus:outline-none">
+          <CheckIcon aria-hidden="true" className="size-4" />
           {t("sentTitle")}
         </h2>
-        <p className="mt-2 text-text-secondary">{t("sentText")}</p>
+        <p className="text-pretty type-small">{t("sentText")}</p>
         <Button
-          variant="secondary"
-          className="mt-6"
+          variant="quiet"
+          size="sm"
+          className="self-start"
           onClick={() => {
             setSent(false);
             setErrors({});
@@ -128,51 +135,53 @@ export function ContactForm() {
 
   return (
     <section aria-labelledby="contact-form-title">
-      <h2 id="contact-form-title" className="text-2xl">
+      <h2 id="contact-form-title" className="type-h2">
         {t("formTitle")}
       </h2>
-      <p className="mt-2 text-text-secondary">{t("noAccount")}</p>
-      <form key={formKey} onSubmit={onSubmit} noValidate className="mt-6 grid gap-5">
-        {formError && (
-          <p role="alert" className="rounded-md border-2 border-danger p-3 text-sm font-semibold text-danger">
-            {formError}
-          </p>
-        )}
-        <div className="grid gap-5 sm:grid-cols-2">
-          <TextField
-            name="name"
-            label={t("name")}
-            autoComplete="name"
-            maxLength={MAX_SHORT_TEXT_LENGTH}
-            required
-            error={errors.name}
-          />
-          <TextField
-            name="email"
-            type="email"
-            label={t("emailField")}
-            autoComplete="email"
-            dir="ltr"
-            required
-            error={errors.email}
-          />
-        </div>
-        <Select name="orgType" label={t("orgType")} defaultValue="" required error={errors.orgType}>
-          <option value="" disabled>
-            {t("orgTypeChoose")}
-          </option>
-          {ORG_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {t(`orgTypes.${type}`)}
-            </option>
-          ))}
-        </Select>
+      <form
+        key={formKey}
+        onSubmit={onSubmit}
+        noValidate
+        className="mt-5 grid gap-x-6 gap-y-5.5 border-t-2 border-rule pt-5.5 sm:grid-cols-2"
+      >
+        {formError && <InlineNotice tone="danger" title={formError} className="sm:col-span-2" />}
+        <TextField
+          name="name"
+          label={t("name")}
+          autoComplete="name"
+          maxLength={MAX_SHORT_TEXT_LENGTH}
+          required
+          error={errors.name}
+        />
+        <TextField
+          name="email"
+          type="email"
+          label={t("emailField")}
+          autoComplete="email"
+          inputMode="email"
+          dir="ltr"
+          required
+          error={errors.email}
+        />
+        <fieldset
+          aria-describedby={errors.orgType ? orgTypeErrorId : undefined}
+          className="flex min-w-0 flex-col gap-2 sm:col-span-2"
+        >
+          <legend className="mb-2 text-sm font-medium">{t("orgType")}</legend>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            {ORG_TYPES.map((type) => (
+              <Radio key={type} name="orgType" value={type} label={t(`orgTypes.${type}`)} required />
+            ))}
+          </div>
+          {errors.orgType && <FieldError id={orgTypeErrorId}>{errors.orgType}</FieldError>}
+        </fieldset>
         <TextField
           name="subject"
           label={t("subject")}
           maxLength={MAX_SHORT_TEXT_LENGTH}
           required
           error={errors.subject}
+          className="sm:col-span-2"
         />
         <TextArea
           name="message"
@@ -181,9 +190,11 @@ export function ContactForm() {
           maxLength={MAX_LONG_TEXT_LENGTH}
           required
           error={errors.message}
+          className="sm:col-span-2"
         />
-        <div>
-          <Button type="submit" size="lg" loading={sending} loadingLabel={t("sending")}>
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
+          <p className="text-[13px] text-ink-2">{t("noAccount")}</p>
+          <Button type="submit" loading={sending} loadingLabel={t("sending")}>
             {t("send")}
           </Button>
         </div>
