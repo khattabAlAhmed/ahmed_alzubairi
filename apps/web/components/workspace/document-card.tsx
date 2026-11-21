@@ -3,7 +3,6 @@
 import type { DocumentAccessMode, DocumentCategory, DocumentRequestStatus } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { DownloadIcon, EyeIcon } from "./icons";
 import { StatusPill } from "./status-pill";
@@ -23,7 +22,12 @@ export type DocumentCardProps = {
   className?: string;
 };
 
-/** One protected document (§6.18): title, category, access mode, request status and actions. */
+/**
+ * One protected document (§6.18), as a row of the DocumentViewer board's
+ * list: category, title and status on top, then the access mode and its note
+ * (an expiry, say), and the action at the end. Rows sit under one heavy rule
+ * in the caller's list, with a hairline under each.
+ */
 export function DocumentCard({
   title,
   category,
@@ -38,24 +42,35 @@ export function DocumentCard({
   const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
-    <Card as="article" compact className={cx("flex flex-col gap-3", className)}>
-      {/* Category and status share the top row, so a long title gets the card's full width. */}
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <p className="min-w-0 text-xs font-semibold text-text-secondary">
+    <article
+      className={cx(
+        "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1.5 border-b border-line py-3.5",
+        className,
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-[13px] text-ink-2">
           <span className="sr-only">{t("category")}: </span>
           {t(`categories.${category}`)}
         </p>
-        {status && <StatusPill kind="documentRequest" status={status} />}
+        {/* Text, never HTML (§9). */}
+        <Heading className="font-medium text-balance wrap-anywhere type-small">{title}</Heading>
       </div>
-      {/* Text, never HTML (§9). */}
-      <Heading className="-mt-1 text-lg text-balance wrap-anywhere">{title}</Heading>
-      {note && <div className="text-sm text-text-secondary">{note}</div>}
-      <p className="flex items-center gap-1.5 text-sm text-text-secondary">
-        {accessMode === "view" ? <EyeIcon /> : <DownloadIcon />}
-        <span className="sr-only">{t("access")}: </span>
-        {t(`accessModes.${accessMode}`)}
-      </p>
-      {actions && <div className="mt-auto flex flex-wrap gap-2 pt-1">{actions}</div>}
-    </Card>
+      <div className="justify-self-end">{status && <StatusPill kind="documentRequest" status={status} />}</div>
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] leading-[1.7] text-ink-2">
+        <p className="flex items-center gap-1.5">
+          {accessMode === "view" ? <EyeIcon className="size-4" /> : <DownloadIcon className="size-4" />}
+          <span className="sr-only">{t("access")}: </span>
+          {t(`accessModes.${accessMode}`)}
+        </p>
+        {note && (
+          <>
+            <span aria-hidden="true">·</span>
+            <div>{note}</div>
+          </>
+        )}
+      </div>
+      {actions ? <div className="flex flex-wrap justify-end gap-2">{actions}</div> : <span />}
+    </article>
   );
 }

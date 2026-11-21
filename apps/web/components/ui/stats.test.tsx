@@ -33,7 +33,7 @@ describe("StatTile", () => {
     expect(screen.getByText("38")).toBeTruthy();
     expect(screen.getByText("per month")).toBeTruthy();
     expect(screen.getByText("New requests")).toBeTruthy();
-    expect(screen.getByText("+31%").closest("p")?.className).toContain("text-text");
+    expect(screen.getByText("+31%").closest("p")?.className).toContain("text-ink");
     expect(screen.getByText("vs last month")).toBeTruthy();
   });
 

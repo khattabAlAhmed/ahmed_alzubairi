@@ -10,7 +10,7 @@ import { chatPath, requestPath, viewerPath } from "./paths";
 type Group = keyof GroupedRequests;
 
 /**
- * One request on "وثائقي المتاحة", built on T02's DocumentCard and StatusPill:
+ * One request on "وثائقي المتاحة", a row built on DocumentCard and StatusPill:
  * "فتح" when available, the chat link when in contact, "طلب مجدداً" when ended.
  */
 export function RequestCard({
@@ -68,7 +68,6 @@ export function RequestCard({
       note={note}
       actions={actions}
       headingLevel={3}
-      className="w-full"
     />
   );
 }

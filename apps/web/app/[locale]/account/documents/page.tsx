@@ -5,7 +5,8 @@ import { groupRequests, type GroupedRequests } from "@/components/documents/grou
 import { DOCUMENTS_PATH } from "@/components/documents/paths";
 import { readOwnRequests } from "@/components/documents/read";
 import { RequestCard } from "@/components/documents/request-card";
-import { ButtonLink, Card, PageHeader } from "@/components/ui";
+import { EmptyState } from "@/components/empty-state";
+import { ButtonLink, PageHeader } from "@/components/ui";
 import { requireProfile } from "@/lib/auth/gates";
 import { pageLocale } from "../consultations/locale";
 
@@ -42,13 +43,16 @@ export default async function MyDocumentsPage({ params }: { params: Promise<{ lo
         }
       />
       {empty ? (
-        <Card as="section">
-          <h2 className="text-xl">{t("empty.title")}</h2>
-          <p className="mt-2 max-w-prose text-text-secondary">{t("empty.text")}</p>
-          <ButtonLink href={DOCUMENTS_PATH} className="mt-4">
-            {t("browse")}
-          </ButtonLink>
-        </Card>
+        <EmptyState
+          level={2}
+          title={t("empty.title")}
+          text={t("empty.text")}
+          action={
+            <ButtonLink href={DOCUMENTS_PATH} size="sm">
+              {t("browse")}
+            </ButtonLink>
+          }
+        />
       ) : (
         <NextIntlClientProvider
           locale={locale}
@@ -58,14 +62,15 @@ export default async function MyDocumentsPage({ params }: { params: Promise<{ lo
             groups[group].length === 0 ? null : (
               <section key={group} aria-labelledby={`documents-${group}`} className="space-y-3">
                 <div>
-                  <h2 id={`documents-${group}`} className="text-2xl">
+                  <h2 id={`documents-${group}`} className="type-h2">
                     {t(`groups.${group}`)}
                   </h2>
-                  <p className="mt-1 text-sm text-text-secondary">{t(`groupsIntro.${group}`)}</p>
+                  <p className="mt-1 text-ink-2 type-small">{t(`groupsIntro.${group}`)}</p>
                 </div>
-                <ul className="grid gap-4 md:grid-cols-2">
+                {/* One list under the heavy rule, a hairline under each document. */}
+                <ul className="max-w-3xl border-t-2 border-rule">
                   {groups[group].map((request) => (
-                    <li key={request.id} className="flex">
+                    <li key={request.id}>
                       <RequestCard
                         request={request}
                         group={group}

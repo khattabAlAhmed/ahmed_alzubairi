@@ -9,6 +9,7 @@ import {
 } from "@repo/shared";
 import { useLocale } from "next-intl";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { NoticeGlyph } from "@/components/account/notice";
 import { Badge, Button, Card, LanguageTabs, Select } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { FieldInput } from "./field-input";
@@ -139,8 +140,9 @@ export function PublishPanel({ editor }: { editor: ContentEditorState }) {
   const wantsPublish = values.status === "published";
 
   return (
-    <Card as="section" compact aria-labelledby="publish-heading" className="space-y-4">
-      <h2 id="publish-heading" className="text-lg">
+    // The ContentEditor board's publish panel: the one raised ground, opened by the heavy rule.
+    <section aria-labelledby="publish-heading" className="flex flex-col gap-4 border-t-2 border-rule bg-surface p-4.5">
+      <h2 id="publish-heading" className="font-medium type-small">
         {text.t("editor.publishing")}
       </h2>
       <Select
@@ -166,16 +168,21 @@ export function PublishPanel({ editor }: { editor: ContentEditorState }) {
         </Badge>
       )}
       {wantsPublish && publish.problems.length > 0 && (
-        <div className="rounded-md border border-danger p-3 text-sm">
-          <p className="font-semibold text-danger">{text.t("editor.cantPublish")}</p>
-          <ul className="mt-1 list-disc ps-5">
-            {publish.problems.map((problem) => (
-              <li key={problem}>{text.t(`editor.problems.${problem}`)}</li>
-            ))}
-          </ul>
+        // The notice look without its alert role: it updates as the form changes;
+        // the save area announces the refusal.
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 border border-line border-t-2 border-t-danger bg-bg px-4 py-3.5">
+          <NoticeGlyph tone="danger" className="mt-1" />
+          <div className="text-sm">
+            <p className="font-medium">{text.t("editor.cantPublish")}</p>
+            <ul className="mt-1 list-disc ps-5 text-ink-2">
+              {publish.problems.map((problem) => (
+                <li key={problem}>{text.t(`editor.problems.${problem}`)}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
-    </Card>
+    </section>
   );
 }
 

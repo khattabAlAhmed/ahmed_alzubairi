@@ -3,8 +3,9 @@
 import type { DocumentAccessMode } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { InlineNotice } from "@/components/account/notice";
+import { ErrorState } from "@/components/feedback/error-state";
 import { Button, Skeleton } from "@/components/ui";
-import { cx } from "@/components/ui/cx";
 import { downloadUrl, openDocument } from "./api";
 import { PdfPages } from "./pdf-pages";
 
@@ -115,57 +116,70 @@ export function DocumentViewer({
     window.location.assign(downloadUrl(opened.body.url, downloadName(title, mime)));
   }
 
+  // The DocumentViewer board's frame: a bar opened by the heavy rule (title,
+  // download), the pages on the surface ground, and the note
+  // that every opening is logged and watermarked. Look only: opening,
+  // watermarking, the 60-second link and the log are unchanged.
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-text-secondary">
-          {t("watermark")}
-          {accessMode === "view" && <> {t("viewOnly")}</>}
-        </p>
-        {accessMode === "view_download" && (
-          <Button variant="secondary" size="sm" loading={downloading} loadingLabel={t("downloading")} onClick={download}>
-            {t("download")}
-          </Button>
-        )}
+    <div className="flex flex-col border border-line">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-b border-rule border-b-line px-3.5 py-2.5">
+        <p className="min-w-0 font-medium wrap-anywhere type-small">{title}</p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {accessMode === "view_download" && (
+            <Button variant="secondary" size="sm" loading={downloading} loadingLabel={t("downloading")} onClick={download}>
+              {t("download")}
+            </Button>
+          )}
+        </div>
       </div>
       {downloadError && (
-        <p role="alert" className="text-sm font-semibold text-danger">
-          {downloadError}
-        </p>
+        <div className="px-3.5 pt-3">
+          <InlineNotice tone="danger" title={downloadError} />
+        </div>
       )}
 
-      {state.step === "loading" && (
-        <div role="status" className="space-y-3">
-          <span className="sr-only">{t("loading")}</span>
-          <Skeleton className="mx-auto aspect-[1/1.414] w-full max-w-[900px]" />
-        </div>
-      )}
-      {state.step === "failed" && (
-        <div role="alert" className="space-y-3 rounded-lg border border-text/15 bg-surface p-6">
-          <p>{state.message ?? t("failed")}</p>
-          <Button variant="secondary" size="sm" onClick={retry}>
-            {t("retry")}
-          </Button>
-        </div>
-      )}
-      {state.step === "ready" && state.file.kind === "pdf" && (
-        <PdfPages data={state.file.data} title={title} onError={failed} />
-      )}
-      {state.step === "ready" && state.file.kind === "image" && (
-        // A signed Storage URL, so not next/image (its loader allows public media only).
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={state.file.url}
-          alt={t("imageAlt", { title })}
-          onContextMenu={(event) => event.preventDefault()}
-          onError={() => {
-            // The link ran out before the image loaded: open again, once.
-            if (attempt === 0) retry();
-            else failed();
-          }}
-          className={cx("mx-auto block h-auto max-w-full rounded-md border border-text/15 shadow-sm")}
-        />
-      )}
+      <div className="bg-surface px-3 py-5 sm:px-5">
+        {state.step === "loading" && (
+          <div role="status">
+            <span className="sr-only">{t("loading")}</span>
+            <Skeleton className="mx-auto aspect-[1/1.414] w-full max-w-[900px] bg-bg!" />
+          </div>
+        )}
+        {state.step === "failed" && (
+          <ErrorState
+            size="section"
+            title={state.message ?? t("failed")}
+            action={
+              <Button variant="secondary" size="sm" onClick={retry}>
+                {t("retry")}
+              </Button>
+            }
+          />
+        )}
+        {state.step === "ready" && state.file.kind === "pdf" && (
+          <PdfPages data={state.file.data} title={title} onError={failed} />
+        )}
+        {state.step === "ready" && state.file.kind === "image" && (
+          // A signed Storage URL, so not next/image (its loader allows public media only).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={state.file.url}
+            alt={t("imageAlt", { title })}
+            onContextMenu={(event) => event.preventDefault()}
+            onError={() => {
+              // The link ran out before the image loaded: open again, once.
+              if (attempt === 0) retry();
+              else failed();
+            }}
+            className="mx-auto block h-auto max-w-full border border-line"
+          />
+        )}
+      </div>
+
+      <p className="border-t border-line px-3.5 py-2.5 text-[13px] leading-[1.7] text-ink-2">
+        {t("watermark")}
+        {accessMode === "view" && <> {t("viewOnly")}</>}
+      </p>
     </div>
   );
 }
