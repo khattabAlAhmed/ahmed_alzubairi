@@ -45,22 +45,13 @@ export function QuickContact({
   useEffect(() => {
     if (!open) return;
     if (opened.current) panel.current?.querySelector<HTMLElement>("a, button")?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      toggle.current?.focus();
-    };
     // A click anywhere else closes it, leaving focus where the click put it.
     const onPointer = (event: PointerEvent) => {
       const target = event.target as Node;
       if (!panel.current?.contains(target) && !toggle.current?.contains(target)) setOpen(false);
     };
-    document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onPointer);
-    };
+    return () => document.removeEventListener("pointerdown", onPointer);
   }, [open]);
 
   if (!whatsapp && !email) return null;
@@ -83,6 +74,14 @@ export function QuickContact({
         "flex flex-col items-start gap-2",
         !sample && "fixed start-4 z-30 bottom-[calc(var(--consent-covered,0px)+16px)]",
       )}
+      // Esc acts only while focus is in the panel or on the tab, so it never
+      // pulls focus away from elsewhere on the page.
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !open) return;
+        event.stopPropagation();
+        setOpen(false);
+        toggle.current?.focus();
+      }}
     >
       <div
         ref={panel}
@@ -90,7 +89,13 @@ export function QuickContact({
         hidden={!open}
         role="dialog"
         aria-label={t("quickContact")}
-        className="w-[320px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg text-ink shadow-overlay"
+        className={cx(
+          "w-[320px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg text-ink shadow-overlay",
+          // On a short screen it scrolls rather than run off the top: the room
+          // above the tab is the screen less the consent bar, the 16px offset,
+          // the 44px tab, the 8px gap and 16px at the top.
+          !sample && "max-h-[calc(100dvh-var(--consent-covered,0px)-84px)] overflow-y-auto",
+        )}
       >
         {whatsapp && (
           <a

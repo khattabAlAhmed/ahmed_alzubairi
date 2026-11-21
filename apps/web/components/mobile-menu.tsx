@@ -43,6 +43,9 @@ export function trapTab(panel: HTMLElement, event: Pick<KeyboardEvent, "key" | "
   return false;
 }
 
+/** Tailwind's `xl`, where the header shows its inline navigation. */
+const WIDE = "(min-width: 80rem)";
+
 /**
  * The phone menu (the MobileMenu board): it opens over the page, behind a
  * scrim, as a labelled dialog. His name and the close button on top, then the
@@ -79,8 +82,16 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
       if (panel.current) trapTab(panel.current, event);
     };
     document.addEventListener("keydown", onKey);
+    // At xl the menu button hides (xl:hidden) and the inline navigation takes
+    // over: close the menu so the page scrolls and Tab is free again.
+    const wide = window.matchMedia(WIDE);
+    const onWide = () => {
+      if (wide.matches) setOpen(false);
+    };
+    wide.addEventListener("change", onWide);
     return () => {
       document.removeEventListener("keydown", onKey);
+      wide.removeEventListener("change", onWide);
       document.body.style.overflow = overflow;
     };
   }, [open]);

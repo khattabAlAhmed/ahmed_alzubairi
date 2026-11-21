@@ -103,19 +103,22 @@ export function UntranslatedSwitch({
   const id = useId();
 
   useEffect(() => {
-    if (!open) return;
-    if (opened.current) popover.current?.querySelector<HTMLElement>("a, button")?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      button.current?.focus();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    if (open && opened.current) popover.current?.querySelector<HTMLElement>("a, button")?.focus();
   }, [open]);
 
   return (
-    <div className="relative">
+    // Esc is handled here, not on the document: it acts only while focus is in
+    // the note or on its switch, and it stops here, so inside the phone menu it
+    // closes the note without closing the menu too.
+    <div
+      className="relative"
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !open) return;
+        event.stopPropagation();
+        setOpen(false);
+        button.current?.focus();
+      }}
+    >
       <button
         ref={button}
         type="button"

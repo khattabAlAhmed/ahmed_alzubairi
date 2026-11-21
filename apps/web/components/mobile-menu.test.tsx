@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MobileMenu, trapTab } from "./mobile-menu";
@@ -17,7 +17,22 @@ vi.mock("./language-switch", () => ({ LanguageSwitch: () => <button type="button
 vi.mock("./theme-switch", () => ({ ThemeSwitch: () => <button type="button">theme</button> }));
 vi.mock("./consultation-button", () => ({ ConsultationButton: () => <button type="button">consult</button> }));
 
-afterEach(cleanup);
+// jsdom has no matchMedia: a stub whose width the tests can change.
+const media = vi.hoisted(() => ({ matches: false, listeners: new Set<() => void>() }));
+window.matchMedia = ((query: string) => ({
+  get matches() {
+    return media.matches;
+  },
+  media: query,
+  addEventListener: (_: string, listener: () => void) => media.listeners.add(listener),
+  removeEventListener: (_: string, listener: () => void) => media.listeners.delete(listener),
+})) as unknown as typeof window.matchMedia;
+
+afterEach(() => {
+  cleanup();
+  media.matches = false;
+  media.listeners.clear();
+});
 
 const open = () => {
   const button = screen.getByRole("button", { name: "openMenu" });
@@ -51,6 +66,20 @@ describe("MobileMenu", () => {
     const button = screen.getByRole("button", { name: "openMenu" });
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(button);
+  });
+
+  it("closes when the window widens to xl, where the button hides", () => {
+    render(<MobileMenu />);
+    const button = open();
+    expect(document.body.style.overflow).toBe("hidden");
+    act(() => {
+      media.matches = true;
+      media.listeners.forEach((listener) => listener());
+    });
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+    expect(media.listeners.size).toBe(0);
   });
 
   it("closes from its close button, giving focus back", () => {

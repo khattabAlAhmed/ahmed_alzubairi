@@ -98,7 +98,7 @@ describe("LanguageSwitch", () => {
     );
     const toggle = screen.getByRole("button", { name: "switchLanguageLabel" });
     fireEvent.click(toggle);
-    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(toggle);
 
@@ -152,5 +152,33 @@ describe("UntranslatedSwitch note position", () => {
     render(<UntranslatedSwitch href="/services" long initiallyOpen />);
     expect(note().className).toMatch(/\bstart-0\b/);
     expect(note().className).not.toMatch(/\bend-0\b/);
+  });
+});
+
+describe("UntranslatedSwitch Escape", () => {
+  it("leaves focus alone when Esc is pressed elsewhere on the page", () => {
+    render(
+      <>
+        <button type="button">elsewhere</button>
+        <UntranslatedSwitch href="/services" initiallyOpen />
+      </>,
+    );
+    const elsewhere = screen.getByRole("button", { name: "elsewhere" });
+    elsewhere.focus();
+    fireEvent.keyDown(elsewhere, { key: "Escape" });
+    expect(document.activeElement).toBe(elsewhere);
+    expect(screen.getByRole("button", { name: "switchLanguageLabel" }).getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("stops Esc at the note, so a menu around it stays open", () => {
+    const outer = vi.fn();
+    document.addEventListener("keydown", outer);
+    render(<UntranslatedSwitch href="/services" initiallyOpen />);
+    fireEvent.keyDown(screen.getByRole("link", { name: "untranslated.go" }), { key: "Escape" });
+    document.removeEventListener("keydown", outer);
+    expect(outer).not.toHaveBeenCalled();
+    const toggle = screen.getByRole("button", { name: "switchLanguageLabel" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(toggle);
   });
 });
