@@ -35,6 +35,21 @@ const DATE_PARTS: Record<DateLength, Intl.DateTimeFormatOptions> = {
 // Named parts, not `timeStyle`: en-GB's time style pads the hour ("02:30 pm").
 const TIME_PARTS: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit", hour12: true };
 
+/*
+ * ICU versions differ in the spaces they emit: Node puts thin spaces (U+2009)
+ * around a range's dash where Chromium puts plain ones, and newer ICU puts a
+ * narrow no-break space (U+202F) before "am"/"pm". Text rendered on the
+ * server and hydrated in the browser must match exactly (React #418), so every
+ * string here leaves with plain spaces. Only spaces change: digits, order,
+ * bidi marks and the zone name stay as Intl wrote them.
+ */
+const INTL_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F]/g;
+
+/** Intl's output with its special spaces made plain, the same on every runtime. */
+export function plainSpaces(text: string): string {
+  return text.replace(INTL_SPACES, " ");
+}
+
 const toDate = (value: Date | string) => (value instanceof Date ? value : new Date(value));
 
 /** The Intl options for a date and/or time, without the zone name. */
@@ -55,17 +70,17 @@ function zoneSuffix(value: Date, locale: string, options: DateTimeOptions): stri
 export function formatDateTime(value: Date | string, locale: string, options: DateTimeOptions = {}): string {
   const at = toDate(value);
   const text = new Intl.DateTimeFormat(dateLocale(locale), dateTimeParts(options)).format(at);
-  return text + zoneSuffix(at, locale, options);
+  return plainSpaces(text + zoneSuffix(at, locale, options));
 }
 
 /** A start-to-end time on one day: "2:30–3:30 pm" / "٢:٣٠–٣:٣٠ م". The zone isn't named here. */
 export function formatTimeRange(start: Date, end: Date, locale: string, timeZone?: string): string {
-  return new Intl.DateTimeFormat(dateLocale(locale), { ...TIME_PARTS, timeZone }).formatRange(start, end);
+  return plainSpaces(new Intl.DateTimeFormat(dateLocale(locale), { ...TIME_PARTS, timeZone }).formatRange(start, end));
 }
 
 /** A count, amount or percent in the page's digits: "١٬٢٠٠" / "1,200". */
 export function formatCount(value: number, locale: string, options?: Intl.NumberFormatOptions): string {
-  return new Intl.NumberFormat(intlLocale(locale), options).format(value);
+  return plainSpaces(new Intl.NumberFormat(intlLocale(locale), options).format(value));
 }
 
 /** A month and year, for chart axes and month pickers: "Mar 2025" / "مارس ٢٠٢٥". */
@@ -75,11 +90,13 @@ export function formatMonth(
   options: { month?: "short" | "long"; year?: boolean; timeZone?: string } = {},
 ): string {
   const { month = "short", year = true, timeZone } = options;
-  return new Intl.DateTimeFormat(dateLocale(locale), {
-    month,
-    ...(year ? { year: "numeric" } : {}),
-    timeZone,
-  }).format(value);
+  return plainSpaces(
+    new Intl.DateTimeFormat(dateLocale(locale), {
+      month,
+      ...(year ? { year: "numeric" } : {}),
+      timeZone,
+    }).format(value),
+  );
 }
 
 /**
@@ -93,7 +110,7 @@ export function zoneLabel(zone: string, at: Date = new Date()): string {
     const offset = new Intl.DateTimeFormat("en", { timeZone: zone, timeZoneName: "shortOffset" })
       .formatToParts(at)
       .find((part) => part.type === "timeZoneName")?.value;
-    return offset ? `${zone} (${offset})` : zone;
+    return offset ? plainSpaces(`${zone} (${offset})`) : zone;
   } catch {
     return zone;
   }
