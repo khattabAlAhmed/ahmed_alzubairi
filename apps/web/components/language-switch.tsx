@@ -137,7 +137,12 @@ export function UntranslatedSwitch({
         hidden={!open}
         role="group"
         aria-labelledby={`${id}-title`}
-        className="absolute end-0 top-full z-50 mt-1 w-[300px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg shadow-overlay"
+        className={cx(
+          "absolute top-full z-50 mt-1 w-[300px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg shadow-overlay",
+          // The header's switch sits at the end of the bar; the menu's is its
+          // row's first cell. Either way the note opens back across the screen.
+          long ? "start-0" : "end-0",
+        )}
       >
         {/* The note is in the other language. Its direction sits on this inner
             box: on the positioned box, `dir` would flip what `end-0` means and

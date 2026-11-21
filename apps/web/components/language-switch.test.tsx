@@ -29,7 +29,7 @@ vi.mock("@/i18n/navigation", () => ({
   },
 }));
 
-const { LanguageFallback, LanguageFallbackProvider, LanguageSwitch, switchTarget } = await import(
+const { LanguageFallback, LanguageFallbackProvider, LanguageSwitch, UntranslatedSwitch, switchTarget } = await import(
   "./language-switch"
 );
 
@@ -130,5 +130,27 @@ describe("LanguageSwitch", () => {
     nav.search = "redirect_url=%2Fen%2Faccount";
     render(<LanguageSwitch />);
     expect(href()).toBe("/ar/sign-in?redirect_url=%2Fen%2Faccount");
+  });
+});
+
+describe("UntranslatedSwitch note position", () => {
+  const note = () => screen.getByRole("group", { hidden: true });
+
+  it("keeps the page's direction on the positioned box and the other language inside", () => {
+    render(<UntranslatedSwitch href="/services" initiallyOpen />);
+    // dir on the positioned box would flip what end-0 means and open it off screen.
+    expect(note().hasAttribute("dir")).toBe(false);
+    const inner = note().firstElementChild as HTMLElement;
+    expect(inner.getAttribute("dir")).toBe("rtl");
+    expect(inner.getAttribute("lang")).toBe("ar");
+  });
+
+  it("opens from the end in the header and from the start in the menu", () => {
+    const { unmount } = render(<UntranslatedSwitch href="/services" initiallyOpen />);
+    expect(note().className).toMatch(/\bend-0\b/);
+    unmount();
+    render(<UntranslatedSwitch href="/services" long initiallyOpen />);
+    expect(note().className).toMatch(/\bstart-0\b/);
+    expect(note().className).not.toMatch(/\bend-0\b/);
   });
 });
