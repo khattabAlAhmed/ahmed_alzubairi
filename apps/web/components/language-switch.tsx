@@ -108,12 +108,14 @@ export function UntranslatedSwitch({
 
   return (
     // Esc is handled here, not on the document: it acts only while focus is in
-    // the note or on its switch, and it stops here, so inside the phone menu it
-    // closes the note without closing the menu too.
+    // the note or on its switch. It's marked handled (preventDefault), so the
+    // phone menu around it ignores it and stays open; React listens on the
+    // document too, so stopping propagation alone can't keep it from the menu.
     <div
       className="relative"
       onKeyDown={(event) => {
         if (event.key !== "Escape" || !open) return;
+        event.preventDefault();
         event.stopPropagation();
         setOpen(false);
         button.current?.focus();

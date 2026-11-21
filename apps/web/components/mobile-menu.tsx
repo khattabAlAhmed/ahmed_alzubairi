@@ -75,6 +75,8 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
     document.body.style.overflow = "hidden";
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        // Something inside (the untranslated note) already used this Esc.
+        if (event.defaultPrevented) return;
         setOpen(false);
         toggle.current?.focus();
         return;

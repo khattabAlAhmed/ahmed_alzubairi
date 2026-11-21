@@ -78,6 +78,7 @@ export function QuickContact({
       // pulls focus away from elsewhere on the page.
       onKeyDown={(event) => {
         if (event.key !== "Escape" || !open) return;
+        event.preventDefault();
         event.stopPropagation();
         setOpen(false);
         toggle.current?.focus();

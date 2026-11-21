@@ -170,13 +170,10 @@ describe("UntranslatedSwitch Escape", () => {
     expect(screen.getByRole("button", { name: "switchLanguageLabel" }).getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("stops Esc at the note, so a menu around it stays open", () => {
-    const outer = vi.fn();
-    document.addEventListener("keydown", outer);
+  it("marks Esc handled, so a menu around it stays open", () => {
     render(<UntranslatedSwitch href="/services" initiallyOpen />);
-    fireEvent.keyDown(screen.getByRole("link", { name: "untranslated.go" }), { key: "Escape" });
-    document.removeEventListener("keydown", outer);
-    expect(outer).not.toHaveBeenCalled();
+    const notPrevented = fireEvent.keyDown(screen.getByRole("link", { name: "untranslated.go" }), { key: "Escape" });
+    expect(notPrevented).toBe(false);
     const toggle = screen.getByRole("button", { name: "switchLanguageLabel" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(toggle);

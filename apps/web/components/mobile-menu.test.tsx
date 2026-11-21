@@ -68,6 +68,17 @@ describe("MobileMenu", () => {
     expect(document.activeElement).toBe(button);
   });
 
+  it("stays open for an Esc that something inside already handled", () => {
+    render(<MobileMenu />);
+    const button = open();
+    const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    event.preventDefault();
+    act(() => {
+      document.dispatchEvent(event);
+    });
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+  });
+
   it("closes when the window widens to xl, where the button hides", () => {
     render(<MobileMenu />);
     const button = open();
