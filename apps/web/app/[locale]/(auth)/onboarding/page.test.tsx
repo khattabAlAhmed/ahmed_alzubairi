@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   userId: "user_1" as string | null,
   hasProfile: true,
+  headers: { host: "ahmed.example", "x-forwarded-proto": "https" } as Record<string, string>,
+}));
+
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers(mocks.headers),
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
@@ -41,6 +46,7 @@ function open(locale: string, redirectUrl?: string | string[]) {
 beforeEach(() => {
   mocks.userId = "user_1";
   mocks.hasProfile = true;
+  mocks.headers = { host: "ahmed.example", "x-forwarded-proto": "https" };
 });
 
 describe("onboarding page", () => {
@@ -75,6 +81,35 @@ describe("onboarding page", () => {
     mocks.userId = null;
     await expect(open("en", "/en/account")).rejects.toThrow(
       "REDIRECT /en/sign-in?redirect_url=%2Fen%2Fonboarding%3Fredirect_url%3D%252Fen%252Faccount",
+    );
+  });
+
+  it("keeps a same-site absolute return URL, as Clerk's sign-up link sends it", async () => {
+    await expect(
+      open("ar", "https://ahmed.example/ar/documents?request=a,b"),
+    ).rejects.toThrow(/^REDIRECT \/ar\/documents\?request=a,b$/);
+  });
+
+  it("uses the forwarded host when there is one", async () => {
+    mocks.headers = { host: "internal", "x-forwarded-host": "ahmed.example", "x-forwarded-proto": "https" };
+    await expect(open("en", "https://ahmed.example/en/account/documents")).rejects.toThrow(
+      /^REDIRECT \/en\/account\/documents$/,
+    );
+  });
+
+  it.each([
+    "https://evil.example/ar/documents",
+    "http://ahmed.example/ar/documents",
+    "https://ahmed.example//evil.example",
+    "https://ahmed.example/ar/sign-up",
+  ])("ignores the absolute return URL %s", async (unsafe) => {
+    await expect(open("ar", unsafe)).rejects.toThrow(/^REDIRECT \/ar\/account$/);
+  });
+
+  it("refuses an absolute return URL when the request has no host", async () => {
+    mocks.headers = {};
+    await expect(open("ar", "https://ahmed.example/ar/documents")).rejects.toThrow(
+      /^REDIRECT \/ar\/account$/,
     );
   });
 });
