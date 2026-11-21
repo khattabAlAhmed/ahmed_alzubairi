@@ -1,10 +1,9 @@
 import { useTranslations } from "next-intl";
-import { cx } from "@/components/ui/cx";
-import { Link } from "@/i18n/navigation";
+import { ServiceRows } from "@/components/public/pages/identity";
 import type { Service } from "@/lib/content";
-import { CARD, CARD_LINK, HomeSectionShell, type SectionBand } from "./section";
+import { HomeSectionShell, type SectionBand } from "./section";
 
-/** §6.2 #5. Takes the featured services only. */
+/** §6.2 #5. Takes the featured services only, as an index (the ServiceList board); the first is open. */
 export function ServicesSection({
   heading,
   intro,
@@ -26,18 +25,7 @@ export function ServicesSection({
       band={band}
       action={{ href: "/services", label: t("allServices") }}
     >
-      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((service) => (
-          <li key={service.id} className={cx(CARD, "relative")}>
-            <h3 className="text-xl">
-              <Link href={`/services/${service.slug}`} className={CARD_LINK}>
-                {service.title}
-              </Link>
-            </h3>
-            <p className="mt-3 text-pretty text-text-secondary">{service.summary}</p>
-          </li>
-        ))}
-      </ul>
+      <ServiceRows services={services} openId={services[0]?.id} />
     </HomeSectionShell>
   );
 }

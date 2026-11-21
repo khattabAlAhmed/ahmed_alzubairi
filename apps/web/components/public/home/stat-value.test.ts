@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatStatValue, parseStatValue } from "./stat-value";
+import { formatStatValue, localizeStatValue, parseStatValue } from "./stat-value";
 
 const count = (value: string, current: number) => {
   const stat = parseStatValue(value);
@@ -38,5 +38,25 @@ describe("formatStatValue", () => {
 
   it("never passes the final value", () => {
     expect(count("40", 41)).toBe("40");
+  });
+});
+
+describe("localizeStatValue", () => {
+  it("puts the value in Arabic-Indic digits on an Arabic page", () => {
+    expect(localizeStatValue("1,200", "ar")).toBe("١٬٢٠٠");
+    expect(localizeStatValue("15+", "ar")).toBe("١٥+");
+    expect(localizeStatValue("4.5", "ar")).toBe("٤٫٥");
+    expect(localizeStatValue("14 سنة", "ar")).toBe("١٤ سنة");
+  });
+
+  it("puts it in Western digits on an English page", () => {
+    expect(localizeStatValue("١٬٢٠٠", "en")).toBe("1,200");
+    expect(localizeStatValue("٤٫٥", "en")).toBe("4.5");
+    expect(localizeStatValue("15+", "en")).toBe("15+");
+  });
+
+  it("leaves text and values with no number as written", () => {
+    expect(localizeStatValue("many, varied", "ar")).toBe("many, varied");
+    expect(localizeStatValue("  38 ", "en")).toBe("38");
   });
 });

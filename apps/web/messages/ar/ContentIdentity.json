@@ -1,0 +1,17 @@
+{
+  "qualifications": {
+    "qualification": "المؤهل",
+    "institution": "الجهة",
+    "year": "السنة"
+  },
+  "cv": {
+    "download": "تنزيل"
+  },
+  "service": {
+    "panelNote": "سأعرف من طلبك أي مرحلة تناسبك. لا تحتاج أن تختار الآن.",
+    "accountNote": "تحتاج حساباً. إن لم يكن لديك، ستعود إلى الطلب نفسه بعد التسجيل."
+  },
+  "testimonial": {
+    "source": "من رسالة شكر"
+  }
+}

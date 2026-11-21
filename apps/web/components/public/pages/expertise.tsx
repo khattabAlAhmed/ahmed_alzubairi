@@ -1,19 +1,11 @@
 import { useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
-import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, ExpertiseAreaDetail, Project, Service } from "@/lib/content";
 import { RichText } from "../rich-text";
+import { CONTAINER, ConsultationCta, EmptyNote, MoreLink, PageHero, PageSection } from "../parts";
+import { ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
+import { ExpertiseChapters, ServiceRows } from "./identity";
 import { servedOrganizations } from "./related";
-import {
-  CARD,
-  CARD_LINK,
-  CONTAINER,
-  ConsultationCta,
-  MoreLink,
-  PageHero,
-  PageSection,
-  ProjectCards,
-} from "../parts";
 
 /** `/expertise`: every area published in this language (§6.4). */
 export function ExpertiseListPage({ areas }: { areas: ExpertiseArea[] }) {
@@ -23,23 +15,8 @@ export function ExpertiseListPage({ areas }: { areas: ExpertiseArea[] }) {
   return (
     <>
       <PageHero title={tNav("expertise")} />
-      <div className={cx(CONTAINER, "py-12 md:py-16")}>
-        {areas.length === 0 ? (
-          <p className="text-text-secondary">{t("emptyExpertise")}</p>
-        ) : (
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {areas.map((area) => (
-              <li key={area.id} className={cx(CARD, "border-t-4 border-t-accent")}>
-                <h2 className="text-2xl">
-                  <Link href={`/expertise/${area.slug}`} className={CARD_LINK}>
-                    {area.title}
-                  </Link>
-                </h2>
-                <p className="mt-3 text-pretty text-text-secondary">{area.summary}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className={cx(CONTAINER, "mt-section")}>
+        {areas.length === 0 ? <EmptyNote text={t("emptyExpertise")} /> : <ExpertiseChapters areas={areas} headingLevel={2} />}
       </div>
       <ConsultationCta />
     </>
@@ -74,38 +51,32 @@ export function ExpertiseDetailPage({
         title={area.title}
         intro={<p>{area.summary}</p>}
       />
-      <div className={cx(CONTAINER, "grid gap-14 py-12 md:py-16")}>
+      <div className={cx(CONTAINER, "mt-section grid gap-section")}>
         {area.body && (
           <PageSection id="area-experience" title={t("experience")}>
-            <RichText doc={area.body} className="max-w-prose text-lg" />
+            <RichText doc={area.body} className="max-w-measure" />
           </PageSection>
         )}
         {services.length > 0 && (
           <PageSection id="area-services" title={t("areaServices")}>
-            <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {services.map((service) => (
-                <li key={service.id} className={CARD}>
-                  <h3 className="text-xl">
-                    <Link href={`/services/${service.slug}`} className={CARD_LINK}>
-                      {service.title}
-                    </Link>
-                  </h3>
-                  <p className="mt-3 text-pretty text-text-secondary">{service.summary}</p>
-                </li>
-              ))}
-            </ul>
+            <ServiceRows services={services} />
           </PageSection>
         )}
         {projects.length > 0 && (
           <PageSection id="area-projects" title={t("areaProjects")}>
-            <ProjectCards projects={projects} />
+            <ProjectStoryList>
+              {projects.map((project) => (
+                <ProjectStoryRow key={project.id} story={storyFromProject(project, { area: area.title })} headingLevel={3} />
+              ))}
+            </ProjectStoryList>
           </PageSection>
         )}
         {organizations.length > 0 && (
           <PageSection id="area-organizations" title={t("areaOrganizations")}>
-            <ul className="flex flex-wrap gap-3">
+            {/* Already the general label when a name is hidden (§6.6). */}
+            <ul className="grid border-t border-line sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-gutter">
               {organizations.map((name) => (
-                <li key={name} className="rounded-full border border-text/20 bg-surface px-4 py-2 font-semibold">
+                <li key={name} className="type-small border-b border-line py-3 text-pretty">
                   {name}
                 </li>
               ))}

@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { requestClerk, useAuthState } from "@/components/clerk/auth-state";
 import { Link } from "@/i18n/navigation";
 import { RETURN_PARAM } from "@/lib/auth/return-path";
-import { buttonClasses, type ButtonSize } from "@/components/ui/button";
+import { buttonClasses, type ButtonSize, type ButtonVariant } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { CONSULTATION_HREF } from "./nav-items";
 
@@ -16,10 +16,13 @@ import { CONSULTATION_HREF } from "./nav-items";
  */
 export function ConsultationButton({
   size = "sm",
+  variant = "primary",
   block = false,
   className,
 }: {
   size?: ButtonSize;
+  /** Primary everywhere but beside another primary action, as in the hero. */
+  variant?: ButtonVariant;
   /** Full width, as at the bottom of the phone menu. */
   block?: boolean;
   className?: string;
@@ -42,7 +45,7 @@ export function ConsultationButton({
       href={href}
       onPointerEnter={requestClerk}
       onFocus={requestClerk}
-      className={buttonClasses({ variant: "primary", size, className: cx("no-underline", block && "flex w-full", className) })}
+      className={buttonClasses({ variant, size, className: cx("no-underline", block && "flex w-full", className) })}
     >
       {t("requestConsultation")}
     </Link>

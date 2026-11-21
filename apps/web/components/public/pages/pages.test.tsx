@@ -220,7 +220,8 @@ describe("ServiceDetailPage", () => {
     expect(screen.queryByRole("heading", { name: "audience" })).toBeNull();
     expect(screen.getByRole("heading", { name: "deliverables" })).toBeTruthy();
     expect(screen.getAllByRole("listitem").map((item) => item.textContent)).toEqual(
-      expect.arrayContaining(["1Discovery", "2Review", "3Report"]),
+      // Numbered in the page's digits (the test page is Arabic).
+      expect.arrayContaining(["١Discovery", "٢Review", "٣Report"]),
     );
     expect(screen.getByText("An international organization")).toBeTruthy();
     expect(screen.getByText("What's included?")).toBeTruthy();
