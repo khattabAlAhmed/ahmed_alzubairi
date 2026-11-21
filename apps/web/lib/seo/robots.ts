@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 /**
  * Never crawled: the API only. Pages that must stay out of search (account,
- * dashboard, sign-in/up, onboarding, ui-kit) carry `noindex` instead: a
+ * dashboard, sign-in/up, onboarding, design-system) carry `noindex` instead: a
  * disallow would stop crawlers from reading it, and a linked URL could still
  * be listed.
  */

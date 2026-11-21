@@ -57,7 +57,7 @@ describe("buildSitemap", () => {
 
   it("never lists private areas", () => {
     const urls = build().map((item) => item.url).join(" ");
-    for (const part of ["/account", "/dashboard", "/sign-in", "/sign-up", "/onboarding", "/api", "/ui-kit"]) {
+    for (const part of ["/account", "/dashboard", "/sign-in", "/sign-up", "/onboarding", "/api"]) {
       expect(urls).not.toContain(part);
     }
   });

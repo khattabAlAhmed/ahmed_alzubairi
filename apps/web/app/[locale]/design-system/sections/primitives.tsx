@@ -537,6 +537,7 @@ async function PaginationBlock({ locale }: Props) {
       <div className="flex flex-col gap-6">
         <Pagination pathname="/design-system" page={5} totalPages={12} />
         <Pagination pathname="/design-system" page={1} totalPages={12} />
+        <Pagination pathname="/design-system" page={12} totalPages={12} />
       </div>
       <DsNote className="mt-4">{t("pagination.note")}</DsNote>
     </DsBlock>
