@@ -57,8 +57,12 @@ export function SiteHeader() {
   );
 }
 
-/** The header's bar alone, without the quick-contact tab: the design-system page shows it in place. */
-export function HeaderBar({ className }: { className?: string }) {
+/**
+ * The header's bar alone, without the quick-contact tab: the design-system page
+ * shows it in place. `signedInAs` draws the signed-in account link there
+ * (display only, see AuthLink); the site never passes it.
+ */
+export function HeaderBar({ className, signedInAs }: { className?: string; signedInAs?: string }) {
   const t = useTranslations("Nav");
 
   return (
@@ -88,13 +92,13 @@ export function HeaderBar({ className }: { className?: string }) {
             <div className="hidden items-center gap-1 md:flex">
               <LanguageSwitch />
               <ThemeSwitch />
-              <AuthLink />
+              <AuthLink signedInAs={signedInAs} />
             </div>
             <ConsultationButton className="max-sm:px-3" />
             <MobileMenu
               extra={
                 <div className="md:hidden">
-                  <AuthLink className="w-full" />
+                  <AuthLink className="w-full" signedInAs={signedInAs} />
                 </div>
               }
             />

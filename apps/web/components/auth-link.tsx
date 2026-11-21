@@ -16,10 +16,16 @@ const CLASSES = cx(
  * sign-in page sends a signed-in visitor on. Pointing at it or focusing it
  * loads Clerk at once. Signed in, a small circle with the first letter of the
  * visitor's own email stands for them.
+ *
+ * `signedInAs` is for the design-system page only: it draws the signed-in link
+ * for that email and ignores the store. Display only: it grants nothing, and
+ * nothing on the server reads it. Without it the link follows the store.
  */
-export function AuthLink({ className }: { className?: string }) {
+export function AuthLink({ className, signedInAs }: { className?: string; signedInAs?: string }) {
   const t = useTranslations("Header");
-  const { isLoaded, isSignedIn, email } = useAuthState();
+  const store = useAuthState();
+  const { isLoaded, isSignedIn, email } =
+    signedInAs === undefined ? store : { isLoaded: true, isSignedIn: true, email: signedInAs };
   const signedIn = isLoaded && isSignedIn;
   const initial = email?.trim().charAt(0).toUpperCase();
 

@@ -97,7 +97,14 @@
         "activity": "2 March"
       }
     ],
-    "note": "Sort, filter, select and an action per row. Hairlines between rows, no zebra stripes. On phones each row is a block."
+    "note": "Sort, filter, select and an action per row. Hairlines between rows, no zebra stripes. On phones each row is a block.",
+    "stateLoading": "Loading",
+    "stateEmpty": "Empty",
+    "loading": "Loading consultations…",
+    "emptyTitle": "No open consultations",
+    "emptyText": "When someone asks for a consultation, it shows here first, and you get a notice.",
+    "emptyAction": "See closed ones",
+    "statesNote": "While loading, the header stays with one quiet line under it: no spinner, no shimmer. With no rows, the empty record takes the table's place, with the next step."
   },
   "stats": {
     "title": "Numbers and chart",

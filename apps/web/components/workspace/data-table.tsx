@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { EmptyState } from "@/components/empty-state";
 import { CheckIcon } from "@/components/icons";
 import { cx } from "@/components/ui/cx";
 
@@ -33,6 +34,12 @@ export type DataTableSort = { key: string; direction: "ascending" | "descending"
  *
  * Presentational: the caller owns the sort, the selection and what the bulk
  * actions do. Every label comes from the caller's messages.
+ *
+ * States (§13): with `loading`, the header stays and one quiet line under it
+ * says the rows are on their way: no spinner, no shimmer. With `empty` and no
+ * rows, the EmptyState record stands where the table would be, since column
+ * headers over nothing tell the reader nothing. Without either prop the table
+ * renders as it always has.
  */
 export function DataTable({
   caption,
@@ -43,6 +50,8 @@ export function DataTable({
   selected,
   onSelect,
   labels,
+  loading,
+  empty,
   className,
 }: {
   /** Names the table for screen readers; visually hidden. */
@@ -56,8 +65,15 @@ export function DataTable({
   onSelect?: (ids: string[], checked: boolean) => void;
   /** `selectAll`: the header checkbox; `selectRow(name)`: a row's checkbox; `actions`: the action column. */
   labels: { selectAll?: string; selectRow?: (name: string) => string; actions?: string };
+  /** The rows are loading: the line to show, e.g. "Loading consultations…". Wins over `rows`. */
+  loading?: string;
+  /** Shown instead of the table when there are no rows: why, and the next step. */
+  empty?: { title: string; text: string; action?: ReactNode; level?: 1 | 2 | 3 };
   className?: string;
 }) {
+  if (!loading && empty && rows.length === 0) {
+    return <EmptyState title={empty.title} text={empty.text} action={empty.action} level={empty.level ?? 2} className={className} />;
+  }
   const selectable = selected !== undefined && onSelect !== undefined;
   const allSelected = selectable && rows.length > 0 && rows.every((row) => selected.has(row.id));
   const primary = columns.find((column) => column.primary) ?? columns[0];
@@ -84,7 +100,7 @@ export function DataTable({
   );
 
   return (
-    <table className={cx("w-full border-collapse text-sm", className)}>
+    <table aria-busy={loading ? true : undefined} className={cx("w-full border-collapse text-sm", className)}>
       <caption className="sr-only">{caption}</caption>
       {/* Phones: each row reads as a block, and the header keeps only its
           controls (select all, the sort buttons) as one line above the rows. */}
@@ -143,7 +159,16 @@ export function DataTable({
         </tr>
       </thead>
       <tbody className={cx("max-md:block", headerControls ? "max-md:border-t max-md:border-line" : "max-md:border-t-2 max-md:border-rule")}>
-        {rows.map((row) => {
+        {loading && (
+          <tr className="border-b border-line max-md:block">
+            <td colSpan={columns.length + (selectable ? 1 : 0) + (hasAction ? 1 : 0)} className="px-3 py-5 text-ink-2 max-md:block max-md:px-0">
+              <span role="status" className="type-small">
+                {loading}
+              </span>
+            </td>
+          </tr>
+        )}
+        {!loading && rows.map((row) => {
           const isSelected = selectable && selected.has(row.id);
           const name = String(typeof row.cells[primary.key] === "string" ? row.cells[primary.key] : row.id);
           return (
