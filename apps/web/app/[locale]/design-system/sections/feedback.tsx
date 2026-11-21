@@ -228,7 +228,7 @@ async function DialogBlock({ locale }: Props) {
           />
         </div>
         <div className="grid items-start gap-8 bg-scrim p-4 md:grid-cols-2 md:p-8">
-          <Labeled label={t("dialog.stillDefault")} className="[&>span]:text-bg">
+          <Labeled label={t("dialog.stillDefault")} className="[&>span]:self-start [&>span]:bg-bg [&>span]:px-1.5">
             {still(
               "default",
               <>
@@ -241,7 +241,7 @@ async function DialogBlock({ locale }: Props) {
               </>,
             )}
           </Labeled>
-          <Labeled label={t("dialog.stillDanger")} className="[&>span]:text-bg">
+          <Labeled label={t("dialog.stillDanger")} className="[&>span]:self-start [&>span]:bg-bg [&>span]:px-1.5">
             {still(
               "danger",
               <>
