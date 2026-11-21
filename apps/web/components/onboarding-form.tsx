@@ -13,15 +13,14 @@ import {
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { InlineNotice } from "@/components/account/notice";
+import { Button, Checkbox, FieldError, FieldHint, INLINE_LINK, Select, TextField } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { normalizePhone } from "@/lib/profile/phone";
 import { track } from "@/lib/analytics/track";
 
-const INPUT =
-  "mt-1 block h-11 w-full rounded-md border border-text/20 bg-surface px-3 text-text focus:outline-2 focus:outline-offset-1 focus:outline-accent aria-[invalid=true]:border-red-600 dark:aria-[invalid=true]:border-red-400";
-const LABEL = "block text-sm font-semibold";
-const FIELD_ERROR = "mt-1 text-sm text-red-700 dark:text-red-300";
-const LEGAL_LINK = "font-semibold underline underline-offset-2";
+/** Inside the consent label, in the page's link style. */
+const LEGAL_LINK = INLINE_LINK;
 
 type FieldError = "name" | "phone" | "terms";
 
@@ -123,177 +122,115 @@ export function OnboardingForm({
 
   const invalid = (field: FieldError) => fieldErrors.includes(field);
   const errorId = (field: FieldError) => `${id}-${field}-error`;
-  const describedBy = (field: FieldError, hint?: string) =>
-    [hint, invalid(field) ? errorId(field) : undefined]
-      .filter(Boolean)
-      .join(" ") || undefined;
-  const optional = (label: string) => (
-    <>
-      {label} <span className="font-normal text-text-secondary">{t("optional")}</span>
-    </>
-  );
-  const fieldError = (field: FieldError, message: string) =>
-    invalid(field) ? (
-      <p id={errorId(field)} className={FIELD_ERROR}>
-        {message}
-      </p>
-    ) : null;
 
+  // Onboarding board: the fields in pairs under the record's rule, optional
+  // ones marked in words, the phone read left to right, consent last.
   return (
-    <form onSubmit={onSubmit} noValidate className="mt-6 space-y-5">
-      {formError ? (
-        <p
-          role="alert"
-          className="rounded-md border border-red-600/40 bg-red-600/10 p-3 text-sm dark:border-red-400/40"
-        >
-          {formError}
-        </p>
-      ) : null}
+    <form onSubmit={onSubmit} noValidate className="mt-6 flex flex-col gap-5 border-t-2 border-rule pt-5">
+      {formError ? <InlineNotice tone="danger" title={formError} /> : null}
 
       {needsName ? (
-        <fieldset>
-          <legend className={LABEL}>{t("nameLegend")}</legend>
-          <div className="mt-1 grid gap-3 sm:grid-cols-2">
-            <label className="block text-sm">
-              {t("firstName")}
-              <input
-                name="firstName"
-                autoComplete="given-name"
-                required
-                aria-invalid={invalid("name")}
-                aria-describedby={describedBy("name")}
-                className={INPUT}
-              />
-            </label>
-            <label className="block text-sm">
-              {t("lastName")}
-              <input
-                name="lastName"
-                autoComplete="family-name"
-                required
-                aria-invalid={invalid("name")}
-                aria-describedby={describedBy("name")}
-                className={INPUT}
-              />
-            </label>
+        <fieldset className="flex min-w-0 flex-col gap-2">
+          <legend className="mb-2 text-[15px] leading-[1.6] font-medium">{t("nameLegend")}</legend>
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <TextField
+              name="firstName"
+              label={t("firstName")}
+              autoComplete="given-name"
+              required
+              aria-invalid={invalid("name") || undefined}
+              aria-describedby={invalid("name") ? errorId("name") : undefined}
+            />
+            <TextField
+              name="lastName"
+              label={t("lastName")}
+              autoComplete="family-name"
+              required
+              aria-invalid={invalid("name") || undefined}
+              aria-describedby={invalid("name") ? errorId("name") : undefined}
+            />
           </div>
-          {fieldError("name", t("nameRequired"))}
+          {invalid("name") && <FieldError id={errorId("name")}>{t("nameRequired")}</FieldError>}
         </fieldset>
       ) : null}
 
-      <div>
-        <label htmlFor={`${id}-phone`} className={LABEL}>
-          {t("phone")}
-        </label>
-        <input
-          id={`${id}-phone`}
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          dir="ltr"
-          required
-          aria-invalid={invalid("phone")}
-          aria-describedby={describedBy("phone", `${id}-phone-hint`)}
-          className={`${INPUT} text-start`}
-        />
-        <p id={`${id}-phone-hint`} className="mt-1 text-sm text-text-secondary">
-          {t.rich("phoneHint", {
-            number: (chunks: ReactNode) => <bdi dir="ltr">{chunks}</bdi>,
-          })}
-        </p>
-        {fieldError("phone", t("phoneInvalid"))}
-      </div>
-
-      <div>
-        <label htmlFor={`${id}-orgType`} className={LABEL}>
-          {optional(t("orgType"))}
-        </label>
-        <select id={`${id}-orgType`} name="orgType" defaultValue="" className={INPUT}>
+      <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
+        {/* The hint holds a number that must read LTR, so it's rich text beside the field. */}
+        <div className="flex min-w-0 flex-col gap-2">
+          <TextField
+            id={`${id}-phone`}
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            dir="ltr"
+            required
+            label={t("phone")}
+            error={invalid("phone") ? t("phoneInvalid") : undefined}
+            aria-describedby={[`${id}-phone-hint`, invalid("phone") && `${id}-phone-error`].filter(Boolean).join(" ")}
+          />
+          <FieldHint id={`${id}-phone-hint`}>
+            {t.rich("phoneHint", {
+              number: (chunks: ReactNode) => <bdi dir="ltr">{chunks}</bdi>,
+            })}
+          </FieldHint>
+        </div>
+        <Select id={`${id}-orgType`} name="orgType" defaultValue="" label={t("orgType")} mark={t("optional")}>
           <option value="">{t("orgTypeNone")}</option>
           {ORG_TYPES.map((type) => (
             <option key={type} value={type}>
               {t(`orgTypes.${type}`)}
             </option>
           ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor={`${id}-orgName`} className={LABEL}>
-          {optional(t("orgName"))}
-        </label>
-        <input
+        </Select>
+        <TextField
           id={`${id}-orgName`}
           name="orgName"
           autoComplete="organization"
           maxLength={200}
-          className={INPUT}
+          label={t("orgName")}
+          mark={t("optional")}
         />
-      </div>
-
-      <div>
-        <label htmlFor={`${id}-jobTitle`} className={LABEL}>
-          {optional(t("jobTitle"))}
-        </label>
-        <input
+        <TextField
           id={`${id}-jobTitle`}
           name="jobTitle"
           autoComplete="organization-title"
           maxLength={200}
-          className={INPUT}
+          label={t("jobTitle")}
+          mark={t("optional")}
         />
-      </div>
-
-      <div>
-        <label htmlFor={`${id}-locale`} className={LABEL}>
-          {optional(t("locale"))}
-        </label>
-        <select id={`${id}-locale`} name="locale" defaultValue={locale} className={INPUT}>
+        <Select id={`${id}-locale`} name="locale" defaultValue={locale} label={t("locale")} mark={t("optional")}>
           {LOCALES.map((item) => (
             <option key={item} value={item} lang={item}>
               {t(`locales.${item}`)}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      <div>
-        <label className="flex items-start gap-3 text-sm">
-          <input
-            type="checkbox"
-            name="terms"
-            required
-            aria-invalid={invalid("terms")}
-            aria-describedby={describedBy("terms")}
-            className="mt-0.5 size-5 shrink-0 accent-accent"
-          />
-          <span>
-            {t.rich("terms", {
-              privacy: (chunks: ReactNode) => (
-                <Link href="/privacy" target="_blank" className={LEGAL_LINK}>
-                  {chunks}
-                </Link>
-              ),
-              terms: (chunks: ReactNode) => (
-                <Link href="/terms" target="_blank" className={LEGAL_LINK}>
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </span>
-        </label>
-        {fieldError("terms", t("termsRequired"))}
-      </div>
+      <Checkbox
+        name="terms"
+        required
+        label={t.rich("terms", {
+          privacy: (chunks: ReactNode) => (
+            <Link href="/privacy" target="_blank" className={LEGAL_LINK}>
+              {chunks}
+            </Link>
+          ),
+          terms: (chunks: ReactNode) => (
+            <Link href="/terms" target="_blank" className={LEGAL_LINK}>
+              {chunks}
+            </Link>
+          ),
+        })}
+        error={invalid("terms") ? t("termsRequired") : undefined}
+      />
 
-      <button
-        type="submit"
-        disabled={saving}
-        aria-busy={saving}
-        className="inline-flex h-11 w-full items-center justify-center rounded-md bg-accent px-4 font-semibold text-on-accent shadow-sm hover:opacity-90 disabled:opacity-60 sm:w-auto"
-      >
-        {saving ? t("saving") : t("submit")}
-      </button>
+      <div className="flex justify-end">
+        <Button type="submit" loading={saving} loadingLabel={t("saving")} className="w-full sm:w-auto">
+          {t("submit")}
+        </Button>
+      </div>
     </form>
   );
 }
