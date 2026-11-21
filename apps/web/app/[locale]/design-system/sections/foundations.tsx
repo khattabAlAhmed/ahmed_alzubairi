@@ -39,6 +39,7 @@ export async function FoundationsSection({ locale }: Props) {
       <TypeBlock locale={locale} />
       <SpacingBlock locale={locale} />
       <GridBlock locale={locale} />
+      <ShapeBlock locale={locale} />
       <IconsBlock locale={locale} />
       <NumbersBlock locale={locale} />
       <PhotographyBlock locale={locale} />
@@ -255,6 +256,61 @@ async function GridBlock({ locale }: Props) {
           <p className="max-w-measure type-small">{t("labelColText")}</p>
         </div>
       </div>
+    </DsBlock>
+  );
+}
+
+/* ---------------------------------------------------- shape, elevation -- */
+
+async function ShapeBlock({ locale }: Props) {
+  const t = await getTranslations({ locale, namespace: "DesignSystem" });
+  const s = await getTranslations({ locale, namespace: "DesignSystem.foundations.shape" });
+  const lines = [
+    ["rule-heavy · 2px", "border-t-2 border-rule", s("rule")],
+    ["rule-hair · 1px", "border-t border-line", s("line")],
+    ["line-strong · 1px", "border-t border-line-strong", s("lineStrong")],
+  ] as const;
+  return (
+    <DsBlock title={s("title")} intro={s("intro")}>
+      <div className="grid gap-8 md:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-6">
+            <span aria-hidden="true" className="size-16 border border-line-strong" />
+            <span className="flex flex-col gap-1">
+              <DsCode>radius-0</DsCode>
+              <span className="type-small">{s("square")}</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-6">
+            <span aria-hidden="true" className="flex size-16 items-center justify-center">
+              <span className="size-4 rounded-full border border-line-strong" />
+            </span>
+            <span className="flex flex-col gap-1">
+              <DsCode>radius-round</DsCode>
+              <span className="type-small">{s("round")}</span>
+            </span>
+          </div>
+          <ul className="flex flex-col gap-4">
+            {lines.map(([code, line, text]) => (
+              <li key={code} className={`${line} pt-2`}>
+                <DsCode>{code}</DsCode>
+                <p className="text-ink-2 type-caption">{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <DsThemes labels={{ light: t("light"), dark: t("dark") }}>
+          {() => (
+            <div className="relative flex min-h-44 items-center justify-center bg-scrim p-6">
+              <div className="w-full max-w-64 border-t-2 border-rule bg-bg p-4 shadow-overlay">
+                <DsCode>shadow-overlay</DsCode>
+                <p className="mt-1 type-small">{s("overlay")}</p>
+              </div>
+            </div>
+          )}
+        </DsThemes>
+      </div>
+      <DsNote className="mt-3">{s("note")}</DsNote>
     </DsBlock>
   );
 }

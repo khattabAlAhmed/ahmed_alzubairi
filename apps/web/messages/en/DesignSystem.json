@@ -53,6 +53,17 @@
       "labelCol": "Label column",
       "labelColText": "Every record starts with a fixed 120-wide column for its labels (situation, what I did, what changed, duration), with the value beside it. This column is what makes the pages read as one record."
     },
+    "shape": {
+      "title": "Shape and elevation",
+      "intro": "Square corners, three line weights, and one shadow that only floating things cast.",
+      "square": "Every corner: buttons, fields, cards, photos, dialogs.",
+      "round": "True circles only: radio buttons, status dots, initials.",
+      "rule": "Opens a section, a record, the header, a dialog.",
+      "line": "Between rows and items.",
+      "lineStrong": "Edges that carry meaning: inputs, checkboxes, the drop zone.",
+      "overlay": "A dialog or menu, over the scrim.",
+      "note": "Nothing on the page itself casts a shadow. Dialogs, menus and the mobile menu are the only raised things."
+    },
     "icons": {
       "title": "Icons",
       "names": {

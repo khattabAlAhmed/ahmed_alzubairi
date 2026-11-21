@@ -757,38 +757,27 @@ Until Phase 7, Vercel's Production environment holds the dev Supabase values and
 
 Every screen follows this. Agents don't pick their own style.
 
-**Overall:** one identity (logo, colors, fonts) with a character for each section. Formal, premium and trustworthy, fit for ministries and international organizations.
+**The look lives in `docs/design/`.** It is "The record", chosen by Ahmed on 2026-11-20 (§14 decision 3).
 
-| Role | Light | Dark |
-| --- | --- | --- |
-| Primary, navy (كحلي) | `#0B1F3A` | `#0B1F3A` for deep backgrounds |
-| Accent, gold (ذهبي) | `#C9A24D` | `#D4B062` |
-| Background | `#F7F3EA` (ivory, عاجي) | `#08162A` |
-| Surfaces and cards | `#FFFFFF` | `#11274A` |
-| Main text | `#0B1F3A` | `#F7F3EA` |
-| Secondary text | `#4A5568` | `#A9B4C6` |
-
-| Area | Look |
+| File | Holds |
 | --- | --- |
-| Home, about, governance, services | Deep navy and gold, formal and premium |
-| Humanitarian work, projects | Light ivory backgrounds, large field photos, warmer feel |
-| Training, blog, resources | Wide white space, easy reading |
-| Account and dashboard | Practical, focused on function |
-| Sign-in / sign-up | Clerk's components, themed with these tokens, `arSA` in Arabic |
+| `docs/design/SOUL.md` | What the site must feel like, and what breaks it |
+| `docs/design/DESIGN.md` | Colours, type (Alexandria, IBM Plex Mono), spacing, shape, photography, motion: the source of truth for style |
+| `docs/design/components.md` | Every component the pages are built from, with its states |
+| `docs/design/mockups/` | The approved pages and component boards, as static HTML |
+
+**Motion:** one settle per page (DESIGN.md "Motion"), nothing on scroll, and the home stats are static.
 
 | Rule | Detail |
 | --- | --- |
-| Gold | For accents only: buttons, dividers, icons. Never long text. Never gold text on ivory or white; it fails contrast. Text on gold is navy. |
-| Contrast | WCAG AA at least |
-| Fonts | Arabic: Amiri for headings, IBM Plex Sans Arabic for text. English: Playfair Display for headings, Inter for text. Loaded with `next/font`. |
-| Images | Real photos from the work (field, workshops, meetings) plus illustrations and icons in the same identity |
-| Motion | Light and calm: gradual reveal on scroll, animated home stats. Respect "reduce motion". |
+| Contrast | WCAG AA at least, for every text pair in both themes |
 | RTL | Use logical Tailwind utilities (`ms-`, `pe-`, `start-`), never `ml-` or `left-`. Mirror directional icons. |
-| Tokens | One set of design tokens (colors, radius, shadows) shared by every page, in both themes |
+| Tokens | One set of design tokens shared by every page, in both themes. No one-off colours or styles. |
+| Sign-in / sign-up | Clerk's components, themed with the tokens, `arSA` in Arabic |
 | States | Empty, loading and error states on every screen |
 | Responsive | Mobile first. Works down to 375 px wide. |
 | Performance | Under 3 seconds on mobile on a weak network. Compressed, lazy-loaded images. Public pages stay cached: don't read the session in public layouts. |
-| Accessibility | Good contrast, alt text on images, keyboard navigation |
+| Accessibility | Good contrast, alt text on images, keyboard navigation. Respect "reduce motion". |
 
 **Reference sites**, for ideas and structure only. Never copy them.
 
@@ -811,7 +800,7 @@ Don't guess these. If a task depends on one, stop and ask.
 | --- | --- | --- | --- |
 | 1 | Final brand name and logo | Ahmed | `SITE_NAME` placeholder, text logo |
 | 2 | Domain | Ahmed | Any domain the product owner controls, for email in Phase 3 |
-| 3 | Exact fonts and color values | Developer | §13 values |
+| 3 | Exact fonts and color values | Ahmed | Settled: "The record" (Alexandria, IBM Plex Mono), chosen by Ahmed 2026-11-20. See `docs/design/DESIGN.md`. |
 | 4 | Attachment size limit | Developer with Ahmed | 10 MB, 5 per message |
 | 5 | Training details and trainee certificates | Later document | §6.7 only |
 | 6 | Real content: bio, photos, services, projects, documents, FAQ | Ahmed | Made-up placeholder content in dev |
