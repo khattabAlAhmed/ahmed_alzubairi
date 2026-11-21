@@ -5,7 +5,6 @@ import { clerkAppearance } from "@/lib/auth/appearance";
 import { clerkLocalization } from "@/lib/auth/localization";
 import { signInPath, signUpPath } from "@/lib/auth/return-path";
 import { AuthBridge } from "./auth-bridge";
-import { VisibleClerk } from "./visible-clerk";
 
 /**
  * Clerk for account, dashboard, sign-in, sign-up and onboarding, loaded with
@@ -14,20 +13,16 @@ import { VisibleClerk } from "./visible-clerk";
 export async function AppClerkProvider({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const { Clerk } = await getMessages();
-  // `VisibleClerk`: a layout Next keeps hidden must not re-render its Clerk
-  // provider (P8D-T27).
   return (
-    <VisibleClerk>
-      <ClerkProvider
-        localization={clerkLocalization(locale, Clerk)}
-        appearance={clerkAppearance}
-        signInUrl={signInPath(locale)}
-        signUpUrl={signUpPath(locale)}
-        afterSignOutUrl={`/${locale}`}
-      >
-        <AuthBridge />
-        {children}
-      </ClerkProvider>
-    </VisibleClerk>
+    <ClerkProvider
+      localization={clerkLocalization(locale, Clerk)}
+      appearance={clerkAppearance}
+      signInUrl={signInPath(locale)}
+      signUpUrl={signUpPath(locale)}
+      afterSignOutUrl={`/${locale}`}
+    >
+      <AuthBridge />
+      {children}
+    </ClerkProvider>
   );
 }
