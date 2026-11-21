@@ -47,13 +47,7 @@
     "passwordError": "That password isn't right. Try again or reset it.",
     "submit": "Sign in",
     "noAccount": "No account yet?",
-    "create": "Create one",
-    "reason": "An account keeps our conversation and your files in one place that only we can see.",
-    "reasons": [
-      "Your consultations, their chats and meetings",
-      "The documents I've opened to you",
-      "The courses you've registered for"
-    ]
+    "create": "Create one"
   },
   "onboarding": {
     "title": "Completing the account",

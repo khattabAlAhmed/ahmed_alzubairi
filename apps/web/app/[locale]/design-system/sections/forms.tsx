@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { InlineNotice } from "@/components/account/notice";
-import { CheckIcon, CloseIcon, LockIcon } from "@/components/icons";
+import { CalendarIcon, CheckIcon, CloseIcon, LockIcon, MailIcon } from "@/components/icons";
 import { Button, Checkbox, FieldError, FieldHint, FileInput, Radio, Select, TextArea, TextField } from "@/components/ui";
 import { cx, INLINE_LINK } from "@/components/ui/cx";
 import { allowedTypeNames, formatBytes } from "@/components/workspace/format";
@@ -38,7 +38,7 @@ export async function FormsSection({ locale }: Props) {
       </NextIntlClientProvider>
       <DialogBlock t={t} locale={locale} />
       <TrainingBlock t={t} locale={locale} />
-      <SignInBlock t={t} />
+      <SignInBlock t={t} locale={locale} />
       <OnboardingBlock t={t} locale={locale} />
     </DsSection>
   );
@@ -349,8 +349,15 @@ async function TrainingBlock({ t, locale }: { t: T; locale: Locale }) {
 
 /* -------------------------------------------------------------- sign in -- */
 
-function SignInBlock({ t }: { t: T }) {
-  const reasons = t.raw("signIn.reasons") as string[];
+// The same words and icons as the live page (components/auth-forms.tsx).
+const SIGN_IN_REASONS = [
+  { key: "consultations", Icon: MailIcon },
+  { key: "documents", Icon: LockIcon },
+  { key: "courses", Icon: CalendarIcon },
+] as const;
+
+async function SignInBlock({ t, locale }: { t: T; locale: Locale }) {
+  const r = await getTranslations({ locale, namespace: "AuthReason.signIn" });
   return (
     <DsBlock title={t("signIn.title")} intro={t("signIn.intro")}>
       <div className="grid items-start gap-10 lg:grid-cols-[5fr_6fr] lg:gap-16">
@@ -377,12 +384,12 @@ function SignInBlock({ t }: { t: T }) {
           </div>
         </State>
         <State label={t("states.reason")}>
-          <p className="max-w-[24em] font-medium type-h3">{t("signIn.reason")}</p>
+          <p className="max-w-[24em] font-medium type-h3">{r("reason")}</p>
           <ul className="border-t border-line">
-            {reasons.map((reason) => (
-              <li key={reason} className="flex items-start gap-2.5 border-b border-line py-2.5 type-small">
-                <CheckIcon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-ink-2" />
-                {reason}
+            {SIGN_IN_REASONS.map(({ key, Icon }) => (
+              <li key={key} className="flex items-start gap-2.5 border-b border-line py-2.5 type-small">
+                <Icon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-ink-2" />
+                {r(`reasons.${key}`)}
               </li>
             ))}
           </ul>
