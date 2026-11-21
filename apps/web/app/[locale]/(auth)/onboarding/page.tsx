@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { LOCALES } from "@repo/shared";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding-form";
 import { readOwnProfile } from "@/lib/auth/gates";
@@ -11,6 +12,19 @@ import {
   safeReturnPath,
   signInPath,
 } from "@/lib/auth/return-path";
+
+/**
+ * This request's own origin, from its host, so a same-site absolute
+ * `redirect_url` (Clerk's footer links make one) still passes. Never from the
+ * value itself.
+ */
+async function requestOrigin() {
+  const list = await headers();
+  const host = list.get("x-forwarded-host") ?? list.get("host");
+  if (!host) return null;
+  const proto = list.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? "https";
+  return `${proto}://${host}`;
+}
 
 export default async function OnboardingPage({
   params,
@@ -24,7 +38,10 @@ export default async function OnboardingPage({
   if (!locale) notFound();
 
   const raw = (await searchParams)[RETURN_PARAM];
-  const returnPath = safeReturnPath(typeof raw === "string" ? raw : null);
+  const returnPath = safeReturnPath(
+    typeof raw === "string" ? raw : null,
+    await requestOrigin(),
+  );
   const destination = returnPath ?? `/${locale}/account`;
 
   const { userId } = await auth();

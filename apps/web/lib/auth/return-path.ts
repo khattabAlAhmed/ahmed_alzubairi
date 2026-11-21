@@ -17,11 +17,38 @@ function safeDecode(value: string) {
   }
 }
 
+function trustedOrigin(origin: string | null | undefined) {
+  if (!origin) return null;
+  try {
+    const { origin: normalized } = new URL(origin);
+    return normalized.startsWith("http") ? normalized : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Returns a same-site path and query, or null for anything else. The value
  * comes from the URL, so an attacker can put anything in it.
+ *
+ * `origin` is this site's own origin, from the caller: the request's host on
+ * the server, `window.location.origin` in the browser. Never take it from the
+ * value. With it, an absolute URL on that origin also passes (Clerk's footer
+ * links turn `redirect_url` into one), keeping only its path, query and hash,
+ * which then meet every rule a path meets.
  */
-export function safeReturnPath(value: string | null | undefined) {
+export function safeReturnPath(
+  value: string | null | undefined,
+  origin?: string | null,
+) {
+  const site = trustedOrigin(origin);
+  if (site && value?.startsWith(`${site}/`)) {
+    return relativeReturnPath(value.slice(site.length));
+  }
+  return relativeReturnPath(value);
+}
+
+function relativeReturnPath(value: string | null | undefined) {
   if (!value?.startsWith("/")) {
     return null;
   }

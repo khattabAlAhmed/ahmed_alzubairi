@@ -22,8 +22,12 @@ const fillColumn = {
   },
 };
 
+// Clerk's footer links turn `redirect_url` into an absolute URL on this site.
+// The page's own origin lets that through; never an origin from the value.
 function useReturnPath() {
-  return safeReturnPath(useSearchParams().get(RETURN_PARAM));
+  const value = useSearchParams().get(RETURN_PARAM);
+  const origin = typeof window === "undefined" ? null : window.location.origin;
+  return safeReturnPath(value, origin);
 }
 
 // `forceRedirectUrl` wins over Clerk's own `redirect_url` parameter, so only a

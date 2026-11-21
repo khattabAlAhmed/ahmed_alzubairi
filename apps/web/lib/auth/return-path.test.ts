@@ -49,6 +49,65 @@ describe("safeReturnPath", () => {
   );
 });
 
+describe("safeReturnPath with the site's origin", () => {
+  const ORIGIN = "https://ahmed.example";
+
+  it.each([
+    [`${ORIGIN}/ar/documents?request=a,b`, "/ar/documents?request=a,b"],
+    [`${ORIGIN}/en/account#top`, "/en/account#top"],
+    [`${ORIGIN}/ar/documents?request=a%2Cb`, "/ar/documents?request=a%2Cb"],
+  ])("keeps the path and query of %s", (value, expected) => {
+    expect(safeReturnPath(value, ORIGIN)).toBe(expected);
+  });
+
+  it("accepts the origin with a trailing slash or a path", () => {
+    expect(safeReturnPath(`${ORIGIN}/ar/account`, `${ORIGIN}/`)).toBe("/ar/account");
+    expect(safeReturnPath(`${ORIGIN}/ar/account`, `${ORIGIN}/ar/sign-in`)).toBe("/ar/account");
+  });
+
+  it("keeps relative paths as before", () => {
+    expect(safeReturnPath("/ar/account?tab=open", ORIGIN)).toBe("/ar/account?tab=open");
+    expect(safeReturnPath("//evil.example", ORIGIN)).toBeNull();
+  });
+
+  it.each([
+    "https://evil.example/ar/account",
+    "http://ahmed.example/ar/account",
+    "https://ahmed.example.evil.example/ar/account",
+    "https://ahmed.example:8443/ar/account",
+    "https://ahmed.example@evil.example/ar/account",
+    "https://user@ahmed.example/ar/account",
+    "https://AHMED.example/ar/account",
+    `${ORIGIN}`,
+    `${ORIGIN}//evil.example`,
+    `${ORIGIN}/%2Fevil.example`,
+    `${ORIGIN}/\\evil.example`,
+    `${ORIGIN}/%5Cevil.example`,
+    `${ORIGIN}/\t/evil.example`,
+    "//ahmed.example/ar/account",
+    "javascript:alert(1)",
+    `javascript:${ORIGIN}/ar/account`,
+    ` ${ORIGIN}/ar/account`,
+    `${ORIGIN}/ar/sign-in`,
+    `${ORIGIN}/en/sign-up/verify-email-address`,
+  ])("refuses %j", (value) => {
+    expect(safeReturnPath(value, ORIGIN)).toBeNull();
+  });
+
+  it("refuses an absolute URL when no origin is given", () => {
+    expect(safeReturnPath(`${ORIGIN}/ar/account`)).toBeNull();
+    expect(safeReturnPath(`${ORIGIN}/ar/account`, null)).toBeNull();
+    expect(safeReturnPath(`${ORIGIN}/ar/account`, "")).toBeNull();
+  });
+
+  it.each(["not a url", "null", "javascript:alert(1)", "file:///etc"])(
+    "ignores the unusable origin %j",
+    (origin) => {
+      expect(safeReturnPath(`${ORIGIN}/ar/account`, origin)).toBeNull();
+    },
+  );
+});
+
 describe("auth paths", () => {
   it("encodes the return path", () => {
     expect(signInPath("ar", "/ar/account?a=1&b=2")).toBe(
