@@ -221,6 +221,22 @@ describe("ResourceDownload", () => {
     expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
   });
 
+  it("doesn't restart the form while its request is out", async () => {
+    const pending = vi.fn<typeof fetch>(() => new Promise<Response>(() => {}));
+    vi.stubGlobal("fetch", pending);
+    render(<ResourceDownload id={ID} title="Board guide" access="email" />);
+    fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
+    const form = within(screen.getByRole("form"));
+    fireEvent.change(form.getByLabelText("email"), { target: { value: "good@example.com" } });
+    fireEvent.click(form.getByRole("button", { name: "gateSubmit" }));
+    await waitFor(() => expect(pending).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByRole("button", { name: /^downloadByEmailLabel/ }));
+    // Still the same form, still sending, with what was typed.
+    expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("good@example.com");
+    expect(screen.getByRole("form").querySelector("fieldset")?.disabled).toBe(true);
+  });
+
   it("has the newsletter box unticked, and sends consent only once it's ticked", async () => {
     const fetchMock = stubFetch(reply(200, { url: URL_OK }));
     render(<ResourceDownload id={ID} title="Board guide" access="email" />);

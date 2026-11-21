@@ -29,6 +29,14 @@ describe("resultLines", () => {
     });
   });
 
+  it("keeps space-grouped thousands whole, and a word after a number in the text", () => {
+    expect(resultLines("1 200 people trained\n9 days from report to response\n١ ٢٠٠ متدرّب").figures).toEqual([
+      { value: "1 200", text: "people trained" },
+      { value: "9", text: "days from report to response" },
+      { value: "١ ٢٠٠", text: "متدرّب" },
+    ]);
+  });
+
   it("keeps a range whole, en dash or hyphen", () => {
     expect(resultLines("10–15 participants trained\n٢٠-٣٠٪ أسرع").figures).toEqual([
       { value: "10–15", text: "participants trained" },

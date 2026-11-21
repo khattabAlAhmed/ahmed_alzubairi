@@ -32,10 +32,11 @@ export function activityRows(text: string | null): LabelledLine[] {
 }
 
 /**
- * A figure at the start of a line: "70%", "٧٠٪", "1,200", or a range kept
- * whole, "10–15". In "9 days" the word stays in the text.
+ * A figure at the start of a line: "70%", "٧٠٪", "1,200", "1 200" (groups
+ * of three after a space), or a range kept whole, "10–15". In "9 days" the
+ * word stays in the text.
  */
-const NUMBER = "[0-9٠-٩][0-9٠-٩.,٫٬]*";
+const NUMBER = "(?:[0-9٠-٩]{1,3}(?:[ \u00A0\u202F][0-9٠-٩]{3})+(?![0-9٠-٩])|[0-9٠-٩][0-9٠-٩.,٫٬]*)";
 const FIGURE = new RegExp(`^([+~]?${NUMBER}(?:\\s?[–-]\\s?${NUMBER})?\\s?[%٪]?)\\s*(?:[:—–-]\\s*)?(.+)$`);
 
 /**
