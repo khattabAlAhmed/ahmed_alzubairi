@@ -7,9 +7,12 @@ import {
   Suspense,
   use,
   useEffect,
+  useId,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { buttonClasses } from "@/components/ui/button";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { Link, usePathname } from "@/i18n/navigation";
 import { otherLocale } from "@/i18n/routing";
@@ -58,42 +61,153 @@ export function switchTarget(
   return { pathname, query };
 }
 
-function LanguageLink({ query }: { query?: Record<string, string> }) {
+const SWITCH = cx(
+  "inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center px-2.5 text-ink no-underline transition-state hover:bg-surface-hover",
+  FOCUS_RING,
+);
+
+/**
+ * The header shows only the other language's short name (`EN`, `عربي`); `long`
+ * gives its full name, as in the phone menu (the LanguageAndTheme board).
+ */
+function SwitchLabel({ long }: { long: boolean }) {
+  const t = useTranslations("Header");
+  const target = otherLocale(useLocale());
+  if (long) return <span className="text-sm">{t("switchLanguage")}</span>;
+  // `EN` is a Latin code, set in the mono face; `عربي` is a word.
+  return <span className={target === "en" ? "font-mono text-[13px]" : "text-sm"}>{t("switchLanguageShort")}</span>;
+}
+
+/**
+ * A page with no translation (§6.1): the switch says so first, in the language
+ * the visitor asked for, and offers the section's list there, or to stay.
+ */
+export function UntranslatedSwitch({
+  href,
+  long = false,
+  initiallyOpen = false,
+}: {
+  href: string;
+  long?: boolean;
+  /** The design-system page shows the note open. */
+  initiallyOpen?: boolean;
+}) {
+  const t = useTranslations("Header");
+  const locale = useLocale();
+  const target = otherLocale(locale);
+  const [open, setOpen] = useState(initiallyOpen);
+  // Focus moves into the note only when a person opens it.
+  const opened = useRef(false);
+  const button = useRef<HTMLButtonElement>(null);
+  const popover = useRef<HTMLDivElement>(null);
+  const id = useId();
+
+  useEffect(() => {
+    if (open && opened.current) popover.current?.querySelector<HTMLElement>("a, button")?.focus();
+  }, [open]);
+
+  return (
+    // Esc is handled here, not on the document: it acts only while focus is in
+    // the note or on its switch. It's marked handled (preventDefault), so the
+    // phone menu around it ignores it and stays open; React listens on the
+    // document too, so stopping propagation alone can't keep it from the menu.
+    <div
+      className="relative"
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !open) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setOpen(false);
+        button.current?.focus();
+      }}
+    >
+      <button
+        ref={button}
+        type="button"
+        aria-label={t("switchLanguageLabel")}
+        aria-expanded={open}
+        aria-controls={id}
+        lang={target}
+        className={cx(SWITCH, "w-full")}
+        onClick={() => {
+          opened.current = !open;
+          setOpen(!open);
+        }}
+      >
+        <SwitchLabel long={long} />
+      </button>
+      <div
+        ref={popover}
+        id={id}
+        hidden={!open}
+        role="group"
+        aria-labelledby={`${id}-title`}
+        className={cx(
+          "absolute top-full z-50 mt-1 w-[300px] max-w-[calc(100vw-2rem)] border-t-2 border-rule bg-bg shadow-overlay",
+          // The header's switch sits at the end of the bar; the menu's is its
+          // row's first cell. Either way the note opens back across the screen.
+          long ? "start-0" : "end-0",
+        )}
+      >
+        {/* The note is in the other language. Its direction sits on this inner
+            box: on the positioned box, `dir` would flip what `end-0` means and
+            open the note off the screen. */}
+        <div lang={target} dir={target === "ar" ? "rtl" : "ltr"} className="p-4 text-start">
+          <p id={`${id}-title`} className="type-small font-medium">
+            {t("untranslated.title")}
+          </p>
+          <p className="type-caption text-ink-2">{t("untranslated.body")}</p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-4">
+            <Link href={{ pathname: href }} locale={target} hrefLang={target} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              {t("untranslated.go")}
+            </Link>
+            <button
+              type="button"
+              className={buttonClasses({ variant: "quiet", size: "sm" })}
+              onClick={() => {
+                setOpen(false);
+                button.current?.focus();
+              }}
+            >
+              {t("untranslated.stay")}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LanguageLink({ query, long = false }: { query?: Record<string, string>; long?: boolean }) {
   const t = useTranslations("Header");
   const locale = useLocale();
   const pathname = usePathname();
   const { fallback } = use(FallbackContext);
   const target = otherLocale(locale);
+  const to = switchTarget(pathname, fallback, query);
+
+  if (fallback && to.pathname === fallback.href && fallback.pathname === pathname) {
+    return <UntranslatedSwitch href={fallback.href} long={long} />;
+  }
 
   return (
-    <Link
-      href={switchTarget(pathname, fallback, query)}
-      locale={target}
-      hrefLang={target}
-      lang={target}
-      aria-label={t("switchLanguageLabel")}
-      className={cx(
-        "inline-flex h-9 min-w-9 items-center justify-center rounded-md px-1 text-sm font-semibold hover:bg-text/10",
-        FOCUS_RING,
-      )}
-    >
-      <span className="lg:hidden">{t("switchLanguageShort")}</span>
-      <span className="hidden lg:inline">{t("switchLanguage")}</span>
+    <Link href={to} locale={target} hrefLang={target} lang={target} aria-label={t("switchLanguageLabel")} className={SWITCH}>
+      <SwitchLabel long={long} />
     </Link>
   );
 }
 
-function LanguageLinkWithQuery() {
+function LanguageLinkWithQuery({ long }: { long: boolean }) {
   const search = useSearchParams();
 
-  return <LanguageLink query={Object.fromEntries(search)} />;
+  return <LanguageLink query={Object.fromEntries(search)} long={long} />;
 }
 
 /** Keeps the query too, or switching language on sign-in would lose the return path. */
-export function LanguageSwitch() {
+export function LanguageSwitch({ long = false }: { long?: boolean }) {
   return (
-    <Suspense fallback={<LanguageLink />}>
-      <LanguageLinkWithQuery />
+    <Suspense fallback={<LanguageLink long={long} />}>
+      <LanguageLinkWithQuery long={long} />
     </Suspense>
   );
 }

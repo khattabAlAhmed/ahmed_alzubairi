@@ -1,0 +1,69 @@
+{
+  "intro": "The frame every public page stands in: header, menu, language, theme, quick contact, footer and privacy, then the page header, the section head and the closing invitation.",
+  "light": "Light",
+  "dark": "Dark",
+  "header": {
+    "title": "Header",
+    "intro": "His name and fields on the start side, then the sections, then language, theme, sign-in and \"Request a consultation\" on the end side.",
+    "note": "It stays at the top as the page scrolls. On phones only the name, the consultation button and the menu button stay. Signed in, \"Sign in\" becomes \"My account\" with a letter from the visitor's email."
+  },
+  "menu": {
+    "title": "Phone menu",
+    "intro": "The index of sections over the page, with the current page marked by an accent line on the start edge.",
+    "note": "It opens over a scrim and keeps focus inside until it closes. Esc closes it and gives focus back to the menu button. Try it from the header's menu button on a narrow screen."
+  },
+  "language": {
+    "title": "Language and theme",
+    "intro": "The header shows only the other language's name, and one theme button that goes round device, light and dark and says its state in its name.",
+    "header": "In the header",
+    "menu": "In the menu",
+    "choice": "Three-way theme",
+    "untranslated": "A page with no translation",
+    "note": "The default follows the device, and the choice is saved. On a page with no translation, the note says so in the language the visitor asked for, and offers the section's list or staying."
+  },
+  "quick": {
+    "title": "Quick contact",
+    "intro": "A tab at the bottom start corner of every public page that opens WhatsApp, email and \"Request a consultation\".",
+    "note": "The number and the address are text that can be copied, because mailto and wa.me links don't work for everyone. No promise of a response time. It rises above the privacy bar while that is open.",
+    "sampleWhatsapp": "+967 77 000 0000",
+    "sampleEmail": "hello@example.org"
+  },
+  "footer": {
+    "title": "Footer",
+    "intro": "A short line in his voice, two indexes of the site, the newsletter, the contact channels, then the legal links."
+  },
+  "skip": {
+    "title": "Skip link and privacy",
+    "intro": "The skip link shows on the first Tab. The privacy bar sits along the bottom and doesn't block the content.",
+    "skipLabel": "The skip link, focused",
+    "consentLabel": "The privacy bar",
+    "chosen": "You chose: {choice}.",
+    "again": "Show the bar again",
+    "accepted": "Agree",
+    "declined": "No, thanks",
+    "note": "The two buttons look and weigh the same: declining is no harder than accepting."
+  },
+  "pageHeader": {
+    "title": "Page header",
+    "intro": "Where you are, then the title and one sentence of his, then the page's facts. Never a centred title.",
+    "sampleEyebrow": "Projects · 2012–2026",
+    "sampleTitle": "Every project here began with a question that had no easy answer.",
+    "sampleIntro": "I write about each one as it happened: where we were, what I did, and what changed after I left.",
+    "factProjects": "Projects",
+    "factOrganizations": "Organizations",
+    "factUpdated": "Last updated",
+    "sampleUpdated": "March 2026"
+  },
+  "section": {
+    "title": "Section head",
+    "intro": "A heavy rule, then the title on the start side, a line of his, and \"see all\" with the count on the end side.",
+    "sampleTitle": "Selected projects",
+    "sampleIntro": "Three projects I come back to when someone asks me: how do you work?",
+    "sampleMore": "All projects",
+    "note": "A section stands alone: it can be hidden or moved from the dashboard without breaking what's around it. An empty section is never shown."
+  },
+  "cta": {
+    "title": "Consultation invitation",
+    "intro": "The closing invitation on public pages: an invitation to talk, not a coloured sales banner."
+  }
+}

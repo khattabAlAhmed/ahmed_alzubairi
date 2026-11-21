@@ -150,22 +150,22 @@ describe("ConsentBanner", () => {
 
   it("is a labelled region, not a modal dialog", () => {
     renderBanner("en");
-    expect(screen.getByRole("region", { name: "Cookies" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Privacy" })).toBeTruthy();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("gives accept and decline the same style", () => {
     renderBanner("en");
-    const accept = screen.getByRole("button", { name: "Accept" });
-    const decline = screen.getByRole("button", { name: "Decline" });
+    const accept = screen.getByRole("button", { name: "Agree" });
+    const decline = screen.getByRole("button", { name: "No, thanks" });
     expect(accept.className).toBe(decline.className);
     expect(accept.className).not.toContain("text-accent");
   });
 
   it("calls the handlers", () => {
     const { onAccept, onDecline } = renderBanner("en");
-    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
-    fireEvent.click(screen.getByRole("button", { name: "Decline" }));
+    fireEvent.click(screen.getByRole("button", { name: "Agree" }));
+    fireEvent.click(screen.getByRole("button", { name: "No, thanks" }));
     expect(onAccept).toHaveBeenCalledOnce();
     expect(onDecline).toHaveBeenCalledOnce();
   });

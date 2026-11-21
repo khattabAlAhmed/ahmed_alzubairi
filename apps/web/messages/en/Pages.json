@@ -2,8 +2,8 @@
   "career": "Career",
   "qualifications": "Qualifications",
   "downloadCv": "Download CV",
-  "ctaTitle": "Looking for advice?",
-  "ctaText": "Send your request, and I'll get back to you about the next step.",
+  "ctaTitle": "Tell me what you're facing.",
+  "ctaText": "You don't need a ready plan or formal wording. Write what worries you as you would explain it to a colleague, and I'll read it myself.",
   "experience": "Experience",
   "areaServices": "Services in this area",
   "areaProjects": "Projects in this area",
@@ -19,5 +19,13 @@
   "requestService": "Request this service",
   "allServices": "All services",
   "emptyServices": "No services are published in this language yet.",
-  "keyResult": "Key result"
+  "keyResult": "Key result",
+  "ctaDirect": "Or write to me directly",
+  "ctaStepsLabel": "What happens next",
+  "ctaSteps": {
+    "write": "You write the request from your account, with any file that helps.",
+    "reply": "I read it and reply in writing, in the same conversation.",
+    "meet": "If we need to, we set a video meeting at a time that suits you."
+  },
+  "ctaPhotoAlt": "Placeholder photo: a table and two facing chairs by a window"
 }
