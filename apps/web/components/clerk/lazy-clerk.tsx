@@ -44,6 +44,18 @@ export function LazyClerk() {
   const locale = useLocale();
   const [load, setLoad] = useState(false);
 
+  // After a client navigation, Next keeps the previous layout mounted but
+  // hidden (React `<Activity>`): its effects are cleaned up, yet it still
+  // re-renders in the background. A hidden Clerk provider must not render.
+  // Every render of `@clerk/nextjs`'s provider claims the one global
+  // navigation function Clerk's UI awaits (`window.__clerk_internal_navigations`).
+  // The hidden one renders last and, with its effects off, never settles the
+  // navigations it starts. So after a client move to sign-up, the URL went to
+  // verify-email-address while the form waited forever and the code was never
+  // sent (P8D-T27). Hidden, the island drops Clerk; shown again, the loader
+  // below runs again and brings it back (clerk-js itself stays loaded).
+  useEffect(() => () => setLoad(false), []);
+
   useEffect(() => {
     if (load) return;
     const start = () => setLoad(true);
