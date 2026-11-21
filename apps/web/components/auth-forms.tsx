@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ClerkSignIn, ClerkSignUp } from "@/components/clerk/clerk-forms";
-import { CheckIcon } from "@/components/icons";
+import { CalendarIcon, LockIcon, MailIcon } from "@/components/icons";
 import { cx } from "@/components/ui/cx";
 
 /*
@@ -14,13 +14,18 @@ import { cx } from "@/components/ui/cx";
 function Frame({ form, aside }: { form: ReactNode; aside: ReactNode }) {
   return (
     <div className="grid w-full max-w-page items-start gap-8 lg:grid-cols-[5fr_6fr] lg:gap-16">
-      <div className="min-w-0 [&_.cl-rootBox]:w-full [&_.cl-cardBox]:w-full [&_.cl-cardBox]:max-w-none">{form}</div>
+      <div className="min-w-0">{form}</div>
       <div className="flex min-w-0 flex-col gap-3.5 lg:pt-5">{aside}</div>
     </div>
   );
 }
 
-const REASONS = ["consultations", "documents", "courses"] as const;
+// The board's icons; there is no speech bubble in the set, so the conversation takes the mail.
+const REASONS = [
+  { key: "consultations", Icon: MailIcon },
+  { key: "documents", Icon: LockIcon },
+  { key: "courses", Icon: CalendarIcon },
+] as const;
 
 export function SignInForm() {
   const t = useTranslations("AuthReason.signIn");
@@ -31,9 +36,9 @@ export function SignInForm() {
         <>
           <p className="max-w-[24em] font-medium text-pretty type-h3">{t("reason")}</p>
           <ul className="border-t border-line">
-            {REASONS.map((key) => (
+            {REASONS.map(({ key, Icon }) => (
               <li key={key} className="flex items-start gap-2.5 border-b border-line py-2.5 type-small">
-                <CheckIcon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-ink-2" />
+                <Icon aria-hidden="true" className="mt-1.5 size-3.5 shrink-0 text-ink-2" />
                 {t(`reasons.${key}`)}
               </li>
             ))}

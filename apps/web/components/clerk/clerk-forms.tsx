@@ -11,6 +11,17 @@ import {
   signUpPath,
 } from "@/lib/auth/return-path";
 
+/*
+ * Clerk's card fills its column beside the reason. Set through `appearance`
+ * rather than descendant CSS, which Clerk flags as structural and fragile.
+ */
+const fillColumn = {
+  elements: {
+    rootBox: { width: "100%" },
+    cardBox: { width: "100%", maxWidth: "none" },
+  },
+};
+
 function useReturnPath() {
   return safeReturnPath(useSearchParams().get(RETURN_PARAM));
 }
@@ -25,6 +36,7 @@ export function ClerkSignIn() {
 
   return (
     <SignIn
+      appearance={fillColumn}
       routing="path"
       path={signInPath(locale)}
       signUpUrl={signUpPath(locale, returnPath)}
@@ -41,6 +53,7 @@ export function ClerkSignUp() {
 
   return (
     <SignUp
+      appearance={fillColumn}
       routing="path"
       path={signUpPath(locale)}
       signInUrl={signInPath(locale, returnPath)}
