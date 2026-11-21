@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { intlLocale } from "@/lib/time/format";
 import { cx, FOCUS_RING } from "./cx";
 
 export type MonthlyValue = {
@@ -64,11 +65,11 @@ export function MonthlyChart({
 }) {
   const [tableShown, setTableShown] = useState(false);
   const tableId = useId();
-  const format = new Intl.NumberFormat(locale, valueFormat);
+  const format = new Intl.NumberFormat(intlLocale(locale), valueFormat);
   const max = Math.max(0, ...data.map((point) => point.value));
   const wholeNumbers = data.every((point) => Number.isInteger(point.value));
   const { top, ticks } = niceScale(max, wholeNumbers);
-  const tickFormat = new Intl.NumberFormat(locale, {
+  const tickFormat = new Intl.NumberFormat(intlLocale(locale), {
     ...valueFormat,
     notation: top >= 10_000 ? "compact" : "standard",
   });
