@@ -38,19 +38,40 @@ describe("clerkAppearance", () => {
     expect(isStructural("&:hover")).toBe(false);
   });
 
-  it("keeps the main button gold with navy text", () => {
+  it("gives only the main button the accent, ink on hover and press", () => {
     const button = clerkAppearance.elements.formButtonPrimary;
     expect(button.backgroundColor).toBe("var(--color-accent)");
     expect(button.color).toBe("var(--color-on-accent)");
+    expect(button.backgroundImage).toBe("none");
+    for (const state of ["&:hover", "&:active"] as const) {
+      expect(button[state]).toEqual({ backgroundColor: "var(--color-ink)", backgroundImage: "none", color: "var(--color-bg)" });
+    }
   });
 
-  it.each(["&:hover", "&:focus", "&:active"] as const)(
-    "keeps the main button gold and dimmed on %s",
-    (state) => {
-      expect(clerkAppearance.elements.formButtonPrimary[state]).toEqual({
-        backgroundColor: "var(--color-accent)",
-        opacity: 0.9,
-      });
-    },
-  );
+  it("keeps links ink, not accent, and every corner square", () => {
+    expect(clerkAppearance.variables.colorPrimary).toBe("var(--color-ink)");
+    expect(clerkAppearance.variables.borderRadius).toBe("0rem");
+  });
+
+  it("draws the one focus ring on inputs and buttons", () => {
+    const ring = { outline: "2px solid var(--color-focus)", outlineOffset: "3px", boxShadow: "none" };
+    expect(clerkAppearance.elements.formFieldInput["&:focus"]).toEqual(ring);
+    expect(clerkAppearance.elements.formButtonPrimary["&:focus"]).toEqual(ring);
+  });
+
+  it("keeps the Phase 1 direction fixes", () => {
+    expect(clerkAppearance.elements.formFieldInput).toMatchObject({ unicodeBidi: "plaintext", textAlign: "start" });
+    expect(clerkAppearance.elements.identityPreviewText).toEqual({ unicodeBidi: "plaintext" });
+    expect(clerkAppearance.elements.otpCodeFieldInputs).toEqual({ direction: "ltr" });
+  });
+
+  it("reads tokens by their --color-* names, which Clerk does not shadow", () => {
+    const text = JSON.stringify(clerkAppearance);
+    expect(text).not.toMatch(/var\(--(?!color-|font-)/);
+  });
+
+  it("uses only the system's tokens: no raw colours", () => {
+    const text = JSON.stringify(clerkAppearance);
+    expect(text).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|--color-(text|background|primary)\b/i);
+  });
 });

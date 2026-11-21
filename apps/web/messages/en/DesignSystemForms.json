@@ -1,0 +1,83 @@
+{
+  "intro": "The forms visitors and clients write in: contact, newsletter, consultation request, document request, custom training, sign in, and completing the account. Errors say what happened and what to do, and nothing promises a reply time.",
+  "staticNote": "Still pictures of the states: nothing here is sent.",
+  "states": {
+    "empty": "Empty",
+    "errors": "Errors",
+    "sending": "Sending",
+    "sent": "Sent",
+    "home": "On the home page",
+    "inline": "After an article",
+    "footer": "In the footer",
+    "selected": "Service chosen · with attachments",
+    "filed": "After sending · the request in your record",
+    "one": "One document",
+    "several": "Several documents",
+    "signIn": "Sign in · wrong password",
+    "reason": "Why an account",
+    "consent": "Consent missing"
+  },
+  "contact": {
+    "title": "Contact form",
+    "intro": "No account needed. Name and email side by side, the organization type as one choice, then the message."
+  },
+  "newsletter": {
+    "title": "Newsletter signup",
+    "intro": "On the home page, after an article and in the footer. After sending: “check your email”, so nobody is added before they confirm."
+  },
+  "consultation": {
+    "title": "Consultation request",
+    "intro": "The service and organization, a short title, what you're facing, and attachments. Once sent, the request is a record in your account."
+  },
+  "dialog": {
+    "title": "Document request dialog",
+    "intro": "The chosen documents, the purpose, then send. The decision is Ahmed's."
+  },
+  "training": {
+    "title": "Custom training request",
+    "intro": "Number of trainees, the topic, a suggested date, the place."
+  },
+  "signIn": {
+    "title": "Sign in and sign up",
+    "intro": "Clerk's components in the system's font and colours with square corners, in Arabic through arSA, with the reason for an account beside them. Emails and codes read left to right.",
+    "heading": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "forgot": "Forgot it",
+    "passwordError": "That password isn't right. Try again or reset it.",
+    "submit": "Sign in",
+    "noAccount": "No account yet?",
+    "create": "Create one"
+  },
+  "onboarding": {
+    "title": "Completing the account",
+    "intro": "The phone reads left to right, optional fields say so in words, consent comes last. Then it goes back to what they started."
+  },
+  "sample": {
+    "name": "Salma Abdullah",
+    "email": "salma@example.org",
+    "subject": "Reviewing our delegation manual",
+    "message": "We're writing a delegation manual for our directorate and would like a view before it's approved.",
+    "service": "Institutional governance",
+    "org": "Directorate of services",
+    "consultationTitle": "Review of internal rules before approval",
+    "description": "We have a 42-page draft of internal rules and need a decision before the end of the month.",
+    "purpose": "We're preparing a consultant qualification file for a tender and need to verify experience.",
+    "documents": [
+      "Thank-you letter from an international organization · Protection programme",
+      "Experience certificate · Governance consultant"
+    ],
+    "trainingOrg": "A local organization",
+    "topic": "Community referral for a new field team",
+    "count": "25",
+    "place": "At your office",
+    "phone": "+967 77 000 0000",
+    "files": [
+      "internal-rules.pdf",
+      "notes.docx",
+      "photo.heic"
+    ],
+    "filedWhen": "Today",
+    "attachments": "Two files"
+  }
+}

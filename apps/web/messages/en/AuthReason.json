@@ -1,0 +1,18 @@
+{
+  "signIn": {
+    "reason": "Your account keeps our conversation and your files in one place that no one else sees.",
+    "reasons": {
+      "consultations": "Your consultations, their conversations and appointments",
+      "documents": "The documents I have opened for you",
+      "courses": "The courses you registered for"
+    }
+  },
+  "signUp": {
+    "steps": {
+      "account": "1 · Account",
+      "details": "2 · Your details",
+      "label": "Steps"
+    },
+    "note": "We will send a code to your email. Then we ask for your phone number and organization, and you return to what you were doing."
+  }
+}
