@@ -10,3 +10,6 @@ ignoredBuiltDependencies:
   - "@swc/core"
   - sharp
   - unrs-resolver
+
+patchedDependencies:
+  "@clerk/nextjs@7.9.25": patches/@clerk__nextjs@7.9.25.patch

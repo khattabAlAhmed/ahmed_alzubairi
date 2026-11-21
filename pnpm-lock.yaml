@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@clerk/nextjs@7.9.25':
+    hash: b8996a94248283c827287dcad53c62b5db9aebbe12b109a0179bf59adebc3ad3
+    path: patches/@clerk__nextjs@7.9.25.patch
+
 importers:
 
   .:
@@ -25,7 +30,7 @@ importers:
         version: 4.24.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@clerk/nextjs':
         specifier: ^7.9.25
-        version: 7.9.25(next@16.4.5(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 7.9.25(patch_hash=b8996a94248283c827287dcad53c62b5db9aebbe12b109a0179bf59adebc3ad3)(next@16.4.5(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@napi-rs/canvas':
         specifier: 1.1.0
         version: 1.1.0
@@ -4053,7 +4058,7 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/nextjs@7.9.25(next@16.4.5(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@clerk/nextjs@7.9.25(patch_hash=b8996a94248283c827287dcad53c62b5db9aebbe12b109a0179bf59adebc3ad3)(next@16.4.5(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@clerk/backend': 3.27.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@clerk/react': 6.18.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

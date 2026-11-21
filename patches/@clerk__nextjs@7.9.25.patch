@@ -1,0 +1,63 @@
+diff --git a/dist/cjs/app-router/client/useInternalNavFun.js b/dist/cjs/app-router/client/useInternalNavFun.js
+index f5f3d91dd2c38b7c4a38f19d04b8c1c5d5cb591c..f74350e6efc069424070e050b2d7e3089f103567 100644
+--- a/dist/cjs/app-router/client/useInternalNavFun.js
++++ b/dist/cjs/app-router/client/useInternalNavFun.js
+@@ -32,7 +32,13 @@ const getClerkNavigationObject = (name) => {
+ const useInternalNavFun = (props) => {
+   const { windowNav, routerNav, name } = props;
+   const [isPending, startTransition] = (0, import_react.useTransition)();
+-  if (windowNav) {
++  // Patched (P8D-T29): claim the global navigation function on commit, not
++  // during render. Next keeps hidden layouts mounted (<Activity>) and they
++  // still re-render, but don't run layout effects, so a hidden provider whose
++  // transitions never settle can't take over Clerk's navigation. No deps:
++  // the shown provider re-claims on every commit with its latest router.
++  (0, import_react.useLayoutEffect)(() => {
++    if (!windowNav) return;
+     getClerkNavigationObject(name).fun = (to, opts) => {
+       var _a, _b;
+       const nav = getClerkNavigationObject(name);
+@@ -58,7 +64,7 @@ const useInternalNavFun = (props) => {
+         });
+       });
+     };
+-  }
++  });
+   const flushPromises = () => {
+     var _a;
+     const nav = getClerkNavigationObject(name);
+diff --git a/dist/esm/app-router/client/useInternalNavFun.js b/dist/esm/app-router/client/useInternalNavFun.js
+index 9e878db88d37b7dcfe2c7632d23684fb2f3bd6bb..e756ae26b053a45ce211e53948562a0e323cc095 100644
+--- a/dist/esm/app-router/client/useInternalNavFun.js
++++ b/dist/esm/app-router/client/useInternalNavFun.js
+@@ -1,5 +1,5 @@
+ import "../../chunk-BUSYA2B4.js";
+-import { useCallback, useEffect, useTransition } from "react";
++import { useCallback, useEffect, useLayoutEffect, useTransition } from "react";
+ import { removeBasePath } from "../../utils/removeBasePath";
+ const getClerkNavigationObject = (name) => {
+   var _a, _b, _c;
+@@ -10,7 +10,13 @@ const getClerkNavigationObject = (name) => {
+ const useInternalNavFun = (props) => {
+   const { windowNav, routerNav, name } = props;
+   const [isPending, startTransition] = useTransition();
+-  if (windowNav) {
++  // Patched (P8D-T29): claim the global navigation function on commit, not
++  // during render. Next keeps hidden layouts mounted (<Activity>) and they
++  // still re-render, but don't run layout effects, so a hidden provider whose
++  // transitions never settle can't take over Clerk's navigation. No deps:
++  // the shown provider re-claims on every commit with its latest router.
++  useLayoutEffect(() => {
++    if (!windowNav) return;
+     getClerkNavigationObject(name).fun = (to, opts) => {
+       var _a, _b;
+       const nav = getClerkNavigationObject(name);
+@@ -36,7 +42,7 @@ const useInternalNavFun = (props) => {
+         });
+       });
+     };
+-  }
++  });
+   const flushPromises = () => {
+     var _a;
+     const nav = getClerkNavigationObject(name);
