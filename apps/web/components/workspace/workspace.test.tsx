@@ -102,12 +102,16 @@ describe("ChatMessage", () => {
     expect(paragraph?.className).toContain("whitespace-pre-wrap");
   });
 
-  it("says You for the viewer's own message and sits on the end side", () => {
+  it("says You for the viewer's own message, on the raised ground, never a bubble", () => {
     const { container } = wrap(
       <ChatMessage senderName="Sara" mine body="hi" sentAt="2026-11-20T11:00:00Z" timeZone="UTC" />,
     );
+    // The word "You" tells it apart, not the color alone (ChatThread board).
     expect(screen.getByRole("article", { name: "You" })).toBeTruthy();
-    expect(container.querySelector("article")?.className).toContain("justify-end");
+    expect(screen.getByText("You")).toBeTruthy();
+    const className = container.querySelector("article")?.className ?? "";
+    expect(className).toContain("bg-surface");
+    expect(className).not.toMatch(/justify-end|rounded/);
   });
 
   it("names the zone with the time", () => {
@@ -263,6 +267,8 @@ describe("MeetingCard and DocumentCard", () => {
       <MeetingCard platform="Zoom" url="https://zoom.us/j/1" startsAt="2026-11-20T11:00:00Z" durationMinutes={45} timeZone="Asia/Riyadh" />,
     );
     expect(screen.getByText("Friday, 20 November 2026")).toBeTruthy();
+    // The year shows on the day panel too, not only to screen readers.
+    expect(screen.getByText("2026").closest("[aria-hidden]")).toBeTruthy();
     expect(screen.getByText(/2:00\s*–\s*2:45\s*pm/)).toBeTruthy();
     expect(screen.getByText("45 minutes")).toBeTruthy();
     expect(screen.getByText("Arabian Standard Time (GMT+3)")).toBeTruthy();

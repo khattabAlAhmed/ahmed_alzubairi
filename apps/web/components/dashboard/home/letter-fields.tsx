@@ -55,7 +55,8 @@ export function ParagraphList({
           const number = index + 1;
           return (
             // Paragraphs have no id; the index keys them, and the text moves with it.
-            <li key={index} className="space-y-2 rounded-md border border-text/10 p-3">
+            // A hairline between paragraphs on phones (full width); a box from 640px.
+            <li key={index} className="space-y-2 border-t border-line pt-3 sm:border sm:p-3">
               <TextArea
                 name={name}
                 rows={4}
@@ -191,8 +192,8 @@ function SignatureInput({
         {isolate(t(forDark ? "signatureDarkHint" : "signatureHint"))}
       </p>
       {value !== "" && (
-        // Fixed colors from the palette, so each scan shows on its own theme.
-        <div className={`max-w-xs rounded-md border border-text/10 p-3 ${forDark ? "bg-primary" : "bg-on-primary"}`}>
+        // Each scan on its own theme's ground, whatever the dashboard's theme.
+        <div data-theme={forDark ? "dark" : "light"} className="max-w-xs border border-line bg-bg p-3">
           <Image
             src={mediaUrl(mediaBase, value)}
             alt={t("signatureAlt")}

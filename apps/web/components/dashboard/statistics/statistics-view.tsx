@@ -29,8 +29,7 @@ export async function StatisticsView({ statistics, locale }: { statistics: Stati
         title={title}
         description={extra.description}
         data={extra.keepZeros ? data : plotted(data)}
-        // The chart formats with Intl as given: name the digits, so Arabic gets Arabic-Indic ones.
-        locale={intlLocale(locale)}
+        locale={locale}
         valueFormat={extra.valueFormat}
         monthHeader={t("chart.month")}
         valueHeader={t("chart.value")}

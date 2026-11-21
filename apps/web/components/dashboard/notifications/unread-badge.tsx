@@ -23,9 +23,8 @@ export function UnreadBadge({
     <span
       data-unread-badge=""
       className={cx(
-        // Inverted text and background, like the `strong` badge: it reads in
-        // both themes, and gold stays out of text (§13).
-        "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-text px-1.5 text-xs font-semibold text-background",
+        // The AppShell board's count: a small square of ink with the page ground's color for the digits.
+        "inline-flex h-5 min-w-5.5 shrink-0 items-center justify-center bg-ink px-1.5 text-xs font-medium text-bg tabular-nums",
         className,
       )}
     >

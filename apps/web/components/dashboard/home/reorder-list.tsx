@@ -9,9 +9,9 @@ import { moveItem } from "./order";
 type Item = { id: string; name: string };
 
 const ICON_BUTTON = cx(
-  "inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-text/15 bg-surface text-text",
-  "hover:bg-text/5 disabled:cursor-not-allowed disabled:opacity-40 aria-disabled:cursor-wait",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+  "inline-flex size-11 shrink-0 items-center justify-center border border-line-strong bg-bg text-ink transition-state",
+  "hover:bg-surface-hover disabled:cursor-not-allowed disabled:border-line disabled:text-ink-2 aria-disabled:cursor-wait",
+  "focus-ring",
 );
 
 function GripIcon() {
@@ -96,12 +96,15 @@ export function ReorderList<T extends Item>({
             onDragLeave={() => setOver((current) => (current === item.id ? null : current))}
             onDrop={(event) => dropOn(event, item.id)}
             className={cx(
-              "rounded-lg border bg-surface p-3 sm:p-4",
-              over === item.id && dragging !== item.id ? "border-text" : "border-text/10",
+              "border bg-bg p-3 sm:p-4",
+              over === item.id && dragging !== item.id ? "border-ink" : "border-line",
               dragging === item.id && "opacity-60",
             )}
           >
-            <div className="flex items-start gap-2 sm:gap-3">
+            {/* On phones the move buttons take their own row above the item, so an
+                open form below gets the full width (the #124 check: the letter's
+                paragraph boxes were about three words wide at 375px). */}
+            <div className="flex flex-wrap items-start justify-end gap-2 sm:flex-nowrap sm:justify-start sm:gap-3">
               <span
                 draggable={!saving}
                 onDragStart={(event) => {
@@ -116,11 +119,11 @@ export function ReorderList<T extends Item>({
                 title={t("drag", { name: item.name })}
                 // Pointer only: keyboard users have the buttons, so the handle stays out of the tab order.
                 aria-hidden="true"
-                className="mt-2.5 hidden cursor-grab text-text-secondary active:cursor-grabbing sm:block"
+                className="mt-2.5 hidden cursor-grab text-ink-2 active:cursor-grabbing sm:block"
               >
                 <GripIcon />
               </span>
-              <div className="min-w-0 flex-1">{renderItem(item, index)}</div>
+              <div className="order-last w-full min-w-0 sm:order-none sm:w-auto sm:flex-1">{renderItem(item, index)}</div>
               <div className="flex shrink-0 gap-1">
                 <button
                   type="button"

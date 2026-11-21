@@ -113,4 +113,12 @@ describe("StatisticsView", () => {
     expect(screen.getByText(ar.kpis.registrations.label)).toBeTruthy();
     expect(screen.getAllByText(/نوفمبر/).length).toBeGreaterThan(0);
   });
+
+  it("writes the chart's ticks and values in Arabic-Indic digits in Arabic", async () => {
+    await show([{ key: "registrations", months: months(5, 2) }], "ar");
+    const figure = screen.getByText(ar.kpis.registrations.chart).closest("figure")!;
+    const text = figure.textContent ?? "";
+    expect(text).toMatch(/٥/);
+    expect(text).not.toMatch(/[0-9]/);
+  });
 });

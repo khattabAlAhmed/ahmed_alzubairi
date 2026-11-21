@@ -35,7 +35,7 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
         }
       />
       {!editable && (
-        <p role="note" className="rounded-md border border-text/15 p-3 text-sm">
+        <p role="note" className="border border-line bg-surface p-3 text-sm">
           {t("list.comingSoon")}
         </p>
       )}
@@ -47,7 +47,7 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
           </p>
         </Card>
       ) : (
-        <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+        <ul className="divide-y divide-line border-t-2 border-b border-rule border-b-line">
           {rows.map((row) => {
             const ref = String(type === "home_sections" ? row.key : row.id);
             const title = rowTitle(type, row, locale) ?? t("list.untitled");
