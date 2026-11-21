@@ -56,12 +56,14 @@ describe("LazyClerk in a hidden layout (P8D-T27)", () => {
     expect(provider.renders).toBe(rendersWhenHidden);
   });
 
-  it("brings it back when the layout shows again", async () => {
+  it("brings it back at once when the layout shows again", async () => {
     const { rerender } = render(<Layout mode="visible" version={1} />);
+    // Loaded by an interaction, not a request: nothing else would reload it.
     await act(async () => {
-      requestClerk();
+      window.dispatchEvent(new Event("pointerdown"));
       await vi.dynamicImportSettled();
     });
+    expect(provider.mounted).toBe(1);
     await act(async () => rerender(<Layout mode="hidden" version={2} />));
     await act(async () => rerender(<Layout mode="visible" version={3} />));
     expect(provider.mounted).toBe(1);
