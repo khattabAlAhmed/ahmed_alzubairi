@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale } from "next-intl";
 import { requestClerk, useAuthState } from "@/components/clerk/auth-state";
 import { buttonClasses } from "@/components/ui";
@@ -46,4 +47,11 @@ export function RequestServiceButton({
       {label}
     </Link>
   );
+}
+
+/** Shown only to a signed-out visitor: the request needs an account (the ServicePage board). */
+export function SignedOutNote({ children }: { children: ReactNode }) {
+  const { isSignedIn } = useAuthState();
+  if (isSignedIn) return null;
+  return <p className="type-caption text-pretty text-ink-2">{children}</p>;
 }

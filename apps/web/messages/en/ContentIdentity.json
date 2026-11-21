@@ -1,0 +1,17 @@
+{
+  "qualifications": {
+    "qualification": "Qualification",
+    "institution": "Institution",
+    "year": "Year"
+  },
+  "cv": {
+    "download": "Download"
+  },
+  "service": {
+    "panelNote": "I will know from your request which stage fits you. You don't need to choose now.",
+    "accountNote": "You need an account. If you don't have one, you will come back to this same request after signing up."
+  },
+  "testimonial": {
+    "source": "From a thank-you letter"
+  }
+}

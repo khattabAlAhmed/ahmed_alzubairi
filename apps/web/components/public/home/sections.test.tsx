@@ -1,15 +1,16 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Post, Project, Resource } from "@/lib/content";
 import { ContactSection } from "./contact";
 import { formatDate, whatsappHref } from "./format";
 import { LatestSection } from "./latest";
 import { ProjectsSection, selectHomeProjects } from "./projects";
-import { COUNT_DURATION_MS, StatNumber } from "./stat-number";
+import { StatNumber } from "./stat-number";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "en",
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key} ${JSON.stringify(values)}` : key,
 }));
@@ -40,78 +41,36 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
 afterEach(cleanup);
 
 describe("StatNumber", () => {
-  let observed: IntersectionObserverCallback | null;
-  let frames: FrameRequestCallback[];
-
-  function setReducedMotion(reduce: boolean) {
-    window.matchMedia = ((query: string) => ({
-      matches: reduce && query.includes("reduce"),
-      media: query,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    })) as unknown as typeof window.matchMedia;
-  }
-
-  beforeEach(() => {
-    observed = null;
-    frames = [];
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(callback: IntersectionObserverCallback) {
-          observed = callback;
-        }
-        observe() {}
-        disconnect() {}
-      },
-    );
-    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => frames.push(callback));
-    vi.stubGlobal("cancelAnimationFrame", () => {});
-    vi.spyOn(performance, "now").mockReturnValue(0);
-  });
-
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
-  const shown = () => screen.getByTestId("stat-count").textContent;
+  it("never animates: the final value from the first render, with no observer, frame or timer", () => {
+    const observer = vi.fn();
+    vi.stubGlobal("IntersectionObserver", observer);
+    const frame = vi.spyOn(window, "requestAnimationFrame");
+    const timeout = vi.spyOn(window, "setTimeout");
 
-  it("shows the final value at once with reduced motion", () => {
-    setReducedMotion(true);
     render(<StatNumber value="1,200" />);
-    expect(shown()).toBe("1,200");
-    expect(observed).toBeNull();
+    act(() => {});
+
+    expect(screen.getByText("1,200")).toBeTruthy();
+    expect(observer).not.toHaveBeenCalled();
+    expect(frame).not.toHaveBeenCalled();
+    expect(timeout).not.toHaveBeenCalled();
   });
 
-  it("counts up from zero once it comes into view", () => {
-    setReducedMotion(false);
-    render(<StatNumber value="1,200" />);
-    expect(shown()).toBe("0");
-
-    act(() => observed!([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
-    act(() => frames.shift()!(COUNT_DURATION_MS / 2));
-    const halfway = Number(shown()!.replace(/,/g, ""));
-    expect(halfway).toBeGreaterThan(0);
-    expect(halfway).toBeLessThan(1200);
-
-    act(() => frames.shift()!(COUNT_DURATION_MS));
-    expect(shown()).toBe("1,200");
-    expect(frames).toHaveLength(0);
-  });
-
-  it("gives screen readers the final value only", () => {
-    setReducedMotion(false);
+  it("is one text, read once by screen readers, isolated left to right", () => {
     const { container } = render(<StatNumber value="15+" />);
-    expect(container.querySelector(".sr-only")?.textContent).toBe("15+");
-    expect(screen.getByTestId("stat-count").getAttribute("aria-hidden")).toBe("true");
+    const value = screen.getByText("15+");
+    expect(value.getAttribute("dir")).toBe("ltr");
+    expect(container.querySelector(".sr-only, [aria-hidden]")).toBeNull();
   });
 
   it("shows a value with no single number as written", () => {
-    setReducedMotion(false);
     render(<StatNumber value="2010–2024" />);
-    expect(shown()).toBe("2010–2024");
-    expect(observed).toBeNull();
+    expect(screen.getByText("2010–2024")).toBeTruthy();
   });
 });
 

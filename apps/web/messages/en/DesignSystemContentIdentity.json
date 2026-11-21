@@ -1,0 +1,259 @@
+{
+  "intro": "The parts the identity pages are built from: who he is, what the numbers say, his areas and services, who he works with, his career, and what others wrote about the work. Rows on hairlines under a heavy rule, never a grid of identical cards.",
+  "draftNote": "The text here is sample text from the approved mockups, and the photo is a placeholder. Ahmed writes the real copy.",
+  "placeholderPhoto": "Placeholder photo",
+  "states": {
+    "withPhoto": "With the portrait and the quick stats",
+    "noStats": "With the portrait, without quick stats",
+    "noPhoto": "Photo not uploaded yet: the hatched panel, never a broken image",
+    "long": "Long text",
+    "band": "1 · Band (the home page's quick stats)",
+    "inline": "2 · Inside a sentence",
+    "ledger": "3 · Side ledger",
+    "chapters": "Three areas, each one link",
+    "rows": "Rows read across",
+    "open": "Featured row open, then rows",
+    "facts": "Who it suits and what you get",
+    "stages": "Stages, one per line",
+    "oneLine": "Stages written as one line",
+    "panel": "The request beside the page",
+    "spine": "The spine, the current role in the accent",
+    "qualifications": "Qualifications, then the CV",
+    "register": "Register: logos in grey, names without a logo",
+    "full": "One in full, the others as excerpts",
+    "single": "Only one",
+    "empty": "Empty"
+  },
+  "empty": "With nothing published, the section isn't shown at all: no heading over an empty space. A whole page with nothing says so in one line:",
+  "hero": {
+    "title": "Hero",
+    "intro": "The dossier: his statement on the start side, the 4:5 portrait on the end side with the quick stats beside it. Never a centred title with two buttons, no frame around the photo, nothing counting up.",
+    "name": "Ahmed Alzubairi",
+    "role": "Consultant in management, governance, humanitarian work and development",
+    "statement": "I help institutions make decisions they can defend.",
+    "longStatement": "I help ministries, humanitarian organizations and family businesses make decisions they can defend, to the people they serve and to themselves."
+  },
+  "stats": {
+    "title": "Quiet stat",
+    "intro": "A number as evidence, always with the sentence that says what it means. Static: no count-up. The values are written in the dashboard, not in the code.",
+    "band": [
+      {
+        "label": "years with displaced and host communities, and those who serve them",
+        "value": "14"
+      },
+      {
+        "label": "projects, each with its record on this site",
+        "value": "38"
+      },
+      {
+        "label": "organizations: ministries, international and local organizations, companies",
+        "value": "21"
+      },
+      {
+        "label": "trainees in in-person and live workshops",
+        "value": "1,200"
+      }
+    ],
+    "hero": [
+      {
+        "label": "Experience",
+        "value": "14 years"
+      },
+      {
+        "label": "Projects",
+        "value": "38"
+      },
+      {
+        "label": "Organizations",
+        "value": "21"
+      },
+      {
+        "label": "Trainees",
+        "value": "1,200"
+      }
+    ],
+    "ledger": [
+      {
+        "label": "Project length",
+        "value": "2 years"
+      },
+      {
+        "label": "Local committees",
+        "value": "4"
+      }
+    ],
+    "sentenceBefore": "I worked with",
+    "sentenceValue": "9",
+    "sentenceAfter": "ministries on governance guides that are still in use."
+  },
+  "expertise": {
+    "title": "Expertise area",
+    "intro": "Each area a chapter: its name, one sentence of his, what it covers, and the real number of projects. No icons, no cards; the whole chapter is one link.",
+    "areas": [
+      {
+        "title": "Management and governance",
+        "summary": "Clear rules for who decides, who answers, and how a decision is reviewed.",
+        "covers": [
+          "Management consulting",
+          "Institutional governance",
+          "Work with ministries and companies"
+        ],
+        "meta": "14 projects · 9 organizations"
+      },
+      {
+        "title": "Humanitarian work",
+        "summary": "Protection that reaches the people who need it, in a way they trust.",
+        "covers": [
+          "Humanitarian diplomacy",
+          "Humanitarian protection",
+          "Work with organizations"
+        ],
+        "meta": "17 projects · 10 organizations"
+      },
+      {
+        "title": "Development",
+        "summary": "Work that outlasts the project: skills, income and confidence.",
+        "covers": [
+          "Preparing young people for work",
+          "Economic empowerment of families"
+        ],
+        "meta": "7 projects · 4 organizations"
+      }
+    ]
+  },
+  "audience": {
+    "title": "Audience",
+    "intro": "Who he works with (§6.2 «لمن أعمل»), as rows read across, not three cards alike. On phones each row is one block.",
+    "items": [
+      {
+        "title": "Government",
+        "description": "Governance guides, structural reviews, and training leaders to make decisions they can defend."
+      },
+      {
+        "title": "Humanitarian organizations",
+        "description": "Protection systems run by communities themselves, humanitarian negotiation, programme reviews."
+      },
+      {
+        "title": "Private sector",
+        "description": "Family business governance, project management, and teams that know who decides."
+      }
+    ]
+  },
+  "services": {
+    "title": "Service list",
+    "intro": "An index, one row per service: name, one line of his, a quiet meta column. The featured row opens on the surface.",
+    "rows": [
+      {
+        "title": "Institutional governance",
+        "summary": "A charter, bylaws and delegation of authority, written by the institution with me, not by me about it.",
+        "meta": "5 stages · 8–12 weeks"
+      },
+      {
+        "title": "Management consulting",
+        "summary": "Structure, roles and ways of working that fit the institution.",
+        "meta": "4 stages"
+      },
+      {
+        "title": "Humanitarian protection",
+        "summary": "Referral and protection systems people trust.",
+        "meta": "4 stages"
+      },
+      {
+        "title": "Humanitarian diplomacy",
+        "summary": "Negotiating access, when every side is right from where it stands.",
+        "meta": "Case by case"
+      }
+    ]
+  },
+  "servicePage": {
+    "title": "Service page parts",
+    "intro": "Who it suits, what you get, the stages in order, and «اطلب هذه الخدمة» in a panel beside them.",
+    "service": "Institutional governance",
+    "audience": "A board that wants written rules, a ministry redistributing authority, or a family business a new generation is joining.",
+    "deliverables": "A governance charter in language everyone understands\nAn authority matrix: who decides, who is consulted, who is informed\nTwo training sessions for the board and the executive team",
+    "stages": "I listen: Interviews with the board, managers and staff.\nI read: The current bylaws, and what actually happens.\nWe write together: A first draft in two workshops.\nWe test: Three months on real decisions.\nWe adopt: A final version, and training.",
+    "oneLine": "Agreed case by case, after the first conversation."
+  },
+  "career": {
+    "title": "Career timeline",
+    "intro": "The career as a spine: a thin line, a small square at each role. The current role alone is in the accent.",
+    "items": [
+      {
+        "period": "2020 – now",
+        "title": "Independent consultant",
+        "description": "With ministries, international and local organizations, and companies, in governance, protection and development."
+      },
+      {
+        "period": "2016 – 2020",
+        "title": "Protection program manager",
+        "description": "International humanitarian organization · a team of 30 across four governorates."
+      },
+      {
+        "period": "2013 – 2016",
+        "title": "Governance advisor",
+        "description": "Administrative reform project with a government body."
+      },
+      {
+        "period": "2012",
+        "title": "First project with a displaced community",
+        "description": "Where I learned to ask before I plan."
+      }
+    ]
+  },
+  "qualifications": {
+    "title": "Qualifications and values",
+    "intro": "Qualifications under the heavy rule, then the CV as one row. His values are written in the about page's own text, under its «Values» heading.",
+    "items": [
+      {
+        "title": "Master's in Public Administration",
+        "description": "[University name]",
+        "period": "2011"
+      },
+      {
+        "title": "Certificate in Humanitarian Protection",
+        "description": "Accredited international program",
+        "period": "2017"
+      },
+      {
+        "title": "Certified trainer",
+        "description": "[Awarding body]",
+        "period": "2019"
+      }
+    ],
+    "cvDetail": "PDF · 240 KB · 2026-03"
+  },
+  "logos": {
+    "title": "Organization logos",
+    "intro": "A register in hairlines, low on the page: logos in grey at one size, a name where there is no logo. Only with the organization's consent, the admin's approval and published. Never a «Trusted by» strip.",
+    "names": [
+      "Ministry of Planning",
+      "International organization",
+      "UN agency",
+      "Family company",
+      "Local organization"
+    ],
+    "more": "All organizations · 21"
+  },
+  "testimonial": {
+    "title": "Testimonial",
+    "intro": "From real thank-you letters, rephrased with the organization's consent and shown only after the admin approves. Attributed to a role and an organization, not a person's name. The letter itself never shows.",
+    "source": "From a thank-you letter",
+    "items": [
+      {
+        "quote": "“He listened more than he spoke. And when he spoke, it was a plan we could carry out, and we still work by it two years later.”",
+        "author": "Protection programme manager",
+        "organization": "International humanitarian organization"
+      },
+      {
+        "quote": "“He helped us write rules the staff understand before the managers do.”",
+        "author": "Deputy minister",
+        "organization": "Government · 2024"
+      },
+      {
+        "quote": "“He didn't bring a ready-made answer. He helped us find ours.”",
+        "author": "Board chair",
+        "organization": "Family business · 2025"
+      }
+    ]
+  }
+}

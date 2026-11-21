@@ -1,7 +1,9 @@
 /**
- * A quick-stat value such as "15+", "1,200" or "٤٠" split into the number to
- * count up to and the text around it. Values with no single number, such as
- * "2010–2024", return null and are shown as written, without counting.
+ * A quick-stat value such as "15+", "1,200" or "٤٠" split into its number and
+ * the text around it. Values with no single number, such as "2010–2024",
+ * return null. The quick stats are static (Ahmed's decision, plan.md Phase
+ * 8): nothing counts up; `localizeStatValue` only puts a value in the page's
+ * digits.
  */
 export type StatValue = {
   prefix: string;
@@ -54,4 +56,20 @@ export function formatStatValue(stat: StatValue, current: number): string {
   const grouped = stat.grouped ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : whole;
   const number = fraction ? `${grouped}.${fraction}` : grouped;
   return `${stat.prefix}${stat.arabicDigits ? toArabic(number) : number}${stat.suffix}`;
+}
+
+/**
+ * The value as the editor wrote it, in the page's digits: Arabic-Indic on an
+ * Arabic page, Western on an English one, with the group and decimal marks
+ * that go with them. Text around the number stays as written.
+ */
+export function localizeStatValue(value: string, locale: string): string {
+  const trimmed = value.trim();
+  if (locale === "ar") {
+    return trimmed
+      .replace(/(?<=\d),(?=\d)/g, "٬")
+      .replace(/(?<=\d)\.(?=\d)/g, "٫")
+      .replace(/[0-9]/g, (digit) => ARABIC_DIGITS[Number(digit)]);
+  }
+  return toWestern(trimmed);
 }

@@ -1,48 +1,89 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ConsultationButton } from "@/components/consultation-button";
+import { CONTAINER } from "@/components/public/parts";
+import { PhotoMissing } from "@/components/public/listing/parts";
+import { StatLedger } from "@/components/public/pages/identity";
 import { ButtonLink } from "@/components/ui";
-import type { HomeSection } from "@/lib/content";
-import { RING_ON_NAVY } from "../parts";
+import { cx } from "@/components/ui/cx";
+import type { HomeSection, HomeStat } from "@/lib/content";
 
 type HeroContent = Extract<HomeSection, { key: "hero" }>["content"];
 
-/** §6.2 #1. The page's only h1 is the name. */
-export function HeroSection({ content }: { content: HeroContent }) {
+/**
+ * §6.2 #1, the dossier (Ahmed's choice, plan.md Phase 8; the Hero board): his
+ * name (the page's h1) and title, then his statement and the two actions on
+ * the start side; on the end side the 4:5 portrait, with the quick stats as a
+ * quiet ledger beside it. Never a centred title with two buttons, no frame
+ * around the photo, nothing counting up.
+ *
+ * On phones it reads down: the name, the statement, the photo at full width,
+ * the buttons, then the ledger.
+ */
+export function HeroSection({
+  content,
+  stats = [],
+  sample,
+}: {
+  content: HeroContent;
+  stats?: readonly HomeStat[];
+  /** The design-system page: its own id, and the name as a paragraph, not a second h1. */
+  sample?: string;
+}) {
   const t = useTranslations("Home");
+  const tWork = useTranslations("ContentWork");
+  const titleId = sample ? `${sample}-title` : "home-hero-title";
+  const Title = sample ? "p" : "h1";
+  const photo = content.photoUrl;
+  const hasStats = stats.length > 0;
 
   return (
-    <section aria-labelledby="home-hero-title" data-section="hero" className="bg-primary text-on-primary">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-[minmax(0,1fr)_auto] md:py-24">
-        <div className="min-w-0">
-          <span aria-hidden="true" className="mb-5 block h-0.5 w-14 rounded-full bg-accent" />
-          <h1 id="home-hero-title" className="text-balance text-4xl leading-tight md:text-5xl">
+    <section
+      aria-labelledby={titleId}
+      data-section={sample ? undefined : "hero"}
+      // A sample sits inside the design-system page's own column.
+      className={cx(!sample && CONTAINER, !sample && "mt-8 md:mt-12")}
+    >
+      <div
+        className={cx(
+          "grid gap-x-gutter gap-y-6 border-t-2 border-rule pt-7 settle",
+          "[grid-template-areas:'id'_'title'_'photo'_'actions'_'stats']",
+          hasStats
+            ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)_150px] lg:[grid-template-areas:'id_photo_stats'_'title_photo_stats'_'actions_photo_stats']"
+            : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:[grid-template-areas:'id_photo'_'title_photo'_'actions_photo']",
+          "lg:grid-rows-[auto_auto_1fr]",
+        )}
+      >
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[15px] text-ink-2 [grid-area:id]">
+          {/* The page's one h1 is his name, small: the statement under it carries the size. */}
+          <Title id={titleId} className="text-[17px] font-semibold text-ink">
             {content.name}
-          </h1>
-          <p className="mt-3 text-pretty text-xl text-on-primary/90 md:text-2xl">{content.title}</p>
-          <p className="mt-5 max-w-prose text-pretty text-lg text-on-primary/80">{content.valueStatement}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <ButtonLink href="/about" size="lg" className={RING_ON_NAVY}>
-              {t("aboutCta")}
-            </ButtonLink>
-            {/* Secondary on navy: an outline instead of the button's own gold. */}
-            <ConsultationButton
-              className={`h-12! border border-on-primary/60 bg-transparent! px-6! text-lg! text-on-primary! shadow-none! hover:bg-on-primary/10! ${RING_ON_NAVY}`}
-            />
-          </div>
+          </Title>
+          <p>{content.title}</p>
         </div>
-        {content.photoUrl && (
-          <div className="relative mx-auto aspect-[4/5] w-56 overflow-hidden rounded-xl border-2 border-accent shadow-lg sm:w-64 md:w-72 lg:w-80">
+        <p className="type-display max-w-[14em] text-balance [grid-area:title] settle settle-2">{content.valueStatement}</p>
+        <div className="flex flex-wrap items-center gap-4 self-end pb-2 [grid-area:actions] settle settle-3">
+          <ButtonLink href="/about" size="lg">
+            {t("aboutCta")}
+          </ButtonLink>
+          <ConsultationButton size="lg" variant="secondary" />
+        </div>
+        <figure className="relative aspect-[4/5] w-full self-end bg-surface [grid-area:photo] max-lg:max-w-[420px]">
+          {photo ? (
             <Image
-              src={content.photoUrl}
+              src={photo}
               alt={t("photoAlt", { name: content.name })}
               fill
-              priority
-              sizes="(min-width: 1024px) 20rem, (min-width: 768px) 18rem, 16rem"
+              priority={!sample}
+              sizes="(min-width: 1280px) 26rem, (min-width: 1024px) 30vw, 420px"
               className="object-cover"
             />
-          </div>
-        )}
+          ) : (
+            // Not uploaded yet: the hatched panel, never a broken image (DESIGN.md "Imagery").
+            <PhotoMissing label={tWork("gallery.missing")} className="absolute inset-0" />
+          )}
+        </figure>
+        {hasStats && <StatLedger stats={stats} className="self-end [grid-area:stats]" />}
       </div>
     </section>
   );

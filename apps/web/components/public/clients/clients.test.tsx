@@ -33,8 +33,10 @@ describe("ClientsContent", () => {
 
     expect(screen.getByRole("img").getAttribute("alt")).toBe('partnerLogo:{"name":"Org A"}');
     expect(screen.getByText("Org B")).toBeTruthy();
-    expect(screen.getByText("Great work.")).toBeTruthy();
-    expect(screen.getByText("Org A")).toBeTruthy();
+    // One in full (with its organization), the others as excerpts.
+    const [full] = screen.getAllByRole("figure");
+    expect(full.textContent).toContain("Great work.");
+    expect(full.textContent).toContain("Org A");
     expect(screen.getByText("Officer")).toBeTruthy();
     expect(screen.queryByText("noClients")).toBeNull();
   });
