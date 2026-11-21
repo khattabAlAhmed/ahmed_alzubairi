@@ -1,9 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, type MouseEvent } from "react";
-import { Button } from "@/components/ui";
+import { InlineNotice } from "@/components/account/notice";
+import { Button, DatedDivider } from "@/components/ui";
 import { ChatMessage, Composer, type FileChipData } from "@/components/workspace";
+import { useInBrowser } from "@/components/workspace/use-in-browser";
+import { formatDateTime } from "@/lib/time/format";
 import { useRouter } from "@/i18n/navigation";
 import { consultationApi, type ConsultationApi } from "./api";
 import { useFiles } from "./use-files";
@@ -39,6 +42,10 @@ export function ConsultationThread({
   api?: ConsultationApi;
 }) {
   const t = useTranslations("AccountConsultations.detail");
+  const locale = useLocale();
+  const inBrowser = useInBrowser();
+  // A message's calendar day in the viewer's own zone, to group by day.
+  const dayOf = (sentAt: string) => new Date(sentAt).toLocaleDateString("en-CA");
   const router = useRouter();
   const api = useMemo(() => apiProp ?? consultationApi(), [apiProp]);
   const filesState = useFiles(api);
@@ -94,33 +101,43 @@ export function ConsultationThread({
       {/* Clicks on file links are caught here (Enter on a link fires click too); the links stay plain anchors. */}
       <div className="space-y-4" onClick={openFile}>
         {messages.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-text/20 p-4 text-sm text-text-secondary">
-            {t("noMessages")}
-          </p>
+          <p className="border border-dashed border-line-strong p-4 text-sm text-ink-2">{t("noMessages")}</p>
         ) : (
-          <ol className="space-y-4">
-            {messages.map((message) => (
-              <li key={message.id}>
-                <ChatMessage
-                  senderName={message.senderName}
-                  mine={message.mine}
-                  body={message.body}
-                  sentAt={message.sentAt}
-                  attachments={message.attachments}
-                />
-              </li>
-            ))}
+          // The ChatThread board: messages as correspondence, grouped by day
+          // under a dated rule. The order and the text-only rendering are unchanged;
+          // the days are the viewer's own, so they appear once in the browser.
+          <ol className="border-t border-line">
+            {messages.map((message, index) => {
+              const day = inBrowser ? dayOf(message.sentAt) : null;
+              const newDay = day !== null && (index === 0 || dayOf(messages[index - 1].sentAt) !== day);
+              return (
+                <li key={message.id}>
+                  {newDay && (
+                    <DatedDivider className="my-3">
+                      <time dateTime={message.sentAt}>{formatDateTime(message.sentAt, locale, { date: "long", time: false })}</time>
+                    </DatedDivider>
+                  )}
+                  <ChatMessage
+                    senderName={message.senderName}
+                    mine={message.mine}
+                    body={message.body}
+                    sentAt={message.sentAt}
+                    attachments={message.attachments}
+                  />
+                </li>
+              );
+            })}
           </ol>
         )}
         {downloadError && (
-          <p role="alert" className="text-sm font-semibold text-danger">
-            {downloadError}
-          </p>
+          <div className="mt-3">
+            <InlineNotice tone="danger" title={downloadError} />
+          </div>
         )}
       </div>
 
       {closed ? (
-        <p role="status" className="rounded-lg border border-dashed border-text/40 p-4 text-sm text-text-secondary">
+        <p role="status" className="border border-dashed border-line-strong p-4 text-sm text-ink-2">
           {t("closed")}
         </p>
       ) : (

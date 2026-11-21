@@ -76,7 +76,7 @@ function Preview({ src, alt }: { src: string; alt: string }) {
       width={320}
       height={200}
       sizes="(min-width: 640px) 320px, 100vw"
-      className="h-auto max-h-48 w-full max-w-xs rounded-md border border-text/10 object-contain"
+      className="h-auto max-h-48 w-full max-w-xs border border-line object-contain"
     />
   );
 }
@@ -163,7 +163,7 @@ export function ImagesInput({
       {images.length > 0 && (
         <ul className="mt-3 grid gap-4 md:grid-cols-2">
           {images.map((image, index) => (
-            <li key={image.key} className="space-y-3 rounded-md border border-text/10 p-3">
+            <li key={image.key} className="space-y-3 border border-line p-3">
               <p className="text-sm font-semibold">
                 {text.t("upload.imageNumber", { number: index + 1 })}
               </p>

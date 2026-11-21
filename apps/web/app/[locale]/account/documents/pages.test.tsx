@@ -71,7 +71,8 @@ describe("/account/documents", () => {
   it("keeps the empty state with no requests", async () => {
     const page = await MyDocumentsPage({ params });
     expect(cardsOf(page)).toEqual([]);
-    expect(elements(page).some((element) => (element.props as { children?: unknown }).children === "empty.title")).toBe(true);
+    // The EmptyState takes its title as a prop.
+    expect(elements(page).some((element) => (element.props as { title?: unknown }).title === "empty.title")).toBe(true);
   });
 
   it("puts each request in its group, and offers طلب مجدداً on ended ones", async () => {

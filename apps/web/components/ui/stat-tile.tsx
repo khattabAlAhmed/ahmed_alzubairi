@@ -21,12 +21,12 @@ export type StatChange = {
 
 export type StatTileState = "ready" | "loading" | "unavailable";
 
-// Gold is never text (§13), and there is no green token: a good change reads
-// in the main text color, a bad one in danger, a neutral one in secondary text.
+// A good change reads in ink, a bad one in danger, a neutral one in ink-2;
+// the arrow and the words carry the meaning, never the color alone.
 const CHANGE_TONES: Record<StatChangeTone, string> = {
-  better: "text-text",
+  better: "text-ink",
   worse: "text-danger",
-  neutral: "text-text-secondary",
+  neutral: "text-ink-2",
 };
 
 function ChangeArrow({ direction }: { direction: StatChange["direction"] }) {
@@ -40,8 +40,8 @@ function ChangeArrow({ direction }: { direction: StatChange["direction"] }) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
       aria-hidden="true"
       className="shrink-0"
     >
@@ -86,8 +86,11 @@ export function StatTile({
   loadingLabel,
   unavailableLabel,
   href,
+  need = false,
   className,
 }: StatTileLink & {
+  /** Something waits on the team: the number takes the accent (the StatTile board's "needs action first"). */
+  need?: boolean;
   label: string;
   /** The formatted value, e.g. "1,284". Required when `state` is `ready`. */
   value?: string;
@@ -101,12 +104,14 @@ export function StatTile({
   unavailableLabel?: string;
   className?: string;
 }) {
-  // Full height, so tiles in one grid row line up.
-  const classes = cx("flex h-full min-w-0 flex-col gap-2 rounded-lg border border-text/10 bg-surface p-5 text-text shadow-sm", className);
+  // The StatTile board: no card. Each tile opens with the heavy rule (a row
+  // of tiles reads as one ledger), its label, the number large, a hint, and
+  // a hairline under it. Full height, so tiles in one grid row line up.
+  const classes = cx("flex h-full min-w-0 flex-col gap-1 border-t-2 border-b border-rule border-b-line py-4 text-ink", className);
   const content = (
     <>
       {label ? (
-        <p className="text-sm font-semibold text-pretty text-text-secondary">{label}</p>
+        <p className="text-pretty text-ink-2 type-caption">{label}</p>
       ) : (
         // A skeleton tile with no label yet keeps the label's line.
         state === "loading" && <Skeleton className="h-4 w-40" />
@@ -125,9 +130,9 @@ export function StatTile({
       )}
 
       {state === "unavailable" && (
-        <p className="flex items-center gap-2 text-base text-text-secondary">
+        <p className="flex items-center gap-2 text-base text-ink-2">
           {/* A dash where the number would be, so the tile keeps its shape. */}
-          <span aria-hidden="true" className="text-3xl leading-none font-semibold">
+          <span aria-hidden="true" className="text-[36px] leading-[1.15] font-medium">
             —
           </span>
           <span>{unavailableLabel}</span>
@@ -137,19 +142,20 @@ export function StatTile({
       {state === "ready" && (
         <>
           <p className="flex flex-wrap items-baseline gap-x-1.5">
-            {/* Proportional figures: tabular ones look loose at this size. */}
-            <span className="text-3xl leading-tight font-semibold break-words md:text-4xl">{value}</span>
-            {unit && <span className="text-base text-text-secondary">{unit}</span>}
+            <span className={cx("text-[36px] leading-[1.15] font-medium tabular-nums break-words", need && "text-accent")}>
+              {value}
+            </span>
+            {unit && <span className="text-base text-ink-2">{unit}</span>}
           </p>
           {change && (
             <p className={cx("flex flex-wrap items-center gap-x-1.5 text-sm", CHANGE_TONES[change.tone])}>
               <ChangeArrow direction={change.direction} />
               {/* The value keeps its own direction, so "+12%" isn't reordered in Arabic. */}
-              <bdi className="font-semibold">{change.value}</bdi>
-              <span className="text-text-secondary">{change.label}</span>
+              <bdi className="font-medium">{change.value}</bdi>
+              <span className="text-ink-2">{change.label}</span>
             </p>
           )}
-          {hint && <p className="text-sm text-pretty text-text-secondary">{hint}</p>}
+          {hint && <p className="text-[13px] leading-[1.7] text-pretty text-ink-2">{hint}</p>}
         </>
       )}
     </>
@@ -159,7 +165,7 @@ export function StatTile({
     return (
       <Link
         href={href}
-        className={cx(classes, "transition-colors hover:border-text/30 hover:bg-text/[0.03] motion-reduce:transition-none", FOCUS_RING)}
+        className={cx(classes, "transition-state hover:bg-surface-hover", FOCUS_RING)}
       >
         {content}
       </Link>

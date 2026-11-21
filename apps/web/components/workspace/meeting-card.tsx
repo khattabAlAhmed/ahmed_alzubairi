@@ -2,11 +2,10 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import { buttonClasses, Card } from "@/components/ui";
-import { cx, FOCUS_RING } from "@/components/ui/cx";
-import { formatCount, formatDateTime, formatTimeRange } from "@/lib/time/format";
+import { buttonClasses } from "@/components/ui";
+import { cx } from "@/components/ui/cx";
+import { dateLocale, formatCount, formatDateTime, formatTimeRange } from "@/lib/time/format";
 import { zoneName } from "./format";
-import { VideoIcon } from "./icons";
 import { useInBrowser } from "./use-in-browser";
 
 export type MeetingCardProps = {
@@ -24,16 +23,13 @@ export type MeetingCardProps = {
   className?: string;
 };
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="min-w-0">
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className="mt-0.5 font-semibold wrap-anywhere">{children}</dd>
-    </div>
-  );
-}
-
-/** A video meeting (§6.17): platform, date, start to end time, duration, the zone named, and the link. */
+/**
+ * A video meeting (§6.17, the MeetingCard board): a day block in ink (the
+ * weekday, the date large, the month) beside the title, the start to end
+ * time with the zone named, the duration, the platform and its address, and
+ * the join button. Times show in the viewer's browser zone unless a zone is
+ * given, so they render on the client.
+ */
 export function MeetingCard({
   platform,
   url,
@@ -56,52 +52,63 @@ export function MeetingCard({
   const time = formatTimeRange(start, end, locale, timeZone);
   const zone = `${zoneName(start, locale, "longGeneric", timeZone)} (${zoneName(start, locale, "short", timeZone)})`;
   const duration = formatCount(durationMinutes, locale, { style: "unit", unit: "minute", unitDisplay: "long" });
+  const part = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(dateLocale(locale), { ...options, timeZone }).format(start);
 
   return (
-    <Card as="section" compact className={cx("space-y-4", className)}>
-      <div className="flex items-center gap-2">
-        {/* Gold as an icon (§13). */}
-        <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
-          <VideoIcon />
-        </span>
-        <Heading className="min-w-0 text-lg">{t("title")}</Heading>
+    <section
+      className={cx("grid grid-cols-[88px_minmax(0,1fr)] border-t-2 border-b border-rule border-b-line sm:grid-cols-[96px_minmax(0,1fr)]", className)}
+    >
+      {/* The day at a glance; the full date is read out below. */}
+      <div aria-hidden="true" className="flex flex-col items-center justify-center bg-ink px-1 py-3.5 text-bg">
+        {show && (
+          <>
+            <span className="text-[13px]">{part({ weekday: "long" })}</span>
+            <span className="text-[34px] leading-[1.1] font-medium tabular-nums">{part({ day: "numeric" })}</span>
+            <span className="text-[13px]">{part({ month: "long" })}</span>
+          </>
+        )}
       </div>
-      <dl className="grid gap-3 sm:grid-cols-2">
-        <Row label={t("platform")}>
-          <bdi>{platform}</bdi>
-        </Row>
-        <Row label={t("date")}>{show && date}</Row>
-        <Row label={t("time")}>{show && time}</Row>
-        <Row label={t("duration")}>{duration}</Row>
-        <div className="sm:col-span-2">
-          <Row label={t("timeZone")}>{show && zone}</Row>
+      <div className="flex min-w-0 flex-col gap-2 px-4 py-3.5 sm:px-5">
+        <Heading className="type-h3">{t("title")}</Heading>
+        <p className={show ? "sr-only" : "hidden"}>{date}</p>
+        <p className="flex flex-wrap gap-x-2 type-small">
+          <span className="tabular-nums">{show && time}</span>
+          <span aria-hidden="true">·</span>
+          <span className="text-ink-2">{show && zone}</span>
+          <span aria-hidden="true">·</span>
+          <span>{duration}</span>
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="min-w-0 text-[13px] leading-[1.7] text-ink-2">
+            <bdi>{platform}</bdi>
+            {" · "}
+            {/* The address itself, so it can be checked or copied. */}
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              tabIndex={-1}
+              dir="ltr"
+              className="font-mono text-xs wrap-anywhere underline-offset-2 hover:underline"
+            >
+              {url}
+            </a>
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("joinLabel", { platform })}
+              className={buttonClasses({ size: "sm" })}
+            >
+              {t("join")}
+            </a>
+            {actions}
+          </div>
         </div>
-      </dl>
-      <div className="flex flex-wrap items-center gap-3">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={t("joinLabel", { platform })}
-          className={buttonClasses({ size: "sm" })}
-        >
-          {t("join")}
-        </a>
-        {actions}
       </div>
-      {/* The address itself, so it can be checked or copied. */}
-      <p className="text-xs text-text-secondary">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          tabIndex={-1}
-          dir="ltr"
-          className={cx("rounded-sm wrap-anywhere underline-offset-2 hover:underline", FOCUS_RING)}
-        >
-          {url}
-        </a>
-      </p>
-    </Card>
+    </section>
   );
 }

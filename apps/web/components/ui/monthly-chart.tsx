@@ -79,21 +79,21 @@ export function MonthlyChart({
   const thinLabels = data.length > 6;
 
   return (
-    <figure className={cx("@container min-w-0 rounded-lg border border-text/10 bg-surface p-5 text-text shadow-sm", className)}>
+    <figure className={cx("@container min-w-0 border-t-2 border-rule pt-4 text-ink", className)}>
       <figcaption className="mb-4">
-        <span className="block text-base font-semibold text-pretty">{title}</span>
-        {description && <span className="mt-1 block text-sm text-pretty text-text-secondary">{description}</span>}
+        <span className="block font-medium text-pretty type-small">{title}</span>
+        {description && <span className="mt-1 block text-[13px] leading-[1.7] text-pretty text-ink-2">{description}</span>}
       </figcaption>
 
       {data.length === 0 ? (
-        <p className="flex h-44 items-center justify-center rounded-md border border-dashed border-text/20 px-4 text-center text-sm text-pretty text-text-secondary">
+        <p className="flex h-44 items-center justify-center border border-dashed border-line-strong px-4 text-center text-sm text-pretty text-ink-2">
           {emptyLabel}
         </p>
       ) : (
         <>
           <div aria-hidden="true" className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2">
             {/* Ticks, on the start side. */}
-            <div className="relative h-44 min-w-6 text-xs text-text-secondary tabular-nums">
+            <div className="relative h-44 min-w-6 text-xs text-ink-2 tabular-nums">
               {ticks.map((tick) => (
                 <span key={tick} className="absolute end-0 block translate-y-1/2 leading-none whitespace-nowrap" style={{ bottom: percent(tick) }}>
                   {tickFormat.format(tick)}
@@ -107,22 +107,23 @@ export function MonthlyChart({
               {ticks.map((tick) => (
                 <span
                   key={tick}
-                  className={cx("absolute inset-x-0 border-t", tick === 0 ? "border-text/30" : "border-text/10")}
+                  className={cx("absolute inset-x-0 border-t", tick === 0 ? "border-ink-2" : "border-line")}
                   style={{ bottom: percent(tick) }}
                 />
               ))}
-              <ol className="relative flex h-full items-end gap-1">
+              <ol className="relative flex h-full items-end gap-1 sm:gap-3">
                 {data.map((point, index) => {
                   const latest = index === data.length - 1;
                   return (
                     <li key={index} className="group relative flex h-full min-w-0 flex-1 items-end justify-center">
                       <span
-                        className="block w-full max-w-6 rounded-t-[4px] bg-accent group-hover:opacity-80 motion-safe:transition-opacity"
+                        // The StatTile board: flat bars in line-strong, the current month alone in the accent.
+                        className={cx("block w-full transition-state group-hover:bg-ink", latest ? "bg-accent" : "bg-line-strong")}
                         style={{ height: percent(point.value) }}
                       />
                       <span
                         className={cx(
-                          "absolute inset-x-0 flex justify-center text-xs font-semibold whitespace-nowrap",
+                          "absolute inset-x-0 flex justify-center text-xs font-medium whitespace-nowrap tabular-nums",
                           latest ? "" : "invisible group-hover:visible",
                         )}
                         style={{ bottom: `calc(${percent(point.value)} + 4px)` }}
@@ -136,7 +137,7 @@ export function MonthlyChart({
             </div>
 
             <span />
-            <ol className="mt-2 flex gap-1 text-xs text-text-secondary">
+            <ol className="mt-2 flex gap-1 text-xs text-ink-2 sm:gap-3">
               {data.map((point, index) => (
                 <li
                   key={index}
@@ -157,7 +158,7 @@ export function MonthlyChart({
               aria-controls={tableId}
               aria-pressed={tableShown}
               onClick={() => setTableShown((shown) => !shown)}
-              className={cx("rounded-sm text-sm font-semibold underline underline-offset-4", FOCUS_RING)}
+              className={cx("text-sm text-accent underline decoration-1 underline-offset-5 transition-state hover:decoration-2", FOCUS_RING)}
             >
               {tableToggleLabel}
             </button>
@@ -166,17 +167,17 @@ export function MonthlyChart({
           <table id={tableId} className={tableShown ? "mt-3 w-full text-sm" : "sr-only"}>
             <thead>
               <tr>
-                <th scope="col" className="border-b border-text/20 py-1.5 text-start font-semibold text-text-secondary">
+                <th scope="col" className="border-t-2 border-b border-rule border-b-line py-2 text-start font-medium text-ink-2">
                   {monthHeader}
                 </th>
-                <th scope="col" className="border-b border-text/20 py-1.5 text-end font-semibold text-text-secondary">
+                <th scope="col" className="border-t-2 border-b border-rule border-b-line py-2 text-end font-medium text-ink-2">
                   {valueHeader}
                 </th>
               </tr>
             </thead>
             <tbody>
               {data.map((point, index) => (
-                <tr key={index} className="border-b border-text/10 last:border-b-0">
+                <tr key={index} className="border-b border-line">
                   <th scope="row" className="py-1.5 text-start font-normal">
                     {point.label}
                   </th>

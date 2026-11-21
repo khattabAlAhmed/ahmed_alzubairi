@@ -4,6 +4,7 @@ import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS_PER_MESSAGE, MAX_LONG_TEXT_LENGTH
 import { useLocale, useTranslations } from "next-intl";
 import { useId, type FormEvent } from "react";
 import { Button, buttonClasses, TextArea } from "@/components/ui";
+import { InlineNotice } from "@/components/account/notice";
 import { cx } from "@/components/ui/cx";
 import { FileChip, type FileChipData } from "./file-chip";
 import { allowedTypeNames, attachmentAccept, formatBytes, joinList } from "./format";
@@ -64,7 +65,8 @@ export function Composer({
       noValidate
       onSubmit={submit}
       aria-describedby={error ? errorId : undefined}
-      className={cx("space-y-3 rounded-lg border border-text/10 bg-surface p-4 shadow-sm", className)}
+      // The ChatThread board: no box around the reply, just the field and a bar under it.
+      className={cx("flex flex-col gap-3 pt-4", className)}
     >
       <TextArea
         label={label ?? t("label")}
@@ -86,7 +88,7 @@ export function Composer({
         </ul>
       )}
 
-      <p id={limitsId} className="text-xs text-text-secondary">
+      <p id={limitsId} className="text-[13px] leading-[1.7] text-ink-2">
         {t("limits", {
           count: MAX_ATTACHMENTS_PER_MESSAGE,
           size: formatBytes(MAX_ATTACHMENT_BYTES, locale),
@@ -95,18 +97,19 @@ export function Composer({
       </p>
 
       {error && (
-        <p id={errorId} role="alert" className="text-sm font-semibold text-danger">
-          {error}
-        </p>
+        // What was typed and attached stays; the notice says so in the parent's words.
+        <div id={errorId}>
+          <InlineNotice tone="danger" title={error} />
+        </div>
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* A real file input behind a styled label: keyboard and screen readers get the native control. */}
         <label
           className={cx(
-            buttonClasses({ variant: "secondary", size: "sm" }),
-            "cursor-pointer has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring",
-            (full || sending) && "pointer-events-none opacity-50",
+            buttonClasses({ variant: "quiet", size: "sm" }),
+            "cursor-pointer no-underline has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-3 has-[input:focus-visible]:outline-focus has-[input:focus-visible]:outline-solid",
+            (full || sending) && "pointer-events-none text-ink-2",
           )}
         >
           <PaperclipIcon />
@@ -128,6 +131,7 @@ export function Composer({
         </label>
         <Button
           type="submit"
+          size="sm"
           disabled={!hasContent || uploading}
           loading={sending}
           loadingLabel={t("sending")}

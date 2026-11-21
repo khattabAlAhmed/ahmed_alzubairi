@@ -1,0 +1,146 @@
+{
+  "intro": "The account and dashboard with the new tokens and components, not redesigned: practical, calm and readable.",
+  "shell": {
+    "title": "Account and dashboard frame",
+    "panel": "Dashboard",
+    "who": "Sara · associate consultant",
+    "work": "Work",
+    "content": "Content",
+    "home": "Home",
+    "consultations": "Consultations",
+    "documents": "Document requests",
+    "messages": "Messages",
+    "projects": "Projects",
+    "articles": "Articles",
+    "trust": "Testimonials and organizations",
+    "permissions": "Only the sections your permissions allow are shown.",
+    "note": "On phones the sidebar comes above the content, which takes the full width. The current page is ink on the page ground, with an accent line at its start."
+  },
+  "chat": {
+    "title": "Conversation",
+    "subject": "Reviewing bylaws before adoption",
+    "meta": "Institutional governance · started 12 March",
+    "client": "Layla M.",
+    "team": "Ahmed",
+    "first": "I attached the current draft and the org chart. What worries us most is the delegation chapter: who signs what.",
+    "reply": "I've read them. The delegation chapter needs one session with you and the finance director before any change. I've suggested a time below.",
+    "fileDraft": "bylaws.pdf",
+    "fileChart": "org-chart.xlsx",
+    "composerError": "Your message wasn't sent. What you wrote is kept; check the connection and send it again.",
+    "states": {
+      "empty": "Empty",
+      "typing": "Typing",
+      "attaching": "Attaching",
+      "sending": "Sending",
+      "failed": "Failed"
+    },
+    "typed": "Thank you, Sunday works for me.",
+    "note": "A conversation is correspondence, not bubbles: each message is a row under a hairline, sender and time in a fixed column, your own messages on the raised ground. Messages always render as text."
+  },
+  "meeting": {
+    "title": "Meeting card",
+    "changed": "The meeting link changed. We've emailed you the new details.",
+    "note": "Times are in the reader's zone, and the zone is always named."
+  },
+  "documents": {
+    "title": "Documents and viewer",
+    "list": "My documents",
+    "letter": "Thank-you letter · protection programme",
+    "certificate": "Experience certificate · governance advisor",
+    "expired": "Certificate in humanitarian protection",
+    "until": "until 30 April",
+    "noExpiry": "no expiry",
+    "endedOn": "ended on 1 March",
+    "open": "Open",
+    "requestAgain": "Request it again",
+    "pageOf": "Page 1 of 2",
+    "close": "Close the viewer",
+    "watermarkSample": "Layla M. · 16/03/2026",
+    "viewerNote": "Every opening is logged. The watermark with your name and the date is on every page. The link lasts 60 seconds.",
+    "note": "Only the viewer's frame changed: the watermark, the 60-second signed link and the opening log are as they were."
+  },
+  "table": {
+    "title": "Tables",
+    "caption": "Consultations",
+    "open": "Open",
+    "mine": "Assigned to me",
+    "selectedCount": "{count} selected",
+    "assign": "Assign",
+    "changeStatus": "Change status",
+    "colTitle": "Title",
+    "colClient": "Client",
+    "colStatus": "Status",
+    "colActivity": "Last activity",
+    "selectAll": "Select all",
+    "selectRow": "Select {name}",
+    "actions": "Actions",
+    "openRow": "Open",
+    "rows": [
+      {
+        "title": "Reviewing bylaws before adoption",
+        "client": "Layla M. · organization",
+        "activity": "Today 2:16 pm"
+      },
+      {
+        "title": "Governance charter for a family business",
+        "client": "Khalid A. · company",
+        "activity": "Yesterday"
+      },
+      {
+        "title": "Training a field team",
+        "client": "Mona S. · organization",
+        "activity": "10 March"
+      },
+      {
+        "title": "Document request · tender qualification",
+        "client": "Omar H. · individual",
+        "activity": "2 March"
+      }
+    ],
+    "note": "Sort, filter, select and an action per row. Hairlines between rows, no zebra stripes. On phones each row is a block."
+  },
+  "stats": {
+    "title": "Numbers and chart",
+    "newRequests": "New requests",
+    "newRequestsHint": "Waiting for a first reply",
+    "docRequests": "Document requests",
+    "docRequestsHint": "Waiting for your decision",
+    "active": "Active consultations",
+    "activeHint": "+2 on last month",
+    "subscribers": "New subscribers",
+    "subscribersHint": "This month",
+    "chartTitle": "New consultations per month",
+    "chartDescription": "The last 12 months",
+    "showTable": "Show the numbers",
+    "hideTable": "Hide the numbers",
+    "month": "Month",
+    "value": "Count",
+    "note": "What needs action comes first, its number in the accent. The chart is flat bars, the current month alone in the accent, and the axis starts at zero."
+  },
+  "editor": {
+    "title": "Content editor",
+    "heading": "A referral path run by residents",
+    "saved": "Saved automatically a minute ago",
+    "draft": "Draft",
+    "language": "Language",
+    "missing": "incomplete",
+    "arabic": "العربية",
+    "english": "English",
+    "fieldTitle": "Title",
+    "situation": "Situation",
+    "did": "What I did",
+    "changed": "What changed",
+    "situationValue": "أربعة مخيمات، ولا طريقة واحدة يثق بها الناس للإبلاغ عن الخطر.",
+    "didValue": "جلستُ مع لجان المخيمات أولاً…",
+    "changedValue": "بعد عام، صار أغلب البلاغات يصل عبر اللجان المحلية.",
+    "englishError": "Write the English title, or leave all of the English empty.",
+    "publishing": "Publishing",
+    "status": "Status",
+    "complete": "complete",
+    "incomplete": "incomplete",
+    "publishNote": "Until the English is complete, the project doesn't show on the English site.",
+    "preview": "Preview",
+    "publish": "Publish",
+    "note": "A tab per language, and an incomplete tab carries a mark. The publish panel is the only raised ground on the page."
+  }
+}
