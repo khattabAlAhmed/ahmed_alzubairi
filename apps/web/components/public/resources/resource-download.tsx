@@ -2,15 +2,20 @@
 
 import type { ResourceAccess } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
+import { CheckIcon, DownloadIcon } from "@/components/icons";
 import { Button, Checkbox, TextField } from "@/components/ui";
+import { cx } from "@/components/ui/cx";
+import { RESOURCE_ACTION, RESOURCE_BELOW } from "../listing/resource-card";
 import { requestDownload, startDownload } from "./api";
 import { track } from "@/lib/analytics/track";
 
 /**
- * A resource card's action (§6.9). A direct resource downloads in one click.
- * An email-gated one opens the dialog first, and downloads only once the
- * server has accepted the email.
+ * A resource row's action (§6.9, ResourceItem board). A direct resource
+ * downloads in one click. An email-gated one opens the email form under the
+ * row first, and downloads only once the server has accepted the email. The
+ * root is `display: contents`, so its parts take their places in the row's
+ * grid (`RESOURCE_ACTION`, `RESOURCE_BELOW`).
  */
 export function ResourceDownload({ id, title, access }: { id: string; title: string; access: ResourceAccess }) {
   const t = useTranslations("Resources");
@@ -18,6 +23,15 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
   const [open, setOpen] = useState(false);
+  // Each press of "Download by email" starts a fresh form, also after a
+  // finished download, but never while the form's request is still out.
+  const [gate, setGate] = useState(0);
+  const [gateBusy, setGateBusy] = useState(false);
+  const openGate = () => {
+    if (gateBusy) return;
+    setGate((n) => n + 1);
+    setOpen(true);
+  };
 
   async function download() {
     setBusy(true);
@@ -31,30 +45,48 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
       startDownload(result.url);
       // A request with no body is only ever invalid for want of the email: the
       // resource became email-gated after the page was cached. Ask for it.
-    } else if (result.code === "validation_failed") setOpen(true);
+    } else if (result.code === "validation_failed") openGate();
     else setError(result.message ?? t("failed"));
   }
 
   return (
-    <div className="grid w-full justify-items-start gap-2">
+    <div className="contents">
       <Button
-        variant={access === "email" ? "secondary" : "primary"}
+        variant="secondary"
+        size="sm"
+        className={RESOURCE_ACTION}
         loading={busy}
         loadingLabel={t("preparing")}
         aria-label={t(access === "email" ? "downloadByEmailLabel" : "downloadLabel", { title })}
-        onClick={access === "email" ? () => setOpen(true) : download}
+        aria-expanded={access === "email" ? open : undefined}
+        onClick={access === "email" ? openGate : download}
       >
+        <DownloadIcon aria-hidden="true" className="size-4" />
         {t(access === "email" ? "downloadByEmail" : "download")}
       </Button>
-      <p role="status" className="text-sm text-text-secondary empty:hidden">
-        {started ? t("started") : null}
+      <p role="status" className={cx(RESOURCE_BELOW, "flex items-center gap-1.5 text-sm text-success empty:hidden")}>
+        {started ? (
+          <>
+            <CheckIcon aria-hidden="true" className="size-3.5" />
+            {t("started")}
+          </>
+        ) : null}
       </p>
       {error && (
-        <p role="alert" className="text-sm font-semibold text-danger">
+        <p role="alert" className={cx(RESOURCE_BELOW, "text-sm font-medium text-danger")}>
           {error}
         </p>
       )}
-      {open && <EmailGateDialog id={id} title={title} onClose={() => setOpen(false)} />}
+      {open && (
+        <EmailGate
+          key={gate}
+          id={id}
+          title={title}
+          onClose={() => setOpen(false)}
+          onBusyChange={setGateBusy}
+          className={RESOURCE_BELOW}
+        />
+      )}
     </div>
   );
 }
@@ -62,33 +94,39 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
 type GateState = { step: "form"; error: string | null } | { step: "sending" } | { step: "done" };
 
 /**
- * Asks for the email, then downloads. A native modal `<dialog>`, so focus
- * stays inside and Esc closes it. The email goes only to the download route,
- * and joins the newsletter only when the visitor ticks the box.
+ * The email form under the row, on the raised ground: the address (read LTR),
+ * the newsletter box, never ticked for the visitor (§6.9, §9), and send. The
+ * email goes only to the download route, and joins the newsletter only when
+ * the visitor ticks the box.
  */
-export function EmailGateDialog({ id, title, onClose }: { id: string; title: string; onClose: () => void }) {
+export function EmailGate({
+  id,
+  title,
+  onClose,
+  autoFocus = true,
+  onBusyChange,
+  className,
+}: {
+  id: string;
+  title: string;
+  /** Closes the form. Without it, the form has no cancel (the design-system page). */
+  onClose?: () => void;
+  /** The email field takes focus when the form opens. */
+  autoFocus?: boolean;
+  /** Told when the form's request starts and ends, so the opener doesn't restart it meanwhile. */
+  onBusyChange?: (busy: boolean) => void;
+  className?: string;
+}) {
   const t = useTranslations("Resources");
-  const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [email, setEmail] = useState("");
-  // The newsletter box is never ticked for the visitor (§6.9, §9).
   const [consent, setConsent] = useState(false);
   const [missing, setMissing] = useState(false);
   const [state, setState] = useState<GateState>({ step: "form", error: null });
   const busy = state.step === "sending";
-
   useEffect(() => {
-    const element = dialog.current;
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (element && !element.open) {
-      if (typeof element.showModal === "function") element.showModal();
-      else element.setAttribute("open", "");
-    }
-    return () => {
-      if (element?.open && typeof element.close === "function") element.close();
-      if (opener?.isConnected) opener.focus();
-    };
-  }, []);
+    onBusyChange?.(busy);
+  }, [busy, onBusyChange]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,78 +144,80 @@ export function EmailGateDialog({ id, title, onClose }: { id: string; title: str
     } else setState({ step: "form", error: result.message ?? t("failed") });
   }
 
+  if (state.step === "done") {
+    return (
+      <div className={cx("flex flex-col gap-1 bg-surface p-4", className)}>
+        <p role="status" className="flex items-center gap-1.5 text-sm font-medium text-success">
+          <CheckIcon aria-hidden="true" className="size-3.5" />
+          {t("started")}
+        </p>
+        <p className="text-pretty text-ink-2 type-small">{t("startedText")}</p>
+        {onClose && (
+          <Button variant="quiet" size="sm" onClick={onClose} className="self-start">
+            {t("close")}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <dialog
-      ref={dialog}
+    <form
+      noValidate
+      onSubmit={submit}
       aria-labelledby={titleId}
-      onCancel={(event) => {
-        event.preventDefault();
-        if (!busy) onClose();
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && !busy) onClose?.();
       }}
-      className="m-auto w-[min(30rem,calc(100%-2rem))] rounded-lg border border-text/15 bg-surface p-0 text-text shadow-lg backdrop:bg-primary/70 backdrop:backdrop-blur-[2px]"
+      className={cx("flex flex-col gap-3 bg-surface p-4", className)}
     >
-      {state.step === "done" ? (
-        <div className="space-y-4 p-6">
-          <h2 id={titleId} role="status" className="text-xl text-balance">
-            {t("started")}
-          </h2>
-          <p className="max-w-prose text-pretty text-text-secondary">{t("startedText")}</p>
-          <div className="flex justify-end">
-            <Button variant="secondary" onClick={onClose}>
-              {t("close")}
-            </Button>
-          </div>
+      <h3 id={titleId} className="font-medium type-small">
+        {t("gateTitle")}
+        {/* The title is text, never HTML (§9). */}
+        <span className="sr-only">: {title}</span>
+      </h3>
+      <p className="max-w-measure text-pretty text-ink-2 type-small">{t("gateIntro")}</p>
+      <fieldset disabled={busy} className="flex min-w-0 flex-col gap-3">
+        <div className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-4">
+          <TextField
+            type="email"
+            label={t("email")}
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setMissing(false);
+              // A server error was about the old address; drop it with the edit.
+              setState((current) => (current.step === "form" && current.error ? { step: "form", error: null } : current));
+            }}
+            error={missing ? t("emailRequired") : undefined}
+            autoComplete="email"
+            inputMode="email"
+            dir="ltr"
+            required
+            autoFocus={autoFocus}
+          />
+          <Button type="submit" loading={busy} loadingLabel={t("preparing")} className="sm:mb-px">
+            {t("gateSubmit")}
+          </Button>
         </div>
-      ) : (
-        <form noValidate onSubmit={submit} className="space-y-4 p-6">
-          <h2 id={titleId} className="text-xl text-balance">
-            {t("gateTitle")}
-          </h2>
-          {/* The title is text, never HTML (§9). */}
-          <p className="font-semibold wrap-anywhere">{title}</p>
-          <p className="max-w-prose text-pretty text-text-secondary">{t("gateIntro")}</p>
-          <fieldset disabled={busy} className="min-w-0">
-            <TextField
-              type="email"
-              label={t("email")}
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                setMissing(false);
-                // A server error was about the old address; drop it with the edit.
-                setState((current) => (current.step === "form" && current.error ? { step: "form", error: null } : current));
-              }}
-              error={missing ? t("emailRequired") : undefined}
-              autoComplete="email"
-              inputMode="email"
-              dir="ltr"
-              required
-              autoFocus
-            />
-            <Checkbox
-              className="mt-4"
-              name="newsletter"
-              label={t("newsletterConsent")}
-              hint={t("newsletterConsentHint")}
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-            />
-          </fieldset>
-          {state.step === "form" && state.error && (
-            <p role="alert" className="text-sm font-semibold text-danger">
-              {state.error}
-            </p>
-          )}
-          <div className="flex flex-wrap-reverse justify-end gap-2">
-            <Button variant="secondary" disabled={busy} onClick={onClose}>
-              {t("cancel")}
-            </Button>
-            <Button type="submit" loading={busy} loadingLabel={t("preparing")}>
-              {t("gateSubmit")}
-            </Button>
-          </div>
-        </form>
+        <Checkbox
+          name="newsletter"
+          label={t("newsletterConsent")}
+          hint={t("newsletterConsentHint")}
+          checked={consent}
+          onChange={(event) => setConsent(event.target.checked)}
+        />
+      </fieldset>
+      {state.step === "form" && state.error && (
+        <p role="alert" className="text-sm font-medium text-danger">
+          {state.error}
+        </p>
       )}
-    </dialog>
+      {onClose && (
+        <Button variant="quiet" size="sm" disabled={busy} onClick={onClose} className="self-start">
+          {t("cancel")}
+        </Button>
+      )}
+    </form>
   );
 }

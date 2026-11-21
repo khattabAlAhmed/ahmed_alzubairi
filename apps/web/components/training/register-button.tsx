@@ -4,6 +4,7 @@ import { courseRegisterResponseSchema, errorResponseSchema } from "@repo/shared"
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { CheckIcon } from "@/components/icons";
 import { Button } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { slugOrNothing } from "@/lib/analytics/events";
@@ -53,19 +54,20 @@ export function RegisterButton({ courseId }: { courseId: string }) {
 
   if (done) {
     return (
-      <p role="status" className="font-semibold text-text">
+      <p role="status" className="flex items-center gap-1.5 text-sm font-medium text-success">
+        <CheckIcon aria-hidden="true" className="size-3.5" />
         {t("justRegistered")}
       </p>
     );
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <Button onClick={register} loading={sending} loadingLabel={t("registering")} className="w-full">
         {t("button")}
       </Button>
       {error && (
-        <p role="alert" className="mt-3 text-sm font-semibold text-danger">
+        <p role="alert" className="text-sm font-medium text-danger">
           {error}
         </p>
       )}

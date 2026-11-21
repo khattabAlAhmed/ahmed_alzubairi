@@ -44,16 +44,30 @@ export function CopyLinkButton({
   return (
     <>
       <button type="button" onClick={copy} className={className}>
-        {state === "copied" ? <CheckIcon className="size-5" /> : <LinkIcon className="size-5" />}
-        <span className="sr-only sm:not-sr-only">{state === "copied" ? labels.copied : labels.copy}</span>
+        {labels.copy}
+        <LinkIcon aria-hidden="true" className="size-4 text-ink-2" />
       </button>
-      <span role="status" className={cx("basis-full text-sm text-text-secondary", state !== "failed" && "sr-only")}>
-        {state === "copied" && labels.copied}
+      {/* The result as its own line: a check and words, or the link to copy by hand. */}
+      <span
+        role="status"
+        className={cx(
+          "flex items-center gap-1.5 text-sm",
+          state === "idle" ? "sr-only" : "min-h-11 border-b border-line",
+          state === "copied" && "text-success",
+          state === "failed" && "flex-wrap py-2 text-ink-2",
+        )}
+      >
+        {state === "copied" && (
+          <>
+            <CheckIcon aria-hidden="true" className="size-3.5" />
+            {labels.copied}
+          </>
+        )}
         {/* The link itself, so it can be copied by hand: the address bar may hold a different URL. */}
         {state === "failed" && (
           <>
             {labels.failed}{" "}
-            <span dir="ltr" className="select-all break-all font-semibold text-text">
+            <span dir="ltr" className="select-all font-mono text-xs break-all text-ink">
               {url}
             </span>
           </>

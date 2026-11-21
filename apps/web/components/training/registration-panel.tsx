@@ -1,16 +1,18 @@
 import type { Locale } from "@repo/shared";
+import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { buttonClasses, ButtonLink } from "@/components/ui";
+import { CheckIcon } from "@/components/icons";
+import { Button, buttonClasses, ButtonLink } from "@/components/ui";
+import { MoreLink } from "@/components/public/parts";
+import { cx } from "@/components/ui/cx";
 import { onboardingPath, signInPath } from "@/lib/auth/return-path";
 import { courseState, type Course } from "@/lib/content/courses";
 import { readViewer, type Viewer } from "./data";
 import { coursePath, CUSTOM_TRAINING_PATH, MY_COURSES_PATH } from "./paths";
 import { RegisterButton } from "./register-button";
 
-const NOTE = "text-text-secondary";
-/** Looks like a button and can't be used: "اكتملت المقاعد" (§6.7). */
-const DISABLED =
-  "inline-flex h-11 w-full cursor-not-allowed items-center justify-center rounded-md border border-dashed border-text/40 px-4 font-semibold text-text-secondary";
+const NOTE = "text-pretty text-ink-2 type-small";
+const HINT = "text-pretty text-[13px] text-ink-2";
 
 function ExternalLink({ href, label, hint }: { href: string; label: string; hint: string }) {
   return (
@@ -53,8 +55,9 @@ export async function RegistrationPanel({
 
   if (viewer.kind === "client" && viewer.registered) {
     return (
-      <div className="space-y-3">
-        <p role="status" className="font-semibold text-text">
+      <div className="flex flex-col gap-3">
+        <p role="status" className="flex items-center gap-1.5 text-sm font-medium text-success">
+          <CheckIcon aria-hidden="true" className="size-3.5" />
           {t("register.registered")}
         </p>
         {viewer.onlineUrl && (
@@ -64,9 +67,9 @@ export async function RegistrationPanel({
             hint={t("course.opensInNewTab")}
           />
         )}
-        <ButtonLink href={MY_COURSES_PATH} variant="quiet" className="w-full">
-          {t("register.myCourses")}
-        </ButtonLink>
+        <div>
+          <MoreLink href={MY_COURSES_PATH} label={t("register.myCourses")} />
+        </div>
       </div>
     );
   }
@@ -74,7 +77,7 @@ export async function RegistrationPanel({
   if (state === "soon") return <p className={NOTE}>{t("register.soon")}</p>;
   if (course.type === "custom") {
     return (
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <p className={NOTE}>{t("register.custom")}</p>
         <ButtonLink href={CUSTOM_TRAINING_PATH} variant="secondary" className="w-full">
           {t("custom.linkFromCourse")}
@@ -84,7 +87,7 @@ export async function RegistrationPanel({
   }
   if (state === "ended") {
     return (
-      <p className="font-semibold text-text">
+      <p className="font-medium type-small">
         {t("register.ended")}
       </p>
     );
@@ -92,9 +95,9 @@ export async function RegistrationPanel({
   if (state === "closed") return <p className={NOTE}>{t("register.closed")}</p>;
   if (state === "full") {
     return (
-      <span aria-disabled="true" className={DISABLED}>
+      <Button disabled className="w-full">
         {t("register.full")}
-      </span>
+      </Button>
     );
   }
 
@@ -102,12 +105,12 @@ export async function RegistrationPanel({
   const here = `/${locale}${coursePath(course.slug)}`;
   if (viewer.kind === "signed_out") {
     return (
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {/* A plain link: the path already carries the language. */}
         <a href={signInPath(locale, here)} className={buttonClasses({ className: "w-full" })}>
           {t("register.signIn")}
         </a>
-        <p className={`text-sm ${NOTE}`}>{t("register.signInHint")}</p>
+        <p className={HINT}>{t("register.signInHint")}</p>
       </div>
     );
   }
@@ -121,4 +124,34 @@ export async function RegistrationPanel({
   if (viewer.kind === "team") return <p className={NOTE}>{t("register.teamOnly")}</p>;
 
   return <RegisterButton courseId={course.id} />;
+}
+
+/**
+ * The panel's frame (RegistrationPanel board): the raised ground under a 2px
+ * rule, the course's facts as a ledger, then the panel itself.
+ */
+export function RegistrationFrame({
+  facts,
+  children,
+  className,
+}: {
+  facts: { label: string; value: ReactNode }[];
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cx("flex flex-col gap-3 border-t-2 border-rule bg-surface p-4.5", className)}>
+      {facts.length > 0 && (
+        <dl className="border-t border-line">
+          {facts.map((fact) => (
+            <div key={fact.label} className="flex items-baseline justify-between gap-3 border-b border-line py-3">
+              <dt className="text-sm text-ink-2">{fact.label}</dt>
+              <dd className="text-base font-medium tabular-nums">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {children}
+    </div>
+  );
 }
