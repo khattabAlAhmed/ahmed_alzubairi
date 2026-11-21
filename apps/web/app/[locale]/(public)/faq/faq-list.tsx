@@ -1,13 +1,42 @@
-import { FAQ_CATEGORIES } from "@repo/shared";
-import { useTranslations } from "next-intl";
-import { CONTAINER, EmptyNote, PageSection } from "@/components/public/projects";
+import { FAQ_CATEGORIES, type Locale } from "@repo/shared";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/components/public/home/format";
+import { CONTAINER, EmptyNote } from "@/components/public/projects";
 import { cx } from "@/components/ui/cx";
-import { ChevronDownIcon } from "@/components/ui/icons";
 import type { Faq } from "@/lib/content";
 
-/** `/faq` below its hero: the four §6.13 sections, each with its questions. */
-export function FaqList({ faqs }: { faqs: Faq[] }) {
+/**
+ * One question (FAQ board): the question as the summary with a plus that turns
+ * into a minus, the answer under it at reading measure. Every question on the
+ * page shares one `name`, so opening one closes the open one.
+ */
+export function FaqItem({ question, answer, open = false }: { question: string; answer: string; open?: boolean }) {
+  return (
+    <details name="faq" open={open} className="group border-b border-line">
+      <summary
+        className={cx(
+          "grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_24px] items-center gap-4 py-4 text-[19px] leading-[1.7] font-medium",
+          "focus-ring focus-visible:-outline-offset-2 [&::-webkit-details-marker]:hidden",
+        )}
+      >
+        <span className="text-pretty">{question}</span>
+        <span aria-hidden="true" className="relative size-4 justify-self-center">
+          <span className="absolute inset-x-0 top-[7px] border-t-[1.5px] border-current" />
+          <span className="absolute inset-x-0 top-[7px] rotate-90 border-t-[1.5px] border-current transition-transform duration-200 group-open:rotate-0 motion-reduce:transition-none" />
+        </span>
+      </summary>
+      <p className="max-w-measure whitespace-pre-line text-pretty pb-5 type-body">{answer}</p>
+    </details>
+  );
+}
+
+/**
+ * `/faq` below its hero (§6.13, FAQ board): the section index with counts
+ * beside the questions, grouped by the four sections, one open at a time.
+ */
+export function FaqList({ faqs, bare = false }: { faqs: Faq[]; /** Without the page container, for the design-system page. */ bare?: boolean }) {
   const t = useTranslations("Catalog");
+  const locale = useLocale();
   const groups = FAQ_CATEGORIES.flatMap((category) => {
     const items = faqs.filter((faq) => faq.category === category);
     return items.length > 0 ? [{ category, items }] : [];
@@ -22,42 +51,37 @@ export function FaqList({ faqs }: { faqs: Faq[] }) {
   }
 
   return (
-    <div className={cx(CONTAINER, "py-12 md:py-16")}>
+    <div className={cx(!bare && CONTAINER, "grid gap-10 lg:grid-cols-12 lg:gap-8", !bare && "py-12 md:py-16")}>
       {groups.length > 1 && (
-        <nav aria-label={t("faqSectionsLabel")} className="mb-10">
-          <ul className="flex flex-wrap gap-2">
-            {groups.map(({ category }) => (
+        <nav aria-label={t("faqSectionsLabel")} className="self-start border-t-2 border-rule lg:sticky lg:top-24 lg:col-span-3">
+          <ul>
+            {groups.map(({ category, items }) => (
               <li key={category}>
                 <a
                   href={`#faq-${category}`}
-                  className="inline-flex min-h-9 items-center rounded-full border border-text/20 px-3.5 text-sm font-semibold hover:bg-text/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="flex justify-between gap-3 border-b border-line py-2.5 text-[15px] text-ink-2 no-underline transition-state hover:text-ink focus-ring focus-visible:-outline-offset-2"
                 >
                   {t(`faqCategory.${category}`)}
+                  <span className="tabular-nums">{formatNumber(items.length, locale as Locale)}</span>
                 </a>
               </li>
             ))}
           </ul>
         </nav>
       )}
-      <div className="flex max-w-3xl flex-col gap-12">
+      <div className={cx("flex min-w-0 flex-col gap-12", groups.length > 1 ? "lg:col-span-9" : "lg:col-span-12 max-w-3xl")}>
         {groups.map(({ category, items }) => (
-          <PageSection key={category} id={`faq-${category}`} title={t(`faqCategory.${category}`)} className="scroll-mt-24">
-            <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
+          <section key={category} id={`faq-${category}`} aria-labelledby={`faq-${category}-title`} className="scroll-mt-24">
+            <h2 id={`faq-${category}-title`} className="pb-3 text-ink-2 type-small">
+              {t(`faqCategory.${category}`)}
+            </h2>
+            <div className="border-t-2 border-rule">
               {items.map((faq) => (
-                <li key={faq.id}>
-                  <details className="group">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
-                      <span className="text-pretty">{faq.question}</span>
-                      <ChevronDownIcon aria-hidden="true" className="size-5 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
-                    </summary>
-                    <p className="whitespace-pre-line text-pretty px-5 pb-5 leading-relaxed text-text-secondary">
-                      {faq.answer}
-                    </p>
-                  </details>
-                </li>
+                // The first question starts open, so the page shows what an answer looks like.
+                <FaqItem key={faq.id} question={faq.question} answer={faq.answer} open={faq === groups[0].items[0]} />
               ))}
-            </ul>
-          </PageSection>
+            </div>
+          </section>
         ))}
       </div>
     </div>

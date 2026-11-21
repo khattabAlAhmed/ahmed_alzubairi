@@ -1,0 +1,46 @@
+{
+  "intro": "The components that carry his voice: the letter, a sentence of his, why he took a project on, and the signature. All in the first person, with no hype and no ornament.",
+  "letter": {
+    "title": "Letter",
+    "placeholder": "Placeholder",
+    "real": "Approved",
+    "written": "Written",
+    "writtenValue": "March 2026",
+    "by": "By",
+    "byValue": "Ahmed",
+    "photoAlt": "An open notebook and writing hands, placeholder photo",
+    "photoCaption": "Placeholder photo",
+    "heading": "A letter to whoever is reading this",
+    "salutation": "To whoever is reading this,",
+    "paragraphs": [
+      "For many years I have worked with ministries, organizations and companies, often in places where every decision was hard. I learned that most institutions are not short of experts. They are short of quiet time to hear themselves.",
+      "That is what I try to offer: to sit with you, listen, and then write with you something you can carry out and defend. You will find the projects here as they happened, the documents behind them, and my own words.",
+      "If something is worrying you, write to me. I read every message myself."
+    ],
+    "signOff": "Ahmed Alzubairi",
+    "longTitle": "Long Arabic text",
+    "longParagraph": "حين بدأتُ العمل مع المجتمعات المضيفة في المخيمات الأربعة، لم يكن لدينا وقت كافٍ ولا معلومات كاملة، وكانت كل جهة تريد أن تبدأ من حيث تقف هي. جلستُ مع كل لجنة على حدة، واستمعتُ أكثر مما تكلّمت، ثم كتبنا معاً مساراً واحداً يبدأ من الجار وينتهي عند الجهة المختصة، ويعرفه كل من يحتاجه دون أن يسأل أحداً.",
+    "note": "The letter is the site's most important moment of his voice: three short paragraphs at most, at a narrow measure with a slightly taller line. The “Placeholder letter and signature” tag shows while the text and signature are placeholders, and goes once Ahmed approves his own."
+  },
+  "sentence": {
+    "title": "His sentence",
+    "between": "Between sections",
+    "inline": "In a record",
+    "text": "“I'm not looking for the cleverest solution. I'm looking for the one that will still stand after I leave.”",
+    "inlineText": "I work with institutions when the decision is hard, not when it's easy.",
+    "note": "Two forms: a large sentence between two sections (once a page), and a line inside a record labelled “In my words”. No decorative quotes, no italics, no colored word. The short rule before his name is the only accent here."
+  },
+  "signature": {
+    "title": "Signature",
+    "light": "Light theme: dark ink on the white ground.",
+    "dark": "Dark theme: a light copy, never an automatic color inversion.",
+    "note": "The signature is scanned from paper, in two copies for the two themes, 220 wide. Its alt text is “Ahmed's signature”. It appears under the letter only. The one here is a placeholder until Ahmed's is uploaded."
+  },
+  "why": {
+    "title": "Why I took it on",
+    "did": "What I did",
+    "didText": "I sat with the committees of the four camps, each on its own, before any meeting with the organization. I asked one question: who do you go to when something happens? Then together we designed a path that starts with the neighbour and ends with the responsible authority.",
+    "text": "Because no one had asked the residents before. Every system was designed for the organization's offices, not for them.",
+    "note": "A note in the margin of a project page: why he took the work on, in a sentence or two, in his voice. The only raised ground on the page."
+  }
+}

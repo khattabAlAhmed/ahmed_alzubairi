@@ -146,11 +146,11 @@ describe("ProjectsList", () => {
   it("offers only filters that match a project, and keeps the other filter in each link", () => {
     render(<ProjectsList projects={projects} areas={areas} filters={{ area: "governance", orgType: null }} />);
 
-    const areaGroup = screen.getByRole("group", { name: "filterArea" });
+    const areaGroup = screen.getByRole("navigation", { name: "filterArea" });
     expect(within(areaGroup).queryByText("Unused area")).toBeNull();
     expect(within(areaGroup).getByText("Governance").closest("a")?.getAttribute("aria-current")).toBe("true");
 
-    const typeGroup = screen.getByRole("group", { name: "filterOrgType" });
+    const typeGroup = screen.getByRole("navigation", { name: "filterOrgType" });
     expect(within(typeGroup).getByText("orgType.company").closest("a")?.getAttribute("href")).toBe(
       "/projects?area=governance&type=company",
     );

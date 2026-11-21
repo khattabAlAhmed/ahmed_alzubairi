@@ -2,16 +2,27 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
 
-/** A card on a listing page. The whole card is the link target when it has one. */
-export const LISTING_CARD =
-  "relative flex flex-col overflow-hidden rounded-lg border border-text/10 bg-surface text-text shadow-sm";
+/*
+ * Shared parts of the work and reading lists (the MediaFrame board and the
+ * record's rows). Lists are rows on hairlines under a 2px rule, never a grid
+ * of identical cards (DESIGN.md "Banned patterns").
+ */
 
-/** A card's title link. Its ::after covers the card, so the card is one target. */
+/** A list item's frame: no box, no shadow. Kept for older callers. */
+export const LISTING_CARD = "relative flex flex-col text-ink";
+
+/** A row's title link. Its ::after covers the row, so the row is one target. */
 export const TITLE_LINK =
-  "rounded-sm after:absolute after:inset-0 after:rounded-lg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "no-underline after:absolute after:inset-0 hover:underline hover:decoration-1 hover:underline-offset-7 focus-ring";
 
-/** Actions inside a card sit above the title link's overlay. */
+/** Actions inside a row sit above the title link's overlay. */
 export const ABOVE_LINK = "relative z-10";
+
+/** The 2px rule that opens a list of rows. */
+export const LIST_RULE = "border-t-2 border-rule";
+
+/** One row of a list: a hairline under it. */
+export const LIST_ROW = "relative border-b border-line";
 
 export type ListingImage = { src: string; alt: string };
 
@@ -28,6 +39,37 @@ export const PHOTO_CROPS = {
 } as const;
 
 export type PhotoCrop = keyof typeof PHOTO_CROPS;
+
+/**
+ * The hatched panel a missing photo shows (`.r-photo-missing`), never a broken
+ * image. `label` says so in words; without it the panel is decorative.
+ */
+export function PhotoMissing({
+  label,
+  icon,
+  crop,
+  className,
+}: {
+  label?: string;
+  icon?: ReactNode;
+  crop?: PhotoCrop;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-hidden={label ? undefined : "true"}
+      className={cx(
+        "flex flex-col items-center justify-center gap-1.5 border border-line p-4 text-center text-[13px] text-ink-2",
+        "bg-[repeating-linear-gradient(135deg,var(--surface)_0_10px,var(--bg)_10px_20px)]",
+        crop ? PHOTO_CROPS[crop] : "h-full",
+        className,
+      )}
+    >
+      {icon && <span aria-hidden="true">{icon}</span>}
+      {label && <span>{label}</span>}
+    </div>
+  );
+}
 
 /**
  * A card's picture, lazy and sized for a three-column grid: square corners,
@@ -69,12 +111,52 @@ export function CardCover({
   );
 }
 
+/**
+ * Image with caption (MediaFrame board): the photo at its crop, then a caption
+ * line in `ink-2`, with an optional note at the end ("Placeholder photo").
+ */
+export function Figure({
+  image,
+  crop = "work",
+  caption,
+  note,
+  missingLabel,
+  sizes = "(min-width: 768px) 50vw, 100vw",
+  className,
+}: {
+  image: ListingImage | null;
+  crop?: PhotoCrop;
+  caption?: ReactNode;
+  note?: ReactNode;
+  missingLabel?: string;
+  sizes?: string;
+  className?: string;
+}) {
+  return (
+    <figure className={className}>
+      {image ? (
+        <div className={cx("relative bg-surface", PHOTO_CROPS[crop])}>
+          <Image src={image.src} alt={image.alt} fill sizes={sizes} className="object-cover" />
+        </div>
+      ) : (
+        <PhotoMissing crop={crop} label={missingLabel} />
+      )}
+      {(caption || note) && (
+        <figcaption className="flex justify-between gap-3 pt-2 text-[13px] text-ink-2">
+          <span>{caption}</span>
+          {note && <span>{note}</span>}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
 /** Short facts on one line, split by a dot, wrapping on phones. */
 export function MetaLine({ items: all, className }: { items: ReactNode[]; className?: string }) {
   const items = all.filter(Boolean);
   if (items.length === 0) return null;
   return (
-    <p className={cx("flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary", className)}>
+    <p className={cx("flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-ink-2 tabular-nums", className)}>
       {items.map((item, i) => (
         <span key={i} className="inline-flex items-center gap-2">
           {i > 0 && <span aria-hidden="true">·</span>}

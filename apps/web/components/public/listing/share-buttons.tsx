@@ -1,40 +1,30 @@
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
 import { CopyLinkButton } from "./copy-link-button";
-import { FacebookIcon, LinkedInIcon, MailIcon, WhatsAppIcon, XIcon } from "./icons";
-import { SHARE_NETWORKS, shareHref, type ShareNetwork } from "./links";
+import { ExternalLinkIcon, MailIcon } from "@/components/icons";
+import { SHARE_NETWORKS, shareHref } from "./links";
 
-const ICONS: Record<ShareNetwork, ReactNode> = {
-  whatsapp: <WhatsAppIcon className="size-5" />,
-  x: <XIcon className="size-5" />,
-  linkedin: <LinkedInIcon className="size-5" />,
-  facebook: <FacebookIcon className="size-5" />,
-  email: <MailIcon className="size-5" />,
-};
-
-const ROUND =
-  "inline-flex size-10 items-center justify-center rounded-full border border-text/20 text-text hover:bg-text/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+/** One row of the share column: the name, then a small glyph at the end. */
+export const SHARE_ROW =
+  "flex min-h-11 w-full items-center justify-between gap-3 border-b border-line text-sm text-ink no-underline transition-state hover:bg-surface-hover focus-ring focus-visible:-outline-offset-2";
 
 /**
- * Copy link, then WhatsApp, X, LinkedIn, Facebook and email. Every network is
- * a plain link to its share page: no network script loads here. `url` is the
- * page's full canonical URL.
+ * The share column (ArticleBody board): copy link first, then WhatsApp, X,
+ * LinkedIn, Facebook and email, one row each under the 2px rule. Every
+ * network is a plain link to its share page: no network script loads here.
+ * `url` is the page's full canonical URL.
  */
 export function ShareButtons({ url, title, className }: { url: string; title: string; className?: string }) {
   const t = useTranslations("PublicListing");
 
   return (
-    <div role="group" aria-label={t("shareLabel")} className={cx("flex flex-wrap items-center gap-2", className)}>
-      <span aria-hidden="true" className="me-1 text-sm font-semibold text-text-secondary">
-        {t("shareLabel")}
-      </span>
+    <aside aria-label={t("shareLabel")} className={cx("flex flex-col border-t-2 border-rule", className)}>
       <CopyLinkButton
         url={url}
         labels={{ copy: t("copyLink"), copied: t("linkCopied"), failed: t("copyFailed") }}
-        className={cx(ROUND, "sm:w-auto sm:gap-2 sm:px-3.5 sm:text-sm sm:font-semibold")}
+        className={SHARE_ROW}
       />
-      <ul className="flex flex-wrap gap-2">
+      <ul>
         {SHARE_NETWORKS.map((network) => {
           const external = network !== "email";
           const name = t(`shareNetworks.${network}`);
@@ -46,15 +36,19 @@ export function ShareButtons({ url, title, className }: { url: string; title: st
                 aria-label={
                   external ? `${t("shareOn", { network: name })} ${t("opensInNewTab")}` : t("shareOn", { network: name })
                 }
-                title={name}
-                className={ROUND}
+                className={SHARE_ROW}
               >
-                {ICONS[network]}
+                {name}
+                {external ? (
+                  <ExternalLinkIcon aria-hidden="true" className="dir-icon size-3.5 text-ink-2" />
+                ) : (
+                  <MailIcon aria-hidden="true" className="size-3.5 text-ink-2" />
+                )}
               </a>
             </li>
           );
         })}
       </ul>
-    </div>
+    </aside>
   );
 }

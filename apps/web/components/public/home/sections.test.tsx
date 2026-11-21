@@ -127,7 +127,7 @@ describe("selectHomeProjects", () => {
 });
 
 describe("ProjectsSection", () => {
-  it("shows three projects, each with its organization label and key result", () => {
+  it("shows three projects: the first as a full record, then two story rows", () => {
     render(
       <ProjectsSection
         heading="Selected projects"
@@ -140,13 +140,15 @@ describe("ProjectsSection", () => {
         ]}
       />,
     );
-    const items = screen.getAllByRole("listitem");
-    expect(items).toHaveLength(3);
-    expect(within(items[0]).getByText("An international organization")).toBeTruthy();
-    expect(within(items[0]).getByText("30% faster")).toBeTruthy();
-    expect(within(items[0]).getByText("keyResult")).toBeTruthy();
-    expect(within(items[1]).queryByText("keyResult")).toBeNull();
-    expect(within(items[0]).getByRole("link", { name: "Project 1" }).getAttribute("href")).toBe("/projects/project-1");
+    const featured = screen.getByRole("article");
+    const rows = screen.getAllByRole("listitem");
+    expect(rows).toHaveLength(2);
+    expect(within(featured).getByText("An international organization")).toBeTruthy();
+    expect(within(featured).getByText("30% faster")).toBeTruthy();
+    expect(within(featured).getByText("whatChanged")).toBeTruthy();
+    expect(within(rows[0]).queryByText("whatChangedLead")).toBeNull();
+    expect(within(featured).getByRole("link", { name: "Project 1" }).getAttribute("href")).toBe("/projects/project-1");
+    expect(screen.queryByText("Project 4")).toBeNull();
   });
 });
 

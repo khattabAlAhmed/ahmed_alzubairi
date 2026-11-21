@@ -7,6 +7,7 @@ import { FaqList } from "./faq-list";
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
   useTranslations: () => (key: string) => key,
+  useLocale: () => "en",
 }));
 
 afterEach(cleanup);
@@ -26,6 +27,10 @@ describe("FaqList", () => {
     const headings = screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
     expect(headings).toEqual(["faqCategory.consultations", "faqCategory.account"]);
     expect(screen.getByRole("navigation").querySelectorAll("a")).toHaveLength(2);
+    // One open at a time: every question shares a name, and only the first starts open.
+    const details = [...document.querySelectorAll("details")];
+    expect(details.every((item) => item.getAttribute("name") === "faq")).toBe(true);
+    expect(details.map((item) => item.open)).toEqual([true, false, false]);
     expect(screen.getByText("Question 3?").closest("details")).toBeTruthy();
     expect(screen.getByText("Answer 3.")).toBeTruthy();
   });

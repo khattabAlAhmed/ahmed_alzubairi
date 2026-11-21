@@ -221,7 +221,8 @@ describe("ArticlePage", () => {
     const { container } = render(<ArticlePage post={detail()} related={[]} shareUrl={SHARE} />);
     expect(screen.getByRole("heading", { level: 1, name: "First post" })).toBeTruthy();
     expect(container.querySelector("time")?.getAttribute("datetime")).toBe("2026-03-01T00:00:00Z");
-    expect(screen.getByText('readingTime:{"minutes":4}')).toBeTruthy();
+    // Under the title and in the ledger.
+    expect(screen.getAllByText('readingTime:{"minutes":4}').length).toBeGreaterThan(0);
     // Stored markup stays text (§9).
     expect(screen.getByText("<script>alert(1)</script> body text")).toBeTruthy();
     expect(container.querySelector("script")).toBeNull();
@@ -231,7 +232,7 @@ describe("ArticlePage", () => {
 
   it("shares the canonical URL, and hides sharing without one", () => {
     const { unmount } = render(<ArticlePage post={detail()} related={[]} shareUrl={SHARE} />);
-    const share = within(screen.getByRole("group", { name: "shareLabel" }));
+    const share = within(screen.getByRole("complementary", { name: "shareLabel" }));
     expect(share.getByRole("button", { name: "copy" }).getAttribute("data-url")).toBe(SHARE);
     const links = share.getAllByRole("link").map((link) => link.getAttribute("href") ?? "");
     expect(links).toHaveLength(5);

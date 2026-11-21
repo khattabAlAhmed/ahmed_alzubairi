@@ -320,9 +320,9 @@ describe("RegistrationPanel", () => {
     "a full course shows $kind a disabled اكتملت المقاعد and no way to register",
     async (viewer) => {
       await panel(viewer, { seatsLeft: 0 }, "ar");
-      const full = screen.getByText("اكتملت المقاعد");
-      expect(full.getAttribute("aria-disabled")).toBe("true");
-      expect(screen.queryByRole("button")).toBeNull();
+      const full = screen.getByRole("button", { name: "اكتملت المقاعد" }) as HTMLButtonElement;
+      expect(full.disabled).toBe(true);
+      expect(screen.getAllByRole("button")).toHaveLength(1);
       expect(screen.queryByRole("link")).toBeNull();
     },
   );
@@ -447,7 +447,7 @@ describe("CourseList", () => {
     show(<CourseList courses={courses} type={null} />, "ar");
     const [open, full, recorded] = screen.getAllByRole("article");
     expect(within(open!).getByRole("link", { name: ar.viewCourse }).getAttribute("href")).toBe("/training/in-person");
-    expect(within(full!).getByText("اكتملت المقاعد")).toBeTruthy();
+    expect((within(full!).getByRole("button", { name: "اكتملت المقاعد" }) as HTMLButtonElement).disabled).toBe(true);
     expect(within(full!).queryByRole("link", { name: ar.viewCourse })).toBeNull();
     expect(within(recorded!).getByText("قريباً")).toBeTruthy();
     expect(within(recorded!).queryByRole("link", { name: ar.viewCourse })).toBeNull();

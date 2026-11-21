@@ -1,7 +1,8 @@
 {
-  "label": "Cookies",
-  "text": "We use PostHog for anonymous visit statistics. If you decline, the site stays cookie-free.",
-  "privacy": "Privacy policy",
-  "accept": "Accept",
-  "decline": "Decline"
+  "label": "Privacy",
+  "text": "I use statistics that don't know who you are, to see which pages are read and how they're used.",
+  "privacy": "privacy policy",
+  "accept": "Agree",
+  "decline": "No, thanks",
+  "detail": "If you agree, they keep a trace in your browser; if you decline, they keep nothing there. I don't collect your name, and session recordings hide what you type. Details are in the"
 }

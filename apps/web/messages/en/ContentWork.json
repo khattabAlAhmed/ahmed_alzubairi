@@ -1,0 +1,29 @@
+{
+  "record": {
+    "situation": "The situation",
+    "whatIDid": "What I did",
+    "whatChanged": "What changed",
+    "whatChangedLead": "What changed:",
+    "readFull": "Read the full record",
+    "readFullLabel": "Read the full record: {title}"
+  },
+  "gallery": {
+    "photo": "Photo {n, number}",
+    "open": "Open photo {n, number}",
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "position": "{n, number} of {total, number}",
+    "missing": "Not uploaded yet"
+  },
+  "article": {
+    "published": "Published",
+    "reading": "Reading time",
+    "area": "Area"
+  },
+  "media": {
+    "videoTitle": "Video: {title}",
+    "play": "Play the video",
+    "watchOnSite": "Watch it on its own site"
+  }
+}

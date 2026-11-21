@@ -4,10 +4,14 @@ import type { PublicSiteSettings } from "@/lib/content";
 import { whatsappHref } from "./format";
 import { HomeSectionShell } from "./section";
 
+/** A channel as a row of the list: what it is, then the number or address as data. */
 const CHANNEL =
-  "flex h-full flex-col gap-1 rounded-lg border border-on-primary/20 p-5 hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "flex flex-col gap-0.5 border-b border-line py-2.5 text-ink no-underline transition-state hover:bg-surface-hover focus-ring";
 
-/** §6.2 #12: the channels set in site settings, and the contact page. */
+/**
+ * §6.2 #12, quick contact on the home page (the QuickContact board's
+ * channels): each channel set in site settings as a row, then the contact page.
+ */
 export function ContactSection({
   heading,
   intro,
@@ -46,33 +50,33 @@ export function ContactSection({
 
   return (
     <HomeSectionShell sectionKey="contact" heading={heading} intro={intro ?? t("contactIntro")} band="navy">
-      {channels.length > 0 && (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {channels.map((channel) => (
-            <li key={channel.key}>
-              <a
-                href={channel.href}
-                className={CHANNEL}
-                {...(channel.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span className="text-sm text-on-primary/80">{channel.label}</span>
-                {/* Numbers, addresses and links read left to right in both languages. */}
-                <span className="break-all font-semibold">
-                  <bdi dir="ltr">{channel.value}</bdi>
-                </span>
-                {channel.newTab && external}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-      <ButtonLink
-        href="/contact"
-        size="lg"
-        className="mt-8 focus-visible:outline-accent!"
-      >
-        {t("sendMessage")}
-      </ButtonLink>
+      <div className="grid gap-8 md:grid-cols-12 md:gap-gutter">
+        {channels.length > 0 && (
+          <ul className="border-t border-line md:col-span-6 lg:col-span-5">
+            {channels.map((channel) => (
+              <li key={channel.key}>
+                <a
+                  href={channel.href}
+                  className={CHANNEL}
+                  {...(channel.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
+                  <span className="type-small font-medium">{channel.label}</span>
+                  {/* Numbers, addresses and links read left to right in both languages. */}
+                  <bdi dir="ltr" className="font-mono text-[13px] break-all text-ink-2">
+                    {channel.value}
+                  </bdi>
+                  {channel.newTab && external}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="md:col-span-6 lg:col-span-4">
+          <ButtonLink href="/contact" variant="secondary">
+            {t("sendMessage")}
+          </ButtonLink>
+        </div>
+      </div>
     </HomeSectionShell>
   );
 }
