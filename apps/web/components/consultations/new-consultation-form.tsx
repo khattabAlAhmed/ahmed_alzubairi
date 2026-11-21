@@ -2,13 +2,11 @@
 
 import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS_PER_MESSAGE, MAX_LONG_TEXT_LENGTH, MAX_SHORT_TEXT_LENGTH } from "@repo/shared";
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useMemo, useState, type FormEvent } from "react";
-import { Button, buttonClasses, Select, TextArea, TextField } from "@/components/ui";
+import { useMemo, useState, type FormEvent } from "react";
+import { Button, FileInput, Select, TextArea, TextField } from "@/components/ui";
 import { InlineNotice } from "@/components/account/notice";
-import { cx } from "@/components/ui/cx";
 import { allowedTypeNames, FileChip, formatBytes } from "@/components/workspace";
-import { attachmentAccept, joinList } from "@/components/workspace/format";
-import { PaperclipIcon } from "@/components/workspace/icons";
+import { attachmentAccept } from "@/components/workspace/format";
 import { useRouter } from "@/i18n/navigation";
 import { consultationApi, type ConsultationApi } from "./api";
 import { useFiles } from "./use-files";
@@ -50,7 +48,6 @@ export function NewConsultationForm({
   const router = useRouter();
   const api = useMemo(() => apiProp ?? consultationApi(), [apiProp]);
   const filesState = useFiles(api);
-  const limitsId = useId();
 
   const [serviceId, setServiceId] = useState(() => preselectedService(services, initialService));
   const [title, setTitle] = useState("");
@@ -183,8 +180,18 @@ export function NewConsultationForm({
         required
       />
 
-      <fieldset className="flex min-w-0 flex-col gap-3">
-        <legend className="mb-2 text-[15px] leading-[1.6] font-medium">{t("attachments")}</legend>
+      {/* The FileInput board: the types and limits show before anything is picked; each file is a row under the zone. */}
+      <FileInput
+        label={t("attachments")}
+        prompt={t("dropPrompt")}
+        browse={t("dropBrowse")}
+        dropHere={t("dropHere")}
+        types={allowedTypeNames().join(" · ")}
+        limits={t("dropLimits", { size: formatBytes(MAX_ATTACHMENT_BYTES, locale), count: MAX_ATTACHMENTS_PER_MESSAGE })}
+        accept={attachmentAccept()}
+        disabled={full || sending}
+        onFiles={(picked) => filesState.attach(picked)}
+      >
         {filesState.chips.length > 0 && (
           <ul aria-label={tc("files")} className="grid gap-2 sm:grid-cols-2">
             {filesState.chips.map((chip) => (
@@ -194,38 +201,7 @@ export function NewConsultationForm({
             ))}
           </ul>
         )}
-        <p id={limitsId} className="text-[13px] text-ink-2">
-          {tc("limits", {
-            count: MAX_ATTACHMENTS_PER_MESSAGE,
-            size: formatBytes(MAX_ATTACHMENT_BYTES, locale),
-            types: joinList(allowedTypeNames(), locale),
-          })}
-        </p>
-        {/* A real file input behind a styled label, as in the Composer. */}
-        <label
-          className={cx(
-            buttonClasses({ variant: "secondary", size: "sm" }),
-            "cursor-pointer self-start has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-3 has-[input:focus-visible]:outline-focus",
-            (full || sending) && "pointer-events-none opacity-50",
-          )}
-        >
-          <PaperclipIcon />
-          {tc("attach")}
-          <input
-            type="file"
-            multiple
-            accept={attachmentAccept()}
-            disabled={full || sending}
-            aria-describedby={limitsId}
-            className="sr-only"
-            onChange={(event) => {
-              const picked = Array.from(event.target.files ?? []);
-              event.target.value = "";
-              if (picked.length > 0) filesState.attach(picked);
-            }}
-          />
-        </label>
-      </fieldset>
+      </FileInput>
 
       {formError && <InlineNotice tone="danger" title={formError} />}
 

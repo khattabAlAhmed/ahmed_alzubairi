@@ -1,4 +1,4 @@
-import { ORG_TYPES, type Locale } from "@repo/shared";
+import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS_PER_MESSAGE, ORG_TYPES, type Locale } from "@repo/shared";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -6,6 +6,7 @@ import { InlineNotice } from "@/components/account/notice";
 import { CheckIcon, CloseIcon, LockIcon } from "@/components/icons";
 import { Button, Checkbox, FieldError, FieldHint, FileInput, Radio, Select, TextArea, TextField } from "@/components/ui";
 import { cx, INLINE_LINK } from "@/components/ui/cx";
+import { allowedTypeNames, formatBytes } from "@/components/workspace/format";
 import { StatusPill } from "@/components/workspace/status-pill";
 import { DsBlock, DsNote, DsSection } from "../parts";
 import { DemoFileChip, DemoLoadingButton } from "./primitives-client";
@@ -186,7 +187,6 @@ async function NewsletterBlock({ t, locale }: { t: T; locale: Locale }) {
 async function ConsultationBlock({ t, locale }: { t: T; locale: Locale }) {
   const f = await getTranslations({ locale, namespace: "AccountConsultations.form" });
   const d = await getTranslations({ locale, namespace: "AccountConsultations.detail" });
-  const p = await getTranslations({ locale, namespace: "DesignSystemPrimitives" });
   const files = t.raw("sample.files") as string[];
   const pdf = "application/pdf";
   return (
@@ -205,11 +205,11 @@ async function ConsultationBlock({ t, locale }: { t: T; locale: Locale }) {
             <TextArea label={f("description")} hint={f("descriptionHint")} error={f("descriptionRequired")} rows={4} />
             <FileInput
               label={f("attachments")}
-              prompt={p("file.prompt")}
-              browse={p("file.browse")}
-              dropHere={p("file.dropHere")}
-              types={p("file.types")}
-              limits={p("file.limits")}
+              prompt={f("dropPrompt")}
+              browse={f("dropBrowse")}
+              dropHere={f("dropHere")}
+              types={allowedTypeNames().join(" · ")}
+              limits={f("dropLimits", { size: formatBytes(MAX_ATTACHMENT_BYTES, locale), count: MAX_ATTACHMENTS_PER_MESSAGE })}
             >
               <ul className="grid gap-2 sm:grid-cols-2">
                 <li className="min-w-0">

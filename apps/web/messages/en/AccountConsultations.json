@@ -31,7 +31,11 @@
     "submitting": "Sending",
     "failed": "We couldn't send your request. Please try again.",
     "fileFailed": "A file couldn't be uploaded. Your request is saved: remove or replace the file, then press Send again.",
-    "retry": "Your request is saved. Press Send to finish attaching the files."
+    "retry": "Your request is saved. Press Send to finish attaching the files.",
+    "dropPrompt": "Drag files here, or",
+    "dropBrowse": "choose them from your device",
+    "dropHere": "Drop the files to attach them",
+    "dropLimits": "up to {size} a file · {count, number} files a message"
   },
   "detail": {
     "back": "Back to my consultations",
