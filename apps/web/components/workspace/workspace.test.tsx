@@ -267,6 +267,8 @@ describe("MeetingCard and DocumentCard", () => {
       <MeetingCard platform="Zoom" url="https://zoom.us/j/1" startsAt="2026-11-20T11:00:00Z" durationMinutes={45} timeZone="Asia/Riyadh" />,
     );
     expect(screen.getByText("Friday, 20 November 2026")).toBeTruthy();
+    // The year shows on the day panel too, not only to screen readers.
+    expect(screen.getByText("2026").closest("[aria-hidden]")).toBeTruthy();
     expect(screen.getByText(/2:00\s*–\s*2:45\s*pm/)).toBeTruthy();
     expect(screen.getByText("45 minutes")).toBeTruthy();
     expect(screen.getByText("Arabian Standard Time (GMT+3)")).toBeTruthy();

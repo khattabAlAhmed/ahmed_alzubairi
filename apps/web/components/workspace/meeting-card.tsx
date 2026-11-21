@@ -66,6 +66,7 @@ export function MeetingCard({
             <span className="text-[13px]">{part({ weekday: "long" })}</span>
             <span className="text-[34px] leading-[1.1] font-medium tabular-nums">{part({ day: "numeric" })}</span>
             <span className="text-[13px]">{part({ month: "long" })}</span>
+            <span className="text-xs tabular-nums">{part({ year: "numeric" })}</span>
           </>
         )}
       </div>

@@ -40,6 +40,24 @@ describe("DataTable", () => {
     expect(second.getAttribute("aria-selected")).toBe("false");
   });
 
+  it("keeps select all and the sort buttons visible on phones, hiding only plain labels", () => {
+    const { container } = render(
+      <DataTable caption="Consultations" columns={columns} rows={rows} sort={{ key: "title", direction: "ascending" }} onSort={vi.fn()} selected={new Set()} onSelect={vi.fn()} labels={labels} />,
+    );
+    expect(container.querySelector("thead")?.className).not.toContain("sr-only");
+    const headers = screen.getAllByRole("columnheader");
+    const header = (text: string) => headers.find((h) => h.textContent === text)?.className ?? "";
+    expect(header("Title")).not.toContain("sr-only");
+    expect(header("Last activity")).not.toContain("sr-only");
+    expect(header("Client")).toContain("max-md:sr-only");
+    expect(screen.getByRole("checkbox", { name: "Select all" }).closest("th")?.className).not.toContain("sr-only");
+  });
+
+  it("hides the phone header when it holds no control", () => {
+    const { container } = render(<DataTable caption="Consultations" columns={columns} rows={rows} labels={labels} />);
+    expect(container.querySelector("thead")?.className).toContain("max-md:sr-only");
+  });
+
   it("stacks rows on phones and has no zebra stripes", () => {
     const { container } = render(<DataTable caption="Consultations" columns={columns} rows={rows} labels={labels} />);
     const row = container.querySelector("tbody tr");

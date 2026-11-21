@@ -62,6 +62,8 @@ export function DataTable({
   const allSelected = selectable && rows.length > 0 && rows.every((row) => selected.has(row.id));
   const primary = columns.find((column) => column.primary) ?? columns[0];
   const hasAction = rows.some((row) => row.action);
+  // On phones the header shows only when it holds a control.
+  const headerControls = selectable || (onSort !== undefined && columns.some((column) => column.sortable));
 
   // Square, with the check drawn on top in on-accent, like the Choice board's checkbox.
   const checkbox = (checked: boolean, label: string, onChange: (checked: boolean) => void) => (
@@ -84,28 +86,33 @@ export function DataTable({
   return (
     <table className={cx("w-full border-collapse text-sm", className)}>
       <caption className="sr-only">{caption}</caption>
-      {/* Phones: no header row; each row reads as a block. */}
-      <thead className="max-md:sr-only">
-        <tr>
+      {/* Phones: each row reads as a block, and the header keeps only its
+          controls (select all, the sort buttons) as one line above the rows. */}
+      <thead className={headerControls ? "max-md:block" : "max-md:sr-only"}>
+        <tr className="max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-4 max-md:border-t-2 max-md:border-rule max-md:py-2">
           {selectable && (
-            <th scope="col" className="w-10 border-t-2 border-b border-rule border-b-line px-3 py-2.5 text-start">
+            <th scope="col" className="w-10 border-t-2 border-b border-rule border-b-line px-3 py-2.5 text-start max-md:w-auto max-md:border-0 max-md:p-0">
               {checkbox(allSelected, labels.selectAll ?? "", (checked) => onSelect(rows.map((row) => row.id), checked))}
             </th>
           )}
           {columns.map((column) => {
             const sorted = sort?.key === column.key ? sort.direction : undefined;
+            const control = column.sortable === true && onSort !== undefined;
             return (
               <th
                 key={column.key}
                 scope="col"
                 aria-sort={sorted ?? (column.sortable ? "none" : undefined)}
-                className="border-t-2 border-b border-rule border-b-line px-3 py-2.5 text-start text-[13px] font-medium whitespace-nowrap text-ink-2"
+                className={cx(
+                  "border-t-2 border-b border-rule border-b-line px-3 py-2.5 text-start text-[13px] font-medium whitespace-nowrap text-ink-2",
+                  control ? "max-md:border-0 max-md:p-0" : "max-md:sr-only",
+                )}
               >
-                {column.sortable && onSort ? (
+                {control ? (
                   <button
                     type="button"
                     onClick={() => onSort(column.key)}
-                    className="inline-flex cursor-pointer items-center gap-1 text-inherit transition-state hover:text-ink focus-ring"
+                    className="inline-flex cursor-pointer items-center gap-1 text-inherit transition-state hover:text-ink focus-ring max-md:min-h-11"
                   >
                     {column.label}
                     <svg
@@ -129,13 +136,13 @@ export function DataTable({
             );
           })}
           {hasAction && (
-            <th scope="col" className="border-t-2 border-b border-rule border-b-line px-3 py-2.5">
+            <th scope="col" className="border-t-2 border-b border-rule border-b-line px-3 py-2.5 max-md:sr-only">
               <span className="sr-only">{labels.actions}</span>
             </th>
           )}
         </tr>
       </thead>
-      <tbody className="max-md:block max-md:border-t-2 max-md:border-rule">
+      <tbody className={cx("max-md:block", headerControls ? "max-md:border-t max-md:border-line" : "max-md:border-t-2 max-md:border-rule")}>
         {rows.map((row) => {
           const isSelected = selectable && selected.has(row.id);
           const name = String(typeof row.cells[primary.key] === "string" ? row.cells[primary.key] : row.id);
