@@ -11,7 +11,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: async ({ locale, namespace }: { locale: string; namespace: string }) => (key: string) =>
     `${locale}:${namespace}.${key}`,
 }));
-vi.mock("@/components/public/parts", () => ({ PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
+vi.mock("@/components/public/parts", () => ({ CONTAINER: "", PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
 vi.mock("@/components/ui", () => ({ Skeleton: () => <div /> }));
 vi.mock("@/components/public/media", () => ({
   MediaList: () => <p>list</p>,
@@ -39,7 +39,7 @@ describe("/media", () => {
 
   it("shows the page's title in its hero", async () => {
     render(await page.default(props("en")));
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("en:Media.title");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("en:Media.heading");
   });
 
   it("is not found for an unknown locale", async () => {

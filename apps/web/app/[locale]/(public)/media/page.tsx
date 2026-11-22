@@ -5,9 +5,9 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { MediaList, parseMediaQuery } from "@/components/public/media";
-import { PageHero } from "@/components/public/parts";
+import { ListSkeleton } from "@/components/feedback/list-skeletons";
+import { CONTAINER, PageHero } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { Skeleton } from "@/components/ui";
 import { routing } from "@/i18n/routing";
 import { getMediaItems } from "@/lib/content/media";
 import { staticPageMetadata } from "@/lib/seo/static-pages";
@@ -27,18 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 async function MediaFromQuery({ locale, searchParams }: { locale: Locale; searchParams: Promise<SearchParams> }) {
   const query = parseMediaQuery(await searchParams);
-  const items = await getMediaItems(locale, { category: query.category ?? undefined });
+  // Every item: the chips count each category, and the list filters here.
+  const items = await getMediaItems(locale);
   return <MediaList items={items} query={query} />;
-}
-
-function ListLoading() {
-  return (
-    <div aria-busy="true" className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 md:grid-cols-2 md:py-16 lg:grid-cols-3">
-      {Array.from({ length: 3 }, (_, index) => (
-        <Skeleton key={index} className="h-72 w-full rounded-lg" />
-      ))}
-    </div>
-  );
 }
 
 export default async function Media({ params, searchParams }: Props) {
@@ -47,11 +38,13 @@ export default async function Media({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: "Media" });
 
   return (
-    <main id={MAIN_CONTENT_ID} className="flex-1">
-      <PageHero title={t("title")} intro={<p>{t("intro")}</p>} />
-      <Suspense fallback={<ListLoading />}>
-        <MediaFromQuery locale={locale} searchParams={searchParams} />
-      </Suspense>
+    <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
+      <PageHero eyebrow={t("eyebrow")} title={t("heading")} intro={<p>{t("lead")}</p>} />
+      <div className={CONTAINER}>
+        <Suspense fallback={<ListSkeleton kind="articles" label={t("loading")} rows={4} />}>
+          <MediaFromQuery locale={locale} searchParams={searchParams} />
+        </Suspense>
+      </div>
     </main>
   );
 }

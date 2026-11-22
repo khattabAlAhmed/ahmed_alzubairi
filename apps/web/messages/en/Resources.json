@@ -24,5 +24,23 @@
   "newsletterConsentHint": "We'll email you a link to confirm first. Nothing is sent before you confirm, and you can unsubscribe at any time.",
   "gateSubmit": "Download",
   "cancel": "Cancel",
-  "close": "Close"
+  "close": "Close",
+  "eyebrow": "Free resources",
+  "heading": "Tools I use in my work, yours to use",
+  "lead": "Guides, templates and worksheets. Some download directly. For others, the link comes to your email.",
+  "loading": "Loading the resources",
+  "emptyState": {
+    "title": "No resources here yet",
+    "text": "I add what I use once it is ready to share. Subscribe to hear when."
+  },
+  "noResultsState": {
+    "title": "Nothing in this selection yet",
+    "text": "I add what I use once it is ready to share. Try another area or type.",
+    "action": "All resources"
+  },
+  "error": {
+    "title": "The resources didn't load",
+    "text": "Try again in a moment.",
+    "retry": "Try again"
+  }
 }

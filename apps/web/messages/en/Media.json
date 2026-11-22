@@ -11,5 +11,26 @@
   "watch": "Watch the video",
   "watchLabel": "Watch the video: {title}",
   "open": "Open the link",
-  "openLabel": "Open the link: {title}"
+  "openLabel": "Open the link: {title}",
+  "eyebrow": "Media and events",
+  "heading": "Where I have spoken, and with whom",
+  "lead": "Interviews, conferences and open workshops. I accept an invitation when I have something useful for the people listening.",
+  "loading": "Loading media and events",
+  "play": "Play: {title}",
+  "playerNote": "The player does not load until you press play.",
+  "logLabel": "Media and events",
+  "emptyState": {
+    "title": "Nothing published here yet",
+    "text": "I add an interview or an event once it has happened and the recording or notes are ready."
+  },
+  "noResultsState": {
+    "title": "Nothing in this category yet",
+    "text": "Try another category, or see everything.",
+    "action": "All media and events"
+  },
+  "error": {
+    "title": "Media and events didn't load",
+    "text": "Try again in a moment.",
+    "retry": "Try again"
+  }
 }

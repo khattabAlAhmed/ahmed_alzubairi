@@ -320,13 +320,13 @@ describe("ResourcesList", () => {
 
   it("tells an empty library from filters that match nothing", () => {
     const { rerender } = render(<ResourcesList resources={[]} areas={[]} query={{ area: null, kind: null }} />);
-    expect(screen.getByText("empty")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: "clearFilters" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "emptyState.title" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "noResultsState.action" })).toBeNull();
     expect(screen.getByRole("status").textContent).toBe("");
 
     rerender(<ResourcesList resources={[]} areas={areas} query={{ area: null, kind: "guide" }} />);
-    expect(screen.getByText("noResults")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "clearFilters" }).getAttribute("href")).toBe("/resources");
+    expect(screen.getByRole("heading", { name: "noResultsState.title" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "noResultsState.action" }).getAttribute("href")).toBe("/resources");
     expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":0}');
   });
 });

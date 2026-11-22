@@ -10,5 +10,29 @@
   "noResults": "No articles match your search. Try another word, or clear the filters.",
   "clearFilters": "Show all articles",
   "allArticles": "All articles",
-  "related": "Related articles"
+  "related": "Related articles",
+  "eyebrow": "Writing",
+  "heading": "What I learn, written down",
+  "lead": "I write when a project teaches me something worth saying. In Arabic first. Some pieces also appear in English, and those are listed here.",
+  "listLabel": "Articles",
+  "loading": "Loading the articles",
+  "emptyState": {
+    "title": "No articles in English yet",
+    "text": "I write in Arabic first. A piece appears here once its English version is ready."
+  },
+  "noSearchResults": {
+    "title": "I haven't written about “{q}” yet",
+    "text": "Try a shorter word, or browse all the writing.",
+    "action": "All writing"
+  },
+  "noAreaResults": {
+    "title": "Nothing in this area yet",
+    "text": "Browse all the writing, or try another area.",
+    "action": "All writing"
+  },
+  "error": {
+    "title": "The articles didn't load",
+    "text": "Try again in a moment.",
+    "retry": "Try again"
+  }
 }

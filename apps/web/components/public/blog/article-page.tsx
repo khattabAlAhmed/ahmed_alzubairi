@@ -3,10 +3,11 @@ import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
 import type { PostDetail, PostListItem } from "@/lib/content/posts";
 import { formatDate } from "../home/format";
-import { ArticleCard, ArticleMeta, ShareButtons } from "../listing";
+import { NewsletterSignup } from "@/components/newsletter";
+import { ArticleCard, ShareButtons } from "../listing";
 import { ArticleList } from "../listing/article-card";
 import { Figure } from "../listing/parts";
-import { CONTAINER, ConsultationCta, PageHero, PageSection } from "../parts";
+import { CONTAINER, ConsultationCta, MoreLink, PageSection } from "../parts";
 import { ARTICLE_PROSE, RichText } from "../rich-text/rich-text";
 import { articlePath, BLOG_PATH } from "./query";
 
@@ -27,9 +28,10 @@ export function ArticleLedger({ rows, className }: { rows: { label: string; valu
 }
 
 /**
- * `/blog/[slug]` (§6.8, ArticleBody board): the ledger (date, reading time,
- * area), the body at reading measure, the share column, related articles and
- * the consultation call to action. The body is stored Tiptap JSON and goes
+ * `/blog/[slug]` (§6.8, ArticleBody board): under the 2px rule, the way back
+ * and the ledger (date, reading time, area), the title and body at reading
+ * measure with the newsletter after it, and the share column; then related
+ * articles and the consultation call to action. The body is stored Tiptap JSON and goes
  * through `RichText`, never as HTML (§9).
  */
 export function ArticlePage({
@@ -50,36 +52,39 @@ export function ArticlePage({
 
   return (
     <>
-      <PageHero
-        back={{ href: BLOG_PATH, label: t("allArticles") }}
-        eyebrow={post.expertise?.title ?? t("title")}
-        title={post.title}
-        intro={<ArticleMeta publishedAt={post.publishedAt} readingMinutes={post.readingMinutes} className="text-base" />}
-      />
-      <article className={cx(CONTAINER, "grid gap-8 py-12 md:py-16 lg:grid-cols-12")}>
-        <ArticleLedger
-          className="lg:col-span-3 lg:self-start"
-          rows={[
-            {
-              label: tw("published"),
-              value: post.publishedAt && <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>,
-            },
-            { label: tw("reading"), value: post.readingMinutes ? tl("readingTime", { minutes: post.readingMinutes }) : null },
-            { label: tw("area"), value: post.expertise?.title ?? null },
-          ]}
-        />
-        <div className="flex min-w-0 flex-col gap-6 lg:col-span-6">
-          {post.coverUrl && (
-            // Decorative: the title above names the article.
-            <Figure image={{ src: post.coverUrl, alt: "" }} crop="work" sizes="(min-width: 1024px) 50vw, 100vw" />
-          )}
-          {post.excerpt && <p className={cx(ARTICLE_PROSE, "font-medium")}>{post.excerpt}</p>}
-          <RichText doc={post.body} className={ARTICLE_PROSE} />
+      <article className={cx(CONTAINER, "mt-8 md:mt-12")}>
+        <div className="grid gap-8 border-t-2 border-rule pt-6 lg:grid-cols-12 lg:gap-gutter">
+          <aside className="flex flex-col items-start gap-4 lg:col-span-3 lg:self-start">
+            <MoreLink href={BLOG_PATH} label={t("allArticles")} back />
+            <ArticleLedger
+              className="self-stretch"
+              rows={[
+                {
+                  label: tw("published"),
+                  value: post.publishedAt && <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>,
+                },
+                { label: tw("reading"), value: post.readingMinutes ? tl("readingTime", { minutes: post.readingMinutes }) : null },
+                { label: tw("area"), value: post.expertise?.title ?? null },
+              ]}
+            />
+          </aside>
+          <div className="flex min-w-0 flex-col gap-6 lg:col-span-6">
+            <h1 className="text-balance type-h1 settle">{post.title}</h1>
+            {post.coverUrl && (
+              // Decorative: the title above names the article.
+              <Figure image={{ src: post.coverUrl, alt: "" }} crop="work" sizes="(min-width: 1024px) 50vw, 100vw" />
+            )}
+            {post.excerpt && <p className={cx(ARTICLE_PROSE, "font-medium")}>{post.excerpt}</p>}
+            <RichText doc={post.body} className={ARTICLE_PROSE} />
+            {/* §6.15: after the article, the newsletter. */}
+            <NewsletterSignup source="blog" inline className="mt-4" />
+          </div>
+          {shareUrl && <ShareButtons url={shareUrl} title={post.title} className="lg:col-span-3 lg:self-start" />}
         </div>
-        {shareUrl && <ShareButtons url={shareUrl} title={post.title} className="lg:col-span-3 lg:self-start" />}
       </article>
+      <ConsultationCta />
       {related.length > 0 && (
-        <div className={cx(CONTAINER, "pb-12 md:pb-16")}>
+        <div className={cx(CONTAINER, "mt-section")}>
           <PageSection id="related-articles" title={t("related")}>
             <ArticleList>
               {related.map((item) => (
@@ -99,7 +104,6 @@ export function ArticlePage({
           </PageSection>
         </div>
       )}
-      <ConsultationCta />
     </>
   );
 }

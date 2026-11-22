@@ -27,7 +27,7 @@ vi.mock("next-intl/server", async () => {
     }),
   };
 });
-vi.mock("@/components/public/parts", () => ({ PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
+vi.mock("@/components/public/parts", () => ({ CONTAINER: "", PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
 vi.mock("@/components/ui", () => ({ Skeleton: () => <div /> }));
 /** Reads the client messages the way `ResourceDownload` does. */
 function ClientList() {
@@ -79,7 +79,7 @@ describe("/resources", () => {
 
   it("shows the page's title in its hero", async () => {
     render(await page.default(props("en")));
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("en:Resources.title");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("en:Resources.heading");
   });
 
   it.each([

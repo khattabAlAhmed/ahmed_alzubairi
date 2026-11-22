@@ -5,17 +5,25 @@ import type { ListingQuery } from "../listing";
 export const MEDIA_PATH = "/media";
 export const CATEGORY_PARAM = "category";
 
-export type MediaListQuery = { category: MediaCategory | null };
+export const PAGE_PARAM = "page";
+
+/** Records on one page: the featured video and five rows (the Media mockup). */
+export const MEDIA_PER_PAGE = 6;
+
+export type MediaListQuery = { category: MediaCategory | null; page: number };
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-/** Reads the filter. A category that doesn't exist means all categories. */
+/** Reads the filter and the page. A category that doesn't exist means all categories; a bad page, page 1. */
 export function parseMediaQuery(params: SearchParams): MediaListQuery {
   const value = params[CATEGORY_PARAM];
   const category = mediaCategorySchema.safeParse((Array.isArray(value) ? value[0] : value)?.trim());
-  return { category: category.success ? category.data : null };
+  const rawPage = params[PAGE_PARAM];
+  const page = Number((Array.isArray(rawPage) ? rawPage[0] : rawPage)?.trim());
+  return { category: category.success ? category.data : null, page: Number.isSafeInteger(page) && page > 1 ? page : 1 };
 }
 
+/** The query as the listing components take it: the category, never the page. */
 export function listingQuery(query: MediaListQuery): ListingQuery {
   return query.category ? { [CATEGORY_PARAM]: query.category } : {};
 }
@@ -72,4 +80,23 @@ export function embedUrl(value: string | null): string | null {
   const vimeo = vimeoId(url);
   if (vimeo && VIMEO_ID.test(vimeo)) return `https://player.vimeo.com/video/${vimeo}?dnt=1`;
   return null;
+}
+
+/**
+ * The press log in page order. With no category, the first item with a video
+ * that can play here leads page 1 as the featured record; the rest stay in
+ * date order. Pages hold `MEDIA_PER_PAGE` items, and the page is clamped to the
+ * pages there are.
+ */
+export function mediaPage<T extends { videoUrl: string | null }>(
+  items: T[],
+  query: MediaListQuery,
+): { featured: T | null; rows: T[]; page: number; totalPages: number } {
+  const lead = query.category === null ? (items.find((item) => embedUrl(item.videoUrl) !== null) ?? null) : null;
+  const ordered = lead ? [lead, ...items.filter((item) => item !== lead)] : items;
+  const totalPages = Math.max(1, Math.ceil(ordered.length / MEDIA_PER_PAGE));
+  const page = Math.min(Math.max(1, query.page), totalPages);
+  const shown = ordered.slice((page - 1) * MEDIA_PER_PAGE, page * MEDIA_PER_PAGE);
+  const featured = page === 1 ? lead : null;
+  return { featured, rows: shown.filter((item) => item !== featured), page, totalPages };
 }
