@@ -117,7 +117,9 @@ export function ProjectsList({
             action={<MoreLink href="/projects" label={t("clearFilters")} />}
           />
         )}
-        {featured && <ProjectStoryFeatured story={story(featured)} />}
+        {featured && (
+          <ProjectStoryFeatured story={{ ...story(featured), meta: [...story(featured).meta, featured.duration] }} />
+        )}
         {rows.length > 0 && (
           <ProjectStoryList label={t("projectsPage.listLabel")}>
             {rows.map((project) => (

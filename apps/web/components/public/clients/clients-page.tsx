@@ -22,7 +22,7 @@ export function ClientsContent({ partners, testimonials }: { partners: Partner[]
       )}
       {testimonials.length > 0 && (
         <section aria-labelledby="clients-testimonials">
-          <h2 id="clients-testimonials" className="mb-2 type-h2">
+          <h2 id="clients-testimonials" className="mb-2 text-ink-2 type-small">
             {t("testimonialsTitle")}
           </h2>
           <TestimonialSet testimonials={testimonials} source={t("source")} />

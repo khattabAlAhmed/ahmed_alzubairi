@@ -164,7 +164,7 @@ export function ProjectDetailPage({
 
         <section aria-labelledby="project-story" className="grid gap-8 md:grid-cols-12 md:gap-gutter">
           <div className="min-w-0 md:col-span-8">
-            <h2 id="project-story" className="mb-2 type-h2">
+            <h2 id="project-story" className="mb-2 text-ink-2 type-small">
               {tp("story")}
             </h2>
             <dl className="border-t-2 border-rule">
