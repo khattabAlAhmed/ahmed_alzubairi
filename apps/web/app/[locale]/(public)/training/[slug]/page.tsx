@@ -7,13 +7,14 @@ import { Suspense } from "react";
 import { LanguageFallback } from "@/components/language-switch";
 import { formatDate } from "@/components/public/home/format";
 import { SeatsMeter } from "@/components/public/listing";
-import { CARD, CONTAINER, PageHero, PageSection, TextBlock } from "@/components/public/parts";
+import { CONTAINER, PageHero, TextBlock } from "@/components/public/parts";
+import { ProjectFacts, type ProjectFact } from "@/components/public/projects/project-detail";
 import { routeSlug, staticSlugs } from "@/components/public/static-slugs";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { Skeleton } from "@/components/ui";
 import { LocalDateTime } from "@/components/training/local-date-time";
 import { TRAINING_PATH } from "@/components/training/paths";
-import { RegistrationPanel } from "@/components/training/registration-panel";
+import { RegistrationFrame, RegistrationPanel } from "@/components/training/registration-panel";
 import { otherLocale, routing } from "@/i18n/routing";
 import { getCourse } from "@/lib/content/courses";
 import { metaDescription, pageMetadata } from "@/lib/seo";
@@ -67,87 +68,67 @@ export default async function CoursePage({ params }: Props) {
   const recorded = course.type === "recorded";
   const online = course.type === "online_live";
 
+  const date = course.startsAt ? (
+    <NextIntlClientProvider locale={locale} messages={{}}>
+      <LocalDateTime value={course.startsAt} fallback={formatDate(course.startsAt, locale)} />
+    </NextIntlClientProvider>
+  ) : (
+    t("course.dateNotSet")
+  );
+  const typeLabel = recorded
+    ? `${tListing("courseType.recorded")} · ${tListing("comingSoon")}`
+    : tListing(`courseType.${course.type}`);
+  const facts: ProjectFact[] = [
+    { label: t("course.type"), value: typeLabel },
+    ...(recorded ? [] : [{ label: t("course.date"), value: date }]),
+    ...(!recorded && (online || course.place) ? [{ label: t("course.place"), value: online ? t("course.online") : course.place }] : []),
+    ...(course.audience ? [{ label: t("course.for"), value: course.audience }] : []),
+  ];
+  const seats = course.seats !== null && course.seatsLeft !== null;
+
   return (
-    <main id={MAIN_CONTENT_ID} className="flex-1">
+    <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
       {/* No translation: the switch goes to the training page instead (§6.1). */}
       {!course.availableIn.includes(otherLocale(locale)) && <LanguageFallback href={TRAINING_PATH} />}
-      <PageHero
-        back={{ href: TRAINING_PATH, label: t("course.back") }}
-        eyebrow={
-          recorded
-            ? `${tListing("courseType.recorded")} · ${tListing("comingSoon")}`
-            : tListing(`courseType.${course.type}`)
-        }
-        title={course.title}
-      />
-      <div className={`${CONTAINER} grid gap-12 py-12 md:py-16 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]`}>
-        <div className="space-y-12">
-          <PageSection id="course-about" title={t("course.about")}>
-            <TextBlock text={course.description} />
-          </PageSection>
-          {course.audience && (
-            <PageSection id="course-audience" title={t("course.audience")}>
-              <TextBlock text={course.audience} />
-            </PageSection>
-          )}
+      <PageHero back={{ href: TRAINING_PATH, label: t("course.back") }} eyebrow={typeLabel} title={course.title} />
+      <div className={`${CONTAINER} grid gap-10 md:grid-cols-12 md:gap-gutter`}>
+        <div className="flex min-w-0 flex-col gap-12 md:col-span-7 lg:col-span-8">
+          <ProjectFacts facts={facts} />
+          <section aria-labelledby="course-about">
+            <h2 id="course-about" className="mb-2 text-ink-2 type-small">
+              {t("course.about")}
+            </h2>
+            <div className="border-t-2 border-rule pt-4">
+              <div className="max-w-measure">
+                <TextBlock text={course.description} />
+              </div>
+            </div>
+          </section>
         </div>
 
-        <aside aria-labelledby="course-details" className={`${CARD} h-fit space-y-6`}>
-          <h2 id="course-details" className="text-xl">
-            {t("course.details")}
+        <aside aria-labelledby="course-registration" className="md:col-span-5 lg:col-span-4">
+          <h2 id="course-registration" className="sr-only">
+            {t("course.registration")}
           </h2>
-          <dl className="space-y-4">
-            <div>
-              <dt className="text-sm font-semibold text-text-secondary">{t("course.type")}</dt>
-              <dd className="mt-1">{tListing(`courseType.${course.type}`)}</dd>
-            </div>
-            {!recorded && (
-              <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.date")}</dt>
-                <dd className="mt-1">
-                  {course.startsAt ? (
-                    <NextIntlClientProvider locale={locale} messages={{}}>
-                      <LocalDateTime
-                        value={course.startsAt}
-                        fallback={formatDate(course.startsAt, locale)}
-                      />
-                    </NextIntlClientProvider>
-                  ) : (
-                    t("course.dateNotSet")
-                  )}
-                </dd>
-              </div>
+          <RegistrationFrame
+            className="md:sticky md:top-24"
+            facts={[
+              ...(recorded ? [] : [{ label: t("course.date"), value: date }]),
+              ...(!recorded && course.type !== "custom"
+                ? [{ label: t("course.seats"), value: seats ? null : t("course.noLimit") }]
+                : []),
+            ].filter((fact) => fact.value !== null)}
+          >
+            {!recorded && course.type !== "custom" && seats && (
+              <SeatsMeter left={course.seatsLeft ?? 0} total={course.seats ?? 0} />
             )}
-            {!recorded && (online || course.place) && (
-              <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.place")}</dt>
-                <dd className="mt-1">{online ? t("course.online") : course.place}</dd>
-              </div>
-            )}
-            {!recorded && course.type !== "custom" && (
-              <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.seats")}</dt>
-                <dd className="mt-1">
-                  {course.seats !== null && course.seatsLeft !== null ? (
-                    <SeatsMeter left={course.seatsLeft} total={course.seats} />
-                  ) : (
-                    t("course.noLimit")
-                  )}
-                </dd>
-              </div>
-            )}
-          </dl>
-          <section aria-labelledby="course-registration" className="border-t border-text/10 pt-6">
-            <h3 id="course-registration" className="sr-only">
-              {t("course.registration")}
-            </h3>
             <Suspense fallback={<Skeleton className="h-11 w-full" />}>
               {/* The button is a client component: it gets only its own namespace. */}
               <NextIntlClientProvider locale={locale} messages={{ Training }}>
                 <RegistrationPanel course={course} locale={locale} />
               </NextIntlClientProvider>
             </Suspense>
-          </section>
+          </RegistrationFrame>
         </aside>
       </div>
     </main>

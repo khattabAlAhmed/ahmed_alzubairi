@@ -21,7 +21,13 @@
     "opensInNewTab": "(opens in a new tab)",
     "seats": "Seats",
     "noLimit": "No seat limit",
-    "registration": "Registration"
+    "registration": "Registration",
+    "for": "For",
+    "error": {
+      "title": "The course didn't load",
+      "text": "The connection may be weak. Try again, or go back to all courses.",
+      "retry": "Try again"
+    }
   },
   "register": {
     "button": "Register",
@@ -42,8 +48,8 @@
     "failed": "Something went wrong on our side. Please try again."
   },
   "custom": {
-    "title": "Custom training for your organization",
-    "intro": "Tell us what your team needs: the topic, how many people, and when and where you'd like it.",
+    "title": "Training designed for your team",
+    "intro": "Tell me what your team needs. I will suggest content and a length that fit, and we agree before any commitment.",
     "linkFromCourse": "Ask for custom training",
     "orgName": "Organization",
     "traineeCount": "Number of trainees",
@@ -79,5 +85,19 @@
     "openLink": "Open the session's link",
     "opensInNewTab": "(opens in a new tab)",
     "view": "Course page"
+  },
+  "trainingPage": {
+    "heading": "Workshops people leave with something to use the next day",
+    "lead": "In person, live online, or designed for your own team. Recorded courses are coming.",
+    "upcoming": "Upcoming",
+    "scheduleTitle": "Upcoming courses",
+    "loading": "Loading the courses",
+    "emptyTitle": "No courses announced right now",
+    "emptyFilteredTitle": "No courses of this type right now",
+    "error": {
+      "title": "The courses didn't load",
+      "text": "The connection may be weak. The rest of the page works.",
+      "retry": "Try again"
+    }
   }
 }

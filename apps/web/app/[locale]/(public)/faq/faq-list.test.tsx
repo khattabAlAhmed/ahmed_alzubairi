@@ -41,6 +41,6 @@ describe("FaqList", () => {
     cleanup();
 
     render(<FaqList faqs={[]} />);
-    expect(screen.getByText("noFaqs")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "faqPage.empty.title" })).toBeTruthy();
   });
 });
