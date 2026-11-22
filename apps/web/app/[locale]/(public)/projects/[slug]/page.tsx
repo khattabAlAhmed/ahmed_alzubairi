@@ -6,7 +6,7 @@ import { ProjectDetailPage, routeSlug, staticSlugs } from "@/components/public/p
 import { LanguageFallback } from "@/components/language-switch";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { otherLocale, routing } from "@/i18n/routing";
-import { getExpertiseAreas, getProject } from "@/lib/content";
+import { getExpertiseAreas, getProject, getServices } from "@/lib/content";
 import { metaDescription, pageMetadata } from "@/lib/seo";
 import { defaultShareImage } from "@/lib/seo/static-pages";
 
@@ -47,13 +47,17 @@ export default async function ProjectPage({ params }: Props) {
 
   const project = await getProject(routeSlug(slug), locale);
   if (!project) notFound();
-  const areas = await getExpertiseAreas(locale);
+  const [areas, services] = await Promise.all([getExpertiseAreas(locale), getServices(locale)]);
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
       {/* No translation: the switch goes to the projects list instead (§6.1). */}
       {!project.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/projects" />}
-      <ProjectDetailPage project={project} area={areas.find((area) => area.id === project.expertiseId) ?? null} />
+      <ProjectDetailPage
+        project={project}
+        area={areas.find((area) => area.id === project.expertiseId) ?? null}
+        services={services.filter((service) => project.serviceIds.includes(service.id))}
+      />
     </main>
   );
 }

@@ -5,7 +5,7 @@
   "filterAll": "All",
   "resultCount": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
   "noProjects": "No projects match this choice.",
-  "clearFilters": "Clear filters",
+  "clearFilters": "Clear selection",
   "orgType": {
     "government": "Government",
     "organization": "Organization",
@@ -46,5 +46,52 @@
     "account": "Account"
   },
   "faqSectionsLabel": "Question sections",
-  "noFaqs": "No questions are published yet."
+  "noFaqs": "No questions are published yet.",
+  "projectsPage": {
+    "eyebrow": "Projects",
+    "title": "Every project here began with a question that had no easy answer.",
+    "intro": "I write about each one as it happened: where we were, what I did, and what changed after I left.",
+    "count": "Projects",
+    "updated": "Last updated",
+    "listLabel": "Projects",
+    "loading": "Loading the projects",
+    "empty": {
+      "title": "No projects published yet",
+      "text": "I add each project once I've written it up as it happened."
+    },
+    "noResults": {
+      "title": "No projects match this selection",
+      "text": "I haven't worked on a project like that yet."
+    },
+    "error": {
+      "title": "The projects didn't load",
+      "text": "The connection may be weak. The rest of the page works.",
+      "retry": "Try again"
+    }
+  },
+  "projectPage": {
+    "breadcrumb": "Path",
+    "area": "Area",
+    "service": "Service",
+    "client": "Client",
+    "story": "The story",
+    "serviceLink": "Service: {title}",
+    "areaLink": "Area: {title}",
+    "hiddenName": "The organization's name is not published, at its request.",
+    "resultsTitle": "Results in numbers",
+    "activitiesTitle": "How the work went"
+  },
+  "clientsPage": {
+    "eyebrow": "Clients and testimonials",
+    "title": "Who I have worked with, and what they said",
+    "intro": "Every logo here is shown with its owner's consent, and every word comes from a real thank-you letter. Some organizations prefer not to be named, and I respect that.",
+    "organizations": "Organizations",
+    "testimonialsTitle": "From thank-you letters",
+    "source": "From a thank-you letter",
+    "logosTitle": "Organizations",
+    "empty": {
+      "title": "Nothing published here yet",
+      "text": "I publish a logo or a testimonial only with its owner's consent."
+    }
+  }
 }

@@ -38,17 +38,16 @@ describe("ClientsContent", () => {
     expect(full.textContent).toContain("Great work.");
     expect(full.textContent).toContain("Org A");
     expect(screen.getByText("Officer")).toBeTruthy();
-    expect(screen.queryByText("noClients")).toBeNull();
+    expect(screen.queryByText("empty.title")).toBeNull();
   });
 
   it("hides an empty section, and says so when both are empty", () => {
     render(<ClientsContent partners={[]} testimonials={[{ id: "t", quote: "Q", author: "A", organization: null }]} />);
-    expect(screen.queryByText("logos")).toBeNull();
-    expect(screen.getByText("testimonials")).toBeTruthy();
+    expect(screen.queryByText("logosTitle")).toBeNull();
+    expect(screen.getByText("testimonialsTitle")).toBeTruthy();
     cleanup();
 
     render(<ClientsContent partners={[]} testimonials={[]} />);
-    expect(screen.getByText("noClients")).toBeTruthy();
-    expect(screen.queryByRole("heading")).toBeNull();
+    expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual(["empty.title"]);
   });
 });
