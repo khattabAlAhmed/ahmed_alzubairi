@@ -1,6 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import ar from "@/messages/ar/Catalog.json";
+import en from "@/messages/en/Catalog.json";
 import { ErrorState } from "@/components/feedback/error-state";
 import { CONTAINER } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
@@ -12,16 +14,18 @@ import { Button } from "@/components/ui";
  * a project page.
  */
 export default function ProjectsError({ reset }: { reset: () => void }) {
-  const t = useTranslations("Catalog.projectsPage.error");
+  // The browser gets only the layout's namespaces, so the error copy comes
+  // from the message files themselves.
+  const copy = (useLocale() === "ar" ? ar : en).projectsPage.error;
   return (
     <main id={MAIN_CONTENT_ID} className={`${CONTAINER} flex-1 py-section`}>
       <ErrorState
         size="section"
-        title={t("title")}
-        text={t("text")}
+        title={copy.title}
+        text={copy.text}
         action={
           <Button variant="secondary" size="sm" onClick={reset}>
-            {t("retry")}
+            {copy.retry}
           </Button>
         }
       />

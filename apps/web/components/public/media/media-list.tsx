@@ -48,7 +48,11 @@ export function MediaList({ items, query }: { items: MediaItem[]; query: MediaLi
 
   const filtered = query.category !== null;
   const shown = filtered ? items.filter((item) => item.category === query.category) : items;
-  const used = MEDIA_CATEGORIES.filter((category) => items.some((item) => item.category === category));
+  // The chosen category stays a chip even with nothing in it, so the chips
+  // never mark "All" over an empty result.
+  const used = MEDIA_CATEGORIES.filter(
+    (category) => category === query.category || items.some((item) => item.category === category),
+  );
   const { featured, rows, page, totalPages } = mediaPage(shown, query);
 
   /** The links out: the video's own page (when it can't play here) and the item's link. */
