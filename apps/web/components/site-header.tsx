@@ -68,8 +68,9 @@ export function HeaderBar({ className, signedInAs }: { className?: string; signe
   return (
       <header className={cx("border-t-2 border-b border-t-rule border-b-line bg-bg text-ink", className)}>
         <div className={cx(CONTAINER, "flex min-h-14 items-stretch justify-between gap-6")}>
-          <SiteLogo fields />
-          <nav aria-label={t("mainLabel")} className="hidden xl:flex">
+          {/* From 640 px the name never wraps (the line of fields under it may). On a phone it may: there it shares the row with the consultation button, as before. */}
+          <SiteLogo fields className="sm:[&>span:first-child]:whitespace-nowrap" />
+          <nav aria-label={t("mainLabel")} className="hidden min-[90rem]:flex">
             <ul className="flex">
               {MAIN_NAV.map((item) => (
                 <li key={item.href} className="flex">

@@ -15,7 +15,13 @@ vi.mock("./auth-link", () => ({ AuthLink: () => null }));
 vi.mock("./consultation-button", () => ({ ConsultationButton: () => <button type="button">consult</button> }));
 vi.mock("./language-switch", () => ({ LanguageSwitch: () => null }));
 vi.mock("./theme-switch", () => ({ ThemeSwitch: () => null }));
-vi.mock("./site-logo", () => ({ SiteLogo: () => <span>logo</span> }));
+vi.mock("./site-logo", () => ({
+  SiteLogo: ({ className }: { className?: string }) => (
+    <span data-testid="logo" className={className}>
+      logo
+    </span>
+  ),
+}));
 vi.mock("./quick-contact", () => ({ QuickContact: () => null }));
 vi.mock("./nav-link", () => ({
   NavLink: ({ href, children, className }: { href: string; children: ReactNode; className?: string }) => (
@@ -33,14 +39,14 @@ afterEach(cleanup);
 const classes = (element: Element | null) => (element?.getAttribute("class") ?? "").split(/\s+/);
 
 describe("SiteHeader", () => {
-  it("shows the inline nav from xl, where the menu button hides", () => {
+  it("shows the inline nav from 1440 px, where the menu button hides", () => {
     render(<SiteHeader />);
     const header = screen.getByRole("banner");
     const [inline] = within(header).getAllByRole("navigation", { name: "mainLabel" });
-    expect(classes(inline)).toEqual(expect.arrayContaining(["hidden", "xl:flex"]));
+    expect(classes(inline)).toEqual(expect.arrayContaining(["hidden", "min-[90rem]:flex"]));
 
     const menuButton = within(header).getByRole("button", { name: "openMenu" });
-    expect(classes(menuButton.parentElement)).toContain("xl:hidden");
+    expect(classes(menuButton.parentElement)).toContain("min-[90rem]:hidden");
   });
 
   it("stays at the top while the page scrolls, opened by the 2px rule", () => {
@@ -63,5 +69,11 @@ describe("SiteHeader", () => {
     render(<SiteHeader />);
     const consult = within(screen.getByRole("banner")).getAllByRole("button", { name: "consult" })[0];
     expect(consult?.closest(".hidden")).toBeNull();
+  });
+
+  it("keeps the site name on one line", () => {
+    render(<SiteHeader />);
+    // SiteLogo's first span is the name; the fields line under it may wrap.
+    expect(classes(within(screen.getByRole("banner")).getByTestId("logo"))).toContain("sm:[&>span:first-child]:whitespace-nowrap");
   });
 });
