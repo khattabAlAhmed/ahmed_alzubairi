@@ -84,15 +84,16 @@ export function embedUrl(value: string | null): string | null {
 
 /**
  * The press log in page order. With no category, the first item with a video
- * that can play here leads page 1 as the featured record; the rest stay in
- * date order. Pages hold `MEDIA_PER_PAGE` items, and the page is clamped to the
+ * that can play here and a still to show before it plays leads page 1 as the
+ * featured record (a video without a still stays a row with its link); the
+ * rest stay in date order. Pages hold `MEDIA_PER_PAGE` items, and the page is clamped to the
  * pages there are.
  */
-export function mediaPage<T extends { videoUrl: string | null }>(
+export function mediaPage<T extends { videoUrl: string | null; imageUrl: string | null }>(
   items: T[],
   query: MediaListQuery,
 ): { featured: T | null; rows: T[]; page: number; totalPages: number } {
-  const lead = query.category === null ? (items.find((item) => embedUrl(item.videoUrl) !== null) ?? null) : null;
+  const lead = query.category === null ? (items.find((item) => item.imageUrl !== null && embedUrl(item.videoUrl) !== null) ?? null) : null;
   const ordered = lead ? [lead, ...items.filter((item) => item !== lead)] : items;
   const totalPages = Math.max(1, Math.ceil(ordered.length / MEDIA_PER_PAGE));
   const page = Math.min(Math.max(1, query.page), totalPages);

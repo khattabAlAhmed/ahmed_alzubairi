@@ -154,7 +154,7 @@ describe("MediaList", () => {
   it("features a YouTube item, and loads its player only on a click", () => {
     const { container } = render(
       <MediaList
-        items={[item({ videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" })]}
+        items={[item({ videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", imageUrl: "https://cdn.example/still.jpg" })]}
         query={{ category: null, page: 1 }}
       />,
     );
@@ -171,8 +171,8 @@ describe("MediaList", () => {
 
   it("features only one video, on page 1 with no category; other videos are links", () => {
     const items = [
-      item({ id: "a", title: "First", videoUrl: "https://youtu.be/dQw4w9WgXcQ" }),
-      item({ id: "b", title: "Second", videoUrl: "https://vimeo.com/123456789" }),
+      item({ id: "a", title: "First", videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: "https://cdn.example/a.jpg" }),
+      item({ id: "b", title: "Second", videoUrl: "https://vimeo.com/123456789", imageUrl: "https://cdn.example/b.jpg" }),
     ];
     const { container } = render(<MediaList items={items} query={{ category: null, page: 1 }} />);
     expect(screen.getAllByRole("button", { name: /^play:/ })).toHaveLength(1);
@@ -269,8 +269,14 @@ describe("MediaList", () => {
 });
 
 describe("mediaPage", () => {
-  const video = (id: string) => ({ id, videoUrl: "https://youtu.be/dQw4w9WgXcQ" });
-  const plain = (id: string) => ({ id, videoUrl: null });
+  const video = (id: string) => ({ id, videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: "https://cdn.example/s.jpg" });
+  const plain = (id: string) => ({ id, videoUrl: null, imageUrl: null });
+
+  it("features only a video with a still to show", () => {
+    const noStill = { id: "n", videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: null };
+    expect(mediaPage([noStill, plain("a")], { category: null, page: 1 }).featured).toBeNull();
+    expect(mediaPage([noStill, video("v")], { category: null, page: 1 }).featured?.id).toBe("v");
+  });
 
   it("leads page 1 with the first playable video, then keeps the order", () => {
     const items = [plain("a"), video("b"), plain("c")];
