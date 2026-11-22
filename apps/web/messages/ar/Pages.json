@@ -11,14 +11,14 @@
   "allExpertise": "كل مجالات الخبرة",
   "emptyExpertise": "لم أنشر مجالات خبرتي بهذه اللغة بعد. يمكنك أن تكتب لي مباشرة.",
   "area": "المجال",
-  "audience": "لمن تناسب هذه الخدمة",
+  "audience": "يناسب",
   "deliverables": "ما الذي تحصل عليه",
   "stages": "مراحل العمل",
-  "serviceProjects": "مشاريع ذات صلة",
-  "serviceFaqs": "أسئلة شائعة عن هذه الخدمة",
+  "serviceProjects": "مشاريع من هذه الخدمة",
+  "serviceFaqs": "أسئلة عن هذه الخدمة",
   "requestService": "اطلب هذه الخدمة",
   "allServices": "كل الخدمات",
-  "emptyServices": "لا توجد خدمات منشورة بهذه اللغة بعد.",
+  "emptyServices": "لم أنشر خدماتي بهذه اللغة بعد. اكتب لي بما تواجهه، وسأقول لك إن كنت أستطيع المساعدة.",
   "keyResult": "النتيجة الأبرز",
   "ctaDirect": "أو راسلني مباشرة",
   "ctaStepsLabel": "ماذا يحدث بعد ذلك",
@@ -58,5 +58,32 @@
   "factProjects": "المشاريع",
   "factOrganizations": "الجهات",
   "emptyExpertiseTitle": "لا مجالات هنا بعد",
-  "portraitAlt": "صورة {name}"
+  "portraitAlt": "صورة {name}",
+  "servicesEyebrow": "الخدمات · {count}",
+  "servicesSentence": "ما أستطيع المساعدة فيه",
+  "servicesIntro": "لا تحتاج أن تعرف أي خدمة تناسبك قبل أن تكتب لي. أغلب من يراسلني يبدأ بوصف ما يحدث، ونجد الطريق معاً.",
+  "stagesCount": "{count, plural, one {مرحلة واحدة} two {مرحلتان} few {{shown} مراحل} many {{shown} مرحلة} other {{shown} مرحلة}}",
+  "howTitle": "كيف يبدأ العمل",
+  "howIntro": "بالترتيب نفسه في كل خدمة.",
+  "how": {
+    "write": {
+      "title": "تكتب لي",
+      "text": "ما يحدث، بلغتك وبطريقتك."
+    },
+    "ask": {
+      "title": "أسأل",
+      "text": "ما أحتاج أن أفهمه قبل أن أقترح شيئاً."
+    },
+    "agree": {
+      "title": "نتفق كتابةً",
+      "text": "النطاق والمدة وما ستحصلون عليه."
+    },
+    "listen": {
+      "title": "نبدأ بالاستماع",
+      "text": "مع من سيعيشون النتائج."
+    }
+  },
+  "factStages": "المراحل",
+  "factPastProjects": "مشاريع سابقة",
+  "emptyServicesTitle": "لا خدمات هنا بعد"
 }

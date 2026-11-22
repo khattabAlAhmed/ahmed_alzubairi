@@ -1,40 +1,92 @@
 import type { Locale } from "@repo/shared";
 import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+import { FaqItem } from "@/app/[locale]/(public)/faq/faq-list";
+import { EmptyState } from "@/components/empty-state";
 import { formatNumber } from "@/components/public/home/format";
-import { cx, INLINE_LINK } from "@/components/ui/cx";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { Link } from "@/i18n/navigation";
+import { cx } from "@/components/ui/cx";
 import type { ExpertiseArea, Faq, Project, Service, ServiceDetail } from "@/lib/content";
-import { CONTAINER, ConsultationCta, EmptyNote, MoreLink, PageHero, PageSection } from "../parts";
+import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection, type PageFact } from "../parts";
 import { ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
 import { RequestPanel, ServiceFacts, ServiceRows, splitLines, StageStrip } from "./identity";
 import { RequestServiceButton, SignedOutNote } from "./request-service-button";
 
-/** `/services`: every service published in this language (§6.5), as an index; the first featured one is open. */
-export function ServicesListPage({ services }: { services: Service[] }) {
+/** The steps every service starts with, in order (approved voice copy, the Services mockup). */
+const HOW_STEPS = ["write", "ask", "agree", "listen"] as const;
+
+/**
+ * `/services` (the Services mockup): one sentence of his and how many services
+ * there are, the index of services with the first featured one open and each
+ * row's number of stages, then how the work starts, the same for every
+ * service.
+ */
+export function ServicesListPage({
+  services,
+  stageCounts = {},
+}: {
+  services: Service[];
+  /** How many stages each service has, by id, when its editor wrote one per line. */
+  stageCounts?: Readonly<Record<string, number>>;
+}) {
   const t = useTranslations("Pages");
   const tNav = useTranslations("Nav");
+  const locale = useLocale() as Locale;
+  const n = (value: number) => formatNumber(value, locale);
   const featured = services.find((service) => service.isFeatured) ?? null;
+  const meta = Object.fromEntries(
+    Object.entries(stageCounts).map(([id, count]) => [id, t("stagesCount", { count, shown: n(count) })]),
+  );
 
   return (
     <>
-      <PageHero title={tNav("services")} />
-      <div className={cx(CONTAINER, "mt-section")}>
+      <PageHero
+        eyebrow={services.length > 0 ? t("servicesEyebrow", { count: n(services.length) }) : tNav("services")}
+        title={t("servicesSentence")}
+        intro={<p>{t("servicesIntro")}</p>}
+      />
+      <div className={cx(CONTAINER, "grid gap-section")}>
         {services.length === 0 ? (
-          <EmptyNote text={t("emptyServices")} />
+          <EmptyState
+            level={2}
+            title={t("emptyServicesTitle")}
+            text={t("emptyServices")}
+            action={<MoreLink href="/contact" label={tNav("contact")} />}
+          />
         ) : (
-          <ServiceRows services={services} openId={featured?.id} headingLevel={2} />
+          <nav aria-label={tNav("services")}>
+            <ServiceRows services={services} openId={featured?.id} headingLevel={2} meta={meta} />
+          </nav>
         )}
+        <PageSection id="services-how" title={t("howTitle")} intro={t("howIntro")}>
+          <StageStrip
+            text={HOW_STEPS.map((step) => `${t(`how.${step}.title`)}: ${t(`how.${step}.text`)}`).join("\n")}
+            formatIndex={n}
+          />
+        </PageSection>
       </div>
       <ConsultationCta />
     </>
   );
 }
 
+/** A part of the service page under a quiet label (the Service mockup), not a section head. */
+function Part({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+  return (
+    <section aria-labelledby={id}>
+      <h2 id={id} className="type-small mb-2 text-ink-2">
+        {label}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
 /**
- * `/services/[slug]` (the ServicePage board): who it suits and what the client
- * gets, the work stages, related projects and FAQs, with «اطلب هذه الخدمة»
- * in a panel beside them.
+ * `/services/[slug]` (the Service mockup): the page header with the service's
+ * facts as a ledger; who it suits and what the client receives; the work
+ * stages; projects from this service as stories; its questions; and
+ * «اطلب هذه الخدمة» in the panel beside them, which follows the questions on
+ * phones. Parts with nothing to show aren't rendered.
  */
 export function ServiceDetailPage({
   service,
@@ -53,84 +105,67 @@ export function ServiceDetailPage({
   const t = useTranslations("Pages");
   const tNav = useTranslations("Nav");
   const tIdentity = useTranslations("ContentIdentity.service");
-  const request = (className?: string) => (
-    <RequestServiceButton serviceSlug={service.slug} label={t("requestService")} className={className} />
-  );
+  const locale = useLocale() as Locale;
+  const n = (value: number) => formatNumber(value, locale);
+
+  const stageCount = service.stages ? splitLines(service.stages).length : 0;
+  const facts: PageFact[] = [
+    ...(stageCount > 1 ? [{ label: t("factStages"), value: n(stageCount) }] : []),
+    ...(projects.length > 0 ? [{ label: t("factPastProjects"), value: n(projects.length) }] : []),
+    ...(area ? [{ label: t("area"), value: area.title }] : []),
+  ];
 
   return (
     <>
       <PageHero
-        back={{ href: "/services", label: t("allServices") }}
-        eyebrow={tNav("services")}
+        back={{ href: "/services", label: tNav("services") }}
         title={service.title}
-        intro={
-          <>
-            <p>{service.summary}</p>
-            {area && (
-              <p className="type-small mt-3">
-                {t("area")}:{" "}
-                <Link href={`/expertise/${area.slug}`} className={INLINE_LINK}>
-                  {area.title}
-                </Link>
-              </p>
-            )}
-          </>
-        }
-        actions={request()}
+        intro={<p>{service.summary}</p>}
+        facts={facts}
       />
-      <div className={cx(CONTAINER, "mt-section grid gap-x-gutter gap-y-section lg:grid-cols-12")}>
-        <div className="flex min-w-0 flex-col gap-section lg:col-span-9">
+      <div className={cx(CONTAINER, "mt-12 grid gap-x-gutter gap-y-section lg:grid-cols-12")}>
+        <div className="flex min-w-0 flex-col gap-14 lg:col-span-9">
           {(service.audience || service.deliverables) && (
             <ServiceFacts audience={service.audience} deliverables={service.deliverables} />
           )}
           {service.stages && (
-            <section aria-labelledby="service-stages">
-              <h2 id="service-stages" className="type-small mb-2 text-ink-2">
-                {t("stages")}
-              </h2>
+            <Part id="service-stages" label={t("stages")}>
               <Stages text={service.stages} />
-            </section>
+            </Part>
           )}
           {projects.length > 0 && (
-            <PageSection id="service-projects" title={t("serviceProjects")}>
+            <Part id="service-projects" label={t("serviceProjects")}>
               <ProjectStoryList>
                 {projects.map((project) => (
-                  <ProjectStoryRow key={project.id} story={storyFromProject(project)} headingLevel={3} />
+                  <ProjectStoryRow
+                    key={project.id}
+                    story={storyFromProject(project, { area: area?.title })}
+                    headingLevel={3}
+                  />
                 ))}
               </ProjectStoryList>
-            </PageSection>
+            </Part>
           )}
           {faqs.length > 0 && (
-            <PageSection id="service-faqs" title={t("serviceFaqs")}>
-              <div className="max-w-measure border-t border-line">
-                {faqs.map((faq) => (
-                  <details key={faq.id} className="group border-b border-line">
-                    <summary className="flex cursor-pointer list-none items-start justify-between gap-4 py-4 font-medium focus-ring [&::-webkit-details-marker]:hidden">
-                      {faq.question}
-                      <ChevronDownIcon
-                        aria-hidden="true"
-                        className="mt-1 size-4 shrink-0 text-ink-2 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                      />
-                    </summary>
-                    <p className="type-small pb-4 whitespace-pre-line text-pretty text-ink-2">{faq.answer}</p>
-                  </details>
+            <Part id="service-faqs" label={t("serviceFaqs")}>
+              <div className="border-t-2 border-rule">
+                {faqs.map((faq, index) => (
+                  <FaqItem key={faq.id} question={faq.question} answer={faq.answer} open={index === 0} />
                 ))}
               </div>
-            </PageSection>
+            </Part>
           )}
-          <MoreLink href="/services" label={t("allServices")} back />
         </div>
         <aside className="lg:col-span-3">
           <RequestPanel
             title={service.title}
-            action={request("flex w-full")}
+            action={<RequestServiceButton serviceSlug={service.slug} label={t("requestService")} className="flex w-full" />}
             after={<SignedOutNote>{tIdentity("accountNote")}</SignedOutNote>}
           >
             <p className="type-small text-pretty text-ink-2">{tIdentity("panelNote")}</p>
           </RequestPanel>
         </aside>
       </div>
-      <ConsultationCta />
     </>
   );
 }
