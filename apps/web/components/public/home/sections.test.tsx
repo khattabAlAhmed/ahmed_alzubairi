@@ -45,6 +45,8 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
     organization: null,
     goal: "Goal",
     keyResult: null,
+    duration: null,
+    updatedAt: "2026-03-01T00:00:00Z",
     isFeatured: false,
     coverUrl: null,
     ...overrides,

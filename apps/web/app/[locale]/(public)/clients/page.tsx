@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ClientsContent } from "@/components/public/clients";
-import { PageHero } from "@/components/public/projects";
+import { formatNumber } from "@/components/public/home/format";
+import { PageHero } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
 import { getPartners, getTestimonials } from "@/lib/content";
@@ -24,14 +25,19 @@ export default async function Clients({ params }: Props) {
   // Renders on request: the build never reads Supabase. Reads stay cached by tag.
   await connection();
   const [t, partners, testimonials] = await Promise.all([
-    getTranslations({ locale, namespace: "Nav" }),
+    getTranslations({ locale, namespace: "Catalog.clientsPage" }),
     getPartners(locale),
     getTestimonials(locale),
   ]);
 
   return (
-    <main id={MAIN_CONTENT_ID} className="flex-1">
-      <PageHero title={t("clients")} />
+    <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
+      <PageHero
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        intro={<p>{t("intro")}</p>}
+        facts={partners.length > 0 ? [{ label: t("organizations"), value: formatNumber(partners.length, locale) }] : undefined}
+      />
       <ClientsContent partners={partners} testimonials={testimonials} />
     </main>
   );

@@ -3,13 +3,14 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ExpertiseArea, Project, ProjectDetail } from "@/lib/content";
-import { filterProjects, filterQuery, parseProjectFilters } from "./filters";
+import { filterProjects, filterQuery, parsePage, parseProjectFilters } from "./filters";
 import { ProjectDetailPage } from "./project-detail";
-import { ProjectsList } from "./projects-list";
+import { orderProjects, pageOf, ProjectsList } from "./projects-list";
 import { routeSlug, staticSlugs } from "../static-slugs";
 
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
+  useLocale: () => "en",
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));
@@ -59,6 +60,8 @@ function project(overrides: Partial<Project>): Project {
     organization: null,
     goal: "Goal",
     keyResult: null,
+    duration: null,
+    updatedAt: "2026-03-01T00:00:00Z",
     isFeatured: false,
     coverUrl: null,
     ...overrides,
@@ -133,42 +136,88 @@ describe("staticSlugs and routeSlug", () => {
   });
 });
 
+describe("parsePage", () => {
+  it("reads a whole page number from 2, otherwise 1", () => {
+    expect(parsePage({ page: "3" })).toBe(3);
+    for (const page of [undefined, "", "1", "0", "-2", "2.5", "abc"]) expect(parsePage({ page })).toBe(1);
+  });
+});
+
+describe("orderProjects and pageOf", () => {
+  const many = Array.from({ length: 14 }, (_, index) =>
+    project({ id: `m${index}`, slug: `m${index}`, isFeatured: index === 4 }),
+  );
+
+  it("puts the first featured project first only without a filter", () => {
+    expect(orderProjects(many, false).items[0].id).toBe("m4");
+    expect(orderProjects(many, false).featured?.id).toBe("m4");
+    expect(orderProjects(many, true)).toEqual({ items: many, featured: null });
+  });
+
+  it("splits into pages of six and clamps the page", () => {
+    expect(pageOf(many, 1)).toMatchObject({ page: 1, totalPages: 3 });
+    expect(pageOf(many, 3).items.map((item) => item.id)).toEqual(["m12", "m13"]);
+    expect(pageOf(many, 99).page).toBe(3);
+    expect(pageOf([], 2)).toEqual({ items: [], page: 1, totalPages: 1 });
+  });
+});
+
 describe("ProjectsList", () => {
   it("shows the matching projects, with the hidden project's label", () => {
     render(<ProjectsList projects={projects} areas={areas} filters={{ area: "governance", orgType: null }} />);
 
     const cards = screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
     expect(cards).toEqual(["Gov project", "Hidden project"]);
-    expect(screen.getByText("An international organization")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toBe('resultCount:{"count":2}');
+    expect(screen.getByText(/An international organization/)).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain('resultCount:{"count":2}');
   });
 
-  it("offers only filters that match a project, and keeps the other filter in each link", () => {
+  it("offers only filters that match a project, with counts, and keeps the other filter in each link", () => {
     render(<ProjectsList projects={projects} areas={areas} filters={{ area: "governance", orgType: null }} />);
 
     const areaGroup = screen.getByRole("navigation", { name: "filterArea" });
     expect(within(areaGroup).queryByText("Unused area")).toBeNull();
-    expect(within(areaGroup).getByText("Governance").closest("a")?.getAttribute("aria-current")).toBe("true");
+    const governance = within(areaGroup).getByText("Governance").closest("a");
+    expect(governance?.getAttribute("aria-current")).toBe("true");
+    expect(governance?.textContent).toBe("Governance2");
 
     const typeGroup = screen.getByRole("navigation", { name: "filterOrgType" });
-    expect(within(typeGroup).getByText("orgType.company").closest("a")?.getAttribute("href")).toBe(
-      "/projects?area=governance&type=company",
-    );
+    const company = within(typeGroup).getByText("orgType.company").closest("a");
+    expect(company?.getAttribute("href")).toBe("/projects?area=governance&type=company");
+    // With the area kept, no governance project is a company's.
+    expect(company?.textContent).toBe("orgType.company0");
     expect(within(typeGroup).getByText("filterAll").closest("a")?.getAttribute("href")).toBe(
       "/projects?area=governance",
     );
     expect(screen.getByText("clearFilters").closest("a")?.getAttribute("href")).toBe("/projects");
   });
 
-  it("says so when the filters match nothing", () => {
+  it("says so when the filters match nothing, with a way back", () => {
     render(<ProjectsList projects={projects} areas={areas} filters={{ area: "management", orgType: "government" }} />);
-    expect(screen.getByText("noProjects")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "projectsPage.noResults.title" })).toBeTruthy();
+    expect(screen.getByText("clearFilters").closest("a")?.getAttribute("href")).toBe("/projects");
   });
 
-  it("shows only the empty note when nothing is published", () => {
+  it("shows only the empty state when nothing is published", () => {
     render(<ProjectsList projects={[]} areas={areas} filters={{ area: null, orgType: null }} />);
-    expect(screen.getByText("noProjects")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "projectsPage.empty.title" })).toBeTruthy();
     expect(screen.queryByRole("navigation")).toBeNull();
+  });
+
+  it("opens page 1 with the featured record, and pages through the rest", () => {
+    const many = Array.from({ length: 8 }, (_, index) =>
+      project({ id: `m${index}`, slug: `m${index}`, title: `Project ${index}`, isFeatured: index === 2 }),
+    );
+    render(<ProjectsList projects={many} areas={areas} filters={{ area: null, orgType: null }} />);
+    expect(screen.getByRole("article").textContent).toContain("Project 2");
+    expect(screen.getAllByRole("listitem").filter((item) => item.closest("ul[aria-label]")).length).toBe(5);
+    expect(screen.getByRole("navigation", { name: "paginationLabel" })).toBeTruthy();
+    cleanup();
+
+    render(<ProjectsList projects={many} areas={areas} filters={{ area: null, orgType: null }} page={2} />);
+    expect(screen.queryByRole("article")).toBeNull();
+    const titles = screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
+    expect(titles).toEqual(["Project 6", "Project 7"]);
   });
 });
 
@@ -177,36 +226,57 @@ describe("ProjectDetailPage", () => {
     ...projects[1],
     role: "Lead consultant",
     duration: "Six months",
+    organizationHidden: true,
     activities: "Workshops",
     results: "Three plans",
     keyResult: "12 teams trained",
-    images: [{ url: "https://x.supabase.co/storage/v1/object/public/public-media/a.jpg", alt: null }],
-    serviceIds: [],
+    images: [
+      { url: "https://x.supabase.co/storage/v1/object/public/public-media/a.jpg", alt: null },
+      { url: "https://x.supabase.co/storage/v1/object/public/public-media/b.jpg", alt: "Workshop" },
+    ],
+    serviceIds: ["s1"],
     availableIn: ["ar", "en"],
   };
 
-  it("shows every field, the organization label, and a link to the area's filtered list", () => {
-    render(<ProjectDetailPage project={detail} area={areas[0]} />);
+  it("shows the story, the facts, the label, and links to the service and the area's list", () => {
+    render(<ProjectDetailPage project={detail} area={areas[0]} services={[{ slug: "protection", title: "Protection" }]} />);
 
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Hidden project");
     expect(screen.getAllByText("An international organization").length).toBeGreaterThan(0);
     for (const text of ["Goal", "Lead consultant", "Six months", "Workshops", "Three plans", "12 teams trained"]) {
       expect(screen.getByText(text)).toBeTruthy();
     }
-    expect(screen.getByText("Governance").closest("a")?.getAttribute("href")).toBe("/projects?area=governance");
-    expect(screen.getByRole("img").getAttribute("alt")).toBe('photoAlt:{"title":"Hidden project"}');
+    expect(screen.getByText('areaLink:{"title":"Governance"}').closest("a")?.getAttribute("href")).toBe(
+      "/projects?area=governance",
+    );
+    expect(screen.getByText('serviceLink:{"title":"Protection"}').closest("a")?.getAttribute("href")).toBe(
+      "/services/protection",
+    );
+    expect(screen.getByText("hiddenName")).toBeTruthy();
+    expect(screen.getAllByRole("img")[0].getAttribute("alt")).toBe('photoAlt:{"title":"Hidden project"}');
   });
 
-  it("leaves out empty fields", () => {
+  it("leaves out empty fields, and the note when the name is public", () => {
     render(
       <ProjectDetailPage
-        project={{ ...detail, organization: null, role: null, duration: null, activities: null, results: null, keyResult: null, images: [] }}
+        project={{
+          ...detail,
+          organization: null,
+          organizationHidden: false,
+          role: null,
+          duration: null,
+          activities: null,
+          results: null,
+          keyResult: null,
+          images: [],
+        }}
         area={null}
       />,
     );
-    expect(screen.queryByRole("complementary")).toBeNull();
-    expect(screen.queryByText("activities")).toBeNull();
-    expect(screen.queryByText("results")).toBeNull();
-    expect(screen.queryByText("photos")).toBeNull();
+    expect(screen.queryByText("hiddenName")).toBeNull();
+    expect(screen.queryByText("activitiesTitle")).toBeNull();
+    expect(screen.queryByText("resultsTitle")).toBeNull();
+    expect(screen.queryByText("whatIDid")).toBeNull();
+    expect(screen.getAllByRole("img").map((image) => image.getAttribute("alt"))).toEqual(["ctaPhotoAlt"]);
   });
 });

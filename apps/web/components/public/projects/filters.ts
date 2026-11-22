@@ -27,6 +27,12 @@ export function parseProjectFilters(params: SearchParams): ProjectFilters {
   };
 }
 
+/** The list page from `?page=`: a whole number from 1, otherwise page 1. */
+export function parsePage(params: SearchParams): number {
+  const value = Number(first(params.page));
+  return Number.isInteger(value) && value > 1 ? value : 1;
+}
+
 /** Projects that match both filters. An area that doesn't exist matches nothing. */
 export function filterProjects(
   projects: Project[],

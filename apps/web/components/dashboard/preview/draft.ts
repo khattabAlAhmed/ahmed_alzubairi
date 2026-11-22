@@ -166,9 +166,12 @@ export function previewModel(
               : draftText(draft, "orgName", locale),
           goal,
           keyResult: draftText(draft, "keyResult", locale),
+          // A draft has no saved edit time yet.
+          updatedAt: new Date().toISOString(),
           isFeatured: draft.isFeatured === true,
           coverUrl: images[0]?.url ?? null,
           role: draftText(draft, "role", locale),
+          organizationHidden: draft.hideOrgName === true,
           duration: draftText(draft, "duration", locale),
           activities: draftText(draft, "activities", locale),
           results: draftText(draft, "results", locale),
