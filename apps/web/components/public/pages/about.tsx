@@ -57,7 +57,7 @@ export function AboutPage({
             {stats.length > 0 && (
               <StatLedger
                 stats={stats}
-                className={cx("self-start md:col-span-9 md:col-start-4 lg:col-span-3", rest && "lg:col-start-auto")}
+                className="self-start md:col-span-9 md:col-start-4 lg:col-span-3 lg:col-start-10"
               />
             )}
           </section>

@@ -124,7 +124,7 @@ export function ExpertiseDetailPage({
             {services.length > 0 && (
               <nav
                 aria-labelledby="area-services"
-                className={cx("border-t-2 border-rule md:col-span-9 md:col-start-4 lg:col-span-3", area.body && "lg:col-start-auto")}
+                className="border-t-2 border-rule md:col-span-9 md:col-start-4 lg:col-span-3 lg:col-start-10"
               >
                 <p id="area-services" className="type-caption py-2.5 text-ink-2">
                   {t("areaServices")}
