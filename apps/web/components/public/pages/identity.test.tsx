@@ -14,6 +14,7 @@ import {
   StatBand,
   StatLedger,
   TestimonialSet,
+  ValueList,
 } from "./identity";
 
 const locale = vi.hoisted(() => ({ current: "ar" }));
@@ -193,5 +194,23 @@ describe("rows", () => {
     render(<StageStrip text="As the case needs" formatIndex={String} />);
     expect(screen.queryByRole("list")).toBeNull();
     expect(screen.getByText("As the case needs")).toBeTruthy();
+  });
+});
+
+describe("ValueList", () => {
+  it("sets each value as a term and its meaning as the definition, in order", () => {
+    render(
+      <ValueList
+        label="How I work"
+        items={[
+          { term: "I listen before I write", definition: "No plan before I sit with them." },
+          { term: "I leave quietly", definition: "What stays after I leave." },
+        ]}
+      />,
+    );
+    const list = screen.getByLabelText("How I work");
+    expect(list.tagName).toBe("DL");
+    expect([...list.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual(["I listen before I write", "I leave quietly"]);
+    expect(list.querySelector("dt + dd")?.textContent).toBe("No plan before I sit with them.");
   });
 });

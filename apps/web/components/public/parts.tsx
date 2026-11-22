@@ -43,7 +43,8 @@ export type PageFact = { label: string; value: string };
  * columns. The start one says where you are (the section, or the way back);
  * the middle one holds the title and one sentence of his; the end one lists
  * the page's facts as a ledger. Never a centred hero. On phones the columns
- * stack.
+ * stack. An optional 4:5 photo of him takes the end column (the About page),
+ * with the facts under it when both are given.
  */
 export function PageHero({
   eyebrow,
@@ -52,6 +53,7 @@ export function PageHero({
   intro,
   actions,
   facts,
+  photo,
 }: {
   /** Where the page sits, e.g. the section's name. */
   eyebrow?: string;
@@ -61,6 +63,8 @@ export function PageHero({
   intro?: ReactNode;
   actions?: ReactNode;
   facts?: readonly PageFact[];
+  /** A 4:5 photo in the end column. */
+  photo?: { src: string; alt: string };
 }) {
   return (
     <header className={cx(CONTAINER, "mt-8 md:mt-12")}>
@@ -74,7 +78,23 @@ export function PageHero({
           {intro && <div className="type-body max-w-measure text-pretty text-ink-2 settle settle-2">{intro}</div>}
           {actions && <div className="mt-2 flex flex-wrap items-center gap-4">{actions}</div>}
         </div>
-        {facts && facts.length > 0 && <Ledger facts={facts} className="self-start md:col-span-12 lg:col-span-3" />}
+        {photo ? (
+          <div className="flex flex-col gap-6 self-start md:col-span-12 lg:col-span-3">
+            <figure className="relative aspect-[4/5] w-full max-w-[420px] bg-surface">
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                priority
+                sizes="(min-width: 1024px) 20rem, 420px"
+                className="object-cover"
+              />
+            </figure>
+            {facts && facts.length > 0 && <Ledger facts={facts} />}
+          </div>
+        ) : (
+          facts && facts.length > 0 && <Ledger facts={facts} className="self-start md:col-span-12 lg:col-span-3" />
+        )}
       </div>
     </header>
   );

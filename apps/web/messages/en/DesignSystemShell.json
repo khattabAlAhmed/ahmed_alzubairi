@@ -55,7 +55,12 @@
     "factProjects": "Projects",
     "factOrganizations": "Organizations",
     "factUpdated": "Last updated",
-    "sampleUpdated": "March 2026"
+    "sampleUpdated": "March 2026",
+    "photoNote": "With a photo (the About page): the 4:5 photo takes the end column, with the facts under it when there are any.",
+    "photoEyebrow": "About",
+    "photoTitle": "I learned to ask before I plan. I still do.",
+    "photoIntro": "I am a consultant in management, governance, humanitarian work and development. I work with ministries, organizations and companies, and with the people they serve.",
+    "photoAlt": "Placeholder photo: window light on a wall"
   },
   "section": {
     "title": "Section head",

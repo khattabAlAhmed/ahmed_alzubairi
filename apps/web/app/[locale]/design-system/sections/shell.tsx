@@ -149,6 +149,17 @@ export async function ShellSection({ locale }: Props) {
               />
             )}
           </Themed>
+          <DsNote className="mt-6">{t("pageHeader.photoNote")}</DsNote>
+          <Themed locale={locale}>
+            {() => (
+              <PageHero
+                eyebrow={t("pageHeader.photoEyebrow")}
+                title={t("pageHeader.photoTitle")}
+                intro={t("pageHeader.photoIntro")}
+                photo={{ src: "/images/window-light.webp", alt: t("pageHeader.photoAlt") }}
+              />
+            )}
+          </Themed>
         </DsBlock>
 
         <DsBlock title={t("section.title")} intro={t("section.intro")}>
