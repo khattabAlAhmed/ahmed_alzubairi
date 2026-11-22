@@ -43,8 +43,12 @@ export function trapTab(panel: HTMLElement, event: Pick<KeyboardEvent, "key" | "
   return false;
 }
 
-/** Tailwind's `xl`, where the header shows its inline navigation. */
-const WIDE = "(min-width: 80rem)";
+/**
+ * 1440 px (DESIGN.md's widest grid step), where the header shows its inline
+ * navigation. Below it, English with "My account" doesn't fit the name, the
+ * seven sections and the controls on one line, so the menu holds them.
+ */
+const WIDE = "(min-width: 90rem)";
 
 /**
  * The phone menu (the MobileMenu board): it opens over the page, behind a
@@ -84,7 +88,7 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
       if (panel.current) trapTab(panel.current, event);
     };
     document.addEventListener("keydown", onKey);
-    // At xl the menu button hides (xl:hidden) and the inline navigation takes
+    // At 1440 px the menu button hides and the inline navigation takes
     // over: close the menu so the page scrolls and Tab is free again.
     const wide = window.matchMedia(WIDE);
     const onWide = () => {
@@ -99,7 +103,7 @@ export function MobileMenu({ extra }: { extra?: ReactNode }) {
   }, [open]);
 
   return (
-    <div className="xl:hidden">
+    <div className="min-[90rem]:hidden">
       <button
         ref={toggle}
         type="button"
