@@ -96,7 +96,7 @@ export function QuickContact({
           // On a short screen it scrolls rather than run off the top: the room
           // above the tab is the screen less the consent bar, the 16px offset,
           // the 44px tab, the 8px gap and 16px at the top.
-          !sample && "max-h-[calc(100dvh-var(--consent-covered,0px)-84px)] overflow-y-auto",
+          !sample && "max-h-[calc(100dvh-var(--consent-covered,0px)-84px)] overflow-y-auto overscroll-contain",
         )}
       >
         {whatsapp && (

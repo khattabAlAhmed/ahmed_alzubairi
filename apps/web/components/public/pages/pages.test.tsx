@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { TiptapDoc } from "@repo/shared";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ExpertiseAreaDetail, Faq, HomeStat, Page, Project, Service, ServiceDetail, TimelineItem } from "@/lib/content";
@@ -364,6 +364,9 @@ describe("ServiceDetailPage", () => {
     const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
     expect([...header.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual(["factStages", "factPastProjects", "area"]);
     expect(header.textContent).toContain("Governance");
+    // The area links to its page.
+    const areaLink = within(header).getByRole("link", { name: "Governance" });
+    expect(areaLink.getAttribute("href")).toBe("/expertise/governance");
     // One request, in the panel: no button in the header, no closing band.
     expect(screen.getAllByRole("link", { name: "requestService" })).toHaveLength(1);
     expect(screen.queryByRole("heading", { name: "ctaTitle" })).toBeNull();

@@ -116,7 +116,7 @@ export function ExpertiseChapters({
               href={`/expertise/${area.slug}`}
               className="group flex w-full flex-col gap-3.5 border-t-2 border-rule pt-[18px] pb-[22px] text-ink no-underline focus-ring"
             >
-              <Heading level={headingLevel} className="type-h2 decoration-1 underline-offset-8 group-hover:underline">
+              <Heading level={headingLevel} className="type-h2 text-balance decoration-1 underline-offset-8 group-hover:underline">
                 {area.title}
               </Heading>
               <p className="type-small text-pretty text-ink-2">{area.summary}</p>
@@ -162,7 +162,7 @@ export function AudienceRows({
           key={index}
           className="grid items-baseline gap-2 border-b border-line py-5 md:grid-cols-[minmax(0,3fr)_minmax(0,9fr)] md:gap-gutter"
         >
-          <Heading level={headingLevel} className="type-h3">
+          <Heading level={headingLevel} className="type-h3 text-balance">
             {item.title}
           </Heading>
           {item.description && <p className="type-body max-w-measure text-pretty">{item.description}</p>}
@@ -208,7 +208,7 @@ export function ServiceRows({
             >
               <Heading
                 level={headingLevel}
-                className={cx("type-h3 col-start-1 decoration-1 underline-offset-6 group-hover:underline", open && "md:text-2xl")}
+                className={cx("type-h3 col-start-1 text-balance decoration-1 underline-offset-6 group-hover:underline", open && "md:text-2xl")}
               >
                 {service.title}
               </Heading>
@@ -343,7 +343,7 @@ export function RequestPanel({
 }) {
   return (
     <div className="flex flex-col gap-3 border-t-2 border-rule bg-surface p-5 lg:sticky lg:top-20">
-      <p className="type-h3">{title}</p>
+      <p className="type-h3 text-balance">{title}</p>
       {children}
       {action}
       {after}
@@ -399,7 +399,7 @@ export function CareerTimeline({ items, label }: { items: readonly TimelineItem[
               <i className={cx("relative mt-[9px] size-[9px] border-[1.5px]", now ? "border-accent bg-accent" : "border-ink bg-bg")} />
             </span>
             <div className="min-w-0">
-              <h3 className="type-h3">{item.title}</h3>
+              <h3 className="type-h3 text-balance">{item.title}</h3>
               {item.description && <p className="type-small text-pretty text-ink-2">{item.description}</p>}
             </div>
           </li>

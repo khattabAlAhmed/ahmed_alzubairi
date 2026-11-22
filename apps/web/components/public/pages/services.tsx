@@ -4,9 +4,10 @@ import type { ReactNode } from "react";
 import { FaqItem } from "@/app/[locale]/(public)/faq/faq-list";
 import { EmptyState } from "@/components/empty-state";
 import { formatNumber } from "@/components/public/home/format";
-import { cx } from "@/components/ui/cx";
+import { cx, INLINE_LINK } from "@/components/ui/cx";
+import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, Faq, Project, Service, ServiceDetail } from "@/lib/content";
-import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection, type PageFact } from "../parts";
+import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection, type LedgerFact } from "../parts";
 import { ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
 import { RequestPanel, ServiceFacts, ServiceRows, splitLines, StageStrip } from "./identity";
 import { RequestServiceButton, SignedOutNote } from "./request-service-button";
@@ -109,10 +110,22 @@ export function ServiceDetailPage({
   const n = (value: number) => formatNumber(value, locale);
 
   const stageCount = service.stages ? splitLines(service.stages).length : 0;
-  const facts: PageFact[] = [
+  const facts: LedgerFact[] = [
     ...(stageCount > 1 ? [{ label: t("factStages"), value: n(stageCount) }] : []),
     ...(projects.length > 0 ? [{ label: t("factPastProjects"), value: n(projects.length) }] : []),
-    ...(area ? [{ label: t("area"), value: area.title }] : []),
+    // The area links to its page, as everywhere else on the site.
+    ...(area
+      ? [
+          {
+            label: t("area"),
+            value: (
+              <Link href={`/expertise/${area.slug}`} className={INLINE_LINK}>
+                {area.title}
+              </Link>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
