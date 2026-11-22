@@ -64,4 +64,46 @@ describe("DataTable", () => {
     expect(row?.className).toContain("max-md:flex-col");
     expect(container.innerHTML).not.toMatch(/\b(odd|even):/);
   });
+
+  it("shows one quiet loading line under the header, and no rows, while loading", () => {
+    const { container } = render(<DataTable caption="Consultations" columns={columns} rows={rows} labels={labels} loading="Loading consultations…" />);
+    expect(screen.getByRole("status").textContent).toBe("Loading consultations…");
+    expect(container.querySelector("table")?.getAttribute("aria-busy")).toBe("true");
+    expect(screen.getAllByRole("columnheader").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Bylaws review")).toBeNull();
+    const cell = container.querySelector("tbody td");
+    // Spans every header cell, the action column included.
+    expect(cell?.getAttribute("colspan")).toBe(String(container.querySelectorAll("thead th").length));
+    expect(container.innerHTML).not.toMatch(/animate-/);
+  });
+
+  it("shows the empty record instead of the table when there are no rows", () => {
+    const { container } = render(
+      <DataTable
+        caption="Consultations"
+        columns={columns}
+        rows={[]}
+        labels={labels}
+        empty={{ title: "No consultations yet", text: "New requests appear here.", action: <a href="#new">New request</a> }}
+      />,
+    );
+    expect(container.querySelector("table")).toBeNull();
+    expect(screen.getByRole("heading", { level: 2, name: "No consultations yet" })).toBeTruthy();
+    expect(screen.getByText("New requests appear here.")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "New request" })).toBeTruthy();
+  });
+
+  it("shows the table, not the empty record, when there are rows", () => {
+    render(<DataTable caption="Consultations" columns={columns} rows={rows} labels={labels} empty={{ title: "No consultations yet", text: "…" }} />);
+    expect(screen.queryByText("No consultations yet")).toBeNull();
+    expect(screen.getByRole("table")).toBeTruthy();
+  });
+
+  it("renders as before for callers that pass neither prop, even with no rows", () => {
+    const { container } = render(<DataTable caption="Consultations" columns={columns} rows={[]} labels={labels} />);
+    expect(container.querySelector("table")).not.toBeNull();
+    expect(container.querySelector("table")?.hasAttribute("aria-busy")).toBe(false);
+    expect(container.querySelectorAll("tbody tr")).toHaveLength(0);
+    expect(screen.queryByRole("status")).toBeNull();
+  });
 });

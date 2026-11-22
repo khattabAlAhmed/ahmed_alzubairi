@@ -8,6 +8,7 @@ import { FilterChips } from "@/components/public/listing/filter-chips";
 import { Badge, DatedDivider, LanguageTabs, MonthlyChart, StatTile, TextArea, TextField } from "@/components/ui";
 import { cx, INLINE_LINK } from "@/components/ui/cx";
 import { ChatMessage } from "@/components/workspace/chat-message";
+import { DataTable } from "@/components/workspace/data-table";
 import { DocumentCard } from "@/components/workspace/document-card";
 import type { FileChipData } from "@/components/workspace/file-chip";
 import { MeetingCard } from "@/components/workspace/meeting-card";
@@ -333,6 +334,30 @@ async function TableBlock({ locale }: Props) {
         }
       />
       <DsNote className="mt-4">{t("table.note")}</DsNote>
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-2">
+        <Labeled label={t("table.stateLoading")}>
+          <DataTable caption={t("table.caption")} columns={columns} rows={[]} labels={{}} loading={t("table.loading")} />
+        </Labeled>
+        <Labeled label={t("table.stateEmpty")}>
+          <DataTable
+            caption={t("table.caption")}
+            columns={columns}
+            rows={[]}
+            labels={{}}
+            empty={{
+              title: t("table.emptyTitle"),
+              text: t("table.emptyText"),
+              level: 3,
+              action: (
+                <a href="#workspace" className={INLINE_LINK}>
+                  {t("table.emptyAction")}
+                </a>
+              ),
+            }}
+          />
+        </Labeled>
+      </div>
+      <DsNote className="mt-4">{t("table.statesNote")}</DsNote>
     </DsBlock>
   );
 }

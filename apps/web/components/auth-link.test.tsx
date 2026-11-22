@@ -2,7 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { onClerkRequest, publishAuth, resetAuthStateForTests } from "@/components/clerk/auth-state";
+import { NOT_LOADED, onClerkRequest, publishAuth, readAuth, resetAuthStateForTests } from "@/components/clerk/auth-state";
 import { AuthLink } from "./auth-link";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
@@ -44,5 +44,45 @@ describe("AuthLink", () => {
     fireEvent.pointerEnter(screen.getByRole("link"));
     fireEvent.focus(screen.getByRole("link"));
     expect(requested).toHaveBeenCalledTimes(2);
+  });
+
+  describe("signedInAs (design-system page only)", () => {
+    const links = () => {
+      const [real, shown] = screen.getAllByRole("link");
+      return { real, shown };
+    };
+
+    it("draws the signed-in link while the store is signed out, and the real link stays signed out", () => {
+      render(
+        <>
+          <AuthLink />
+          <AuthLink signedInAs="sara@example.org" />
+        </>,
+      );
+      act(() => publishAuth({ isLoaded: true, isSignedIn: false, email: null }));
+      const { real, shown } = links();
+      expect(real.getAttribute("href")).toBe("/sign-in");
+      expect(real.textContent).toBe("signIn");
+      expect(shown.getAttribute("href")).toBe("/account");
+      expect(shown.textContent).toBe("Saccount");
+    });
+
+    it("ignores a signed-in store, while the real link follows it", () => {
+      render(
+        <>
+          <AuthLink />
+          <AuthLink signedInAs="sara@example.org" />
+        </>,
+      );
+      act(() => publishAuth({ isLoaded: true, isSignedIn: true, email: "omar@example.org" }));
+      const { real, shown } = links();
+      expect(real.textContent).toBe("Oaccount");
+      expect(shown.textContent).toBe("Saccount");
+    });
+
+    it("never writes to the store: it grants nothing", () => {
+      render(<AuthLink signedInAs="sara@example.org" />);
+      expect(readAuth()).toEqual(NOT_LOADED);
+    });
   });
 });

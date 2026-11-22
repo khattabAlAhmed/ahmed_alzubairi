@@ -5,7 +5,10 @@
   "header": {
     "title": "Header",
     "intro": "His name and fields on the start side, then the sections, then language, theme, sign-in and \"Request a consultation\" on the end side.",
-    "note": "It stays at the top as the page scrolls. On phones only the name, the consultation button and the menu button stay. Signed in, \"Sign in\" becomes \"My account\" with a letter from the visitor's email."
+    "note": "It stays at the top as the page scrolls. On phones only the name, the consultation button and the menu button stay. Signed in, \"Sign in\" becomes \"My account\" with a letter from the visitor's email.",
+    "signedOut": "Signed out",
+    "signedIn": "Signed in",
+    "sampleEmail": "sara@example.org"
   },
   "menu": {
     "title": "Phone menu",

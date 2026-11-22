@@ -60,11 +60,17 @@ export async function ShellSection({ locale }: Props) {
     <DsSection id="shell" title={ds("shell.title")} intro={t("intro")}>
       <NextIntlClientProvider locale={locale} messages={{ Header, Nav, Consent, DesignSystemShell }}>
         <DsBlock title={t("header.title")} intro={t("header.intro")}>
-          <Themed locale={locale}>
-            {() => (
-              <HeaderBar />
-            )}
-          </Themed>
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-3">
+              <DsCode>{t("header.signedOut")}</DsCode>
+              <Themed locale={locale}>{() => <HeaderBar />}</Themed>
+            </div>
+            {/* A drawing of the signed-in state: the override touches no session. */}
+            <div className="flex flex-col gap-3">
+              <DsCode>{t("header.signedIn")}</DsCode>
+              <Themed locale={locale}>{() => <HeaderBar signedInAs={t("header.sampleEmail")} />}</Themed>
+            </div>
+          </div>
           <DsNote className="mt-3">{t("header.note")}</DsNote>
         </DsBlock>
 
