@@ -93,5 +93,40 @@
       "title": "Nothing published here yet",
       "text": "I publish a logo or a testimonial only with its owner's consent."
     }
+  },
+  "documentsPage": {
+    "eyebrow": "Documents and certificates · {count, number}",
+    "title": "Everything I say here has a document behind it. It opens for those who ask.",
+    "intro": "Thank-you and recommendation letters, experience certificates and qualifications, and project photos. Only the titles show. Choose what you need, say why, and I decide myself.",
+    "stepsLabel": "How it works",
+    "steps": "You choose one document or more.\nYou say why, after signing in.\nI open it in your account, or contact you first.",
+    "tabsLabel": "Category",
+    "all": "All",
+    "listLabel": "Documents",
+    "loading": "Loading the documents",
+    "empty": {
+      "title": "No documents published yet",
+      "text": "I add the titles here once the documents are ready to request."
+    },
+    "error": {
+      "title": "The documents didn't load",
+      "text": "The connection may be weak. The rest of the page works.",
+      "retry": "Try again"
+    }
+  },
+  "faqPage": {
+    "eyebrow": "FAQ",
+    "title": "What people usually ask me",
+    "intro": "If your question is not here, <link>ask me directly</link>.",
+    "loading": "Loading the questions",
+    "empty": {
+      "title": "No questions published yet",
+      "text": "If you have a question, write to me from the contact page."
+    },
+    "error": {
+      "title": "The questions didn't load",
+      "text": "The connection may be weak. The rest of the page works.",
+      "retry": "Try again"
+    }
   }
 }

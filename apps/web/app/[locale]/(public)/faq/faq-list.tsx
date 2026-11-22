@@ -1,7 +1,7 @@
 import { FAQ_CATEGORIES, type Locale } from "@repo/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { formatNumber } from "@/components/public/home/format";
-import { CONTAINER, EmptyNote } from "@/components/public/projects";
+import { EmptyState } from "@/components/empty-state";
 import { cx } from "@/components/ui/cx";
 import type { Faq } from "@/lib/content";
 
@@ -34,7 +34,13 @@ export function FaqItem({ question, answer, open = false }: { question: string; 
  * `/faq` below its hero (§6.13, FAQ board): the section index with counts
  * beside the questions, grouped by the four sections, one open at a time.
  */
-export function FaqList({ faqs, bare = false }: { faqs: Faq[]; /** Without the page container, for the design-system page. */ bare?: boolean }) {
+export function FaqList({
+  faqs,
+}: {
+  faqs: Faq[];
+  /** Kept for the design-system page: the list no longer draws the page container. */
+  bare?: boolean;
+}) {
   const t = useTranslations("Catalog");
   const locale = useLocale();
   const groups = FAQ_CATEGORIES.flatMap((category) => {
@@ -43,15 +49,11 @@ export function FaqList({ faqs, bare = false }: { faqs: Faq[]; /** Without the p
   });
 
   if (groups.length === 0) {
-    return (
-      <div className={cx(CONTAINER, "py-12 md:py-16")}>
-        <EmptyNote text={t("noFaqs")} />
-      </div>
-    );
+    return <EmptyState level={2} title={t("faqPage.empty.title")} text={t("faqPage.empty.text")} />;
   }
 
   return (
-    <div className={cx(!bare && CONTAINER, "grid gap-10 lg:grid-cols-12 lg:gap-8", !bare && "py-12 md:py-16")}>
+    <div className="grid gap-10 lg:grid-cols-12 lg:gap-gutter">
       {groups.length > 1 && (
         <nav aria-label={t("faqSectionsLabel")} className="self-start border-t-2 border-rule lg:sticky lg:top-24 lg:col-span-3">
           <ul>

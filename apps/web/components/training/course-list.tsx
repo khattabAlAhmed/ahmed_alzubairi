@@ -2,7 +2,7 @@ import { COURSE_TYPES, type CourseType } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import { CourseCard, FilterChips } from "@/components/public/listing";
 import { CourseSchedule } from "@/components/public/listing/course-card";
-import { CONTAINER, EmptyNote } from "@/components/public/parts";
+import { EmptyState } from "@/components/empty-state";
 import { ButtonLink } from "@/components/ui";
 import type { Course } from "@/lib/content/courses";
 import { coursePath, CUSTOM_TRAINING_PATH, TRAINING_PATH } from "./paths";
@@ -26,7 +26,10 @@ export function CourseList({ courses, type }: { courses: Course[]; type: CourseT
   const chips = type && !present.includes(type) ? COURSE_TYPES.filter((item) => item === type || present.includes(item)) : present;
 
   return (
-    <div className={`${CONTAINER} py-12 md:py-16`}>
+    <section aria-labelledby="training-schedule">
+      <h2 id="training-schedule" className="mb-2 text-ink-2 type-small">
+        {t("trainingPage.scheduleTitle")}
+      </h2>
       {(present.length > 1 || type !== null) && (
         <FilterChips
           label={t("typeFilter")}
@@ -34,11 +37,16 @@ export function CourseList({ courses, type }: { courses: Course[]; type: CourseT
           param="type"
           query={type ? { type } : {}}
           options={chips.map((item) => ({ value: item, label: tListing(`courseType.${item}`) }))}
-          className="mb-8"
+          className="mb-6"
         />
       )}
       {shown.length === 0 ? (
-        <EmptyNote text={type ? t("emptyFiltered") : t("empty")} />
+        <EmptyState
+          level={3}
+          outline={false}
+          title={type ? t("trainingPage.emptyFilteredTitle") : t("trainingPage.emptyTitle")}
+          text={type ? t("emptyFiltered") : t("empty")}
+        />
       ) : (
         <CourseSchedule>
           {shown.map((course) => (
@@ -70,6 +78,6 @@ export function CourseList({ courses, type }: { courses: Course[]; type: CourseT
           ))}
         </CourseSchedule>
       )}
-    </div>
+    </section>
   );
 }
