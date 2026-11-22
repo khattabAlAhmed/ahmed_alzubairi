@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { NewsletterSignup } from "@/components/newsletter";
 import { BlogList, parseBlogQuery } from "@/components/public/blog";
-import { PageHero } from "@/components/public/parts";
+import { ListSkeleton } from "@/components/feedback/list-skeletons";
+import { CONTAINER, PageHero } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { Skeleton } from "@/components/ui";
 import { routing } from "@/i18n/routing";
 import { getExpertiseAreas } from "@/lib/content";
 import { getPosts } from "@/lib/content/posts";
@@ -40,33 +40,21 @@ async function PostsFromQuery({ locale, searchParams }: { locale: Locale; search
   return <BlogList result={result} areas={areas} query={query} />;
 }
 
-function PostsLoading() {
-  return (
-    <div aria-busy="true" className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 md:grid-cols-2 md:py-16 lg:grid-cols-3">
-      {Array.from({ length: 3 }, (_, index) => (
-        <Skeleton key={index} className="h-72 w-full rounded-lg" />
-      ))}
-    </div>
-  );
-}
-
 export default async function Blog({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const t = await getTranslations({ locale, namespace: "Blog" });
 
   return (
-    <main id={MAIN_CONTENT_ID} className="flex-1">
-      <PageHero title={t("title")} intro={<p>{t("intro")}</p>} />
-      <Suspense fallback={<PostsLoading />}>
-        <PostsFromQuery locale={locale} searchParams={searchParams} />
-      </Suspense>
-      {/* §6.15: the blog is one of the three signup places. Outside the
-          Suspense, so it shows while the list loads. */}
-      <div className="border-t border-text/10 bg-surface">
-        <div className="mx-auto max-w-7xl px-4 py-12">
-          <NewsletterSignup source="blog" className="max-w-xl" />
-        </div>
+    <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
+      <PageHero eyebrow={t("eyebrow")} title={t("heading")} intro={<p>{t("lead")}</p>} />
+      <div className={`${CONTAINER} flex flex-col gap-section`}>
+        <Suspense fallback={<ListSkeleton kind="articles" label={t("loading")} rows={4} />}>
+          <PostsFromQuery locale={locale} searchParams={searchParams} />
+        </Suspense>
+        {/* §6.15: the blog is one of the three signup places. Outside the
+            Suspense, so it shows while the list loads. */}
+        <NewsletterSignup source="blog" inline className="max-w-2xl" />
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MediaItem } from "@/lib/content/types";
@@ -40,7 +40,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 const { MediaList } = await import("./media-list");
-const { embedUrl, listingQuery, parseMediaQuery, webUrl } = await import("./query");
+const { embedUrl, listingQuery, mediaPage, parseMediaQuery, webUrl } = await import("./query");
 
 afterEach(cleanup);
 
@@ -68,15 +68,20 @@ describe("messages", () => {
 
 describe("parseMediaQuery", () => {
   it("reads a known category and drops anything else", () => {
-    expect(parseMediaQuery({ category: "events" })).toEqual({ category: "events" });
-    expect(parseMediaQuery({ category: ["conferences", "media"] })).toEqual({ category: "conferences" });
-    expect(parseMediaQuery({ category: "podcasts" })).toEqual({ category: null });
-    expect(parseMediaQuery({})).toEqual({ category: null });
+    expect(parseMediaQuery({ category: "events" })).toEqual({ category: "events", page: 1 });
+    expect(parseMediaQuery({ category: ["conferences", "media"] })).toEqual({ category: "conferences", page: 1 });
+    expect(parseMediaQuery({ category: "podcasts" })).toEqual({ category: null, page: 1 });
+    expect(parseMediaQuery({})).toEqual({ category: null, page: 1 });
   });
 
-  it("gives the chips the set category only", () => {
-    expect(listingQuery({ category: "events" })).toEqual({ category: "events" });
-    expect(listingQuery({ category: null })).toEqual({});
+  it("reads a whole page number from 2, otherwise page 1", () => {
+    expect(parseMediaQuery({ page: "3" })).toEqual({ category: null, page: 3 });
+    for (const page of ["0", "-1", "2.5", "x", ""]) expect(parseMediaQuery({ page }).page).toBe(1);
+  });
+
+  it("gives the chips the set category only, never the page", () => {
+    expect(listingQuery({ category: "events", page: 2 })).toEqual({ category: "events" });
+    expect(listingQuery({ category: null, page: 1 })).toEqual({});
   });
 });
 
@@ -146,23 +151,44 @@ describe("webUrl", () => {
 });
 
 describe("MediaList", () => {
-  it("plays a YouTube item in the card, with no link to the same video", () => {
+  it("features a YouTube item, and loads its player only on a click", () => {
     const { container } = render(
       <MediaList
-        items={[item({ videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" })]}
-        query={{ category: null }}
+        items={[item({ videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", imageUrl: "https://cdn.example/still.jpg" })]}
+        query={{ category: null, page: 1 }}
       />,
     );
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(screen.getByText("playerNote")).toBeTruthy();
+    expect(within(screen.getByRole("article")).queryByRole("link")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: 'play:{"title":"An interview"}' }));
     const frame = container.querySelector("iframe");
-    expect(frame?.getAttribute("src")).toBe(YT);
+    expect(frame?.getAttribute("src")).toBe(`${YT}?autoplay=1`);
     expect(frame?.getAttribute("title")).toBe('videoTitle:{"title":"An interview"}');
     expect(frame?.hasAttribute("sandbox")).toBe(true);
-    expect(within(screen.getByRole("article")).queryByRole("link")).toBeNull();
+  });
+
+  it("features only one video, on page 1 with no category; other videos are links", () => {
+    const items = [
+      item({ id: "a", title: "First", videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: "https://cdn.example/a.jpg" }),
+      item({ id: "b", title: "Second", videoUrl: "https://vimeo.com/123456789", imageUrl: "https://cdn.example/b.jpg" }),
+    ];
+    const { container } = render(<MediaList items={items} query={{ category: null, page: 1 }} />);
+    expect(screen.getAllByRole("button", { name: /^play:/ })).toHaveLength(1);
+    expect(screen.getByRole("link", { name: /^watchLabel:\{"title":"Second"\}/ }).getAttribute("href")).toBe(
+      "https://vimeo.com/123456789",
+    );
+    cleanup();
+
+    render(<MediaList items={items} query={{ category: "media", page: 1 }} />);
+    expect(screen.queryByRole("button", { name: /^play:/ })).toBeNull();
+    expect(container.querySelector("iframe")).toBeNull();
   });
 
   it("shows a video from any other host as a link, never a frame", () => {
     const { container } = render(
-      <MediaList items={[item({ videoUrl: "https://example.com/talk.mp4" })]} query={{ category: null }} />,
+      <MediaList items={[item({ videoUrl: "https://example.com/talk.mp4" })]} query={{ category: null, page: 1 }} />,
     );
     expect(container.querySelector("iframe")).toBeNull();
     const link = screen.getByRole("link", { name: /^watchLabel/ });
@@ -178,7 +204,7 @@ describe("MediaList", () => {
           item({ videoUrl: "https://vimeo.com/123456789", url: "https://outlet.example/story" }),
           item({ id: "m2", title: "A conference", category: "conferences", imageUrl: "https://cdn.example/i.jpg", url: "https://conf.example" }),
         ]}
-        query={{ category: null }}
+        query={{ category: null, page: 1 }}
       />,
     );
     const [first, second] = screen.getAllByRole("article");
@@ -194,33 +220,76 @@ describe("MediaList", () => {
     const { container } = render(
       <MediaList
         items={[item({ url: "javascript:alert(1)", videoUrl: "javascript:alert(2)" })]}
-        query={{ category: null }}
+        query={{ category: null, page: 1 }}
       />,
     );
     expect(within(screen.getByRole("article")).queryByRole("link")).toBeNull();
     expect(container.querySelector("iframe")).toBeNull();
   });
 
-  it("has the three categories as chips, with the open one marked", () => {
-    render(<MediaList items={[item()]} query={{ category: "events" }} />);
+  it("has a chip per used category with its count, the open one marked", () => {
+    render(
+      <MediaList
+        items={[item(), item({ id: "m2", category: "events" }), item({ id: "m3", category: "events" })]}
+        query={{ category: "events", page: 1 }}
+      />,
+    );
     const chips = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
     expect(chips.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
       "/media",
       "/media?category=media",
       "/media?category=events",
-      "/media?category=conferences",
     ]);
-    expect(chips.getByRole("link", { name: "mediaCategory.events" }).getAttribute("aria-current")).toBe("true");
-    expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":1}');
+    const events = chips.getByText("mediaCategory.events").closest("a");
+    expect(events?.getAttribute("aria-current")).toBe("true");
+    expect(events?.textContent).toBe("mediaCategory.events2");
+    expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":2}');
+    expect(screen.getAllByRole("article")).toHaveLength(2);
   });
 
   it("tells an empty section from an empty category", () => {
-    const { rerender } = render(<MediaList items={[]} query={{ category: null }} />);
-    expect(screen.getByText("empty")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: "clearFilters" })).toBeNull();
+    const { rerender } = render(<MediaList items={[]} query={{ category: null, page: 1 }} />);
+    expect(screen.getByRole("heading", { name: "emptyState.title" })).toBeTruthy();
+    expect(screen.queryByRole("navigation")).toBeNull();
 
-    rerender(<MediaList items={[]} query={{ category: "events" }} />);
-    expect(screen.getByText("noResults")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "clearFilters" }).getAttribute("href")).toBe("/media");
+    rerender(<MediaList items={[item()]} query={{ category: "events", page: 1 }} />);
+    expect(screen.getByRole("heading", { name: "noResultsState.title" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "noResultsState.action" }).getAttribute("href")).toBe("/media");
+  });
+
+  it("pages the log six at a time", () => {
+    const items = Array.from({ length: 8 }, (_, index) => item({ id: `i${index}`, title: `Item ${index}` }));
+    render(<MediaList items={items} query={{ category: null, page: 2 }} />);
+    expect(screen.getAllByRole("article").map((article) => within(article).getByRole("heading").textContent)).toEqual([
+      "Item 6",
+      "Item 7",
+    ]);
+    expect(screen.getByRole("navigation", { name: "paginationLabel" })).toBeTruthy();
+  });
+});
+
+describe("mediaPage", () => {
+  const video = (id: string) => ({ id, videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: "https://cdn.example/s.jpg" });
+  const plain = (id: string) => ({ id, videoUrl: null, imageUrl: null });
+
+  it("features only a video with a still to show", () => {
+    const noStill = { id: "n", videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: null };
+    expect(mediaPage([noStill, plain("a")], { category: null, page: 1 }).featured).toBeNull();
+    expect(mediaPage([noStill, video("v")], { category: null, page: 1 }).featured?.id).toBe("v");
+  });
+
+  it("leads page 1 with the first playable video, then keeps the order", () => {
+    const items = [plain("a"), video("b"), plain("c")];
+    const result = mediaPage(items, { category: null, page: 1 });
+    expect(result.featured?.id).toBe("b");
+    expect(result.rows.map((row) => row.id)).toEqual(["a", "c"]);
+  });
+
+  it("features nothing in a category or past page 1, and clamps the page", () => {
+    const items = Array.from({ length: 7 }, (_, index) => (index === 0 ? video("v") : plain(`p${index}`)));
+    expect(mediaPage(items, { category: "media", page: 1 }).featured).toBeNull();
+    const last = mediaPage(items, { category: null, page: 9 });
+    expect(last).toMatchObject({ featured: null, page: 2, totalPages: 2 });
+    expect(last.rows.map((row) => row.id)).toEqual(["p6"]);
   });
 });

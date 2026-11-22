@@ -1,14 +1,17 @@
 import { useTranslations } from "next-intl";
-import { cx } from "@/components/ui/cx";
+import { EmptyState } from "@/components/empty-state";
 import type { ExpertiseArea } from "@/lib/content";
 import type { PostPage } from "@/lib/content/posts";
-import { ArticleCard, FilterChips, Pagination, SearchField } from "../listing";
-import { CONTAINER, EmptyNote, MoreLink } from "../parts";
+import { FilterChips, Pagination, SearchField } from "../listing";
+import { ArticleCard, ArticleList } from "../listing/article-card";
+import { MoreLink } from "../parts";
 import { articlePath, BLOG_PATH, CATEGORY_PARAM, listingQuery, type BlogQuery } from "./query";
 
 /**
- * `/blog` under its hero: search, expertise chips, the article cards and the
- * page links (§6.8). `result` holds only articles public in this language.
+ * `/blog` under its header (§6.8): the search with its result line, the area
+ * chips, the journal index (ArticleItem rows under the 2px rule) and the
+ * pages. `result` holds only articles public in this language. An empty list
+ * says why, in his voice, with the way back (EmptyState).
  */
 export function BlogList({
   result,
@@ -23,11 +26,26 @@ export function BlogList({
   const t = useTranslations("Blog");
   const kept = listingQuery(query);
   const filtered = query.q !== null || query.category !== null;
+  const allWriting = (label: string) => <MoreLink href={BLOG_PATH} label={label} />;
 
   return (
-    <div className={cx(CONTAINER, "py-12 md:py-16")}>
-      <div className="grid gap-6">
-        <SearchField pathname={BLOG_PATH} value={query.q ?? ""} query={kept} label={t("searchLabel")} />
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-4">
+        <SearchField
+          pathname={BLOG_PATH}
+          value={query.q ?? ""}
+          query={kept}
+          label={t("searchLabel")}
+          clearLabel={t("clearFilters")}
+          // Announces the new count after a search or a filter, zero included.
+          status={
+            (result.total > 0 || filtered) &&
+            (query.q
+              ? t("searchResults", { count: result.total, q: query.q })
+              : t("resultsCount", { count: result.total }))
+          }
+          className="max-w-3xl"
+        />
         {areas.length > 0 && (
           <FilterChips
             label={t("categoriesLabel")}
@@ -39,24 +57,32 @@ export function BlogList({
         )}
       </div>
 
-      {/* Announces the new count after a search or a filter, zero included. */}
-      <p role="status" className="mt-8 text-sm font-semibold text-text-secondary">
-        {(result.total > 0 || filtered) &&
-          (query.q
-            ? t("searchResults", { count: result.total, q: query.q })
-            : t("resultsCount", { count: result.total }))}
-      </p>
-
-      {result.total === 0 ? (
-        <div className="mt-2 grid justify-items-start gap-4">
-          <EmptyNote text={filtered ? t("noResults") : t("empty")} />
-          {filtered && <MoreLink href={BLOG_PATH} label={t("clearFilters")} />}
-        </div>
-      ) : (
-        <ul className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {result.posts.map((post) => (
-            <li key={post.id} className="flex">
+      <div className="mt-8">
+        {result.total === 0 ? (
+          query.q ? (
+            <EmptyState
+              level={2}
+              outline={false}
+              title={t("noSearchResults.title", { q: query.q })}
+              text={t("noSearchResults.text")}
+              action={allWriting(t("noSearchResults.action"))}
+            />
+          ) : filtered ? (
+            <EmptyState
+              level={2}
+              outline={false}
+              title={t("noAreaResults.title")}
+              text={t("noAreaResults.text")}
+              action={allWriting(t("noAreaResults.action"))}
+            />
+          ) : (
+            <EmptyState level={2} title={t("emptyState.title")} text={t("emptyState.text")} />
+          )
+        ) : (
+          <ArticleList>
+            {result.posts.map((post) => (
               <ArticleCard
+                key={post.id}
                 href={articlePath(post.slug)}
                 title={post.title}
                 excerpt={post.excerpt}
@@ -65,20 +91,13 @@ export function BlogList({
                 cover={post.coverUrl ? { src: post.coverUrl, alt: "" } : null}
                 publishedAt={post.publishedAt}
                 readingMinutes={post.readingMinutes}
-                className="w-full"
               />
-            </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </ArticleList>
+        )}
+      </div>
 
-      <Pagination
-        pathname={BLOG_PATH}
-        page={result.page}
-        totalPages={result.pageCount}
-        query={kept}
-        className="mt-10"
-      />
+      <Pagination pathname={BLOG_PATH} page={result.page} totalPages={result.pageCount} query={kept} className="mt-6" />
     </div>
   );
 }

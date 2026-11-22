@@ -61,7 +61,7 @@ export default async function Article({ params }: Props) {
   const translation = post.slugs[otherLocale(locale)];
 
   return (
-    <main id={MAIN_CONTENT_ID} className="flex-1">
+    <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
       <LanguageFallback href={translation ? articlePath(translation) : BLOG_PATH} />
       <ArticlePage
         post={post}

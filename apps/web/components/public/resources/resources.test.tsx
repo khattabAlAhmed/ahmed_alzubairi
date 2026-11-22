@@ -221,6 +221,24 @@ describe("ResourceDownload", () => {
     expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
   });
 
+  it("restarts the form when pressed as soon as the download starts", async () => {
+    // The CI flake, made certain: the press lands the moment the download
+    // starts, before React has rendered the finished form. The row must
+    // already know the form's request is over.
+    stubFetch(reply(200, { url: URL_OK }));
+    render(<ResourceDownload id={ID} title="Board guide" access="email" />);
+    const opener = screen.getByRole("button", { name: /^downloadByEmailLabel/ });
+    fireEvent.click(opener);
+    startDownload.mockImplementationOnce(() => opener.click());
+    const form = within(screen.getByRole("form"));
+    fireEvent.change(form.getByLabelText("email"), { target: { value: "good@example.com" } });
+    fireEvent.click(form.getByRole("button", { name: "gateSubmit" }));
+    await waitFor(() => expect(startDownload).toHaveBeenCalledWith(URL_OK));
+
+    await waitFor(() => expect(screen.queryByRole("form")).toBeTruthy());
+    expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
+  });
+
   it("doesn't restart the form while its request is out", async () => {
     const pending = vi.fn<typeof fetch>(() => new Promise<Response>(() => {}));
     vi.stubGlobal("fetch", pending);
@@ -302,13 +320,13 @@ describe("ResourcesList", () => {
 
   it("tells an empty library from filters that match nothing", () => {
     const { rerender } = render(<ResourcesList resources={[]} areas={[]} query={{ area: null, kind: null }} />);
-    expect(screen.getByText("empty")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: "clearFilters" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "emptyState.title" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "noResultsState.action" })).toBeNull();
     expect(screen.getByRole("status").textContent).toBe("");
 
     rerender(<ResourcesList resources={[]} areas={areas} query={{ area: null, kind: "guide" }} />);
-    expect(screen.getByText("noResults")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "clearFilters" }).getAttribute("href")).toBe("/resources");
+    expect(screen.getByRole("heading", { name: "noResultsState.title" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "noResultsState.action" }).getAttribute("href")).toBe("/resources");
     expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":0}');
   });
 });

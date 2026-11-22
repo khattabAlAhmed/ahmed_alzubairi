@@ -23,7 +23,7 @@ vi.mock("next-intl/server", () => ({
 vi.mock("@/components/language-switch", () => ({
   LanguageFallback: ({ href }: { href: string }) => <span data-testid="fallback">{href}</span>,
 }));
-vi.mock("@/components/public/parts", () => ({ PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
+vi.mock("@/components/public/parts", () => ({ CONTAINER: "", PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
 vi.mock("@/components/ui", () => ({ Skeleton: () => <div /> }));
 vi.mock("@/components/newsletter", () => ({
   NewsletterSignup: ({ source }: { source: string }) => <form data-testid="newsletter" data-source={source} />,
