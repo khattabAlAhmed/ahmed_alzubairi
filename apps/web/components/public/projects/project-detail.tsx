@@ -188,7 +188,7 @@ export function ProjectDetailPage({
                   ))}
                 </ul>
               )}
-              {project.organizationHidden && <p className="text-ink-2 type-caption">{tp("hiddenName")}</p>}
+              {project.organizationHidden && <p className="text-pretty text-ink-2 type-caption">{tp("hiddenName")}</p>}
             </aside>
           )}
         </section>
