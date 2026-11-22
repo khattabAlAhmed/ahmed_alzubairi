@@ -165,11 +165,12 @@ export function ExpertiseDetailPage({
           </PageSection>
         )}
         {organizations.length > 0 && (
-          <PageSection id="area-organizations" title={t("areaOrganizations")}>
-            <OrganizationRegister
-              partners={organizations.map((name) => ({ id: name, name, logoUrl: null }))}
-              more={{ href: "/clients", label: t("allOrganizations") }}
-            />
+          <PageSection
+            id="area-organizations"
+            title={t("areaOrganizations")}
+            more={{ href: "/clients", label: t("allOrganizations") }}
+          >
+            <OrganizationRegister partners={organizations.map((name) => ({ id: name, name, logoUrl: null }))} />
           </PageSection>
         )}
       </div>

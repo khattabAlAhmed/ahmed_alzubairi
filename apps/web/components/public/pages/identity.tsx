@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ArrowForwardIcon, CheckIcon, DownloadIcon } from "@/components/icons";
 import { StatNumber } from "@/components/public/home/stat-number";
+import { localizeStatValue } from "@/components/public/home/stat-value";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, HomeStat, Partner, Service, TimelineItem } from "@/lib/content";
@@ -235,9 +236,10 @@ export function splitLines(text: string): string[] {
 }
 
 /**
- * Who a service suits and what the client gets (the ServicePage board): a
- * record row with its label, and a list with a check before each item when
- * the editor wrote one per line.
+ * Who a service suits and what the client gets (the Service mockup): two
+ * columns, each opened by the 2px rule at the same height. Who it suits is a
+ * record row with its label; what you get is a list with a check before each
+ * item when the editor wrote one per line.
  */
 export function ServiceFacts({ audience, deliverables }: { audience: string | null; deliverables: string | null }) {
   const t = useTranslations("Pages");
@@ -245,16 +247,19 @@ export function ServiceFacts({ audience, deliverables }: { audience: string | nu
   return (
     <div className="grid gap-x-gutter gap-y-8 md:grid-cols-2">
       {audience && (
-        <section aria-labelledby="service-audience" className="grid content-start gap-2 border-t border-line py-3.5 sm:grid-cols-[var(--label-col)_minmax(0,1fr)] sm:gap-4">
+        <section
+          aria-labelledby="service-audience"
+          className="grid grid-cols-[var(--label-col)_minmax(0,1fr)] content-start gap-4 border-t-2 border-b border-t-rule border-b-line py-3.5"
+        >
           <h2 id="service-audience" className="type-small text-ink-2">
             {t("audience")}
           </h2>
-          <p className="type-small whitespace-pre-line text-pretty">{audience}</p>
+          <p className="type-body whitespace-pre-line text-pretty">{audience}</p>
         </section>
       )}
       {deliverables && (
-        <section aria-labelledby="service-deliverables" className="flex flex-col">
-          <h2 id="service-deliverables" className="type-small pb-1.5 text-ink-2">
+        <section aria-labelledby="service-deliverables" className="flex flex-col border-t-2 border-rule">
+          <h2 id="service-deliverables" className="type-small py-2.5 text-ink-2">
             {t("deliverables")}
           </h2>
           {gets.length > 1 ? (
@@ -279,14 +284,20 @@ export function ServiceFacts({ audience, deliverables }: { audience: string | nu
  * Work stages (the ServicePage board): numbered columns under the 2px rule,
  * hairlines between, when the editor wrote one stage per line; otherwise the
  * text as written. Each line may be "name: what happens".
+ *
+ * Below the wide layout an even number of stages reads two by two (the
+ * Services mockup's 2×2 at 375 px); an odd number stays one column, so no
+ * stage is left alone on its last row (the Service mockup).
  */
 export function StageStrip({ text, formatIndex }: { text: string; formatIndex: (n: number) => string }) {
   const lines = splitLines(text);
   if (lines.length < 2) return <p className="type-body whitespace-pre-line text-pretty">{text}</p>;
+  const pairs = lines.length % 2 === 0;
   return (
     <ol
       className={cx(
-        "grid border-t-2 border-rule sm:grid-cols-2",
+        "grid border-t-2 border-rule",
+        pairs && "grid-cols-2",
         lines.length >= 5 ? "lg:grid-cols-5" : lines.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3",
       )}
     >
@@ -296,7 +307,12 @@ export function StageStrip({ text, formatIndex }: { text: string; formatIndex: (
         return (
           <li
             key={index}
-            className="flex min-w-0 flex-col gap-1.5 border-b border-line py-3.5 pe-4 sm:[&:not(:first-child)]:border-s sm:[&:not(:first-child)]:ps-4"
+            className={cx(
+              "flex min-w-0 flex-col gap-1.5 border-b border-line py-3.5 pe-4",
+              // A hairline between the two columns, none at the start of a row.
+              pairs && "max-lg:even:border-s max-lg:even:ps-4",
+              "lg:[&:not(:first-child)]:border-s lg:[&:not(:first-child)]:ps-4",
+            )}
           >
             <b className="text-[13px] font-medium text-ink-2 tabular-nums">{formatIndex(index + 1)}</b>
             <span className="type-small font-medium text-pretty">{note ? name : line}</span>
@@ -337,6 +353,18 @@ export function RequestPanel({
 
 /* ------------------------------------------------------ career timeline -- */
 
+/**
+ * A period or a year as the editor wrote it, in the page's digits (DESIGN.md
+ * "Numbers": Arabic-Indic on an Arabic page). In Arabic it keeps the page's
+ * direction, so "٢٠١٦ – ٢٠٢٠" starts on the start side as the About mockup
+ * shows; in English it stays isolated left to right.
+ */
+function Period({ value }: { value: string }) {
+  const locale = useLocale();
+  const text = localizeStatValue(value, locale);
+  return locale === "ar" ? <span className="[unicode-bidi:isolate]">{text}</span> : <bdi>{text}</bdi>;
+}
+
 /** A period still running: a start and a dash with no end year ("2020 – الآن", "2020–present", "2020 –"). */
 export function isOngoing(period: string | null): boolean {
   if (!period) return false;
@@ -364,7 +392,7 @@ export function CareerTimeline({ items, label }: { items: readonly TimelineItem[
         return (
           <li key={item.id} className="grid grid-cols-[88px_20px_minmax(0,1fr)] gap-3 py-3.5 sm:grid-cols-[110px_20px_minmax(0,1fr)] sm:gap-4">
             <span className={cx("pt-0.5 text-end text-sm tabular-nums", now ? "text-accent" : "text-ink-2")}>
-              {item.period && <bdi>{item.period}</bdi>}
+              {item.period && <Period value={item.period} />}
             </span>
             <span aria-hidden="true" className="relative flex justify-center">
               {items.length > 1 && <span className={cx("absolute border-s border-line-strong", spineSpan(index, items.length))} />}
@@ -409,7 +437,7 @@ export function QualificationList({ items, label }: { items: readonly TimelineIt
           <tr key={item.id} className="border-b border-line align-baseline">
             <td className="px-3 py-3 font-medium text-pretty max-sm:ps-0">{item.title}</td>
             <td className="px-3 py-3 text-pretty text-ink-2">{item.description}</td>
-            <td className="px-3 py-3 tabular-nums max-sm:pe-0">{item.period && <bdi>{item.period}</bdi>}</td>
+            <td className="px-3 py-3 tabular-nums max-sm:pe-0">{item.period && <Period value={item.period} />}</td>
           </tr>
         ))}
       </tbody>

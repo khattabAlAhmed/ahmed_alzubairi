@@ -123,7 +123,7 @@ export function ServiceDetailPage({
         intro={<p>{service.summary}</p>}
         facts={facts}
       />
-      <div className={cx(CONTAINER, "mt-12 grid gap-x-gutter gap-y-section lg:grid-cols-12")}>
+      <div className={cx(CONTAINER, "mt-4 md:mt-12 grid gap-x-gutter gap-y-section lg:grid-cols-12")}>
         <div className="flex min-w-0 flex-col gap-14 lg:col-span-9">
           {(service.audience || service.deliverables) && (
             <ServiceFacts audience={service.audience} deliverables={service.deliverables} />

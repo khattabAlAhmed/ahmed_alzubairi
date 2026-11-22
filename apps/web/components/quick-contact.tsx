@@ -18,7 +18,8 @@ const ROW = "grid grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3 border-
 /**
  * Quick contact, always within reach (§6.1, the QuickContact board): a tab at
  * the bottom start corner of every public page that opens a small panel with
- * WhatsApp, the email address and «اطلب استشارة». The number and the address
+ * WhatsApp, the email address and «اطلب استشارة». On phones the tab is the
+ * icon alone, so it hides as little of the page as it can. The number and the address
  * show as text that can be copied, because mailto and wa.me links don't work
  * for everyone. While the consent bar is open, the tab sits above it.
  *
@@ -151,12 +152,16 @@ export function QuickContact({
           setOpen(!open);
         }}
         className={cx(
-          "inline-flex min-h-11 cursor-pointer items-center gap-2 border border-line-strong bg-bg px-3.5 text-sm text-ink transition-state hover:bg-surface-hover",
+          "inline-flex min-h-11 cursor-pointer items-center gap-2 border border-line-strong bg-bg text-sm text-ink transition-state hover:bg-surface-hover",
+          // On a phone the floating tab is the icon alone, a 44px square, so
+          // it covers as little of the page as it can (the word is still its
+          // name). From 640px, where the margins leave room, the word shows.
+          sample ? "px-3.5" : "max-sm:min-w-11 max-sm:justify-center sm:px-3.5",
           FOCUS_RING,
         )}
       >
         <WhatsAppIcon width={18} height={18} />
-        {t("quickContact")}
+        <span className={cx(!sample && "max-sm:sr-only")}>{t("quickContact")}</span>
       </button>
     </div>
   );
