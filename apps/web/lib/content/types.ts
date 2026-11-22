@@ -101,6 +101,10 @@ export type Project = {
   organization: string | null;
   goal: string;
   keyResult: string | null;
+  /** Free text, as written: "14 months · 2022–2023". */
+  duration: string | null;
+  /** When the project was last edited (ISO, UTC). */
+  updatedAt: string;
   isFeatured: boolean;
   coverUrl: string | null;
 };
@@ -108,7 +112,8 @@ export type Project = {
 export type ProjectDetail = Project &
   Availability & {
     role: string | null;
-    duration: string | null;
+    /** True when `organization` is the general label because the name is hidden (§6.6). The name itself is never here. */
+    organizationHidden: boolean;
     activities: string | null;
     results: string | null;
     images: ProjectImage[];

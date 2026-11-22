@@ -8,7 +8,7 @@ import type { Project, ProjectDetail, ProjectImage } from "./types";
 // `org_name_*` is read so a visible name can be shown, and it never leaves this
 // module for a project with `hide_org_name` (§6.6).
 const COLUMNS =
-  "id, slug, expertise_id, org_type, title_ar, title_en, org_name_ar, org_name_en, org_label_ar, org_label_en, hide_org_name, goal_ar, goal_en, role_ar, role_en, duration_ar, duration_en, activities_ar, activities_en, results_ar, results_en, key_result_ar, key_result_en, is_featured, status, created_at, project_images (path, alt_ar, alt_en, position), project_services (service_id)";
+  "id, slug, expertise_id, org_type, title_ar, title_en, org_name_ar, org_name_en, org_label_ar, org_label_en, hide_org_name, goal_ar, goal_en, role_ar, role_en, duration_ar, duration_en, activities_ar, activities_en, results_ar, results_en, key_result_ar, key_result_en, is_featured, status, created_at, updated_at, project_images (path, alt_ar, alt_en, position), project_services (service_id)";
 
 type ImageRow = { path: string; alt_ar: string | null; alt_en: string | null; position: number };
 
@@ -21,6 +21,7 @@ type ProjectRow = Record<string, unknown> & {
   is_featured: boolean;
   status: string;
   created_at: string;
+  updated_at: string;
   project_images: ImageRow[] | null;
   project_services: { service_id: string }[] | null;
 };
@@ -58,6 +59,8 @@ function toProject(row: ProjectRow, locale: Locale): Project | null {
     organization: projectOrganization(row, locale),
     goal,
     keyResult: text(row, "key_result", locale),
+    duration: text(row, "duration", locale),
+    updatedAt: row.updated_at,
     isFeatured: row.is_featured,
     coverUrl: images(row, locale)[0]?.url ?? null,
   };
@@ -94,7 +97,8 @@ export async function getProject(slug: string, locale: Locale): Promise<ProjectD
   return {
     ...project,
     role: text(row, "role", locale),
-    duration: text(row, "duration", locale),
+    // Only the flag: the hidden name itself never leaves this module (§6.6).
+    organizationHidden: row.hide_org_name,
     activities: text(row, "activities", locale),
     results: text(row, "results", locale),
     images: images(row, locale),
