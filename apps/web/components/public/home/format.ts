@@ -33,6 +33,13 @@ export function dateLocale(locale: Locale | string): string {
   return locale === "ar" ? intlLocale(locale) : "en-GB";
 }
 
+/** A stored timestamp as a month and year: "مارس ٢٠٢٦" / "March 2026", in UTC like `formatDate`. */
+export function formatMonth(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(dateLocale(locale), { month: "long", year: "numeric", timeZone: "UTC" }).format(
+    new Date(value),
+  );
+}
+
 /** A count or amount in prose: "١٬٢٠٠" / "1,200". */
 export function formatNumber(value: number, locale: Locale, options?: Intl.NumberFormatOptions): string {
   return new Intl.NumberFormat(intlLocale(locale), options).format(value);

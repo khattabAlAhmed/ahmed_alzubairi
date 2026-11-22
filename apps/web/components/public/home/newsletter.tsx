@@ -1,27 +1,31 @@
 import { useTranslations } from "next-intl";
 import { NewsletterForm } from "@/components/newsletter";
-import { HomeSectionShell, type SectionBand } from "./section";
+import { CONTAINER } from "@/components/public/parts";
+import { cx } from "@/components/ui/cx";
+import { sectionHeadingId } from "./section";
 
 /**
- * §6.2 #11: the newsletter signup, under the heading and intro set in the
- * dashboard. Double opt-in through the shared form, with source `home` (§6.15).
+ * §6.2 #11, the NewsletterSignup board's home block: under the opening rule,
+ * the heading and intro set in the dashboard on the start side, the address
+ * and «اشترك» beside them; stacked on phones. Double opt-in through the
+ * shared form, with source `home` (§6.15).
  */
-export function NewsletterSection({
-  heading,
-  intro,
-  band,
-}: {
-  heading: string;
-  intro?: string;
-  band: SectionBand;
-}) {
+export function NewsletterSection({ heading, intro }: { heading: string; intro?: string }) {
   const t = useTranslations("Newsletter");
+  const headingId = sectionHeadingId("newsletter");
 
   return (
-    <HomeSectionShell sectionKey="newsletter" heading={heading} intro={intro} band={band}>
-      <div className="max-w-xl">
+    <section aria-labelledby={headingId} data-section="newsletter" className={cx(CONTAINER, "mt-section")}>
+      <div className="grid gap-x-gutter gap-y-5 border-t-2 border-rule pt-5 md:grid-cols-12">
+        <div className="flex flex-col gap-1.5 md:col-span-5">
+          <h2 id={headingId} className="type-h2">
+            {heading}
+          </h2>
+          {intro && <p className="text-pretty text-ink-2 type-small">{intro}</p>}
+        </div>
         <NewsletterForm
           source="home"
+          className="md:col-span-6 md:col-start-7"
           labels={{
             email: t("email"),
             subscribe: t("subscribe"),
@@ -34,6 +38,6 @@ export function NewsletterSection({
           }}
         />
       </div>
-    </HomeSectionShell>
+    </section>
   );
 }

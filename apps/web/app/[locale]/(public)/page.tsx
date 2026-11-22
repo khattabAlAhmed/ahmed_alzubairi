@@ -1,146 +1,27 @@
-import { SITE_NAME, type HomeSectionKey, type Locale } from "@repo/shared";
+import { SITE_NAME, type Locale } from "@repo/shared";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Fragment, type ReactNode } from "react";
-import {
-  AudiencesSection,
-  ContactSection,
-  ExpertiseSection,
-  HeroSection,
-  HOME_LATEST_COUNT,
-  LatestSection,
-  MediaSection,
-  NewsletterSection,
-  PartnersSection,
-  ProjectsSection,
-  ServicesSection,
-  StatsSection,
-  TestimonialsSection,
-  type SectionBand,
-} from "@/components/public/home";
+import { composeHome, HeroSection, HomeBlockView, LetterSection } from "@/components/public/home";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
 import { defaultOgImage, pageMetadata } from "@/lib/seo";
-import {
-  getExpertiseAreas,
-  getHomeSections,
-  getHomeStats,
-  getLatestMediaItems,
-  getLatestPosts,
-  getLatestResources,
-  getPartners,
-  getProjects,
-  getServices,
-  getSiteSettings,
-  getTestimonials,
-  type HomeSection,
-} from "@/lib/content";
-
-const none = Promise.resolve([]);
-
-/** Reads only what the visible sections need, in parallel. */
-async function loadSectionData(locale: Locale, keys: ReadonlySet<HomeSectionKey>) {
-  const when = <T,>(key: HomeSectionKey, read: () => Promise<T[]>): Promise<T[]> =>
-    keys.has(key) ? read() : none;
-
-  const [stats, areas, services, projects, partners, testimonials, media, posts, resources, settings] =
-    await Promise.all([
-      when("stats", () => getHomeStats(locale)),
-      when("expertise", () => getExpertiseAreas(locale)),
-      when("services", () => getServices(locale)),
-      when("projects", () => getProjects(locale)),
-      when("partners", () => getPartners(locale)),
-      when("testimonials", () => getTestimonials(locale)),
-      when("media", () => getLatestMediaItems(locale, 1)),
-      when("latest", () => getLatestPosts(locale, HOME_LATEST_COUNT)),
-      when("latest", () => getLatestResources(locale, HOME_LATEST_COUNT)),
-      keys.has("contact") ? getSiteSettings() : null,
-    ]);
-
-  return {
-    stats,
-    areas,
-    services: services.filter((service) => service.isFeatured),
-    projects,
-    partners,
-    testimonials,
-    media,
-    posts,
-    resources,
-    settings,
-  };
-}
-
-type SectionData = Awaited<ReturnType<typeof loadSectionData>>;
-
-/** A section ready to render, or null when it has nothing to show. */
-type Planned = { key: HomeSectionKey; navy: boolean; render: (band: SectionBand) => ReactNode };
+import { getHomeSections, getHomeStats, type HomeStat } from "@/lib/content";
+import { getLetterWrittenAt } from "@/lib/content/home";
 
 /**
- * Pick the renderer for one section. Navy sections keep their band; the others
- * alternate later. Returns null when the section has no data to show.
+ * Reads that the hero and the letter need before the first paint. They are
+ * small and cached; a failure leaves out the ledger or the date, never the
+ * section.
  */
-function plan(section: HomeSection, data: SectionData, locale: Locale): Planned | null {
-  const fixed = (render: () => ReactNode): Planned => ({ key: section.key, navy: true, render });
-  const banded = (render: (band: SectionBand) => ReactNode): Planned => ({
-    key: section.key,
-    navy: false,
-    render,
-  });
-
-  switch (section.key) {
-    case "hero":
-      return fixed(() => <HeroSection content={section.content} />);
-    case "letter": return null;
-    case "stats":
-      if (data.stats.length === 0) return null;
-      return fixed(() => <StatsSection {...section.content} stats={data.stats} />);
-    case "expertise":
-      if (data.areas.length === 0) return null;
-      return banded((band) => <ExpertiseSection {...section.content} band={band} areas={data.areas} />);
-    case "audiences":
-      return banded((band) => <AudiencesSection content={section.content} band={band} />);
-    case "services":
-      if (data.services.length === 0) return null;
-      return banded((band) => <ServicesSection {...section.content} band={band} services={data.services} />);
-    case "projects":
-      if (data.projects.length === 0) return null;
-      return banded((band) => <ProjectsSection {...section.content} band={band} projects={data.projects} />);
-    case "partners":
-      if (data.partners.length === 0) return null;
-      return banded((band) => <PartnersSection {...section.content} band={band} partners={data.partners} />);
-    case "testimonials":
-      if (data.testimonials.length === 0) return null;
-      return banded((band) => (
-        <TestimonialsSection {...section.content} band={band} testimonials={data.testimonials} />
-      ));
-    case "media": {
-      const [item] = data.media;
-      if (!item) return null;
-      return banded((band) => <MediaSection {...section.content} band={band} item={item} locale={locale} />);
-    }
-    case "latest":
-      if (data.posts.length === 0 && data.resources.length === 0) return null;
-      return banded((band) => (
-        <LatestSection
-          {...section.content}
-          band={band}
-          posts={data.posts}
-          resources={data.resources}
-          locale={locale}
-        />
-      ));
-    case "newsletter":
-      return banded((band) => <NewsletterSection {...section.content} band={band} />);
-    case "contact": {
-      const { settings } = data;
-      if (!settings) return null;
-      return fixed(() => <ContactSection {...section.content} settings={settings} />);
-    }
-  }
+async function loadOpening(locale: Locale, withStats: boolean, withLetter: boolean) {
+  const [stats, writtenAt] = await Promise.all([
+    withStats ? getHomeStats(locale).catch((): HomeStat[] => []) : Promise.resolve([]),
+    withLetter ? getLetterWrittenAt().catch(() => null) : Promise.resolve(null),
+  ]);
+  return { stats, writtenAt };
 }
 
 /**
@@ -170,21 +51,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!hasLocale(routing.locales, locale)) notFound();
   await connection();
 
-  const sections = await getHomeSections(locale);
-  const data = await loadSectionData(locale, new Set(sections.map((section) => section.key)));
-  const planned = sections.flatMap((section) => plan(section, data, locale) ?? []);
-
-  // Light bands alternate over the sections actually shown.
-  let light = 0;
-  const rendered = planned.map((section) => {
-    const band: SectionBand = section.navy ? "navy" : light++ % 2 === 0 ? "plain" : "raised";
-    return <Fragment key={section.key}>{section.render(band)}</Fragment>;
-  });
+  // The dashboard's visible, published sections in its order. Each block
+  // reads its own rows (components/public/home/blocks.tsx), so one failed
+  // read shows that section's error and the rest of the page still renders.
+  const blocks = composeHome(await getHomeSections(locale));
+  const hero = blocks.find((block) => block.key === "hero");
+  const opening = await loadOpening(
+    locale,
+    hero?.key === "hero" && hero.withStats,
+    blocks.some((block) => block.key === "letter"),
+  );
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
-      {!planned.some((section) => section.key === "hero") && <h1 className="sr-only">{SITE_NAME}</h1>}
-      {rendered}
+      {!hero && <h1 className="sr-only">{SITE_NAME}</h1>}
+      {blocks.map((block) => {
+        switch (block.key) {
+          case "hero":
+            return <HeroSection key="hero" content={block.section.content} stats={opening.stats} />;
+          case "letter":
+            return (
+              <LetterSection key="letter" content={block.section.content} writtenAt={opening.writtenAt} locale={locale} />
+            );
+          default:
+            return <HomeBlockView key={block.key} block={block} locale={locale} />;
+        }
+      })}
     </main>
   );
 }

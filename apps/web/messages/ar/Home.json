@@ -29,5 +29,13 @@
   "whatsapp": "واتساب",
   "linkedin": "لينكدإن",
   "contactIntro": "اختر الطريقة الأنسب لك، أو أرسل رسالة من صفحة التواصل.",
-  "sendMessage": "أرسل رسالة"
+  "sendMessage": "أرسل رسالة",
+  "letterWritten": "كُتبت",
+  "readingMore": "المدونة",
+  "latestWriting": "آخر المقالات",
+  "sectionError": {
+    "title": "لم يُحمَّل هذا القسم",
+    "text": "قد يكون الاتصال ضعيفاً. باقي الصفحة يعمل.",
+    "retry": "أعد المحاولة"
+  }
 }

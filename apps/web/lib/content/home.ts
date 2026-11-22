@@ -57,6 +57,27 @@ export async function getHomeSections(locale: Locale): Promise<HomeSection[]> {
     });
 }
 
+/**
+ * When the letter was last written: its row's `updated_at`, for the «كُتبت»
+ * line beside it. Null when the letter isn't published.
+ */
+export async function getLetterWrittenAt(): Promise<string | null> {
+  "use cache";
+  cacheTag(contentCacheTag("home_sections"));
+  cacheLife("hours");
+
+  const rows = rowsOrThrow(
+    await createServiceClient()
+      .from("home_sections")
+      .select("updated_at")
+      .eq("key", "letter")
+      .eq("status", "published")
+      .limit(1),
+    "home_sections",
+  );
+  return rows[0]?.updated_at ?? null;
+}
+
 /** Quick stats in this language, in order. */
 export async function getHomeStats(locale: Locale): Promise<HomeStat[]> {
   "use cache";
