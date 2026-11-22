@@ -174,16 +174,16 @@ describe("MediaList", () => {
       item({ id: "a", title: "First", videoUrl: "https://youtu.be/dQw4w9WgXcQ", imageUrl: "https://cdn.example/a.jpg" }),
       item({ id: "b", title: "Second", videoUrl: "https://vimeo.com/123456789", imageUrl: "https://cdn.example/b.jpg" }),
     ];
-    const { container } = render(<MediaList items={items} query={{ category: null, page: 1 }} />);
+    render(<MediaList items={items} query={{ category: null, page: 1 }} />);
     expect(screen.getAllByRole("button", { name: /^play:/ })).toHaveLength(1);
     expect(screen.getByRole("link", { name: /^watchLabel:\{"title":"Second"\}/ }).getAttribute("href")).toBe(
       "https://vimeo.com/123456789",
     );
     cleanup();
 
-    render(<MediaList items={items} query={{ category: "media", page: 1 }} />);
+    const { container: inCategory } = render(<MediaList items={items} query={{ category: "media", page: 1 }} />);
     expect(screen.queryByRole("button", { name: /^play:/ })).toBeNull();
-    expect(container.querySelector("iframe")).toBeNull();
+    expect(inCategory.querySelector("iframe")).toBeNull();
   });
 
   it("shows a video from any other host as a link, never a frame", () => {
@@ -254,6 +254,10 @@ describe("MediaList", () => {
 
     rerender(<MediaList items={[item()]} query={{ category: "events", page: 1 }} />);
     expect(screen.getByRole("heading", { name: "noResultsState.title" })).toBeTruthy();
+    // The chosen, empty category stays a chip and stays marked; "All" isn't.
+    const chips = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
+    expect(chips.getByText("mediaCategory.events").closest("a")?.getAttribute("aria-current")).toBe("true");
+    expect(chips.getByText("filterAll").closest("a")?.getAttribute("aria-current")).toBeNull();
     expect(screen.getByRole("link", { name: "noResultsState.action" }).getAttribute("href")).toBe("/media");
   });
 
