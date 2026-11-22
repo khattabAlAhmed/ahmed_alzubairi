@@ -110,6 +110,7 @@ describe("CareerTimeline", () => {
   ];
 
   it("lists each role in order, with the current one alone in the accent", () => {
+    locale.current = "en";
     render(<CareerTimeline items={items} label="Career" />);
     const list = screen.getByRole("list", { name: "Career" });
     const rows = within(list).getAllByRole("listitem");
@@ -119,6 +120,13 @@ describe("CareerTimeline", () => {
     ]);
     expect(within(rows[0]).getByText("2020 – present").parentElement?.className).toContain("text-accent");
     expect(within(rows[1]).getByText("2016 – 2020").parentElement?.className).not.toContain("text-accent");
+  });
+
+  it("shows the years in Arabic-Indic digits on an Arabic page, in the page's direction", () => {
+    render(<CareerTimeline items={[{ id: "1", kind: "career", title: "مستشار", description: null, period: "2016 – 2020" }]} />);
+    const years = screen.getByText("٢٠١٦ – ٢٠٢٠");
+    expect(years.tagName).not.toBe("BDI");
+    expect(years.className).toContain("[unicode-bidi:isolate]");
   });
 });
 
@@ -194,6 +202,15 @@ describe("rows", () => {
     render(<StageStrip text="As the case needs" formatIndex={String} />);
     expect(screen.queryByRole("list")).toBeNull();
     expect(screen.getByText("As the case needs")).toBeTruthy();
+  });
+
+  it("reads two by two on phones for an even number of stages, one column for an odd one", () => {
+    render(<StageStrip text={"Write\nAsk\nAgree\nListen"} formatIndex={String} />);
+    expect(screen.getByRole("list").className).toMatch(/(^| )grid-cols-2( |$)/);
+    cleanup();
+
+    render(<StageStrip text={"Listen\nRead\nWrite"} formatIndex={String} />);
+    expect(screen.getByRole("list").className).not.toMatch(/(^| )grid-cols-2( |$)/);
   });
 });
 

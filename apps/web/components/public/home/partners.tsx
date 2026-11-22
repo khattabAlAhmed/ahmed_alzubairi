@@ -21,8 +21,16 @@ export function PartnersSection({
   const t = useTranslations("Home");
 
   return (
-    <HomeSectionShell sectionKey="partners" heading={heading} intro={intro} band={band}>
-      <OrganizationRegister partners={partners} more={{ href: "/clients", label: t("allClients") }} />
+    // "All organizations" sits in the section head, as on every other home
+    // section (the Main mockup), not squeezed into a register cell.
+    <HomeSectionShell
+      sectionKey="partners"
+      heading={heading}
+      intro={intro}
+      band={band}
+      action={{ href: "/clients", label: t("allClients") }}
+    >
+      <OrganizationRegister partners={partners} />
     </HomeSectionShell>
   );
 }

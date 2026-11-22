@@ -38,6 +38,9 @@ export const CARD = "relative border border-line bg-bg p-6";
 /** One fact in a page header's ledger, its value already in the page's digits. */
 export type PageFact = { label: string; value: string };
 
+/** A fact as the ledger shows it: the value may also be a link, e.g. a service's area. */
+export type LedgerFact = { label: string; value: ReactNode };
+
 /**
  * The top of every main page (the PageHeader board): the 2px rule, then three
  * columns. The start one says where you are (the section, or the way back);
@@ -62,7 +65,7 @@ export function PageHero({
   /** One sentence of his (SOUL.md principle 1). */
   intro?: ReactNode;
   actions?: ReactNode;
-  facts?: readonly PageFact[];
+  facts?: readonly LedgerFact[];
   /** A 4:5 photo in the end column. */
   photo?: { src: string; alt: string };
 }) {
@@ -101,7 +104,7 @@ export function PageHero({
 }
 
 /** Numbers as evidence: label and value on one line, hairlines between. */
-export function Ledger({ facts, className }: { facts: readonly PageFact[]; className?: string }) {
+export function Ledger({ facts, className }: { facts: readonly LedgerFact[]; className?: string }) {
   return (
     <dl className={cx("border-t border-line", className)}>
       {facts.map((fact) => (
