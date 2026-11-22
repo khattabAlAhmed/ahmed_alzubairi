@@ -443,6 +443,27 @@ export function CvLink({ href, label, detail }: { href: string; label: string; d
   );
 }
 
+/** One value of his: the short rule, then what it means in practice. */
+export type ValueItem = { term: string; definition: string };
+
+/**
+ * His values and working method as definitions (the Qualifications board,
+ * beside the table): each rule in his words over a hairline, what it means
+ * under it in the secondary ink. No icons, no numbers, no cards.
+ */
+export function ValueList({ items, label }: { items: readonly ValueItem[]; label?: string }) {
+  return (
+    <dl aria-label={label}>
+      {items.map((item) => (
+        <div key={item.term}>
+          <dt className="border-t border-line pt-3.5 text-[19px] font-medium text-pretty">{item.term}</dt>
+          <dd className="pb-3.5 text-[15px] leading-[1.85] text-pretty text-ink-2">{item.definition}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /* --------------------------------------------------- organization logos -- */
 
 /**

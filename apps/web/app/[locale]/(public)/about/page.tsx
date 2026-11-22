@@ -6,7 +6,7 @@ import { AboutPage } from "@/components/public/pages";
 import { LanguageFallback } from "@/components/language-switch";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { otherLocale, routing } from "@/i18n/routing";
-import { getHomeStats, getPage, getSiteSettings, getTimeline } from "@/lib/content";
+import { getHomeSections, getHomeStats, getPage, getSiteSettings, getTimeline } from "@/lib/content";
 import { staticPageMetadata } from "@/lib/seo/static-pages";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -26,19 +26,24 @@ export default async function About({ params }: Props) {
   // Renders on request: the build never reads Supabase. Reads stay cached by tag.
   await connection();
 
-  const [page, timeline, stats, settings] = await Promise.all([
+  const [page, timeline, stats, sections, settings] = await Promise.all([
     getPage("about", locale),
     getTimeline(locale),
     getHomeStats(locale),
+    getHomeSections(locale),
     getSiteSettings(),
   ]);
   if (!page) notFound();
+  // The portrait is the home hero's photo (no about photo field in Phase 8).
+  const hero = sections.find((section) => section.key === "hero");
+  const portrait =
+    hero?.key === "hero" && hero.content.photoUrl ? { src: hero.content.photoUrl, name: hero.content.name } : null;
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
       {/* No translation: the switch goes to the home page, never to an empty page (§6.1). */}
       {!page.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/" />}
-      <AboutPage page={page} timeline={timeline} stats={stats} cvUrl={settings.cvUrl} />
+      <AboutPage page={page} timeline={timeline} stats={stats} cvUrl={settings.cvUrl} portrait={portrait} />
     </main>
   );
 }

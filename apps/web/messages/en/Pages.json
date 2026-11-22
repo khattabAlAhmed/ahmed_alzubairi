@@ -57,5 +57,6 @@
   "allOrganizations": "All organizations",
   "factProjects": "Projects",
   "factOrganizations": "Organizations",
-  "emptyExpertiseTitle": "No areas here yet"
+  "emptyExpertiseTitle": "No areas here yet",
+  "portraitAlt": "Photo of {name}"
 }

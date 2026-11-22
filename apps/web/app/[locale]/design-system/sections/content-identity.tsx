@@ -18,6 +18,8 @@ import {
   StatBand,
   StatLedger,
   TestimonialSet,
+  ValueList,
+  type ValueItem,
 } from "@/components/public/pages/identity";
 import { RequestServiceButton } from "@/components/public/pages/request-service-button";
 import { Stages } from "@/components/public/pages/services";
@@ -73,7 +75,14 @@ export async function ContentIdentitySection({ locale }: Props) {
         <ServiceListBlock t={t} empty={pages("emptyServices")} />
         <ServicePageBlock t={t} request={pages("requestService")} />
         <CareerBlock t={t} />
-        <QualificationsBlock t={t} cv={pages("downloadCv")} />
+        <QualificationsBlock
+          t={t}
+          cv={pages("downloadCv")}
+          values={(["listen", "doable", "leave"] as const).map((key) => ({
+            term: pages(`values.${key}.title`),
+            definition: pages(`values.${key}.text`),
+          }))}
+        />
         <LogosBlock t={t} />
         <TestimonialBlock t={t} empty={catalog("noClients")} />
       </NextIntlClientProvider>
@@ -262,13 +271,16 @@ function CareerBlock({ t }: { t: T }) {
 
 /* --------------------------------------------- qualifications and values -- */
 
-function QualificationsBlock({ t, cv }: { t: T; cv: string }) {
+function QualificationsBlock({ t, cv, values }: { t: T; cv: string; values: ValueItem[] }) {
   return (
     <DsBlock title={t("qualifications.title")} intro={t("qualifications.intro")}>
       <State label={t("states.qualifications")}>
-        <div className="flex max-w-[720px] flex-col gap-6">
-          <QualificationList items={timeline(t, "qualifications.items", "qualification")} />
-          <CvLink href={HERE} label={cv} detail={t("qualifications.cvDetail")} />
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <div className="flex flex-col gap-6">
+            <QualificationList items={timeline(t, "qualifications.items", "qualification")} />
+            <CvLink href={HERE} label={cv} detail={t("qualifications.cvDetail")} />
+          </div>
+          <ValueList items={values} />
         </div>
       </State>
     </DsBlock>

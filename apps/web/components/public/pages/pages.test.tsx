@@ -17,6 +17,7 @@ const mocks = vi.hoisted(() => ({
   area: null as unknown,
   areas: [] as unknown[],
   readBeforeConnection: false,
+  sections: [] as unknown[],
 }));
 
 /** Records a content read made before the page waited for a request. */
@@ -87,11 +88,13 @@ vi.mock("@/lib/content", () => ({
   getPage: async () => read(mocks.page),
   getTimeline: async () => read([]),
   getHomeStats: async () => read([]),
+  getHomeSections: async () => read(mocks.sections),
   getSiteSettings: async () => read({ cvUrl: null }),
   getFaqs: async () => [],
 }));
 
 const { AboutPage } = await import("./about");
+const { PageHero } = await import("../parts");
 const { ExpertiseDetailPage, ExpertiseListPage } = await import("./expertise");
 const { ServiceDetailPage, splitStages } = await import("./services");
 const { RequestServiceButton, serviceRequestPath } = await import("./request-service-button");
@@ -177,7 +180,7 @@ describe("AboutPage", () => {
   const stats: HomeStat[] = [{ id: "s1", label: "Projects", value: "38" }];
 
   it("opens with his sentence as h1, the page name above it, and the short bio as the intro", () => {
-    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} />);
+    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} portrait={null} />);
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.textContent).toBe("aboutSentence");
     const header = h1.closest("header")!;
@@ -186,19 +189,19 @@ describe("AboutPage", () => {
   });
 
   it("puts the long bio and the quick stats under «In short»", () => {
-    render(<AboutPage page={page} timeline={timeline} stats={stats} cvUrl={null} />);
+    render(<AboutPage page={page} timeline={timeline} stats={stats} cvUrl={null} portrait={null} />);
     const section = screen.getByRole("heading", { name: "inShort" }).closest("section")!;
     expect(section.textContent).toContain("Long bio");
     expect(section.textContent).toContain("Projects");
   });
 
   it("leaves «In short» out when there is no long bio and no stats", () => {
-    render(<AboutPage page={{ ...page, body: doc("Short bio") }} timeline={[]} stats={[]} cvUrl={null} />);
+    render(<AboutPage page={{ ...page, body: doc("Short bio") }} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
     expect(screen.queryByRole("heading", { name: "inShort" })).toBeNull();
   });
 
   it("lists career and qualifications separately", () => {
-    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} />);
+    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} portrait={null} />);
     expect(screen.getByRole("heading", { name: "career" }).closest("section")?.textContent).toContain(
       "Senior consultant",
     );
@@ -207,14 +210,52 @@ describe("AboutPage", () => {
     expect(qualifications.querySelector('a[href="/documents"]')).not.toBeNull();
   });
 
+  it("lists his values as definitions beside the qualifications, even without any", () => {
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
+    const values = screen.getByLabelText("valuesLabel");
+    expect([...values.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual([
+      "values.listen.title",
+      "values.doable.title",
+      "values.leave.title",
+    ]);
+  });
+
+  it("shows the portrait in the header only when the home hero has a photo", () => {
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} portrait={{ src: "/p.jpg", name: "Ahmed" }} />);
+    expect(screen.getByRole("img", { name: "portraitAlt" }).closest("header")).not.toBeNull();
+    cleanup();
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
+    expect(screen.queryByRole("img", { name: "portraitAlt" })).toBeNull();
+  });
+
   it("shows the CV link only when site settings give a URL", () => {
-    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} />);
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
     expect(screen.queryByRole("link", { name: "cv" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "qualificationsAndMethod" })).toBeNull();
     cleanup();
 
-    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl="https://example.supabase.co/cv.pdf" />);
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl="https://example.supabase.co/cv.pdf" portrait={null} />);
     expect(screen.getByRole("link", { name: "cv" }).getAttribute("href")).toBe("https://example.supabase.co/cv.pdf");
+  });
+});
+
+describe("PageHero", () => {
+  const props = { eyebrow: "Projects", title: "Title", intro: "Intro", facts: [{ label: "Projects", value: "38" }] };
+
+  it("renders exactly as before when no photo is given", () => {
+    const { container: without } = render(<PageHero {...props} />);
+    const before = without.innerHTML;
+    cleanup();
+    const { container: undefinedPhoto } = render(<PageHero {...props} photo={undefined} />);
+    expect(undefinedPhoto.innerHTML).toBe(before);
+    expect(undefinedPhoto.querySelector("img")).toBeNull();
+  });
+
+  it("puts a photo in the end column, with the facts under it", () => {
+    render(<PageHero {...props} photo={{ src: "/images/p.webp", alt: "Photo of Ahmed" }} />);
+    const img = screen.getByRole("img", { name: "Photo of Ahmed" });
+    const column = img.closest("figure")!.parentElement!;
+    expect(column.querySelector("dl")?.textContent).toContain("38");
+    expect(img.closest("header")).not.toBeNull();
   });
 });
 
@@ -440,6 +481,14 @@ describe("about, expertise and services routes", () => {
 
   it("about: returns not-found when the page isn't published in this language", async () => {
     await expect(aboutRoute.default(params("en"))).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("about: takes the portrait from the home hero's photo", async () => {
+    mocks.page = { key: "about", title: "About", body: doc("Short bio"), availableIn: ["ar", "en"] };
+    mocks.sections = [{ key: "hero", position: 0, content: { name: "Ahmed", photoUrl: "https://x.supabase.co/hero.jpg" } }];
+    render(await aboutRoute.default(params("ar")));
+    expect(screen.getByRole("img", { name: "portraitAlt" }).closest("header")).not.toBeNull();
+    mocks.sections = [];
   });
 
   it("about: an Arabic-only page sends the language switch home", async () => {

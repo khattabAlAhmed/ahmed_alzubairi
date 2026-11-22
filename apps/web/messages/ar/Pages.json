@@ -57,5 +57,6 @@
   "allOrganizations": "كل الجهات",
   "factProjects": "المشاريع",
   "factOrganizations": "الجهات",
-  "emptyExpertiseTitle": "لا مجالات هنا بعد"
+  "emptyExpertiseTitle": "لا مجالات هنا بعد",
+  "portraitAlt": "صورة {name}"
 }
