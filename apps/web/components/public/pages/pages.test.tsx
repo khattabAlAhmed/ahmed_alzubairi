@@ -98,7 +98,8 @@ const { PageHero } = await import("../parts");
 const { ExpertiseDetailPage, ExpertiseListPage } = await import("./expertise");
 const { ServiceDetailPage, splitStages } = await import("./services");
 const { RequestServiceButton, serviceRequestPath } = await import("./request-service-button");
-const { areaFacts, servedOrganizations } = await import("./related");
+const { areaFacts, newestFirst, servedOrganizations } = await import("./related");
+const { isOngoing } = await import("./identity");
 const { getServiceProjects } = await import("./service-projects");
 const { routeSlug, staticSlugs } = await import("../static-slugs");
 const servicePage = await import("@/app/[locale]/(public)/services/[slug]/page");
@@ -389,6 +390,22 @@ describe("helpers", () => {
         project("4", { organization: "An international organization" }),
       ]),
     ).toEqual(["Org A", "An international organization"]);
+  });
+
+  it("orders career entries newest first, whatever order was saved", () => {
+    const item = (id: string, period: string | null) => ({ id, period });
+    const sorted = newestFirst(
+      [
+        item("first", "2012"),
+        item("none", null),
+        item("governance", "2013 – 2016"),
+        item("now", "٢٠٢٠ – الآن"),
+        item("protection", "2016 – 2020"),
+        item("also-none", "Early career"),
+      ],
+      isOngoing,
+    );
+    expect(sorted.map((entry) => entry.id)).toEqual(["now", "protection", "governance", "first", "none", "also-none"]);
   });
 
   it("counts an area's projects and the organizations they served", () => {

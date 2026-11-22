@@ -3,7 +3,8 @@ import { cx } from "@/components/ui/cx";
 import type { HomeStat, Page, TimelineItem } from "@/lib/content";
 import { RichText, splitLead } from "../rich-text";
 import { CONTAINER, ConsultationCta, PageHero, PageSection } from "../parts";
-import { CareerTimeline, CvLink, QualificationList, StatLedger, ValueList } from "./identity";
+import { CareerTimeline, CvLink, isOngoing, QualificationList, StatLedger, ValueList } from "./identity";
+import { newestFirst } from "./related";
 
 /** His values and working method, in the order the mockup sets them (approved voice copy). */
 const VALUES = ["listen", "doable", "leave"] as const;
@@ -36,7 +37,11 @@ export function AboutPage({
 }) {
   const t = useTranslations("Pages");
   const { lead, rest } = splitLead(page.body);
-  const career = timeline.filter((item) => item.kind === "career");
+  // Newest first whatever order was saved: the section says «الأحدث أولاً».
+  const career = newestFirst(
+    timeline.filter((item) => item.kind === "career"),
+    isOngoing,
+  );
   const qualifications = timeline.filter((item) => item.kind === "qualification");
 
   return (
