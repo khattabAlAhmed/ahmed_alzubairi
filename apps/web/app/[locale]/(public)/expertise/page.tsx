@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import { ExpertiseListPage } from "@/components/public/pages";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
-import { getExpertiseAreas } from "@/lib/content";
+import { getExpertiseAreas, getProjects, getServices } from "@/lib/content";
 import { staticPageMetadata } from "@/lib/seo/static-pages";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -22,9 +22,15 @@ export default async function Expertise({ params }: Props) {
   // Renders on request: the build never reads Supabase. Reads stay cached by tag.
   await connection();
 
+  const [areas, services, projects] = await Promise.all([
+    getExpertiseAreas(locale),
+    getServices(locale),
+    getProjects(locale),
+  ]);
+
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
-      <ExpertiseListPage areas={await getExpertiseAreas(locale)} />
+      <ExpertiseListPage areas={areas} services={services} projects={projects} />
     </main>
   );
 }

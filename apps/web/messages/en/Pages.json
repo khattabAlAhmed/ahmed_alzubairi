@@ -7,9 +7,9 @@
   "experience": "Experience",
   "areaServices": "Services in this area",
   "areaProjects": "Projects in this area",
-  "areaOrganizations": "Organizations I've worked with",
+  "areaOrganizations": "Organizations I have worked with here",
   "allExpertise": "All areas of expertise",
-  "emptyExpertise": "No areas of expertise are published in this language yet.",
+  "emptyExpertise": "I haven't published my areas of expertise in this language yet. You can write to me directly.",
   "area": "Area",
   "audience": "Who it suits",
   "deliverables": "What you get",
@@ -27,5 +27,35 @@
     "reply": "I read it and reply in writing, in the same conversation.",
     "meet": "If we need to, we set a video meeting at a time that suits you."
   },
-  "ctaPhotoAlt": "Placeholder photo: a table and two facing chairs by a window"
+  "ctaPhotoAlt": "Placeholder photo: a table and two facing chairs by a window",
+  "aboutSentence": "I learned to ask before I plan. I still do.",
+  "inShort": "In short",
+  "careerIntro": "Most recent first.",
+  "qualificationsAndMethod": "Qualifications and how I work",
+  "qualificationsIntro": "The documents that prove this are on the Documents page, opened on request.",
+  "documentsLink": "Documents and certificates",
+  "cv": "CV",
+  "valuesLabel": "How I work",
+  "values": {
+    "listen": {
+      "title": "I listen before I write",
+      "text": "No plan before I sit with the people who will live its results."
+    },
+    "doable": {
+      "title": "I write what can be done",
+      "text": "A recommendation the team cannot apply tomorrow is not a recommendation."
+    },
+    "leave": {
+      "title": "I leave quietly",
+      "text": "I measure my work by what stays after I leave, not by the reports I leave behind."
+    }
+  },
+  "expertiseSentence": "Three areas joined by one question: who will live with the results of this decision?",
+  "areaMeaning": "What I mean by {area}",
+  "areaProjectsCount": "{count, plural, one {One project.} other {{shown} projects. These are the latest.}}",
+  "areaAllProjects": "All projects in this area",
+  "allOrganizations": "All organizations",
+  "factProjects": "Projects",
+  "factOrganizations": "Organizations",
+  "emptyExpertiseTitle": "No areas here yet"
 }

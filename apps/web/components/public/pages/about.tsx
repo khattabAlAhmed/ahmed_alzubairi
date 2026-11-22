@@ -1,24 +1,28 @@
 import { useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
-import type { Page, TimelineItem } from "@/lib/content";
+import type { HomeStat, Page, TimelineItem } from "@/lib/content";
 import { RichText, splitLead } from "../rich-text";
 import { CONTAINER, ConsultationCta, PageHero, PageSection } from "../parts";
-import { CareerTimeline, CvLink, QualificationList } from "./identity";
+import { CareerTimeline, CvLink, QualificationList, StatLedger } from "./identity";
 
 /**
- * §6.3. The title is the h1 and the body's first paragraph the short bio. The
- * rest of the body is the long bio, where the editor writes the "Values" and
- * "Working method" headings. Career (a spine, the CareerTimeline board) and
- * qualifications with the CV (the Qualifications board) come from the
- * timeline and site settings.
+ * §6.3, as the About mockup. The page header carries the page's name, one
+ * sentence of his, and the body's first paragraph (the short bio). "In
+ * short" holds the rest of the body (the long bio) beside the quick stats as
+ * a ledger. Then the career as a spine, and the qualifications with the CV.
+ * Facts all come from the dashboard: the body, the timeline, the stats and the
+ * CV switch. A part with nothing to show isn't rendered.
  */
 export function AboutPage({
   page,
   timeline,
+  stats,
   cvUrl,
 }: {
   page: Page;
   timeline: TimelineItem[];
+  /** The quick stats (`home_stats`), the same facts as the home page's ledger. */
+  stats: HomeStat[];
   /** Set only when site settings make the CV visible. */
   cvUrl: string | null;
 }) {
@@ -26,29 +30,44 @@ export function AboutPage({
   const { lead, rest } = splitLead(page.body);
   const career = timeline.filter((item) => item.kind === "career");
   const qualifications = timeline.filter((item) => item.kind === "qualification");
-  const hasRecord = career.length > 0 || qualifications.length > 0 || cvUrl;
 
   return (
     <>
-      <PageHero title={page.title} intro={lead ? <RichText doc={lead} /> : undefined} />
+      <PageHero eyebrow={page.title} title={t("aboutSentence")} intro={lead ? <RichText doc={lead} /> : undefined} />
       <div className={cx(CONTAINER, "mt-section grid gap-section")}>
-        {rest && <RichText doc={rest} className="max-w-measure" />}
-        {hasRecord && (
-          <div className="grid gap-x-12 gap-y-section lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-            {career.length > 0 && (
-              <PageSection id="about-career" title={t("career")}>
-                <CareerTimeline items={career} />
-              </PageSection>
+        {(rest || stats.length > 0) && (
+          <section aria-labelledby="about-in-short" className="grid gap-x-gutter gap-y-6 md:grid-cols-12">
+            <h2 id="about-in-short" className="type-small text-ink-2 md:col-span-3">
+              {t("inShort")}
+            </h2>
+            {rest && <RichText doc={rest} className="max-w-measure md:col-span-9 lg:col-span-6" />}
+            {stats.length > 0 && (
+              <StatLedger
+                stats={stats}
+                className={cx("self-start md:col-span-9 md:col-start-4 lg:col-span-3", rest && "lg:col-start-auto")}
+              />
             )}
-            {(qualifications.length > 0 || cvUrl) && (
-              <PageSection id="about-qualifications" title={t("qualifications")}>
-                <div className="flex flex-col gap-6">
-                  {qualifications.length > 0 && <QualificationList items={qualifications} />}
-                  {cvUrl && <CvLink href={cvUrl} label={t("downloadCv")} />}
-                </div>
-              </PageSection>
-            )}
-          </div>
+          </section>
+        )}
+        {career.length > 0 && (
+          <PageSection id="about-career" title={t("career")} intro={t("careerIntro")}>
+            <div className="md:w-2/3">
+              <CareerTimeline items={career} label={t("career")} />
+            </div>
+          </PageSection>
+        )}
+        {(qualifications.length > 0 || cvUrl) && (
+          <PageSection
+            id="about-qualifications"
+            title={t("qualificationsAndMethod")}
+            intro={t("qualificationsIntro")}
+            more={{ href: "/documents", label: t("documentsLink") }}
+          >
+            <div className="flex max-w-[720px] flex-col gap-5">
+              {qualifications.length > 0 && <QualificationList items={qualifications} label={t("qualifications")} />}
+              {cvUrl && <CvLink href={cvUrl} label={t("cv")} />}
+            </div>
+          </PageSection>
         )}
       </div>
       <ConsultationCta />

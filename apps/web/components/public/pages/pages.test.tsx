@@ -3,7 +3,7 @@ import type { TiptapDoc } from "@repo/shared";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Faq, Page, Project, ServiceDetail, TimelineItem } from "@/lib/content";
+import type { ExpertiseAreaDetail, Faq, HomeStat, Page, Project, Service, ServiceDetail, TimelineItem } from "@/lib/content";
 
 const mocks = vi.hoisted(() => ({
   connected: false,
@@ -86,14 +86,16 @@ vi.mock("@/lib/content", () => ({
   getExpertiseArea: async () => read(mocks.area),
   getPage: async () => read(mocks.page),
   getTimeline: async () => read([]),
+  getHomeStats: async () => read([]),
   getSiteSettings: async () => read({ cvUrl: null }),
   getFaqs: async () => [],
 }));
 
 const { AboutPage } = await import("./about");
+const { ExpertiseDetailPage, ExpertiseListPage } = await import("./expertise");
 const { ServiceDetailPage, splitStages } = await import("./services");
 const { RequestServiceButton, serviceRequestPath } = await import("./request-service-button");
-const { servedOrganizations } = await import("./related");
+const { areaFacts, servedOrganizations } = await import("./related");
 const { getServiceProjects } = await import("./service-projects");
 const { routeSlug, staticSlugs } = await import("../static-slugs");
 const servicePage = await import("@/app/[locale]/(public)/services/[slug]/page");
@@ -172,34 +174,123 @@ describe("AboutPage", () => {
     { id: "1", kind: "career", title: "Senior consultant", description: null, period: "2018 – 2024" },
     { id: "2", kind: "qualification", title: "Master's degree", description: null, period: "2010" },
   ];
+  const stats: HomeStat[] = [{ id: "s1", label: "Projects", value: "38" }];
 
-  it("shows the title as h1, the first paragraph as the intro, and the rest after it", () => {
-    render(<AboutPage page={page} timeline={timeline} cvUrl={null} />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("About");
-    const intro = screen.getByText("Short bio");
-    expect(intro.closest("header")).not.toBeNull();
-    expect(screen.getByText("Long bio").closest("header")).toBeNull();
+  it("opens with his sentence as h1, the page name above it, and the short bio as the intro", () => {
+    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} />);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.textContent).toBe("aboutSentence");
+    const header = h1.closest("header")!;
+    expect(header.textContent).toContain("About");
+    expect(screen.getByText("Short bio").closest("header")).toBe(header);
+  });
+
+  it("puts the long bio and the quick stats under «In short»", () => {
+    render(<AboutPage page={page} timeline={timeline} stats={stats} cvUrl={null} />);
+    const section = screen.getByRole("heading", { name: "inShort" }).closest("section")!;
+    expect(section.textContent).toContain("Long bio");
+    expect(section.textContent).toContain("Projects");
+  });
+
+  it("leaves «In short» out when there is no long bio and no stats", () => {
+    render(<AboutPage page={{ ...page, body: doc("Short bio") }} timeline={[]} stats={[]} cvUrl={null} />);
+    expect(screen.queryByRole("heading", { name: "inShort" })).toBeNull();
   });
 
   it("lists career and qualifications separately", () => {
-    render(<AboutPage page={page} timeline={timeline} cvUrl={null} />);
+    render(<AboutPage page={page} timeline={timeline} stats={[]} cvUrl={null} />);
     expect(screen.getByRole("heading", { name: "career" }).closest("section")?.textContent).toContain(
       "Senior consultant",
     );
-    expect(screen.getByRole("heading", { name: "qualifications" }).closest("section")?.textContent).toContain(
-      "Master's degree",
-    );
+    const qualifications = screen.getByRole("heading", { name: "qualificationsAndMethod" }).closest("section")!;
+    expect(qualifications.textContent).toContain("Master's degree");
+    expect(qualifications.querySelector('a[href="/documents"]')).not.toBeNull();
   });
 
   it("shows the CV link only when site settings give a URL", () => {
-    render(<AboutPage page={page} timeline={[]} cvUrl={null} />);
-    expect(screen.queryByRole("link", { name: "downloadCv" })).toBeNull();
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} />);
+    expect(screen.queryByRole("link", { name: "cv" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "qualificationsAndMethod" })).toBeNull();
     cleanup();
 
-    render(<AboutPage page={page} timeline={[]} cvUrl="https://example.supabase.co/cv.pdf" />);
-    expect(screen.getByRole("link", { name: "downloadCv" }).getAttribute("href")).toBe(
-      "https://example.supabase.co/cv.pdf",
+    render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl="https://example.supabase.co/cv.pdf" />);
+    expect(screen.getByRole("link", { name: "cv" }).getAttribute("href")).toBe("https://example.supabase.co/cv.pdf");
+  });
+});
+
+describe("ExpertiseDetailPage", () => {
+  const area: ExpertiseAreaDetail = {
+    id: "a1",
+    slug: "humanitarian",
+    title: "Humanitarian work",
+    summary: "Area summary",
+    body: doc("What I mean"),
+    availableIn: ["ar", "en"],
+  };
+  const areaService: Service = { ...service, id: "svc-2", slug: "protection", title: "Protection", expertiseId: "a1" };
+
+  it("shows the area's counts as a ledger and its services beside the body", () => {
+    const projects = [project("1", { organization: "Org A" }), project("2", { organization: "Org A" })];
+    render(<ExpertiseDetailPage area={area} services={[areaService]} projects={projects} />);
+    const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
+    expect(header.querySelectorAll("dd").length).toBe(2);
+    expect([...header.querySelectorAll("dd")].map((dd) => dd.textContent)).toEqual(["٢", "١"]);
+    const meaning = screen.getByRole("heading", { name: "areaMeaning" }).closest("section")!;
+    expect(meaning.textContent).toContain("What I mean");
+    expect(meaning.querySelector('a[href="/services/protection"]')).not.toBeNull();
+  });
+
+  it("shows the three latest projects, the count only when there are more, and a link to all of them", () => {
+    const projects = ["1", "2", "3", "4"].map((id) => project(id));
+    render(<ExpertiseDetailPage area={area} services={[]} projects={projects} />);
+    const section = screen.getByRole("heading", { name: "areaProjects" }).closest("section")!;
+    expect(section.textContent).toContain("areaProjectsCount");
+    expect(section.textContent).toContain("Project 3");
+    expect(section.textContent).not.toContain("Project 4");
+    expect(section.querySelector('a[href="/projects?area=humanitarian"]')).not.toBeNull();
+    cleanup();
+
+    render(<ExpertiseDetailPage area={area} services={[]} projects={projects.slice(0, 2)} />);
+    expect(screen.getByRole("heading", { name: "areaProjects" }).closest("section")!.textContent).not.toContain(
+      "areaProjectsCount",
     );
+  });
+
+  it("lists the organizations served, once each, and leaves out empty sections", () => {
+    render(
+      <ExpertiseDetailPage
+        area={{ ...area, body: null }}
+        services={[]}
+        projects={[project("1", { organization: "An international organization" }), project("2")]}
+      />,
+    );
+    const section = screen.getByRole("heading", { name: "areaOrganizations" }).closest("section")!;
+    expect(section.textContent).toContain("An international organization");
+    expect(screen.queryByRole("heading", { name: "areaMeaning" })).toBeNull();
+  });
+});
+
+describe("ExpertiseListPage", () => {
+  const areas = [{ id: "a1", slug: "governance", title: "Governance", summary: "S" }];
+
+  it("opens with his sentence and lists each area with its services", () => {
+    render(
+      <ExpertiseListPage
+        areas={areas}
+        services={[{ ...service, expertiseId: "a1" }]}
+        projects={[project("1", { expertiseId: "a1", organization: "Org" })]}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("expertiseSentence");
+    const link = screen.getByRole("link", { name: /Governance/ });
+    expect(link.textContent).toContain("Governance review");
+    expect(link.textContent).toContain("factProjects ١");
+  });
+
+  it("shows an empty state with a way to write when nothing is published", () => {
+    render(<ExpertiseListPage areas={[]} services={[]} projects={[]} />);
+    expect(screen.getByRole("heading", { name: "emptyExpertiseTitle" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "contact" }).getAttribute("href")).toBe("/contact");
   });
 });
 
@@ -257,6 +348,13 @@ describe("helpers", () => {
         project("4", { organization: "An international organization" }),
       ]),
     ).toEqual(["Org A", "An international organization"]);
+  });
+
+  it("counts an area's projects and the organizations they served", () => {
+    expect(areaFacts([project("1", { organization: "Org A" }), project("2", { organization: "Org A" }), project("3")])).toEqual({
+      projects: 3,
+      organizations: 1,
+    });
   });
 
   it("finds a service's projects through project_services", async () => {
@@ -342,6 +440,12 @@ describe("about, expertise and services routes", () => {
 
   it("about: returns not-found when the page isn't published in this language", async () => {
     await expect(aboutRoute.default(params("en"))).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("about: an Arabic-only page sends the language switch home", async () => {
+    mocks.page = { key: "about", title: "About", body: doc("Short bio"), availableIn: ["ar"] };
+    render(await aboutRoute.default(params("ar")));
+    expect(screen.getByTestId("language-fallback").textContent).toBe("/");
   });
 
   it("expertise area: an Arabic-only area sends the language switch to the expertise list", async () => {
