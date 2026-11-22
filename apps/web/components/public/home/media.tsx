@@ -8,28 +8,76 @@ import { embedUrl, webUrl } from "../media/query";
 import { HomeSectionShell, type SectionBand } from "./section";
 
 /**
- * §6.2 #9: the latest appearance or event, as the press log's featured item
- * (MediaItem board). A YouTube or Vimeo video shows its poster and loads the
- * player only on a click. The page leaves the section out when there's none.
+ * The latest appearance or event, as the press log's featured item (MediaItem
+ * board). A YouTube or Vimeo video shows its poster and loads the player only
+ * on a click. Used alone (`MediaSection`) and as the featured column of
+ * «أتحدث وأكتب» (`ReadingSection`).
  */
-export function MediaSection({
-  heading,
-  intro,
-  band,
-  item,
-}: {
-  heading: string;
-  intro?: string;
-  band: SectionBand;
-  item: MediaItem;
-  /** Kept for the caller; the date reads the page's language. */
-  locale?: Locale;
-}) {
+export function FeaturedMedia({ item, className }: { item: MediaItem; className?: string }) {
   const t = useTranslations("Home");
   const tw = useTranslations("ContentWork.media");
   const link = webUrl(item.url) ?? webUrl(item.videoUrl);
   const embed = embedUrl(item.videoUrl);
   const poster = item.imageUrl ? { src: item.imageUrl, alt: "" } : null;
+
+  return (
+    <MediaCard
+      variant="featured"
+      headingLevel={3}
+      className={className}
+      category={item.category}
+      title={item.title}
+      outlet={item.outlet}
+      date={item.date}
+      image={poster}
+      media={
+        embed ? (
+          <VideoFacade
+            src={embed}
+            title={tw("videoTitle", { title: item.title })}
+            poster={poster}
+            playLabel={tw("play")}
+            fallback={link ? { href: link, label: `${tw("watchOnSite")} ${t("opensInNewTab")}` } : undefined}
+          />
+        ) : undefined
+      }
+      action={
+        link && !embed ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[15px] text-accent underline decoration-1 underline-offset-5 transition-state hover:decoration-2 focus-ring"
+          >
+            {t("viewDetails")}
+            <ExternalLinkIcon aria-hidden="true" className="dir-icon size-3.5" />
+            <span className="sr-only">{t("opensInNewTab")}</span>
+          </a>
+        ) : undefined
+      }
+    />
+  );
+}
+
+/**
+ * §6.2 #9 on its own: shown only when «أتحدث وأكتب» (`latest`) is hidden;
+ * otherwise the item is that section's featured column (see `composeHome`).
+ * The page leaves it out when there's no item.
+ */
+export function MediaSection({
+  heading,
+  intro,
+  band = "plain",
+  item,
+}: {
+  heading: string;
+  intro?: string;
+  band?: SectionBand;
+  item: MediaItem;
+  /** Kept for the caller; the date reads the page's language. */
+  locale?: Locale;
+}) {
+  const t = useTranslations("Home");
 
   return (
     <HomeSectionShell
@@ -39,41 +87,7 @@ export function MediaSection({
       band={band}
       action={{ href: "/media", label: t("allMedia") }}
     >
-      <MediaCard
-        variant="featured"
-        headingLevel={3}
-        className="md:max-w-[42rem]"
-        category={item.category}
-        title={item.title}
-        outlet={item.outlet}
-        date={item.date}
-        image={poster}
-        media={
-          embed ? (
-            <VideoFacade
-              src={embed}
-              title={tw("videoTitle", { title: item.title })}
-              poster={poster}
-              playLabel={tw("play")}
-              fallback={link ? { href: link, label: `${tw("watchOnSite")} ${t("opensInNewTab")}` } : undefined}
-            />
-          ) : undefined
-        }
-        action={
-          link && !embed ? (
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[15px] text-accent underline decoration-1 underline-offset-5 transition-state hover:decoration-2 focus-ring"
-            >
-              {t("viewDetails")}
-              <ExternalLinkIcon aria-hidden="true" className="dir-icon size-3.5" />
-              <span className="sr-only">{t("opensInNewTab")}</span>
-            </a>
-          ) : undefined
-        }
-      />
+      <FeaturedMedia item={item} className="md:max-w-[42rem]" />
     </HomeSectionShell>
   );
 }

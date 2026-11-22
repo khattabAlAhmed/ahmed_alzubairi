@@ -29,5 +29,13 @@
   "whatsapp": "WhatsApp",
   "linkedin": "LinkedIn",
   "contactIntro": "Pick the channel that suits you, or send a message from the contact page.",
-  "sendMessage": "Send a message"
+  "sendMessage": "Send a message",
+  "letterWritten": "Written",
+  "readingMore": "Writing",
+  "latestWriting": "Latest writing",
+  "sectionError": {
+    "title": "This section didn't load",
+    "text": "The connection may be weak. The rest of the page works.",
+    "retry": "Try again"
+  }
 }

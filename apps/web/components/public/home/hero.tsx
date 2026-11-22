@@ -17,8 +17,8 @@ type HeroContent = Extract<HomeSection, { key: "hero" }>["content"];
  * quiet ledger beside it. Never a centred title with two buttons, no frame
  * around the photo, nothing counting up.
  *
- * On phones it reads down: the name, the statement, the photo at full width,
- * the buttons, then the ledger.
+ * On phones it reads down as the mockup: the name, the statement, the
+ * buttons, the photo at full width, then the ledger.
  */
 export function HeroSection({
   content,
@@ -47,7 +47,7 @@ export function HeroSection({
       <div
         className={cx(
           "grid gap-x-gutter gap-y-6 border-t-2 border-rule pt-7 settle",
-          "[grid-template-areas:'id'_'title'_'photo'_'actions'_'stats']",
+          "[grid-template-areas:'id'_'title'_'actions'_'photo'_'stats']",
           hasStats
             ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)_150px] lg:[grid-template-areas:'id_photo_stats'_'title_photo_stats'_'actions_photo_stats']"
             : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:[grid-template-areas:'id_photo'_'title_photo'_'actions_photo']",
