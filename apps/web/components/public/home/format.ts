@@ -52,6 +52,16 @@ export function formatYears(start: number, end: number | null, locale: Locale): 
   return `${year(start)}–${year(end)}`;
 }
 
+/**
+ * The mark between items on one meta line ("Projects 10 · Organizations 9").
+ * In Arabic a middle dot next to Arabic-Indic digits reads as a zero
+ * ("الخدمات · ٤" reads «٤٠»), so Arabic pages use a spaced em dash, which
+ * no Arabic digit resembles. English keeps the middle dot.
+ */
+export function metaSeparator(locale: Locale | string): string {
+  return locale === "ar" ? " — " : " · ";
+}
+
 /** `wa.me` links take the international number without the `+`. */
 export function whatsappHref(number: string): string {
   return `https://wa.me/${number.replace(/\D/g, "")}`;

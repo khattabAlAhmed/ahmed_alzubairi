@@ -59,7 +59,7 @@
   "factOrganizations": "الجهات",
   "emptyExpertiseTitle": "لا مجالات هنا بعد",
   "portraitAlt": "صورة {name}",
-  "servicesEyebrow": "الخدمات · {count}",
+  "servicesEyebrow": "الخدمات — {count}",
   "servicesSentence": "ما أستطيع المساعدة فيه",
   "servicesIntro": "لا تحتاج أن تعرف أي خدمة تناسبك قبل أن تكتب لي. أغلب من يراسلني يبدأ بوصف ما يحدث، ونجد الطريق معاً.",
   "stagesCount": "{count, plural, one {مرحلة واحدة} two {مرحلتان} few {{shown} مراحل} many {{shown} مرحلة} other {{shown} مرحلة}}",
