@@ -11,14 +11,14 @@
   "allExpertise": "All areas of expertise",
   "emptyExpertise": "I haven't published my areas of expertise in this language yet. You can write to me directly.",
   "area": "Area",
-  "audience": "Who it suits",
-  "deliverables": "What you get",
-  "stages": "Work stages",
-  "serviceProjects": "Related projects",
+  "audience": "Fits",
+  "deliverables": "What you receive",
+  "stages": "Stages",
+  "serviceProjects": "Projects from this service",
   "serviceFaqs": "Questions about this service",
   "requestService": "Request this service",
   "allServices": "All services",
-  "emptyServices": "No services are published in this language yet.",
+  "emptyServices": "I haven't published my services in this language yet. Write to me about what you are facing, and I'll tell you whether I can help.",
   "keyResult": "Key result",
   "ctaDirect": "Or write to me directly",
   "ctaStepsLabel": "What happens next",
@@ -58,5 +58,32 @@
   "factProjects": "Projects",
   "factOrganizations": "Organizations",
   "emptyExpertiseTitle": "No areas here yet",
-  "portraitAlt": "Photo of {name}"
+  "portraitAlt": "Photo of {name}",
+  "servicesEyebrow": "Services · {count}",
+  "servicesSentence": "Where I can help",
+  "servicesIntro": "You don't need to know which service fits before you write to me. Most people start by describing what is happening, and we find the way together.",
+  "stagesCount": "{count, plural, one {1 stage} other {{shown} stages}}",
+  "howTitle": "How the work starts",
+  "howIntro": "In the same order for every service.",
+  "how": {
+    "write": {
+      "title": "You write to me",
+      "text": "What is happening, in your own words."
+    },
+    "ask": {
+      "title": "I ask",
+      "text": "What I need to understand before I suggest anything."
+    },
+    "agree": {
+      "title": "We agree in writing",
+      "text": "The scope, the time and what you will receive."
+    },
+    "listen": {
+      "title": "We start by listening",
+      "text": "To the people who will live the results."
+    }
+  },
+  "factStages": "Stages",
+  "factPastProjects": "Past projects",
+  "emptyServicesTitle": "No services here yet"
 }

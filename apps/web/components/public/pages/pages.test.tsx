@@ -96,7 +96,7 @@ vi.mock("@/lib/content", () => ({
 const { AboutPage } = await import("./about");
 const { PageHero } = await import("../parts");
 const { ExpertiseDetailPage, ExpertiseListPage } = await import("./expertise");
-const { ServiceDetailPage, splitStages } = await import("./services");
+const { ServiceDetailPage, ServicesListPage, splitStages } = await import("./services");
 const { RequestServiceButton, serviceRequestPath } = await import("./request-service-button");
 const { areaFacts, newestFirst, servedOrganizations } = await import("./related");
 const { isOngoing } = await import("./identity");
@@ -360,14 +360,51 @@ describe("ServiceDetailPage", () => {
     );
     expect(screen.getByText("An international organization")).toBeTruthy();
     expect(screen.getByText("What's included?")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Governance" }).getAttribute("href")).toBe("/expertise/governance");
-    expect(screen.getAllByRole("link", { name: "requestService" })).toHaveLength(2);
+    // The ledger: stages, past projects and the area (the Service mockup).
+    const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
+    expect([...header.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual(["factStages", "factPastProjects", "area"]);
+    expect(header.textContent).toContain("Governance");
+    // One request, in the panel: no button in the header, no closing band.
+    expect(screen.getAllByRole("link", { name: "requestService" })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { name: "ctaTitle" })).toBeNull();
+    // The first question is open.
+    expect(screen.getByText("What's included?").closest("details")?.open).toBe(true);
   });
 
   it("leaves out projects and FAQs when there are none", () => {
     render(<ServiceDetailPage service={service} area={null} projects={[]} faqs={[]} />);
     expect(screen.queryByRole("heading", { name: "serviceProjects" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "serviceFaqs" })).toBeNull();
+  });
+});
+
+describe("ServicesListPage", () => {
+  const services: Service[] = [
+    { ...service, id: "s1", slug: "one", title: "One", isFeatured: false },
+    { ...service, id: "s2", slug: "two", title: "Two", isFeatured: true },
+  ];
+
+  it("opens with his sentence and the count, and lists every service with its stages", () => {
+    render(<ServicesListPage services={services} stageCounts={{ s2: 5 }} />);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("servicesSentence");
+    expect(screen.getByRole("heading", { level: 1 }).closest("header")?.textContent).toContain("servicesEyebrow");
+    const two = screen.getByRole("link", { name: /Two/ });
+    expect(two.getAttribute("href")).toBe("/services/two");
+    expect(two.textContent).toContain("stagesCount");
+    expect(screen.getByRole("link", { name: /One/ }).textContent).not.toContain("stagesCount");
+  });
+
+  it("shows how the work starts, in four numbered steps", () => {
+    render(<ServicesListPage services={services} />);
+    const how = screen.getByRole("heading", { name: "howTitle" }).closest("section")!;
+    expect(how.querySelectorAll("ol > li")).toHaveLength(4);
+    expect(how.textContent).toContain("how.write.title");
+  });
+
+  it("shows an empty state with a way to write when nothing is published", () => {
+    render(<ServicesListPage services={[]} />);
+    expect(screen.getByRole("heading", { name: "emptyServicesTitle" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "contact" }).getAttribute("href")).toBe("/contact");
   });
 });
 
