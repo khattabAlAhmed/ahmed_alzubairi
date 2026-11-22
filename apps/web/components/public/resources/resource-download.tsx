@@ -2,7 +2,7 @@
 
 import type { ResourceAccess } from "@repo/shared";
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { CheckIcon, DownloadIcon } from "@/components/icons";
 import { Button, Checkbox, TextField } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
@@ -24,11 +24,13 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
   const [started, setStarted] = useState(false);
   const [open, setOpen] = useState(false);
   // Each press of "Download by email" starts a fresh form, also after a
-  // finished download, but never while the form's request is still out.
+  // finished download, but never while the form's request is still out. A
+  // ref, set by the form as its request starts and ends: a press right as the
+  // download starts, before the next render, must already see it's over.
   const [gate, setGate] = useState(0);
-  const [gateBusy, setGateBusy] = useState(false);
+  const gateBusy = useRef(false);
   const openGate = () => {
-    if (gateBusy) return;
+    if (gateBusy.current) return;
     setGate((n) => n + 1);
     setOpen(true);
   };
@@ -83,7 +85,9 @@ export function ResourceDownload({ id, title, access }: { id: string; title: str
           id={id}
           title={title}
           onClose={() => setOpen(false)}
-          onBusyChange={setGateBusy}
+          onBusyChange={(value) => {
+            gateBusy.current = value;
+          }}
           className={RESOURCE_BELOW}
         />
       )}
@@ -113,7 +117,7 @@ export function EmailGate({
   onClose?: () => void;
   /** The email field takes focus when the form opens. */
   autoFocus?: boolean;
-  /** Told when the form's request starts and ends, so the opener doesn't restart it meanwhile. */
+  /** Told as the form's request starts and as it ends (before the download starts), so the opener doesn't restart it meanwhile. */
   onBusyChange?: (busy: boolean) => void;
   className?: string;
 }) {
@@ -124,9 +128,6 @@ export function EmailGate({
   const [missing, setMissing] = useState(false);
   const [state, setState] = useState<GateState>({ step: "form", error: null });
   const busy = state.step === "sending";
-  useEffect(() => {
-    onBusyChange?.(busy);
-  }, [busy, onBusyChange]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -136,7 +137,9 @@ export function EmailGate({
       return;
     }
     setState({ step: "sending" });
+    onBusyChange?.(true);
     const result = await requestDownload(id, { email: address, consent });
+    onBusyChange?.(false);
     if (result.ok) {
       track("resource_downloaded", { resource_access: "email" });
       setState({ step: "done" });

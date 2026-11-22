@@ -221,6 +221,24 @@ describe("ResourceDownload", () => {
     expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
   });
 
+  it("restarts the form when pressed as soon as the download starts", async () => {
+    // The CI flake, made certain: the press lands the moment the download
+    // starts, before React has rendered the finished form. The row must
+    // already know the form's request is over.
+    stubFetch(reply(200, { url: URL_OK }));
+    render(<ResourceDownload id={ID} title="Board guide" access="email" />);
+    const opener = screen.getByRole("button", { name: /^downloadByEmailLabel/ });
+    fireEvent.click(opener);
+    startDownload.mockImplementationOnce(() => opener.click());
+    const form = within(screen.getByRole("form"));
+    fireEvent.change(form.getByLabelText("email"), { target: { value: "good@example.com" } });
+    fireEvent.click(form.getByRole("button", { name: "gateSubmit" }));
+    await waitFor(() => expect(startDownload).toHaveBeenCalledWith(URL_OK));
+
+    await waitFor(() => expect(screen.queryByRole("form")).toBeTruthy());
+    expect((within(screen.getByRole("form")).getByLabelText("email") as HTMLInputElement).value).toBe("");
+  });
+
   it("doesn't restart the form while its request is out", async () => {
     const pending = vi.fn<typeof fetch>(() => new Promise<Response>(() => {}));
     vi.stubGlobal("fetch", pending);
