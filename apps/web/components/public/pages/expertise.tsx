@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowForwardIcon } from "@/components/icons";
 import { EmptyState } from "@/components/empty-state";
-import { formatNumber } from "@/components/public/home/format";
+import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { AREA_PARAM } from "@/components/public/projects/filters";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
@@ -46,7 +46,7 @@ export function ExpertiseListPage({
           facts.organizations > 0 && `${t("factOrganizations")} ${formatNumber(facts.organizations, locale)}`,
         ]
           .filter(Boolean)
-          .join(" · "),
+          .join(metaSeparator(locale)),
       ];
     }),
   );

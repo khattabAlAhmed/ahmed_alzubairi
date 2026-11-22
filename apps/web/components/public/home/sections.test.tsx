@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MediaItem, Post, Project, Resource } from "@/lib/content";
 import { ContactSection } from "./contact";
-import { formatDate, formatMonth, whatsappHref } from "./format";
+import { formatDate, formatMonth, metaSeparator, whatsappHref } from "./format";
 import { SIGNATURE_PLACEHOLDER } from "@/components/voice/signature";
 import { LetterSection } from "./letter";
 import { ReadingSection } from "./reading";
@@ -267,6 +267,11 @@ describe("SectionBoundary", () => {
 });
 
 describe("format helpers", () => {
+  it("separates meta items with a dash in Arabic, where a middle dot reads as a zero", () => {
+    expect(metaSeparator("ar")).toBe(" — ");
+    expect(metaSeparator("en")).toBe(" · ");
+  });
+
   it("builds a wa.me link without the plus", () => {
     expect(whatsappHref("+967712345678")).toBe("https://wa.me/967712345678");
   });
