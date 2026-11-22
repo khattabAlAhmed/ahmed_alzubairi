@@ -74,6 +74,6 @@ describe("SiteHeader", () => {
   it("keeps the site name on one line", () => {
     render(<SiteHeader />);
     // SiteLogo's first span is the name; the fields line under it may wrap.
-    expect(classes(within(screen.getByRole("banner")).getByTestId("logo"))).toContain("[&>span:first-child]:whitespace-nowrap");
+    expect(classes(within(screen.getByRole("banner")).getByTestId("logo"))).toContain("sm:[&>span:first-child]:whitespace-nowrap");
   });
 });
