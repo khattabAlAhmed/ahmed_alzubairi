@@ -40,7 +40,7 @@ export function ProjectFacts({ facts, className }: { facts: ProjectFact[]; class
           )}
         >
           <dt className="text-ink-2 type-caption">{fact.label}</dt>
-          <dd className="text-pretty type-small">{fact.value}</dd>
+          <dd className="break-words text-pretty type-small">{fact.value}</dd>
         </div>
       ))}
     </dl>

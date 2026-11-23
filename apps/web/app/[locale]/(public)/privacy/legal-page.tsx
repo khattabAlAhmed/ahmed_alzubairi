@@ -90,7 +90,8 @@ export function legalPage(key: LegalKey) {
             </aside>
             <div className="flex min-w-0 flex-col gap-5 lg:col-span-6">
               <h1 className="type-h1 text-balance settle">{page.title}</h1>
-              <RichText doc={page.body} className={ARTICLE_PROSE} headingIds={PART_PREFIX} />
+              {/* The contents links land each part below the sticky header. */}
+              <RichText doc={page.body} className={cx(ARTICLE_PROSE, "[&_[id]]:scroll-mt-24")} headingIds={PART_PREFIX} />
             </div>
           </div>
         </article>
