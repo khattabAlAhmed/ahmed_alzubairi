@@ -31,7 +31,7 @@ describe("SampleEmail", () => {
     expect(html).toContain("<h1");
     expect(html).toContain('href="https://example.com/account/consultations"');
     expect(html).toContain("Google Meet");
-    expect(html).toContain("em-panel");
+    expect(html).toContain("em-details");
     expect(html).toContain("em-muted");
   });
 
@@ -47,8 +47,8 @@ describe("SampleEmail", () => {
 
     expect(html).toContain('name="color-scheme" content="light dark"');
     expect(html).toContain("prefers-color-scheme: dark");
-    expect(html).toContain(`background-color:${COLORS.light.surface}`);
-    expect(html).toContain(`color:${COLORS.light.text}`);
+    expect(html).toContain(`background-color:${COLORS.light.bg}`);
+    expect(html).toContain(`color:${COLORS.light.ink}`);
   });
 });
 
@@ -56,7 +56,7 @@ describe("EmailLayout", () => {
   it("shows the preview and footer it is given", async () => {
     const html = await render(
       <EmailLayout locale="en" preview="Preview line" footer="Footer line">
-        <EmailText>Body</EmailText>
+        <EmailText locale="en">Body</EmailText>
       </EmailLayout>,
     );
 
@@ -84,7 +84,7 @@ describe("EmailLayout", () => {
   it("has no words of its own without a footer", async () => {
     const text = await render(
       <EmailLayout locale="ar" preview="">
-        <EmailText>نص</EmailText>
+        <EmailText locale="ar">نص</EmailText>
       </EmailLayout>,
       { plainText: true },
     );
@@ -97,8 +97,9 @@ describe("EmailText and EmailDetails", () => {
   it("render input as text, never as HTML", async () => {
     const html = await render(
       <EmailLayout locale="en" preview="">
-        <EmailText>{"<script>alert(1)</script>"}</EmailText>
+        <EmailText locale="en">{"<script>alert(1)</script>"}</EmailText>
         <EmailDetails
+          locale="en"
           items={[{ label: "<b>Subject</b>", value: "<img src=x>" }]}
         />
       </EmailLayout>,
@@ -113,8 +114,8 @@ describe("EmailText and EmailDetails", () => {
   it("keeps a text's line breaks in the HTML and in the plain-text copy", async () => {
     const email = (
       <EmailLayout locale="en" preview="">
-        <EmailText>{"First\nSecond"}</EmailText>
-        <EmailNote>{"Third\r\nFourth"}</EmailNote>
+        <EmailText locale="en">{"First\nSecond"}</EmailText>
+        <EmailNote locale="en">{"Third\r\nFourth"}</EmailNote>
       </EmailLayout>
     );
 
@@ -130,10 +131,10 @@ describe("EmailText and EmailDetails", () => {
   it("renders nothing for an empty details list", async () => {
     const html = await render(
       <EmailLayout locale="en" preview="">
-        <EmailDetails items={[]} />
+        <EmailDetails locale="en" items={[]} />
       </EmailLayout>,
     );
 
-    expect(html).not.toContain("em-panel\"");
+    expect(html).not.toContain('class="em-details"');
   });
 });

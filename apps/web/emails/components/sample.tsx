@@ -56,14 +56,14 @@ export function SampleEmail({ locale }: { locale: Locale }) {
 
   return (
     <EmailLayout locale={locale} preview={copy.preview} footer={copy.footer}>
-      <EmailHeading>{copy.heading}</EmailHeading>
-      <EmailText>{copy.greeting}</EmailText>
-      <EmailText>{copy.body}</EmailText>
-      <EmailDetails items={copy.details} />
-      <EmailButton href="https://example.com/account/consultations">
+      <EmailHeading locale={locale}>{copy.heading}</EmailHeading>
+      <EmailText locale={locale}>{copy.greeting}</EmailText>
+      <EmailText locale={locale}>{copy.body}</EmailText>
+      <EmailDetails locale={locale} items={copy.details} />
+      <EmailButton locale={locale} href="https://example.com/account/consultations">
         {copy.button}
       </EmailButton>
-      <EmailNote>{copy.note}</EmailNote>
+      <EmailNote locale={locale}>{copy.note}</EmailNote>
     </EmailLayout>
   );
 }

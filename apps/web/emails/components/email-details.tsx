@@ -1,50 +1,62 @@
 import { Column, Row, Section } from "@react-email/components";
-import { CLASSES, COLORS, FONTS, SIZES } from "./theme";
+import type { Locale } from "@repo/shared";
+import { CLASSES, COLORS, FONTS, SIZES, TYPE } from "./theme";
 
 export type EmailDetail = { label: string; value: string };
 
 /**
- * A label/value list, such as a message's subject and sender. Values are
- * shown as text, and a long one wraps instead of widening the email.
+ * A label/value list, such as a message's subject and sender: the record's
+ * label column, with a hairline between rows and no box. Values are shown as
+ * text, and a long one wraps instead of widening the email.
  */
-export function EmailDetails({ items }: { items: readonly EmailDetail[] }) {
+export function EmailDetails({
+  locale,
+  items,
+}: {
+  /** The email's language: sets the type scale and which side the label's gap is on. */
+  locale: Locale;
+  items: readonly EmailDetail[];
+}) {
+  const { small } = TYPE[locale];
+  // Mail apps ignore logical padding: the gap after the label goes on its end side by hand.
+  const labelPadding = locale === "ar" ? "10px 0 10px 16px" : "10px 16px 10px 0";
   if (items.length === 0) return null;
+
+  const cell = {
+    padding: "10px 0",
+    borderTop: `${SIZES.ruleHair}px solid ${COLORS.light.line}`,
+    fontFamily: FONTS.sans,
+    verticalAlign: "top",
+    ...small,
+  } as const;
 
   return (
     <Section
-      className={CLASSES.panel}
+      className={CLASSES.details}
       style={{
-        margin: "0 0 24px",
-        backgroundColor: COLORS.light.background,
-        borderRadius: SIZES.radius,
+        margin: "8px 0 24px",
+        borderBottom: `${SIZES.ruleHair}px solid ${COLORS.light.line}`,
       }}
     >
       {items.map(({ label, value }, index) => (
         <Row key={`${index}-${label}`}>
           <Column
-            className={CLASSES.muted}
+            className={`${CLASSES.muted} ${CLASSES.line}`}
             style={{
-              width: "34%",
-              padding: cellPadding(index, items.length),
-              color: COLORS.light.textSecondary,
-              fontFamily: FONTS.text,
-              fontSize: 14,
-              lineHeight: SIZES.lineHeight,
-              verticalAlign: "top",
+              ...cell,
+              width: SIZES.labelCol,
+              padding: labelPadding,
+              color: COLORS.light.ink2,
             }}
           >
             {label}
           </Column>
           <Column
-            className={CLASSES.text}
+            className={`${CLASSES.text} ${CLASSES.line}`}
             style={{
-              padding: cellPadding(index, items.length),
-              color: COLORS.light.text,
-              fontFamily: FONTS.text,
-              fontSize: 15,
-              fontWeight: 600,
-              lineHeight: SIZES.lineHeight,
-              verticalAlign: "top",
+              ...cell,
+              color: COLORS.light.ink,
+              fontWeight: 500,
               overflowWrap: "anywhere",
             }}
           >
@@ -55,11 +67,4 @@ export function EmailDetails({ items }: { items: readonly EmailDetail[] }) {
       ))}
     </Section>
   );
-}
-
-/** Even padding around the list, with a smaller gap between its rows. */
-function cellPadding(index: number, count: number): string {
-  const top = index === 0 ? 16 : 6;
-  const bottom = index === count - 1 ? 16 : 6;
-  return `${top}px 16px ${bottom}px`;
 }
