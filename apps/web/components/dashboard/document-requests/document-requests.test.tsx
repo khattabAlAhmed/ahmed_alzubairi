@@ -356,6 +356,32 @@ describe("RequestDetail", () => {
     expect(screen.getByText("Editor")).toBeTruthy();
   });
 
+  it.each([
+    ["ar", " — "],
+    ["en", " · "],
+  ] as const)("joins a recommendation's member and time with %s's separator", async (locale, separator) => {
+    await show(
+      {
+        ...REQUEST,
+        recommendations: [
+          {
+            id: "66666666-6666-4666-8666-666666666666",
+            memberId: "user_editor",
+            memberName: "Editor",
+            recommendation: "approve",
+            note: null,
+            createdAt: REQUEST.createdAt,
+          },
+        ],
+      },
+      false,
+      locale,
+    );
+    const byline = screen.getByText("Editor").closest("span") as HTMLElement;
+    expect(byline.textContent).toMatch(new RegExp(`^Editor${separator}\\S`));
+    if (locale === "ar") expect(byline.textContent).not.toContain("·");
+  });
+
   it.each(
     DOCUMENT_REQUEST_STATUSES.flatMap((status) => [
       [status, "en"],

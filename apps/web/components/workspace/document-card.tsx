@@ -1,11 +1,12 @@
 "use client";
 
 import type { DocumentAccessMode, DocumentCategory, DocumentRequestStatus } from "@repo/shared";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
 import { DownloadIcon, EyeIcon } from "./icons";
 import { StatusPill } from "./status-pill";
+import { metaSeparator } from "@/components/public/home/format";
 
 export type DocumentCardProps = {
   title: string;
@@ -39,6 +40,7 @@ export function DocumentCard({
   className,
 }: DocumentCardProps) {
   const t = useTranslations("Workspace.document");
+  const locale = useLocale();
   const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
@@ -65,7 +67,7 @@ export function DocumentCard({
         </p>
         {note && (
           <>
-            <span aria-hidden="true">·</span>
+            <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
             <div>{note}</div>
           </>
         )}

@@ -15,6 +15,7 @@ import { roleName } from "@/components/dashboard/team/permissions";
 import { TeamHeader } from "@/components/dashboard/team/team-header";
 import { Button, ButtonLink, Card, Select, TextField } from "@/components/ui";
 import { requireTeamMember } from "@/lib/auth/gates";
+import { metaSeparator } from "@/components/public/home/format";
 
 const BASE = "/dashboard/team";
 
@@ -82,7 +83,7 @@ export default async function TeamPage({
                   </bdi>
                   <span className="text-text-secondary">
                     {role ? roleName(role, locale) : t("members.unknownRole")}
-                    {" · "}
+                    {metaSeparator(locale)}
                     {t("invitations.sent")}:{" "}
                     <LocalTime value={invitation.createdAt} locale={locale} withTime={false} />
                   </span>

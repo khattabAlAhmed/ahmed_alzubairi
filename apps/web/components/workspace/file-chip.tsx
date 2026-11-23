@@ -6,6 +6,7 @@ import { cx } from "@/components/ui/cx";
 import { fileKind, formatBytes, type RefusalReason } from "./format";
 import { CheckIcon } from "@/components/icons";
 import { AlertIcon, FileKindIcon, XIcon } from "./icons";
+import { metaSeparator } from "@/components/public/home/format";
 
 export type FileChipData = {
   id: string;
@@ -85,25 +86,25 @@ export function FileChip({
         </p>
         <p className="mt-0.5 flex flex-wrap gap-x-2 text-[13px] leading-[1.7] text-ink-2">
           <span>{t(`types.${kind}`)}</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
           <span dir="ltr" className="font-mono text-xs">
             {formatBytes(file.sizeBytes, "en")}
           </span>
           {file.state === "uploading" && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               <span>{t("uploading", { percent: progress })}</span>
             </>
           )}
           {file.state === "ready" && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               <span>{t("ready")}</span>
             </>
           )}
           {refused && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               <span className="text-danger">{t("refused")}</span>
             </>
           )}

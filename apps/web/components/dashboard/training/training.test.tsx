@@ -12,6 +12,7 @@ import en from "@/messages/en/DashboardTraining.json";
 import enWorkspace from "@/messages/en/Workspace.json";
 import { CourseForm } from "./course-form";
 import { CourseList } from "./course-list";
+import { CoursePreview } from "./course-preview";
 import {
   loadCustomRequests,
   loadNewRegistrationCount,
@@ -54,6 +55,12 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
+}));
+
+// The preview draws into an iframe; here it draws in place, so the test can read it.
+vi.mock("@/components/dashboard/preview/preview-frame", () => ({
+  PREVIEW_WIDTHS: { mobile: 375, desktop: 1280 },
+  PreviewFrame: ({ children }: { children: ReactNode }) => <div data-testid="preview-frame">{children}</div>,
 }));
 
 // jsdom has no matchMedia. Narrow screen: LanguageTabs shows tabs.
@@ -671,5 +678,25 @@ describe("DeleteCourse", () => {
     await act(async () => fireEvent.click(confirm));
     expect(sent()).toEqual([{ url: `/api/admin/courses/${ID}`, method: "DELETE", body: { confirm: ID } }]);
     expect(router.push).toHaveBeenCalledWith("/dashboard/training");
+  });
+});
+
+describe("CoursePreview", () => {
+  it.each([
+    ["ar", "مسجلة — قريباً"],
+    ["en", "Recorded · Coming soon"],
+  ] as const)("labels a recorded course with %s's separator", async (locale, eyebrow) => {
+    const values: CourseValues = {
+      ...courseValues(),
+      slug: "a-course",
+      type: "recorded",
+      titleAr: "دورة",
+      titleEn: "A course",
+      descriptionAr: "وصف",
+      descriptionEn: "A description",
+    };
+    withIntl(<CoursePreview values={values} registrationCount={0} />, locale);
+    fireEvent.click(screen.getByRole("button", { name: (locale === "ar" ? ar : en).preview.show }));
+    expect(await screen.findByText(eyebrow, {}, { timeout: 10000 })).toBeTruthy();
   });
 });

@@ -10,7 +10,7 @@ import {
 } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { PreviewFrame, PREVIEW_WIDTHS, type PreviewWidth } from "@/components/dashboard/preview/preview-frame";
-import { formatDate } from "@/components/public/home/format";
+import { formatDate, metaSeparator } from "@/components/public/home/format";
 import { CourseCard, SeatsMeter } from "@/components/public/listing";
 import { CARD, CONTAINER, PageHero, PageSection, TextBlock } from "@/components/public/parts";
 import { LocalDateTime } from "@/components/training/local-date-time";
@@ -61,7 +61,7 @@ function CoursePageView({ course }: { course: CourseDetail }) {
         back={{ href: TRAINING_PATH, label: t("course.back") }}
         eyebrow={
           recorded
-            ? `${tListing("courseType.recorded")} · ${tListing("comingSoon")}`
+            ? `${tListing("courseType.recorded")}${metaSeparator(locale)}${tListing("comingSoon")}`
             : tListing(`courseType.${course.type}`)
         }
         title={course.title}

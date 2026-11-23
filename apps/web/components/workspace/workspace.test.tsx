@@ -194,6 +194,15 @@ describe("FileChip", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remove <img src=x onerror=alert(1)>.pdf" }));
     expect(onRemove).toHaveBeenCalledWith("f1");
   });
+
+  it.each([
+    ["ar", "—"],
+    ["en", "·"],
+  ] as const)("separates the data line with %s's mark, hidden from screen readers", (locale, mark) => {
+    const { container } = wrap(<FileChip file={{ ...base, state: "ready" }} />, locale);
+    const marks = [...container.querySelectorAll('[aria-hidden="true"]')].filter((node) => node.children.length === 0 && /^[·—]$/.test(node.textContent ?? ""));
+    expect(marks.map((node) => node.textContent)).toEqual([mark, mark]);
+  });
 });
 
 describe("Composer", () => {
@@ -300,6 +309,24 @@ describe("MeetingCard and DocumentCard", () => {
     expect(within(card).getByText("عرض فقط")).toBeTruthy();
     expect(within(card).getByText("متاحة")).toBeTruthy();
     expect(within(card).getByRole("button", { name: "View" })).toBeTruthy();
+  });
+
+  it.each([
+    ["ar", "—", " — "],
+    ["en", "·", " · "],
+  ] as const)("separates the meeting and the document lines with %s's mark", (locale, mark, spaced) => {
+    const { container } = wrap(
+      <>
+        <MeetingCard platform="Zoom" url="https://zoom.us/j/1" startsAt="2026-11-20T11:00:00Z" durationMinutes={45} timeZone="Asia/Riyadh" />
+        <DocumentCard title="Certificate" category="course_certificate" accessMode="view" note="A note" />
+      </>,
+      locale,
+    );
+    const marks = [...container.querySelectorAll('[aria-hidden="true"]')].filter((node) => node.children.length === 0 && /^[·—]$/.test(node.textContent ?? ""));
+    // Two between the meeting's time, zone and duration; one before the document's note.
+    expect(marks.map((node) => node.textContent)).toEqual([mark, mark, mark]);
+    expect(screen.getByText("Zoom").parentElement?.textContent).toContain(spaced);
+    if (locale === "ar") expect(container.textContent).not.toContain("·");
   });
 });
 

@@ -254,6 +254,20 @@ describe("NewConsultationForm", () => {
     wrap(<NewConsultationForm services={SERVICES} organization={null} api={fakeApi()} />, "ar");
     expect(screen.getByRole("button", { name: arPage.form.submit })).toBeTruthy();
   });
+
+  it("joins the allowed file types with an em dash in Arabic and a middle dot in English", () => {
+    const typesLine = () => {
+      const input = screen.getByLabelText(/./, { selector: "input[type=file]" });
+      return document.getElementById(input.getAttribute("aria-describedby") ?? "")?.querySelector("[dir=ltr]")?.textContent;
+    };
+    wrap(<NewConsultationForm services={SERVICES} organization={null} api={fakeApi()} />, "ar");
+    expect(typesLine()).toMatch(/^PDF — DOCX — /);
+    expect(typesLine()).not.toContain("·");
+    cleanup();
+
+    wrap(<NewConsultationForm services={SERVICES} organization={null} api={fakeApi()} />);
+    expect(typesLine()).toMatch(/^PDF · DOCX · /);
+  });
 });
 
 const MESSAGES = [

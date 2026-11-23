@@ -2,6 +2,7 @@
 import { act, cleanup, render } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import arAccount from "@/messages/ar/AccountDocuments.json";
 import enAccount from "@/messages/en/AccountDocuments.json";
 import { PdfPages, type loadPdfJs } from "./pdf-pages";
 
@@ -34,9 +35,9 @@ function fakePdfJs(pages: number, delay: (page: number) => number = () => 0) {
   return { load, getDocument, rendered };
 }
 
-function show(load: typeof loadPdfJs, onError = vi.fn()) {
+function show(load: typeof loadPdfJs, onError = vi.fn(), locale: "ar" | "en" = "en") {
   return render(
-    <NextIntlClientProvider locale="en" messages={{ AccountDocuments: enAccount }}>
+    <NextIntlClientProvider locale={locale} messages={{ AccountDocuments: locale === "ar" ? arAccount : enAccount }}>
       <PdfPages data={new ArrayBuffer(8)} title="Doc" onError={onError} load={load} />
     </NextIntlClientProvider>,
   );
@@ -56,6 +57,15 @@ describe("PdfPages", () => {
     expect(container.querySelectorAll("canvas")).toHaveLength(30);
     expect([...pdf.rendered].sort((a, b) => a - b)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
     expect(container.querySelector('canvas[data-page="30"]')?.getAttribute("aria-label")).toBe("Doc · Page 30 of 30");
+  });
+
+  it("names each page with an em dash in Arabic, where a dot next to a digit reads as a zero", async () => {
+    const pdf = fakePdfJs(2);
+    const { container } = show(pdf.load, vi.fn(), "ar");
+    await settle(20);
+    const label = container.querySelector('canvas[data-page="2"]')?.getAttribute("aria-label") ?? "";
+    expect(label).toMatch(/^Doc — /);
+    expect(label).not.toContain("·");
   });
 
   it("draws a page even when pdf.js answers before React commits, in any order", async () => {

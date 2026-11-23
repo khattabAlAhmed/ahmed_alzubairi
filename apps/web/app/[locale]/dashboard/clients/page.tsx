@@ -8,6 +8,7 @@ import { LocalTime } from "@/components/dashboard/team/local-time";
 import { Badge, Button, ButtonLink, Card, PageHeader, Select, TextField } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { requireTeamMember } from "@/lib/auth/gates";
+import { metaSeparator } from "@/components/public/home/format";
 
 const BASE = "/dashboard/clients";
 
@@ -135,7 +136,7 @@ export default async function ClientsPage({
                   <span className="min-w-0 wrap-anywhere">
                     {t("list.organization")}:{" "}
                     {client.orgType && t(`orgTypes.${client.orgType}`)}
-                    {client.orgType && client.orgName && " · "}
+                    {client.orgType && client.orgName && metaSeparator(locale)}
                     {client.orgName && <bdi>{client.orgName}</bdi>}
                   </span>
                 )}

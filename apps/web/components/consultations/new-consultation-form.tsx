@@ -11,6 +11,7 @@ import { useRouter } from "@/i18n/navigation";
 import { consultationApi, type ConsultationApi } from "./api";
 import { useFiles } from "./use-files";
 import { track } from "@/lib/analytics/track";
+import { metaSeparator } from "@/components/public/home/format";
 
 export type ServiceOption = { id: string; slug: string; title: string };
 
@@ -186,7 +187,7 @@ export function NewConsultationForm({
         prompt={t("dropPrompt")}
         browse={t("dropBrowse")}
         dropHere={t("dropHere")}
-        types={allowedTypeNames().join(" · ")}
+        types={allowedTypeNames().join(metaSeparator(locale))}
         limits={t("dropLimits", { size: formatBytes(MAX_ATTACHMENT_BYTES, locale), count: MAX_ATTACHMENTS_PER_MESSAGE })}
         accept={attachmentAccept()}
         disabled={full || sending}

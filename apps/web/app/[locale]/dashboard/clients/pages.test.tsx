@@ -58,6 +58,14 @@ function elements(node: ReactNode): ReactElement[] {
   return [node, ...elements(children)];
 }
 
+/** Every string in a rendered tree, depth first, without rendering components. */
+function strings(node: ReactNode): string[] {
+  if (typeof node === "string") return [node];
+  if (Array.isArray(node)) return node.flatMap(strings);
+  if (!isValidElement(node)) return [];
+  return strings((node.props as { children?: ReactNode }).children);
+}
+
 beforeEach(() => {
   mocks.requireTeamMember.mockReset().mockResolvedValue({});
   mocks.clientAccess.mockReset();
@@ -100,6 +108,18 @@ describe("/dashboard/clients", () => {
     const cleared = await formKey({});
     expect(filtered).not.toBe(cleared);
     expect(await formKey({ status: "disabled" })).toBe(filtered);
+  });
+
+  it.each([
+    ["ar", " — "],
+    ["en", " · "],
+  ] as const)("joins the organization type and name with %s's separator", async (locale, separator) => {
+    mocks.clientAccess.mockResolvedValue({ locale, allowed: true, canManage: false });
+    mocks.loadClients.mockResolvedValue({ clients: [CLIENT], total: 1 });
+    const page = await ClientsPage({ params: Promise.resolve({ locale }), searchParams: Promise.resolve({}) });
+    const text = strings(page);
+    expect(text).toContain(separator);
+    if (locale === "ar") expect(text.join("")).not.toContain("·");
   });
 
   it("sends a page past the end to the last page, keeping the filter", async () => {
