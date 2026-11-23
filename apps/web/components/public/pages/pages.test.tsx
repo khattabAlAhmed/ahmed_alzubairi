@@ -326,7 +326,8 @@ describe("ExpertiseDetailPage", () => {
     // Its caption sits at the end edge, clear of the Quick contact tab at the start corner.
     const caption = figure.querySelector("figcaption")!;
     expect(caption.className).toContain("justify-end");
-    expect(caption.className).toContain("ps-[calc(68px-var(--page-margin))]");
+    expect(caption.className).toContain("ps-[calc(24px+2.75rem-var(--page-margin))]");
+    expect(caption.querySelector("span")?.className).toContain("min-w-0");
     const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
     const meaning = screen.getByRole("heading", { name: "areaMeaning" });
     expect(header.compareDocumentPosition(figure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

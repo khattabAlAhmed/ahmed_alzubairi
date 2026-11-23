@@ -114,11 +114,14 @@ export function CardCover({
 
 /**
  * Room for the Quick contact tab (`quick-contact.tsx`), which rests fixed at
- * the bottom start corner, 16px in: 44px wide on phones, up to 154px with its
- * label from `sm` ("Quick contact"), plus an 8px gap. Measured from the page
- * column, which starts `--page-margin` in.
+ * the bottom start corner, 16px in, plus an 8px gap; measured from the page
+ * column, which starts `--page-margin` in. In the tab's own units, so it grows
+ * with the text size: on phones the 2.75rem icon square; from `sm` the 18px
+ * icon, 2px of border, 0.875rem padding each side, a 0.5rem gap and the word
+ * (at most 6.1rem, "Quick contact", rounded up to 7rem).
  */
-const QUICK_CONTACT_ROOM = "ps-[calc(68px-var(--page-margin))] sm:ps-[calc(178px-var(--page-margin))]";
+const QUICK_CONTACT_ROOM =
+  "ps-[calc(24px+2.75rem-var(--page-margin))] sm:ps-[calc(44px+9.25rem-var(--page-margin))]";
 
 /**
  * Image with caption (MediaFrame board): the photo at its crop, then a caption
@@ -173,7 +176,8 @@ export function Figure({
             clearQuickContact ? cx("justify-end text-end", QUICK_CONTACT_ROOM) : "justify-between",
           )}
         >
-          <span>{caption}</span>
+          {/* Shrinks and breaks a long word, so it never reaches into the tab's room. */}
+          <span className={cx(clearQuickContact && "min-w-0 [overflow-wrap:anywhere]")}>{caption}</span>
           {note && <span>{note}</span>}
         </figcaption>
       )}
