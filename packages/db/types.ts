@@ -642,6 +642,11 @@ export type Database = {
           body_en: Json | null
           created_at: string
           id: string
+          image_alt_ar: string | null
+          image_alt_en: string | null
+          image_caption_ar: string | null
+          image_caption_en: string | null
+          image_path: string | null
           position: number
           slug: string
           status: string
@@ -656,6 +661,11 @@ export type Database = {
           body_en?: Json | null
           created_at?: string
           id?: string
+          image_alt_ar?: string | null
+          image_alt_en?: string | null
+          image_caption_ar?: string | null
+          image_caption_en?: string | null
+          image_path?: string | null
           position?: number
           slug: string
           status?: string
@@ -670,6 +680,11 @@ export type Database = {
           body_en?: Json | null
           created_at?: string
           id?: string
+          image_alt_ar?: string | null
+          image_alt_en?: string | null
+          image_caption_ar?: string | null
+          image_caption_en?: string | null
+          image_path?: string | null
           position?: number
           slug?: string
           status?: string
@@ -963,6 +978,11 @@ export type Database = {
           body_en: Json | null
           created_at: string
           id: string
+          image_alt_ar: string | null
+          image_alt_en: string | null
+          image_caption_ar: string | null
+          image_caption_en: string | null
+          image_path: string | null
           key: string
           status: string
           title_ar: string | null
@@ -974,6 +994,11 @@ export type Database = {
           body_en?: Json | null
           created_at?: string
           id?: string
+          image_alt_ar?: string | null
+          image_alt_en?: string | null
+          image_caption_ar?: string | null
+          image_caption_en?: string | null
+          image_path?: string | null
           key: string
           status?: string
           title_ar?: string | null
@@ -985,6 +1010,11 @@ export type Database = {
           body_en?: Json | null
           created_at?: string
           id?: string
+          image_alt_ar?: string | null
+          image_alt_en?: string | null
+          image_caption_ar?: string | null
+          image_caption_en?: string | null
+          image_path?: string | null
           key?: string
           status?: string
           title_ar?: string | null

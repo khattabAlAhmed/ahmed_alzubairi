@@ -140,6 +140,38 @@ describe("GenericEditor", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it("asks for the photo's alt before saving a published area with a photo, then sends it", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    const row = {
+      id: "6f9c2a7e-1b2d-4c3e-8f4a-5b6c7d8e9f01",
+      status: "published",
+      slug: "governance",
+      titleEn: "Governance",
+      summaryEn: "Summary",
+      imageKey: "media/area.webp",
+    };
+    renderEditor({ type: "expertise_areas", row });
+    // The hint says what the alt is for, and the field is marked required.
+    expect(screen.getAllByText(en.fields.imageAltHint, { exact: false }).length).toBeGreaterThan(0);
+    const altEn = screen.getAllByLabelText(/Photo description/)[1];
+    expect(document.querySelector(`label[for="${altEn.id}"]`)?.textContent).toContain(en.editor.requiredMark);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(screen.getByText(en.editor.fixErrors)).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    type(/Photo description/, "A listening session", 1);
+    type(/Photo caption/, "With a host community", 1);
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(body).toMatchObject({
+      imageKey: "media/area.webp",
+      imageAltEn: "A listening session",
+      imageCaptionEn: "With a host community",
+    });
+  });
+
   it("isolates labels, so English labels keep their punctuation in the RTL panel", () => {
     renderEditor();
     const arabicTitle = screen.getAllByLabelText(/Title/)[0];

@@ -87,6 +87,7 @@ describe("responses", () => {
       .map(([type]) => type)
       .toSorted();
     expect(withUploadKeys).toEqual([
+      "expertise_areas",
       "home_sections",
       "media_items",
       "pages",

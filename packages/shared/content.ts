@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { contentStatusSchema, orgTypeSchema } from "./enums";
+import { contentStatusSchema, LOCALES, orgTypeSchema } from "./enums";
 import {
   hasAnyField,
   httpsUrlSchema,
@@ -12,6 +12,7 @@ import {
   homeSectionContentSchemas,
   type HomeSectionKey,
 } from "./home-sections";
+import { isAvailableIn, isFilled, localizedField } from "./publishing";
 
 /** Kept here too: `packages/db` tests import the keys from this file. */
 export {
@@ -143,6 +144,58 @@ function localized<Name extends string, Schema extends z.ZodType>(
 
 const shared = { status: contentStatusSchema };
 
+/** The photo of the About page and of an expertise area (§6.3, §6.4). */
+export const MAX_IMAGE_ALT_LENGTH = 300;
+export const MAX_IMAGE_CAPTION_LENGTH = 200;
+
+/**
+ * One photo in the public `media` bucket, with its alt text and caption per
+ * language. Alt is required in every language a published row is available
+ * in: see `missingImageAlt`.
+ */
+const photoFields = {
+  imageKey: uploadKeySchema.optional(),
+  ...localized(
+    "imageAlt",
+    z.string().trim().min(1).max(MAX_IMAGE_ALT_LENGTH),
+  ),
+  ...localized(
+    "imageCaption",
+    z.string().trim().min(1).max(MAX_IMAGE_CAPTION_LENGTH),
+  ),
+};
+
+/** Content types with a photo (`photoFields`). */
+export const PHOTO_CONTENT_TYPES = ["pages", "expertise_areas"] as const;
+
+/**
+ * The `imageAlt<Lang>` fields a published row with a photo still needs: one
+ * for each language the row is available in. Empty when the row is a draft,
+ * has no photo, or has every alt it needs. `row` is in the API shape.
+ */
+export function missingImageAlt(
+  type: (typeof PHOTO_CONTENT_TYPES)[number],
+  row: object,
+): string[] {
+  const fields = row as Record<string, unknown>;
+  if (fields.status !== "published" || !isFilled(fields.imageKey)) return [];
+  return LOCALES.filter((locale) => isAvailableIn(type, row, locale))
+    .map((locale) => localizedField("imageAlt", locale))
+    .filter((name) => !isFilled(fields[name]));
+}
+
+/** The message of the issue `missingImageAlt` adds, so a form can say "required". */
+export const IMAGE_ALT_REQUIRED = "image_alt_required";
+
+/** Adds an issue on each missing `imageAlt<Lang>`, so a form can mark the field. */
+const requireImageAlt =
+  (type: (typeof PHOTO_CONTENT_TYPES)[number]) =>
+  (row: object, ctx: z.core.$RefinementCtx) => {
+    for (const name of missingImageAlt(type, row)) {
+      ctx.addIssue({ code: "custom", path: [name], message: IMAGE_ALT_REQUIRED });
+    }
+  };
+
 const homeStatBody = z.strictObject({
   ...shared,
   ...localized("label", shortTextSchema),
@@ -155,6 +208,7 @@ const pageBody = z.strictObject({
   key: pageKeySchema,
   ...localized("title", shortTextSchema),
   ...localized("body", tiptapDocSchema),
+  ...photoFields,
 });
 
 const timelineItemBody = z.strictObject({
@@ -172,6 +226,7 @@ const expertiseAreaBody = z.strictObject({
   ...localized("title", shortTextSchema),
   ...localized("summary", longTextSchema),
   ...localized("body", tiptapDocSchema),
+  ...photoFields,
   position: positionSchema.optional(),
 });
 
@@ -288,9 +343,11 @@ const mediaItemBody = z.strictObject({
 /** `POST /api/admin/content/:type`. `home_sections` has none: the 13 are seeded. */
 export const contentCreateBodySchemas = {
   home_stats: homeStatBody,
-  pages: pageBody,
+  pages: pageBody.superRefine(requireImageAlt("pages")),
   timeline_items: timelineItemBody,
-  expertise_areas: expertiseAreaBody,
+  expertise_areas: expertiseAreaBody.superRefine(
+    requireImageAlt("expertise_areas"),
+  ),
   services: serviceBody,
   projects: projectBody,
   faqs: faqBody,
@@ -374,13 +431,21 @@ const updateBody = <Shape extends z.ZodRawShape>(
     .extend({ id: uuidSchema })
     .refine((fields) => hasAnyField(fields, ["id"]));
 
-/** `PATCH /api/admin/content/:type`. `home_sections` goes by `key`, and a page's `key` is fixed. */
+/**
+ * `PATCH /api/admin/content/:type`. `home_sections` goes by `key`, and a page's `key` is fixed.
+ * A photo's alt rule is checked on what the body carries; the route checks it
+ * again on the row as it will be (`missingImageAlt`).
+ */
 export const contentUpdateBodySchemas = {
   home_sections: homeSectionUpdateSchema,
   home_stats: updateBody(homeStatBody),
-  pages: updateBody(pageBody.omit({ key: true })),
+  pages: updateBody(pageBody.omit({ key: true })).superRefine(
+    requireImageAlt("pages"),
+  ),
   timeline_items: updateBody(timelineItemBody),
-  expertise_areas: updateBody(expertiseAreaBody),
+  expertise_areas: updateBody(expertiseAreaBody).superRefine(
+    requireImageAlt("expertise_areas"),
+  ),
   services: updateBody(serviceBody),
   projects: updateBody(projectBody),
   faqs: updateBody(faqBody),
@@ -410,7 +475,7 @@ const rowOf = <Shape extends z.ZodRawShape>(body: z.ZodObject<Shape>) =>
  * One dashboard row of each type, for the team only. Null columns are left out.
  * `resources` has no `key`, because that's its `storage_key` and no response
  * carries one. The `*_path` columns stay as `logoKey`, `letterKey`, `coverKey`,
- * `imageKey` and `images[].key`: the dashboard needs them to show the file.
+ * `imageKey` (media items, pages, expertise areas) and `images[].key`: the dashboard needs them to show the file.
  */
 export const contentRowSchemas = {
   home_sections: homeSectionRowSchema,

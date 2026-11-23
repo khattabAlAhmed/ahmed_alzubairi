@@ -15,6 +15,8 @@ const RENAMES: Partial<Record<ContentType, Record<string, string>>> = {
   testimonials: { letterKey: "letter_path" },
   posts: { coverKey: "cover_path" },
   media_items: { imageKey: "image_path" },
+  pages: { imageKey: "image_path" },
+  expertise_areas: { imageKey: "image_path" },
   resources: { key: "storage_key" },
 };
 

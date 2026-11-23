@@ -3,10 +3,14 @@ import { contentCacheTag, type Locale } from "@repo/shared";
 import { cacheLife, cacheTag } from "next/cache";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isPublicIn, publicLocales, richText, rowsOrThrow, text } from "./rows";
+import { contentImage, IMAGE_COLUMNS } from "./pages";
 import type { ExpertiseArea, ExpertiseAreaDetail } from "./types";
 
 const COLUMNS =
   "id, slug, title_ar, title_en, summary_ar, summary_en, body_ar, body_en, position, status";
+
+/** One area's page also reads its photo. */
+const DETAIL_COLUMNS = `${COLUMNS}, ${IMAGE_COLUMNS}`;
 
 type ExpertiseRow = {
   id: string;
@@ -19,6 +23,11 @@ type ExpertiseRow = {
   body_en: unknown;
   position: number;
   status: string;
+  image_path?: string | null;
+  image_alt_ar?: string | null;
+  image_alt_en?: string | null;
+  image_caption_ar?: string | null;
+  image_caption_en?: string | null;
 };
 
 /** The one rule for "public in this language", shared by every read below. */
@@ -62,7 +71,7 @@ export async function getExpertiseArea(
   const row = rowsOrThrow<ExpertiseRow>(
     await createServiceClient()
       .from("expertise_areas")
-      .select(COLUMNS)
+      .select(DETAIL_COLUMNS)
       .eq("slug", slug)
       .eq("status", "published")
       .limit(1),
@@ -75,6 +84,7 @@ export async function getExpertiseArea(
     ...area,
     body: richText(row, "body", locale),
     availableIn: publicLocales("expertise_areas", row),
+    image: contentImage(row, locale),
   };
 }
 

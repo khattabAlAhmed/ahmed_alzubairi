@@ -242,6 +242,64 @@ describe("refused cases", () => {
     });
   });
 
+  it("a published area's new photo needs its alt in each language the area is shown in", async () => {
+    const area = (overrides: DbRow = {}): DbRow => ({
+      id: ID,
+      slug: "governance",
+      title_ar: null,
+      title_en: "Governance",
+      summary_ar: null,
+      summary_en: "Summary",
+      body_ar: null,
+      body_en: null,
+      position: 0,
+      status: "published",
+      created_at: NOW,
+      updated_at: NOW,
+      ...overrides,
+    });
+    // The body alone already lacks the alt: the shared schema refuses it.
+    const store = fakeStore({ [ID]: area() });
+    const noAlt = await updateContent("expertise_areas", { id: ID, imageKey: "media/a.webp" }, deps(store));
+    expect(noAlt.status).toBe(400);
+    expect(store.update).not.toHaveBeenCalled();
+
+    // The body looks fine on its own, but the row as it will be is shown in
+    // Arabic too, with no Arabic alt: only the route's check sees it.
+    const withPhoto = fakeStore({
+      [ID]: area({ image_path: "media/a.webp", image_alt_en: "A listening session" }),
+    });
+    const arabic = await updateContent(
+      "expertise_areas",
+      { id: ID, titleAr: "الحوكمة", summaryAr: "ملخص" },
+      deps(withPhoto),
+    );
+    expect(arabic.status).toBe(400);
+    expect(arabic.body).toMatchObject({ error: { code: "validation_failed" } });
+    expect(withPhoto.update).not.toHaveBeenCalled();
+
+    const ok = await updateContent(
+      "expertise_areas",
+      { id: ID, titleAr: "الحوكمة", summaryAr: "ملخص", imageAltAr: "جلسة استماع", imageCaptionAr: "مع مجتمع مضيف" },
+      deps(withPhoto),
+    );
+    expect(ok.status).toBe(200);
+    expect(withPhoto.update).toHaveBeenCalledWith("expertise_areas", { column: "id", value: ID }, {
+      title_ar: "الحوكمة",
+      summary_ar: "ملخص",
+      image_alt_ar: "جلسة استماع",
+      image_caption_ar: "مع مجتمع مضيف",
+    });
+  });
+
+  it("a draft page keeps a photo without alt, and its key goes to image_path", async () => {
+    const page: DbRow = { id: ID, key: "about", title_en: "About", status: "draft", created_at: NOW, updated_at: NOW };
+    const store = fakeStore({ [ID]: page });
+    const result = await updateContent("pages", { id: ID, imageKey: "media/work.webp" }, deps(store));
+    expect(result.status).toBe(200);
+    expect(store.update).toHaveBeenCalledWith("pages", { column: "id", value: ID }, { image_path: "media/work.webp" });
+  });
+
   it("a published stat needs its value", async () => {
     const result = await createContent(
       "home_stats",

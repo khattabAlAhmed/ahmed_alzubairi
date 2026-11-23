@@ -94,6 +94,39 @@ describe("previewModel", () => {
     expect(model.kind === "expertise" && model.area.body).toEqual(body);
   });
 
+  it("gives an expertise area its photo, with alt and caption in the preview's language", () => {
+    const area = {
+      titleAr: "حوكمة",
+      summaryAr: "ملخص",
+      titleEn: "Governance",
+      summaryEn: "Summary",
+      imageKey: "media/area wide.webp",
+      imageAltAr: "جلسة استماع",
+      imageAltEn: "A listening session",
+      imageCaptionEn: "Listening session with a host community",
+    };
+    const en = previewModel("expertise_areas", area, "en", ctx);
+    expect(en.kind === "expertise" && en.area.image).toEqual({
+      url: "https://media.test/p/media/area%20wide.webp",
+      alt: "A listening session",
+      caption: "Listening session with a host community",
+    });
+    const ar = previewModel("expertise_areas", area, "ar", ctx);
+    expect(ar.kind === "expertise" && ar.area.image).toEqual({
+      url: "https://media.test/p/media/area%20wide.webp",
+      alt: "جلسة استماع",
+      caption: null,
+    });
+  });
+
+  it("gives an expertise area no photo without a key, or without alt in that language", () => {
+    const base = { titleEn: "Governance", summaryEn: "Summary" };
+    const none = previewModel("expertise_areas", base, "en", ctx);
+    expect(none.kind === "expertise" && none.area.image).toBeNull();
+    const noAlt = previewModel("expertise_areas", { ...base, imageKey: "media/a.webp", imageAltEn: "  " }, "en", ctx);
+    expect(noAlt.kind === "expertise" && noAlt.area.image).toBeNull();
+  });
+
   it("maps a testimonial with its partner's name, and a logo with its URL", () => {
     expect(
       previewModel("testimonials", { id: "t", quoteEn: "Great", authorEn: "A. B.", partnerId: "partner-1" }, "en", ctx),
