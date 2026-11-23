@@ -62,6 +62,10 @@ const areas: ExpertiseArea[] = [
   { id: "a2", slug: "relief", title: "Relief", summary: "" },
 ];
 
+/** Matching articles: 3 in Governance, 1 in Relief, 5 in all (one has no area). */
+const COUNTS = { all: 5, byArea: { governance: 3, relief: 1 } };
+const NONE = { all: 0, byArea: {} };
+
 function post(overrides: Partial<PostListItem> = {}): PostListItem {
   return {
     id: "p1",
@@ -137,6 +141,7 @@ describe("BlogList", () => {
       <BlogList
         result={page([post(), post({ id: "p2", slug: "مقال", title: "Second post", expertise: null })])}
         areas={areas}
+        counts={COUNTS}
         query={NO_QUERY}
       />,
     );
@@ -150,19 +155,26 @@ describe("BlogList", () => {
     expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":2}');
   });
 
-  it("offers a chip per expertise area that keeps the search and drops the page", () => {
-    render(<BlogList result={page([post()])} areas={areas} query={{ q: "boards", category: "relief", page: 2 }} />);
-    const chips = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
-    expect(chips.getByRole("link", { name: "Governance" }).getAttribute("href")).toBe(
-      "/blog?q=boards&category=governance",
-    );
-    expect(chips.getByRole("link", { name: "Relief" }).getAttribute("aria-current")).toBe("true");
-    expect(chips.getByRole("link", { name: "filterAll" }).getAttribute("href")).toBe("/blog?q=boards");
+  it("offers a tab per area with its count, keeping the search and dropping the page", () => {
+    render(<BlogList result={page([post()])} areas={areas} counts={COUNTS} query={{ q: "boards", category: "relief", page: 2 }} />);
+    const tabs = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
+    expect(tabs.getAllByRole("link").map((link) => link.textContent)).toEqual(["filterAll 5", "Governance 3", "Relief 1"]);
+    expect(tabs.getByRole("link", { name: "Governance 3" }).getAttribute("href")).toBe("/blog?q=boards&category=governance");
+    expect(tabs.getByRole("link", { name: "Relief 1" }).getAttribute("aria-current")).toBe("page");
+    expect(tabs.getByRole("link", { name: "filterAll 5" }).getAttribute("aria-current")).toBeNull();
+    expect(tabs.getByRole("link", { name: "filterAll 5" }).getAttribute("href")).toBe("/blog?q=boards");
+  });
+
+  it("marks All with no category, and leaves out an area with nothing to show", () => {
+    render(<BlogList result={page([post()])} areas={areas} counts={{ all: 3, byArea: { governance: 3 } }} query={NO_QUERY} />);
+    const tabs = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
+    expect(tabs.getAllByRole("link").map((link) => link.textContent)).toEqual(["filterAll 3", "Governance 3"]);
+    expect(tabs.getByRole("link", { name: "filterAll 3" }).getAttribute("aria-current")).toBe("page");
   });
 
   it("keeps the search in the field and the category as a hidden field", () => {
     const { container } = render(
-      <BlogList result={page([post()])} areas={areas} query={{ q: "boards", category: "relief", page: 2 }} />,
+      <BlogList result={page([post()])} areas={areas} counts={COUNTS} query={{ q: "boards", category: "relief", page: 2 }} />,
     );
     expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe("boards");
     expect(container.querySelector('input[type="hidden"][name="category"]')?.getAttribute("value")).toBe("relief");
@@ -175,6 +187,7 @@ describe("BlogList", () => {
       <BlogList
         result={page([post()], { total: 20, page: 2, pageCount: 3 })}
         areas={areas}
+        counts={COUNTS}
         query={{ q: "boards", category: "relief", page: 2 }}
       />,
     );
@@ -188,7 +201,7 @@ describe("BlogList", () => {
   });
 
   it("says so when nothing is published, with no link to clear", () => {
-    render(<BlogList result={page([])} areas={[]} query={NO_QUERY} />);
+    render(<BlogList result={page([])} areas={[]} counts={NONE} query={NO_QUERY} />);
     expect(screen.getByRole("heading", { name: "emptyState.title" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "noSearchResults.action" })).toBeNull();
     expect(screen.queryByRole("article")).toBeNull();
@@ -196,14 +209,14 @@ describe("BlogList", () => {
   });
 
   it("says it hasn't written about a search yet, with the way to all writing", () => {
-    render(<BlogList result={page([])} areas={areas} query={{ q: "zzz", category: null, page: 1 }} />);
+    render(<BlogList result={page([])} areas={areas} counts={COUNTS} query={{ q: "zzz", category: null, page: 1 }} />);
     expect(screen.getByRole("heading", { name: 'noSearchResults.title:{"q":"zzz"}' })).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain('searchResults:{"count":0,"q":"zzz"}');
     expect(screen.getByRole("link", { name: "noSearchResults.action" }).getAttribute("href")).toBe("/blog");
   });
 
   it("tells an empty area apart from a search with no results", () => {
-    render(<BlogList result={page([])} areas={areas} query={{ q: null, category: "governance", page: 1 }} />);
+    render(<BlogList result={page([])} areas={areas} counts={COUNTS} query={{ q: null, category: "governance", page: 1 }} />);
     expect(screen.getByRole("heading", { name: "noAreaResults.title" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "noAreaResults.action" }).getAttribute("href")).toBe("/blog");
   });

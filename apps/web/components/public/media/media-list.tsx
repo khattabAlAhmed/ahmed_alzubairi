@@ -5,7 +5,8 @@ import { EmptyState } from "@/components/empty-state";
 import { buttonClasses } from "@/components/ui";
 import type { MediaItem } from "@/lib/content/types";
 import { formatNumber } from "../home/format";
-import { FilterChips, MediaCard, Pagination } from "../listing";
+import { CategoryTabs } from "../blog/category-tabs";
+import { MediaCard, Pagination } from "../listing";
 import { LinkIcon, PlayIcon } from "../listing/icons";
 import { MediaLog } from "../listing/media-card";
 import { VideoFacade } from "../listing/media-frame";
@@ -29,7 +30,7 @@ function OutLink({ href, text, label, icon }: { href: string; text: string; labe
 }
 
 /**
- * `/media` under its header (§6.10): the category chips with their counts,
+ * `/media` under its header (§6.10): the category tabs with their counts,
  * then the press log. With no category, page 1 opens with one featured video
  * whose player loads only on a click (VideoFacade); every other video is a
  * link out, so the page never loads a player by itself. `items` is every
@@ -48,7 +49,7 @@ export function MediaList({ items, query }: { items: MediaItem[]; query: MediaLi
 
   const filtered = query.category !== null;
   const shown = filtered ? items.filter((item) => item.category === query.category) : items;
-  // The chosen category stays a chip even with nothing in it, so the chips
+  // The chosen category keeps its tab even with nothing in it, so the tabs
   // never mark "All" over an empty result.
   const used = MEDIA_CATEGORIES.filter(
     (category) => category === query.category || items.some((item) => item.category === category),
@@ -85,10 +86,11 @@ export function MediaList({ items, query }: { items: MediaItem[]; query: MediaLi
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-3.5">
-        <FilterChips
+        <CategoryTabs
           label={t("categoriesLabel")}
           pathname={MEDIA_PATH}
           param={CATEGORY_PARAM}
+          allCount={formatNumber(items.length, locale)}
           options={used.map((category) => ({
             value: category,
             label: listing(`mediaCategory.${category}`),
