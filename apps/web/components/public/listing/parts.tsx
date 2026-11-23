@@ -113,8 +113,22 @@ export function CardCover({
 }
 
 /**
+ * Room for the Quick contact tab (`quick-contact.tsx`), which rests fixed at
+ * the bottom start corner, 16px in, plus an 8px gap; measured from the page
+ * column, which starts `--page-margin` in. In the tab's own units, so it grows
+ * with the text size: on phones the 2.75rem icon square; from `sm` the 18px
+ * icon, 2px of border, 0.875rem padding each side, a 0.5rem gap and the word
+ * (at most 6.1rem, "Quick contact", rounded up to 7rem).
+ */
+const QUICK_CONTACT_ROOM =
+  "ps-[calc(24px+2.75rem-var(--page-margin))] sm:ps-[calc(44px+9.25rem-var(--page-margin))]";
+
+/**
  * Image with caption (MediaFrame board): the photo at its crop, then a caption
  * line in `ink-2`, with an optional note at the end ("Placeholder photo").
+ * `clearQuickContact` is for a full-width photo whose caption can land in the
+ * first screen where the Quick contact tab rests (the expertise band): the
+ * caption moves to the end edge, and long text wraps before reaching the tab.
  */
 export function Figure({
   image,
@@ -124,6 +138,7 @@ export function Figure({
   missingLabel,
   sizes = "(min-width: 768px) 50vw, 100vw",
   priority = false,
+  clearQuickContact = false,
   className,
 }: {
   image: ListingImage | null;
@@ -134,6 +149,7 @@ export function Figure({
   sizes?: string;
   /** Load at once, at high priority: only for a photo that can be the page's LCP (in the first screen). */
   priority?: boolean;
+  clearQuickContact?: boolean;
   className?: string;
 }) {
   return (
@@ -154,8 +170,14 @@ export function Figure({
         <PhotoMissing crop={crop} label={missingLabel} />
       )}
       {(caption || note) && (
-        <figcaption className="flex justify-between gap-3 pt-2 text-[13px] text-ink-2">
-          <span>{caption}</span>
+        <figcaption
+          className={cx(
+            "flex gap-3 pt-2 text-[13px] text-ink-2",
+            clearQuickContact ? cx("justify-end text-end", QUICK_CONTACT_ROOM) : "justify-between",
+          )}
+        >
+          {/* Shrinks and breaks a long word, so it never reaches into the tab's room. */}
+          <span className={cx(clearQuickContact && "min-w-0 [overflow-wrap:anywhere]")}>{caption}</span>
           {note && <span>{note}</span>}
         </figcaption>
       )}

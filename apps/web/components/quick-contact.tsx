@@ -156,6 +156,8 @@ export function QuickContact({
           // On a phone the floating tab is the icon alone, a 44px square, so
           // it covers as little of the page as it can (the word is still its
           // name). From 640px, where the margins leave room, the word shows.
+          // If its size or resting place changes, update QUICK_CONTACT_ROOM in
+          // public/listing/parts.tsx (the room a first-screen caption leaves it).
           sample ? "px-3.5" : "max-sm:min-w-11 max-sm:justify-center sm:px-3.5",
           FOCUS_RING,
         )}
