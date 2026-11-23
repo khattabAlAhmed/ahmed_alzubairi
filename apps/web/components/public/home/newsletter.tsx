@@ -1,3 +1,4 @@
+import type { NewsletterSource } from "@repo/shared";
 import { useTranslations } from "next-intl";
 import { NewsletterForm } from "@/components/newsletter";
 import { CONTAINER } from "@/components/public/parts";
@@ -8,9 +9,19 @@ import { sectionHeadingId } from "./section";
  * §6.2 #11, the NewsletterSignup board's home block: under the opening rule,
  * the heading and intro set in the dashboard on the start side, the address
  * and «اشترك» beside them; stacked on phones. Double opt-in through the
- * shared form, with source `home` (§6.15).
+ * shared form, with source `home` (§6.15). The blog index uses the same
+ * block (the Blog mockup), with source `blog`.
  */
-export function NewsletterSection({ heading, intro }: { heading: string; intro?: string }) {
+export function NewsletterSection({
+  heading,
+  intro,
+  source = "home",
+}: {
+  heading: string;
+  intro?: string;
+  /** Where the signup was made (§6.15). */
+  source?: NewsletterSource;
+}) {
   const t = useTranslations("Newsletter");
   const headingId = sectionHeadingId("newsletter");
 
@@ -24,7 +35,7 @@ export function NewsletterSection({ heading, intro }: { heading: string; intro?:
           {intro && <p className="text-pretty text-ink-2 type-small">{intro}</p>}
         </div>
         <NewsletterForm
-          source="home"
+          source={source}
           className="md:col-span-6 md:col-start-7"
           labels={{
             email: t("email"),

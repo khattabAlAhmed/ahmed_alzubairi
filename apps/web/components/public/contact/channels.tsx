@@ -2,9 +2,21 @@ import { useTranslations } from "next-intl";
 import { whatsappHref } from "@/components/public/home/format";
 import type { PublicSiteSettings } from "@/lib/content";
 
-/** A channel as a row: what it is, then the number or address as data (the QuickContact board). */
+/**
+ * A channel as a row (the ContactForm board): what it is, small, then the
+ * number or address as the thing to press, in ink, underlined on hover.
+ */
 const CHANNEL =
-  "flex flex-col gap-0.5 border-b border-line py-2.5 text-ink no-underline transition-state hover:bg-surface-hover focus-ring";
+  "group flex flex-col gap-0.5 border-b border-line py-2.5 text-ink no-underline transition-state hover:bg-surface-hover focus-ring";
+
+/** Only plain web links reach an `href`: a stored `javascript:` or `data:` value never does. */
+function isHttps(url: string): boolean {
+  try {
+    return new URL(url).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 type Channel = { key: string; label: string; value: string; href: string; newTab: boolean };
 
@@ -32,7 +44,7 @@ export function contactChannels(
           newTab: true,
         }
       : null,
-    settings.linkedinUrl
+    settings.linkedinUrl && isHttps(settings.linkedinUrl)
       ? {
           key: "linkedin",
           label: label("linkedin"),
@@ -41,7 +53,7 @@ export function contactChannels(
           newTab: true,
         }
       : null,
-    ...settings.socialLinks.map((link, index) => ({
+    ...settings.socialLinks.filter((link) => isHttps(link.url)).map((link, index) => ({
       key: `social-${index}`,
       label: link.platform,
       value: link.url.replace(/^https:\/\/(www\.)?/, ""),
@@ -70,9 +82,12 @@ export function ContactChannels({ settings }: { settings: Parameters<typeof cont
               className={CHANNEL}
               {...(channel.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
-              <span className="type-small font-medium">{channel.label}</span>
+              <span className="text-ink-2 type-caption">{channel.label}</span>
               {/* Numbers, addresses and links read left to right in both languages. */}
-              <bdi dir="ltr" className="font-mono text-[13px] break-all text-ink-2">
+              <bdi
+                dir="ltr"
+                className="font-mono text-[14px] break-all underline-offset-4 decoration-1 group-hover:underline"
+              >
                 {channel.value}
               </bdi>
               {channel.newTab && <span className="sr-only">{t("opensInNewTab")}</span>}

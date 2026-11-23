@@ -8,7 +8,7 @@ import { Suspense } from "react";
 import { ListSkeleton } from "@/components/feedback/list-skeletons";
 import { formatNumber } from "@/components/public/home/format";
 import { CONTAINER, PageHero } from "@/components/public/parts";
-import { StageStrip } from "@/components/public/pages/identity";
+import { splitLines } from "@/components/public/pages/identity";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
 import { getPublicDocuments } from "@/lib/content";
@@ -23,16 +23,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return staticPageMetadata(locale, "documents");
 }
 
-/** The header, with the count in the eyebrow once the list is known. */
+/**
+ * The header, with the count in the eyebrow once the list is known, and the
+ * three steps (request, decision, opening) in its end column, as the
+ * Documents mockup sets them.
+ */
 async function DocumentsHero({ locale, count }: { locale: Locale; count?: number }) {
-  const t = await getTranslations({ locale, namespace: "Catalog" });
-  const tNav = await getTranslations({ locale, namespace: "Nav" });
+  const [t, tNav] = await Promise.all([
+    getTranslations({ locale, namespace: "Catalog" }),
+    getTranslations({ locale, namespace: "Nav" }),
+  ]);
   return (
     <PageHero
       eyebrow={count ? t("documentsPage.eyebrow", { count }) : tNav("documents")}
       title={t("documentsPage.title")}
       intro={<p>{t("documentsPage.intro")}</p>}
+      aside={<HowItWorks label={t("documentsPage.stepsLabel")} steps={splitLines(t("documentsPage.steps"))} locale={locale} />}
     />
+  );
+}
+
+/** Request, decision, opening: numbered lines between hairlines, the number in `ink-2`. */
+function HowItWorks({ label, steps, locale }: { label: string; steps: string[]; locale: Locale }) {
+  return (
+    <ol aria-label={label} className="border-t border-line">
+      {steps.map((step, index) => (
+        <li key={index} className="grid grid-cols-[28px_minmax(0,1fr)] gap-2.5 border-b border-line py-2.5 type-small">
+          <span aria-hidden="true" className="font-medium text-ink-2 tabular-nums">
+            {formatNumber(index + 1, locale)}
+          </span>
+          <span className="text-pretty">{step}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -46,27 +69,13 @@ async function DocumentsFromDb({ locale }: { locale: Locale }) {
   return (
     <>
       <DocumentsHero locale={locale} count={documents.length} />
-      <HowItWorks locale={locale} />
-      <div className={`${CONTAINER} mt-10`}>
+      <div className={`${CONTAINER} mt-2`}>
         {/* Only the request flow's strings go to the browser. */}
         <NextIntlClientProvider locale={locale} messages={{ DocumentRequestDialog }}>
           <DocumentsList documents={documents} />
         </NextIntlClientProvider>
       </div>
     </>
-  );
-}
-
-/** Request, decision, opening: three numbered steps right under the header. */
-async function HowItWorks({ locale }: { locale: Locale }) {
-  const t = await getTranslations({ locale, namespace: "Catalog" });
-  return (
-    <section aria-labelledby="documents-steps" className={CONTAINER}>
-      <h2 id="documents-steps" className="sr-only">
-        {t("documentsPage.stepsLabel")}
-      </h2>
-      <StageStrip text={t("documentsPage.steps")} formatIndex={(n) => formatNumber(n, locale)} />
-    </section>
   );
 }
 
@@ -81,8 +90,7 @@ export default async function Documents({ params }: Props) {
         fallback={
           <>
             <DocumentsHero locale={locale} />
-            <HowItWorks locale={locale} />
-            <div className={`${CONTAINER} mt-10`}>
+            <div className={`${CONTAINER} mt-2`}>
               <ListSkeleton kind="documents" label={t("documentsPage.loading")} rows={4} />
             </div>
           </>

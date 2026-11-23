@@ -169,10 +169,18 @@ function renderNode(node: JsonNode, key: number, depth: number, id?: string): Re
 }
 
 /**
- * Long-form text for an article (ArticleBody board): 18px with a loose line
- * height, at the reading measure. Arabic and English each keep their own.
+ * Long-form text for an article and the legal pages (ArticleBody board, the
+ * mockups' `.p-prose`): 18px with a loose line height, at the reading measure.
+ * Arabic and English each keep their own. A bullet is an en dash in `ink-2`
+ * in a 20px column, never a disc; a numbered list counts in the page's
+ * digits (Arabic-Indic on Arabic pages).
  */
-export const ARTICLE_PROSE = "max-w-measure text-[18px] leading-[2.05] [&:lang(en)]:text-[17px] [&:lang(en)]:leading-[1.7]";
+export const ARTICLE_PROSE = cx(
+  "max-w-measure text-[18px] leading-[2.05] [&:lang(en)]:text-[17px] [&:lang(en)]:leading-[1.7]",
+  "[&_ul]:list-none [&_ul]:ps-0 [&_ul>li]:grid [&_ul>li]:grid-cols-[20px_minmax(0,1fr)]",
+  "[&_ul>li]:before:text-ink-2 [&_ul>li]:before:content-['–'] [&_ul>li>*]:col-start-2",
+  "[&:lang(ar)_ol]:[list-style-type:arabic-indic]",
+);
 
 /** A top-level node that renders as an h2. */
 function isPartHeading(node: JsonNode): boolean {

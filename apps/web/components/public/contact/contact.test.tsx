@@ -158,6 +158,24 @@ describe("contact channels", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  it("keeps only https links from the settings, and the value stays text", () => {
+    const unsafe = {
+      ...settings,
+      linkedinUrl: "javascript:alert(1)",
+      socialLinks: [
+        { platform: "Bad", url: "data:text/html,<b>x</b>" },
+        { platform: "X", url: "https://x.com/example" },
+      ],
+    };
+    expect(contactChannels(unsafe, (key) => key).map(({ href }) => href)).toEqual([
+      "mailto:contact@example.com",
+      "https://wa.me/967700000000",
+      "https://x.com/example",
+    ]);
+    render(<ContactChannels settings={{ ...settings, socialLinks: [{ platform: "X", url: "https://x.com/<b>a</b>" }] }} />);
+    expect(screen.getByText("x.com/<b>a</b>")).toBeTruthy();
+  });
+
   it("opens external channels in a new tab, and says so", () => {
     render(<ContactChannels settings={settings} />);
     const linkedin = screen.getByRole("link", { name: /linkedin/ });

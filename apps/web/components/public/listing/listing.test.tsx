@@ -15,9 +15,12 @@ import { ResourceCard } from "./resource-card";
 import { SearchField } from "./search-field";
 import { ShareButtons } from "./share-buttons";
 
+// The page language, switched by the test of the Arabic separator.
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
-  useLocale: () => "en",
+  useLocale: () => intl.locale,
   useFormatter: () => ({ number: (value: number) => String(value) }),
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
@@ -50,7 +53,10 @@ vi.mock("@/i18n/navigation", () => ({
   },
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  intl.locale = "en";
+});
 
 describe("withParam", () => {
   it("sets a param, keeps the others and drops the named ones", () => {
@@ -315,6 +321,16 @@ describe("MediaCard and VideoEmbed", () => {
     );
     expect(screen.getByRole("img", { name: "Photo" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Workshop" })).toBeTruthy();
+  });
+
+  it("separates the kind and the outlet with a dot in English and an em dash in Arabic", () => {
+    const card = <MediaCard variant="featured" category="events" title="Workshop" outlet="Forum" date={null} image={null} />;
+    render(card);
+    expect(screen.getByText("mediaCategory.events · Forum")).toBeTruthy();
+    cleanup();
+    intl.locale = "ar";
+    render(card);
+    expect(screen.getByText("mediaCategory.events — Forum")).toBeTruthy();
   });
 
   it("puts the video frame in place of the image: lazy, titled and sandboxed", () => {

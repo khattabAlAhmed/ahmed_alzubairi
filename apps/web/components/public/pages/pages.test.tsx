@@ -3,6 +3,7 @@ import type { TiptapDoc } from "@repo/shared";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { TestimonialSet } from "./identity";
 import type { ExpertiseAreaDetail, Faq, HomeStat, Page, Project, Service, ServiceDetail, TimelineItem } from "@/lib/content";
 
 const mocks = vi.hoisted(() => ({
@@ -259,6 +260,22 @@ describe("PageHero", () => {
     const column = img.closest("figure")!.parentElement!;
     expect(column.querySelector("dl")?.textContent).toContain("38");
     expect(img.closest("header")).not.toBeNull();
+  });
+
+  it("renders exactly as before when no aside is given", () => {
+    const { container: without } = render(<PageHero {...props} />);
+    const before = without.innerHTML;
+    cleanup();
+    const { container: undefinedAside } = render(<PageHero {...props} aside={undefined} />);
+    expect(undefinedAside.innerHTML).toBe(before);
+  });
+
+  it("puts an aside in the end column, after the facts", () => {
+    render(<PageHero {...props} aside={<ol aria-label="Steps"><li>One</li></ol>} />);
+    const steps = screen.getByRole("list", { name: "Steps" });
+    const column = steps.parentElement!;
+    expect(column.firstElementChild?.tagName).toBe("DL");
+    expect(column.className).toContain("lg:col-span-3");
   });
 });
 
@@ -585,5 +602,20 @@ describe("about, expertise and services routes", () => {
     mocks.services = [service];
     render(await servicesRoute.default(params("ar")));
     expect(screen.getByText("Governance review")).toBeTruthy();
+  });
+});
+
+describe("TestimonialSet", () => {
+  it("joins an excerpt's author and organization with an em dash on Arabic pages", () => {
+    render(
+      <TestimonialSet
+        testimonials={[
+          { id: "t1", quote: "Q1", author: "A1", organization: null },
+          { id: "t2", quote: "Q2", author: "مديرة برنامج", organization: "منظمة دولية" },
+        ]}
+      />,
+    );
+    // A middle dot beside Arabic text with digits reads as a zero (T20).
+    expect(screen.getByText("مديرة برنامج — منظمة دولية")).toBeTruthy();
   });
 });

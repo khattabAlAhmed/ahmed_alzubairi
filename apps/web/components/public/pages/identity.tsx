@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ArrowForwardIcon, CheckIcon, DownloadIcon } from "@/components/icons";
+import { metaSeparator } from "@/components/public/home/format";
 import { StatNumber } from "@/components/public/home/stat-number";
 import { localizeStatValue } from "@/components/public/home/stat-value";
 import { cx } from "@/components/ui/cx";
@@ -563,6 +564,7 @@ export type TestimonialData = { id: string; quote: string; author: string; organ
  * (§6.11); the letter itself never shows.
  */
 export function TestimonialSet({ testimonials, source }: { testimonials: readonly TestimonialData[]; source?: string }) {
+  const locale = useLocale();
   const [first, ...rest] = testimonials;
   if (!first) return null;
   return (
@@ -591,7 +593,7 @@ export function TestimonialSet({ testimonials, source }: { testimonials: readonl
             <figure key={testimonial.id} className="flex flex-col gap-2 border-b border-line py-4">
               <blockquote className="type-body text-pretty whitespace-pre-line">{testimonial.quote}</blockquote>
               <figcaption className="type-caption text-ink-2">
-                {[testimonial.author, testimonial.organization].filter(Boolean).join(" · ")}
+                {[testimonial.author, testimonial.organization].filter(Boolean).join(metaSeparator(locale))}
               </figcaption>
             </figure>
           ))}

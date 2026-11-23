@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Project } from "@/lib/content";
 import { ProjectStoryFeatured, ProjectStoryList, ProjectStoryRow, storyFromProject } from "./project-story";
 
+// The page language, switched by the test of the Arabic separator.
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
 vi.mock("next-intl", () => ({
+  useLocale: () => intl.locale,
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key} ${JSON.stringify(values)}` : key,
 }));
@@ -17,7 +21,10 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  intl.locale = "en";
+});
 
 const REAL_NAME = "Real Ministry of Secrets";
 
@@ -82,5 +89,17 @@ describe("ProjectStory", () => {
     expect(row.getByRole("link").getAttribute("href")).toBe("/projects/hidden");
     expect(row.getByText("Decided in a week.", { exact: false })).toBeTruthy();
     expect(row.getByText("Governance")).toBeTruthy();
+  });
+
+  it("separates the row's meta with a dot in English and an em dash in Arabic", () => {
+    const story = { ...storyFromProject(hidden), meta: ["2024", "A ministry"] };
+    const meta = () => screen.getByRole("listitem").querySelector(".type-caption")?.textContent;
+    render(<ProjectStoryList><ProjectStoryRow story={story} /></ProjectStoryList>);
+    expect(meta()).toBe("2024 · A ministry");
+    cleanup();
+    // A middle dot beside Arabic-Indic digits reads as a zero.
+    intl.locale = "ar";
+    render(<ProjectStoryList><ProjectStoryRow story={story} /></ProjectStoryList>);
+    expect(meta()).toBe("2024 — A ministry");
   });
 });

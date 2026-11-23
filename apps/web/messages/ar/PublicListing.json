@@ -7,7 +7,7 @@
   "previous": "السابق",
   "next": "التالي",
   "page": "الصفحة {page}",
-  "pageOf": "الصفحة {page} من {total}",
+  "pageOf": "الصفحة {page} من {total, number}",
   "readingTime": "{minutes, plural, one {دقيقة قراءة} two {دقيقتا قراءة} few {# دقائق قراءة} many {# دقيقة قراءة} other {# دقيقة قراءة}}",
   "shareLabel": "شارك",
   "shareOn": "شارك عبر {network}",
@@ -47,7 +47,7 @@
   "online": "عبر الإنترنت",
   "comingSoon": "قريباً",
   "courseFull": "اكتملت المقاعد",
-  "seatsLeft": "{left, plural, zero {لا مقاعد متبقية} one {بقي مقعد واحد} two {بقي مقعدان} few {بقيت # مقاعد} many {بقي # مقعدًا} other {بقي # مقعد}} من {total}",
+  "seatsLeft": "{left, plural, zero {لا مقاعد متبقية} one {بقي مقعد واحد} two {بقي مقعدان} few {بقيت # مقاعد} many {بقي # مقعدًا} other {بقي # مقعد}} من {total, number}",
   "seatsMeter": "المقاعد المتبقية",
   "date": "التاريخ",
   "place": "المكان"

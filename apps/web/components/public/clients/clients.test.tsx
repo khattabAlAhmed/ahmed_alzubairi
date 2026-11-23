@@ -5,6 +5,7 @@ import { ClientsContent } from "./clients-page";
 
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
+  useLocale: () => "en",
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));

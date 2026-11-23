@@ -7,7 +7,7 @@ import { NewsletterSignup } from "@/components/newsletter";
 import { ArticleCard, ShareButtons } from "../listing";
 import { ArticleList } from "../listing/article-card";
 import { Figure } from "../listing/parts";
-import { CONTAINER, ConsultationCta, MoreLink, PageSection } from "../parts";
+import { CONTAINER, ConsultationCta, MoreLink, PAGE_TITLE, PageSection } from "../parts";
 import { ARTICLE_PROSE, RichText } from "../rich-text/rich-text";
 import { articlePath, BLOG_PATH } from "./query";
 
@@ -69,7 +69,7 @@ export function ArticlePage({
             />
           </aside>
           <div className="flex min-w-0 flex-col gap-6 lg:col-span-6">
-            <h1 className="text-balance type-h1 settle">{post.title}</h1>
+            <h1 className={PAGE_TITLE}>{post.title}</h1>
             {post.coverUrl && (
               // Decorative: the title above names the article.
               <Figure image={{ src: post.coverUrl, alt: "" }} crop="work" sizes="(min-width: 1024px) 50vw, 100vw" />
