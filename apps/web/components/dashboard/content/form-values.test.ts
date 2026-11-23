@@ -92,6 +92,43 @@ describe("buildBody", () => {
   });
 });
 
+describe("buildBody with a photo (P8D-T41)", () => {
+  const about = {
+    id: ID,
+    key: "about",
+    status: "published",
+    titleAr: "من أنا",
+    titleEn: "About",
+    bodyAr: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "نص" }] }] },
+    bodyEn: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Text" }] }] },
+  };
+
+  it("sends the photo key, alt and caption of a page", () => {
+    const values = { ...rowToValues("pages", about), imageKey: "media/work.webp", imageAltAr: " جلسة عمل ", imageAltEn: "A working session", imageCaptionEn: "With a directorate team" };
+    const { body, errors, formError } = buildBody("pages", values, about);
+    expect(errors).toEqual({});
+    expect(formError).toBe(false);
+    expect(body).toMatchObject({ imageKey: "media/work.webp", imageAltAr: "جلسة عمل", imageAltEn: "A working session", imageCaptionEn: "With a directorate team" });
+    expect(body).not.toHaveProperty("imageCaptionAr");
+  });
+
+  it("marks a published page's missing alt as required, in each language it's shown in", () => {
+    const values = { ...rowToValues("pages", about), imageKey: "media/work.webp", imageAltAr: "جلسة عمل" };
+    expect(buildBody("pages", values, about).errors).toEqual({ imageAltEn: "required" });
+  });
+
+  it("lets a draft area keep a photo without alt", () => {
+    const values = { ...rowToValues("expertise_areas", null), slug: "governance", titleEn: "Governance", summaryEn: "Summary", imageKey: "media/a.webp" };
+    expect(buildBody("expertise_areas", values, null).errors).toEqual({});
+    expect(buildBody("expertise_areas", { ...values, status: "published" }, null).errors).toEqual({ imageAltEn: "required" });
+  });
+
+  it("refuses an alt over 300 characters as invalid", () => {
+    const values = { ...rowToValues("pages", about), imageKey: "media/work.webp", imageAltAr: "a".repeat(301), imageAltEn: "Photo" };
+    expect(buildBody("pages", values, about).errors).toEqual({ imageAltAr: "invalid" });
+  });
+});
+
 describe("publishState", () => {
   it("is available in English only when the Arabic required fields are empty", () => {
     const state = publishState(
@@ -131,6 +168,16 @@ describe("requiredInputNames", () => {
       "titleAr",
       "titleEn",
     ]);
+  });
+
+  it("adds the photo's alt once a page or an area has a photo", () => {
+    for (const type of ["pages", "expertise_areas"] as const) {
+      const names = requiredInputNames(type, { imageKey: "media/p.webp" });
+      expect(names.has("imageAltAr"), type).toBe(true);
+      expect(names.has("imageAltEn"), type).toBe(true);
+      expect(requiredInputNames(type, { imageKey: " " }).has("imageAltAr"), type).toBe(false);
+    }
+    expect(requiredInputNames("media_items", { imageKey: "media/p.webp" }).has("imageAltAr")).toBe(false);
   });
 
   it("adds the general label when a project hides its organization", () => {

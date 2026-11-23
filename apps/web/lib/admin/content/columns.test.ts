@@ -17,6 +17,17 @@ describe("toColumns", () => {
     });
   });
 
+  it("keeps a page's or an area's photo key in image_path, and reads it back", () => {
+    for (const type of ["pages", "expertise_areas"] as const) {
+      expect(
+        toColumns(type, { imageKey: "media/p.webp", imageAltAr: "صورة", imageCaptionEn: "Caption" }),
+      ).toEqual({ image_path: "media/p.webp", image_alt_ar: "صورة", image_caption_en: "Caption" });
+      expect(
+        fromColumns(type, { id: ID, image_path: "media/p.webp", image_alt_en: "Photo", image_caption_ar: null }),
+      ).toEqual({ id: ID, imageKey: "media/p.webp", imageAltEn: "Photo" });
+    }
+  });
+
   it("leaves out nested and undefined fields", () => {
     expect(
       toColumns("projects", {

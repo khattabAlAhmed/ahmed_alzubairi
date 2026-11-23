@@ -308,6 +308,7 @@ describe("pages", () => {
       body: doc("Text"),
       updatedAt: "2026-03-04T10:00:00+00:00",
       availableIn: ["ar", "en"],
+      image: null,
     });
   });
 });
@@ -510,5 +511,73 @@ describe("queries", () => {
     for (const query of db.queries.filter((item) => item.table !== "site_settings")) {
       expect(query.filters, query.table).toContainEqual(["status", "published"]);
     }
+  });
+});
+
+describe("page and area photos (P8D-T41)", () => {
+  const MEDIA = "https://example.supabase.co/storage/v1/object/public/public-media";
+  const photo = {
+    image_path: "media/work session.webp",
+    image_alt_ar: "جلسة عمل",
+    image_alt_en: "A working session",
+    image_caption_ar: null,
+    image_caption_en: "Working session with a directorate team",
+  };
+  const aboutWith = (extra: Record<string, unknown>) => [
+    { key: "about", status: "published", ...both("title", "About"), body_ar: doc("نص"), body_en: doc("Text"), updated_at: "2026-11-23T00:00:00+00:00", ...extra },
+  ];
+  const areaWith = (extra: Record<string, unknown>) => [
+    { id: "e1", slug: "governance", ...both("title", "Governance"), ...both("summary", "Summary"), body_ar: null, body_en: null, position: 0, status: "published", ...extra },
+  ];
+
+  it("reads the photo columns", async () => {
+    db.rows.pages = aboutWith(photo);
+    await content.getPage("about", "en");
+    await content.getExpertiseArea("governance", "en");
+    for (const table of ["pages", "expertise_areas"]) {
+      const query = db.queries.find((item) => item.table === table);
+      expect(query?.columns, table).toContain("image_path, image_alt_ar, image_alt_en, image_caption_ar, image_caption_en");
+    }
+  });
+
+  it.each([
+    ["ar", { url: `${MEDIA}/media/work%20session.webp`, alt: "جلسة عمل", caption: null }],
+    ["en", { url: `${MEDIA}/media/work%20session.webp`, alt: "A working session", caption: "Working session with a directorate team" }],
+  ] as const)("getPage('about') gives the photo in %s, with its alt and caption", async (locale, image) => {
+    db.rows.pages = aboutWith(photo);
+    expect((await content.getPage("about", locale))?.image).toEqual(image);
+  });
+
+  it.each([
+    ["ar", { url: `${MEDIA}/media/work%20session.webp`, alt: "جلسة عمل", caption: null }],
+    ["en", { url: `${MEDIA}/media/work%20session.webp`, alt: "A working session", caption: "Working session with a directorate team" }],
+  ] as const)("getExpertiseArea gives the photo in %s, with its alt and caption", async (locale, image) => {
+    db.rows.expertise_areas = areaWith(photo);
+    expect((await content.getExpertiseArea("governance", locale))?.image).toEqual(image);
+  });
+
+  it.each(["ar", "en"] as const)("gives null in %s when there's no photo", async (locale) => {
+    db.rows.pages = aboutWith({});
+    db.rows.expertise_areas = areaWith({ image_alt_ar: "صورة", image_alt_en: "Photo" });
+    expect((await content.getPage("about", locale))?.image).toBeNull();
+    expect((await content.getExpertiseArea("governance", locale))?.image).toBeNull();
+  });
+
+  it("gives null in a language with no alt, and the photo in the other", async () => {
+    const englishAltOnly = { ...photo, image_alt_ar: null };
+    db.rows.pages = aboutWith(englishAltOnly);
+    db.rows.expertise_areas = areaWith(englishAltOnly);
+    expect((await content.getPage("about", "ar"))?.image).toBeNull();
+    expect((await content.getExpertiseArea("governance", "ar"))?.image).toBeNull();
+    expect((await content.getPage("about", "en"))?.image?.alt).toBe("A working session");
+    expect((await content.getExpertiseArea("governance", "en"))?.image?.alt).toBe("A working session");
+  });
+
+  it("leaves the photo off the area list", async () => {
+    db.rows.expertise_areas = areaWith(photo);
+    const [area] = await content.getExpertiseAreas("en");
+    expect(area).not.toHaveProperty("image");
+    const list = db.queries.find((item) => item.table === "expertise_areas");
+    expect(list?.columns).not.toContain("image_path");
   });
 });

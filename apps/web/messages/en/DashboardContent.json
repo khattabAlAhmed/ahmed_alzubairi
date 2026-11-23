@@ -165,7 +165,11 @@
     "videoUrl": "Video link",
     "body": "Body",
     "excerpt": "Excerpt",
-    "coverKey": "Cover image"
+    "coverKey": "Cover image",
+    "imageAlt": "Photo description (alt text)",
+    "imageAltHint": "What the photo shows, for people who can't see it. Needed in every language the item is published in. Of the pages, only About shows a photo.",
+    "imageCaption": "Photo caption",
+    "imageCaptionHint": "One short line under the photo, such as who and where. Optional."
   },
   "options": {
     "timelineKind": {

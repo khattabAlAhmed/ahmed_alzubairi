@@ -70,6 +70,15 @@ export type TypeConfig = {
 const L = (name: string, kind: "text" | "longtext" | "richtext" = "text") =>
   ({ name, kind, localized: true }) as const;
 const position = { name: "position", kind: "number" } as const;
+/**
+ * A photo with alt text and a caption per language (P8D-T41). Pages share the
+ * fields, but only the About page shows the photo.
+ */
+const photo = [
+  { name: "imageKey", kind: "image", target: "media" },
+  L("imageAlt"),
+  L("imageCaption"),
+] as const;
 const expertise = {
   name: "expertiseId",
   kind: "reference",
@@ -87,7 +96,7 @@ export const CONTENT_CONFIG: Record<ContentType, TypeConfig> = {
   },
   pages: {
     titleField: "title",
-    fields: [L("title"), L("body", "richtext")],
+    fields: [L("title"), L("body", "richtext"), ...photo],
   },
   timeline_items: {
     titleField: "title",
@@ -106,6 +115,7 @@ export const CONTENT_CONFIG: Record<ContentType, TypeConfig> = {
       L("title"),
       L("summary", "longtext"),
       L("body", "richtext"),
+      ...photo,
       position,
     ],
   },

@@ -49,12 +49,20 @@ export type HomeSection = {
 
 export type HomeStat = { id: string; label: string; value: string };
 
+/**
+ * A content photo in the page's language (P8D-T41): the About page's work
+ * photo, an expertise area's wide photo. There is no photo without alt text.
+ */
+export type ContentImage = { url: string; alt: string; caption: string | null };
+
 export type Page = Availability & {
   key: PageKey;
   title: string;
   body: TiptapDoc;
   /** When the page was last changed (ISO, UTC), for the legal pages' "last updated". */
   updatedAt: string;
+  /** `getPage` always sets it; only About shows it. Optional so fixtures stay as they are. */
+  image?: ContentImage | null;
 };
 
 export type TimelineItem = {
@@ -73,7 +81,11 @@ export type ExpertiseArea = {
 };
 
 export type ExpertiseAreaDetail = ExpertiseArea &
-  Availability & { body: TiptapDoc | null };
+  Availability & {
+    body: TiptapDoc | null;
+    /** `getExpertiseArea` always sets it. Optional so fixtures stay as they are. */
+    image?: ContentImage | null;
+  };
 
 export type Service = {
   id: string;

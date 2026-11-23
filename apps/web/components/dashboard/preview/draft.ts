@@ -7,6 +7,7 @@ import {
   type TiptapDoc,
 } from "@repo/shared";
 import type {
+  ContentImage,
   ExpertiseArea,
   ExpertiseAreaDetail,
   Partner,
@@ -103,6 +104,14 @@ function draftImages(draft: Row, locale: Locale, base: string): ProjectImage[] {
   );
 }
 
+/** The draft's photo as `lib/content` gives it: null without a photo or alt in this language. */
+export function draftPhoto(draft: Row, locale: Locale, base: string): ContentImage | null {
+  const key = plain(draft, "imageKey");
+  const alt = draftText(draft, "imageAlt", locale);
+  if (!key || !alt) return null;
+  return { url: mediaUrl(base, key), alt, caption: draftText(draft, "imageCaption", locale) };
+}
+
 /** §6.11: what keeps a testimonial or logo off the public site, besides being a draft. */
 export function consentBlockers(draft: Row): ("no_consent" | "not_approved")[] {
   const blockers: ("no_consent" | "not_approved")[] = [];
@@ -194,6 +203,7 @@ export function previewModel(
           summary,
           body: richText(draft, "body", locale),
           availableIn,
+          image: draftPhoto(draft, locale, ctx.mediaBase),
         },
       };
     }
