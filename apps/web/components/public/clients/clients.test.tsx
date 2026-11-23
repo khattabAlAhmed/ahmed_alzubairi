@@ -2,6 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ClientsContent } from "./clients-page";
+import { ClientsSkeleton } from "./clients-skeleton";
 
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
@@ -50,5 +51,17 @@ describe("ClientsContent", () => {
 
     render(<ClientsContent partners={[]} testimonials={[]} />);
     expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual(["empty.title"]);
+  });
+});
+
+describe("ClientsSkeleton", () => {
+  it("announces the loading at once, outside the busy, hidden placeholders", () => {
+    render(<ClientsSkeleton label="Loading the organizations and testimonials" />);
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("Loading the organizations and testimonials");
+    const busy = document.querySelector('[aria-busy="true"]');
+    expect(busy).not.toBeNull();
+    expect(busy?.contains(status)).toBe(false);
+    expect(screen.queryAllByRole("listitem")).toEqual([]);
   });
 });
