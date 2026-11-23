@@ -52,8 +52,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+// Two idle periods: PostHog's start, then the recorder's.
 const settle = () => act(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 5));
+  await new Promise((resolve) => setTimeout(resolve, 20));
 });
 
 describe("Analytics", () => {
@@ -111,5 +112,71 @@ describe("Analytics", () => {
     await settle();
     expect(ph.init).toHaveBeenCalled();
     expect(ph.startSessionRecording).not.toHaveBeenCalled();
+  });
+
+  describe("timing (TBT)", () => {
+    // Idle callbacks wait here until the test runs them, in order.
+    let idle: (() => void)[] = [];
+    const runIdle = () => act(async () => {
+      idle.shift()?.();
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    });
+    let readyState = "complete";
+
+    beforeEach(() => {
+      idle = [];
+      readyState = "complete";
+      vi.stubGlobal("requestIdleCallback", (callback: () => void) => idle.push(callback));
+      vi.spyOn(document, "readyState", "get").mockImplementation(() => readyState as DocumentReadyState);
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    it("waits for the page's load event before PostHog's idle start", async () => {
+      readyState = "loading";
+      render(<Analytics />);
+      await settle();
+      expect(idle).toHaveLength(0);
+      readyState = "complete";
+      act(() => {
+        window.dispatchEvent(new Event("load"));
+      });
+      expect(idle).toHaveLength(1);
+      await runIdle();
+      expect(ph.init).toHaveBeenCalledOnce();
+    });
+
+    it("starts the recorder one idle period after PostHog, not with it", async () => {
+      render(<Analytics />);
+      await runIdle();
+      expect(ph.init).toHaveBeenCalledOnce();
+      expect(ph.startSessionRecording).not.toHaveBeenCalled();
+      await runIdle();
+      expect(ph.startSessionRecording).toHaveBeenCalledOnce();
+    });
+
+    it("never records a private page reached before the recorder was ready", async () => {
+      const view = render(<Analytics />);
+      await runIdle();
+      nav.pathname = "/ar/account";
+      view.rerender(<Analytics />);
+      expect(ph.startSessionRecording).not.toHaveBeenCalled();
+      await runIdle();
+      expect(ph.startSessionRecording).not.toHaveBeenCalled();
+      expect(ph.state.recording).toBe(false);
+      nav.pathname = "/ar/about";
+      view.rerender(<Analytics />);
+      expect(ph.startSessionRecording).toHaveBeenCalledOnce();
+    });
+
+    it("starts nothing when the page goes away before load", async () => {
+      readyState = "loading";
+      const view = render(<Analytics />);
+      view.unmount();
+      act(() => {
+        window.dispatchEvent(new Event("load"));
+      });
+      expect(idle).toHaveLength(0);
+      expect(fetcher).not.toHaveBeenCalled();
+    });
   });
 });
