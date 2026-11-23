@@ -13,8 +13,10 @@ import { accountList } from "./loading";
  * works, so this names what didn't load (a list by name, any other page as
  * "this page") and offers a retry. The copy comes from the message files,
  * since the browser gets no page namespaces.
+ * The retry is Next's `retry()`, which fetches the segment again; `reset()`
+ * would only re-render the error it already has.
  */
-export default function AccountError({ reset }: { reset: () => void }) {
+export default function AccountError({ retry }: { retry: () => void }) {
   const list = accountList(usePathname() ?? "");
   const copy = (useLocale() === "ar" ? ar : en).Account.states.error;
   return (
@@ -23,7 +25,7 @@ export default function AccountError({ reset }: { reset: () => void }) {
       title={copy[list ?? "page"]}
       text={copy.text}
       action={
-        <Button variant="secondary" size="sm" onClick={reset}>
+        <Button variant="secondary" size="sm" onClick={() => retry()}>
           {copy.retry}
         </Button>
       }

@@ -64,14 +64,14 @@ describe.each(["ar", "en"] as const)("account states in %s", (locale) => {
 
   it.each([...LISTS, "page"] as const)("the %s error names it, and retries", (list) => {
     nav.pathname = list === "page" ? `/${locale}/account/consultations/new` : `/${locale}/account/${list}`;
-    const reset = vi.fn();
-    const missing = renderIn(locale, <AccountError reset={reset} />);
+    const retry = vi.fn();
+    const missing = renderIn(locale, <AccountError retry={retry} />);
     const alert = screen.getByRole("alert");
     expect(alert.textContent).toContain(COPY[locale].error[list]);
     expect(alert.textContent).toContain(COPY[locale].error.text);
     expect(alert.textContent).not.toMatch(/Account\.|states\./);
     expect(missing).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: COPY[locale].error.retry }));
-    expect(reset).toHaveBeenCalledTimes(1);
+    expect(retry).toHaveBeenCalledTimes(1);
   });
 });
