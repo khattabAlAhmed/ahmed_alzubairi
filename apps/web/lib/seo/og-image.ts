@@ -3,17 +3,30 @@ import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
 import path from "node:path";
 
 /**
- * The default Open Graph image (§6.24, §13). Drawn with `@napi-rs/canvas`
- * because next/og (satori) neither shapes Arabic nor lays out right to left;
- * Skia shapes with HarfBuzz, so letters join and runs read right.
+ * The default Open Graph image (§6.24), in the record's look (DESIGN.md): a
+ * plain ground, the heavy rule that opens a record, the site's name as the
+ * title in ink, and its line in `ink-2`. Drawn with `@napi-rs/canvas` because
+ * next/og (satori) neither shapes Arabic nor lays out right to left; Skia
+ * shapes with HarfBuzz, so letters join and runs read right.
  */
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 
 const FONT_FILE = "assets/fonts/IBMPlexSansArabic-Regular.ttf";
 const FAMILY = "OG Plex Arabic";
 
-/** §13 tokens: navy background, gold accents only, ivory text (AA on navy). */
-const COLORS = { navy: "#0B1F3A", gold: "#C9A24D", ivory: "#F7F3EA", muted: "#A9B4C6" } as const;
+/** DESIGN.md light tokens. A share image has no dark version: feeds show it as a picture. */
+const COLORS = { bg: "#FFFFFF", ink: "#1A1C1E", ink2: "#50555A", rule: "#1A1C1E" } as const;
+
+/**
+ * The frame, in px of the 1200×630 image. Feeds show it at about half size,
+ * so the 2px heavy rule is drawn 4px to read as 2px there.
+ */
+export const OG_LAYOUT = {
+  pad: 96,
+  rule: 4,
+  title: { size: 72, lineHeight: 100, maxLines: 2 },
+  tagline: { size: 38, lineHeight: 64, maxLines: 3 },
+} as const;
 
 let registered = false;
 function ensureFont(): void {
@@ -24,25 +37,62 @@ function ensureFont(): void {
   registered = true;
 }
 
-/** Greedy word wrap to `maxWidth`, measured in the context's current font. */
-export function wrapLines(
-  ctx: Pick<SKRSContext2D, "measureText">,
-  text: string,
-  maxWidth: number,
-): string[] {
+type Measure = Pick<SKRSContext2D, "measureText">;
+
+const fits = (ctx: Measure, text: string, maxWidth: number) =>
+  ctx.measureText(text).width <= maxWidth;
+
+/**
+ * Greedy word wrap to `maxWidth`, measured in the context's current font. A
+ * word wider than the line on its own is broken between letters.
+ */
+export function wrapLines(ctx: Measure, text: string, maxWidth: number): string[] {
   const lines: string[] = [];
   let line = "";
   for (const word of text.split(/\s+/).filter(Boolean)) {
     const next = line ? `${line} ${word}` : word;
-    if (line && ctx.measureText(next).width > maxWidth) {
-      lines.push(line);
-      line = word;
-    } else {
+    if (fits(ctx, next, maxWidth)) {
       line = next;
+      continue;
+    }
+    if (line) lines.push(line);
+    line = word;
+    while (!fits(ctx, line, maxWidth) && [...line].length > 1) {
+      const letters = [...line];
+      let cut = letters.length - 1;
+      while (cut > 1 && !fits(ctx, letters.slice(0, cut).join(""), maxWidth)) cut--;
+      lines.push(letters.slice(0, cut).join(""));
+      line = letters.slice(cut).join("");
     }
   }
   if (line) lines.push(line);
   return lines;
+}
+
+/**
+ * At most `maxLines` lines of `text`. When it runs longer, the last line ends
+ * with an ellipsis and still fits `maxWidth`.
+ */
+export function clampLines(
+  ctx: Measure,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] {
+  const lines = wrapLines(ctx, text, maxWidth);
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  const words = (kept[maxLines - 1] ?? "").split(" ");
+  let last = `${words.join(" ")}…`;
+  while (!fits(ctx, last, maxWidth) && words.length > 1) {
+    words.pop();
+    last = `${words.join(" ")}…`;
+  }
+  while (!fits(ctx, last, maxWidth) && last.length > 1) {
+    last = `${[...last].slice(0, -2).join("")}…`;
+  }
+  kept[maxLines - 1] = last;
+  return kept;
 }
 
 export function renderOgImage({
@@ -56,35 +106,38 @@ export function renderOgImage({
 }): Buffer {
   ensureFont();
   const { width, height } = OG_SIZE;
+  const { pad, rule, title, tagline: line } = OG_LAYOUT;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
-  const pad = 96;
   const rtl = direction === "rtl";
+  const maxWidth = width - pad * 2;
   // The text's start edge: right in Arabic, left in English.
   const x = rtl ? width - pad : pad;
 
-  ctx.fillStyle = COLORS.navy;
+  ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, width, height);
 
-  // Gold frame line and start-edge bar.
-  ctx.strokeStyle = COLORS.gold;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(32, 32, width - 64, height - 64);
-  ctx.fillStyle = COLORS.gold;
-  ctx.fillRect(rtl ? width - pad - 120 : pad, 200, 120, 6);
+  // The heavy rule that opens a record, across the text column.
+  ctx.fillStyle = COLORS.rule;
+  ctx.fillRect(pad, pad, maxWidth, rule);
 
   ctx.direction = direction;
   ctx.textAlign = rtl ? "right" : "left";
   ctx.textBaseline = "alphabetic";
 
-  ctx.fillStyle = COLORS.ivory;
-  ctx.font = `76px "${FAMILY}"`;
-  ctx.fillText(siteName, x, 310);
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = `${title.size}px "${FAMILY}"`;
+  const titleLines = clampLines(ctx, siteName, maxWidth, title.maxLines);
+  let y = pad + rule + 48 + title.size;
+  titleLines.forEach((text, i) => ctx.fillText(text, x, y + i * title.lineHeight));
+  y += (titleLines.length - 1) * title.lineHeight;
 
-  ctx.fillStyle = COLORS.muted;
-  ctx.font = `40px "${FAMILY}"`;
-  const lines = wrapLines(ctx, tagline, width - pad * 2).slice(0, 3);
-  lines.forEach((text, i) => ctx.fillText(text, x, 390 + i * 60));
+  ctx.fillStyle = COLORS.ink2;
+  ctx.font = `${line.size}px "${FAMILY}"`;
+  y += 32 + line.lineHeight;
+  clampLines(ctx, tagline, maxWidth, line.maxLines).forEach((text, i) =>
+    ctx.fillText(text, x, y + i * line.lineHeight),
+  );
 
   return canvas.toBuffer("image/png");
 }

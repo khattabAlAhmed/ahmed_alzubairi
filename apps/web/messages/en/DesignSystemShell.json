@@ -70,8 +70,19 @@
     "sampleMore": "All projects",
     "note": "A section stands alone: it can be hidden or moved from the dashboard without breaking what's around it. An empty section is never shown."
   },
+  "breadcrumb": {
+    "title": "Breadcrumb",
+    "intro": "Where a page sits, on the start side of its header: the section as a link, a slash, then the page itself.",
+    "sampleSection": "Services",
+    "samplePage": "Institutional governance",
+    "note": "For pages one level down: a service and an expertise area. A navigation landmark named \"Breadcrumb\", an ordered list, and the page itself marked as current. In Arabic the path reads from the right; the slash is the same in both languages and screen readers skip it."
+  },
   "cta": {
     "title": "Consultation invitation",
-    "intro": "The closing invitation on public pages: an invitation to talk, not a coloured sales banner."
+    "intro": "The closing invitation on public pages: an invitation to talk, not a coloured sales banner.",
+    "fullNote": "Full (the default): the photo, his invitation, a direct line and what happens next. Articles, projects and pages without a closing of their own.",
+    "textNote": "Text only (About): his line and one button.",
+    "photoNote": "With the photo (Services): his line and one button, no steps.",
+    "noneNote": "An expertise area ends without a closing band."
   }
 }

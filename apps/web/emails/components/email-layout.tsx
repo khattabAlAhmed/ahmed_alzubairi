@@ -11,7 +11,7 @@ import {
 } from "@react-email/components";
 import { SITE_NAME, type Locale } from "@repo/shared";
 import type { ReactNode } from "react";
-import { CLASSES, COLORS, FONTS, HEAD_CSS, SIZES } from "./theme";
+import { CLASSES, COLORS, FONTS, HEAD_CSS, SIZES, TYPE } from "./theme";
 
 const { light } = COLORS;
 
@@ -26,9 +26,10 @@ export type EmailLayoutProps = {
 };
 
 /**
- * The frame of every email: a navy header with the site name as a text logo,
- * a white card for the content, and a footer. Blocks inside it take their
- * direction from here, so they set no left or right alignment themselves.
+ * The frame of every email, in the record's look: a plain ground, the 2px
+ * rule that opens the email, the site name under it, the content, and a
+ * footer after a hairline. Square corners, no boxes, no shadow. Blocks inside
+ * take their direction from here, so they set no left or right alignment.
  */
 export function EmailLayout({
   locale,
@@ -37,6 +38,7 @@ export function EmailLayout({
   children,
 }: EmailLayoutProps) {
   const dir = locale === "ar" ? "rtl" : "ltr";
+  const type = TYPE[locale];
 
   return (
     <Html lang={locale} dir={dir}>
@@ -52,88 +54,72 @@ export function EmailLayout({
         className={CLASSES.body}
         style={{
           margin: 0,
-          padding: "24px 12px",
-          backgroundColor: light.background,
-          fontFamily: FONTS.text,
+          padding: "24px 0",
+          backgroundColor: light.bg,
+          fontFamily: FONTS.sans,
         }}
       >
         <Preview>{preview}</Preview>
-        <Container
-          lang={locale}
-          dir={dir}
-          style={{ width: "100%", maxWidth: SIZES.width, margin: "0 auto" }}
-        >
-          <Section>
-            <Row>
-              <Column
-                className={CLASSES.header}
-                align="center"
-                style={{
-                  padding: "24px 20px",
-                  backgroundColor: light.navy,
-                  borderBottom: `3px solid ${light.gold}`,
-                  borderRadius: `${SIZES.radius}px ${SIZES.radius}px 0 0`,
-                  textAlign: "center",
-                }}
-              >
-                {/* Ivory on navy in both schemes; `dir` keeps the Latin name whole in an RTL email. */}
-                <Text
-                  dir="auto"
-                  style={{
-                    margin: 0,
-                    color: light.background,
-                    fontFamily: FONTS.heading,
-                    fontSize: 22,
-                    fontWeight: 700,
-                    lineHeight: SIZES.headingLineHeight,
-                    letterSpacing: locale === "ar" ? undefined : "0.02em",
-                  }}
-                >
-                  {SITE_NAME}
-                </Text>
-              </Column>
-            </Row>
-          </Section>
-          <Section>
-            <Row>
-              <Column
-                className={`${CLASSES.card} ${CLASSES.cardPadding}`}
-                style={{
-                  padding: 32,
-                  backgroundColor: light.surface,
-                  borderRadius: `0 0 ${SIZES.radius}px ${SIZES.radius}px`,
-                }}
-              >
-                {children}
-              </Column>
-            </Row>
-          </Section>
-          <Section>
-            <Row>
-              <Column align="center" style={{ padding: "20px 20px 0" }}>
-                <Text
-                  className={CLASSES.muted}
-                  style={{
-                    margin: 0,
-                    color: light.textSecondary,
-                    fontFamily: FONTS.text,
-                    fontSize: 13,
-                    lineHeight: SIZES.lineHeight,
-                    textAlign: "center",
-                  }}
-                >
-                  <span dir="auto">{SITE_NAME}</span>
-                  {footer ? (
-                    <>
-                      <br />
-                      {footer}
-                    </>
-                  ) : null}
-                </Text>
-              </Column>
-            </Row>
-          </Section>
-        </Container>
+          <Container
+            lang={locale}
+            dir={dir}
+            style={{ width: "100%", maxWidth: SIZES.width, margin: "0 auto" }}
+          >
+            <Section>
+              <Row>
+                <Column className={CLASSES.page} style={{ padding: "0 24px" }}>
+                  <Text
+                    className={`${CLASSES.text} ${CLASSES.rule}`}
+                    style={{
+                      margin: 0,
+                      padding: "16px 0 0",
+                      borderTop: `${SIZES.ruleHeavy}px solid ${light.rule}`,
+                      color: light.ink,
+                      fontFamily: FONTS.sans,
+                      fontSize: 17,
+                      fontWeight: 500,
+                      lineHeight: type.small.lineHeight,
+                    }}
+                  >
+                    {/* The line takes the email's direction; `dir` keeps the Latin name whole in RTL. */}
+                    <span dir="auto" translate="no">{SITE_NAME}</span>
+                  </Text>
+                </Column>
+              </Row>
+            </Section>
+            <Section>
+              <Row>
+                <Column className={CLASSES.page} style={{ padding: "40px 24px 16px" }}>
+                  {children}
+                </Column>
+              </Row>
+            </Section>
+            <Section>
+              <Row>
+                <Column className={CLASSES.page} style={{ padding: "0 24px" }}>
+                  <Text
+                    className={`${CLASSES.muted} ${CLASSES.line}`}
+                    style={{
+                      margin: 0,
+                      padding: "16px 0 0",
+                      borderTop: `${SIZES.ruleHair}px solid ${light.line}`,
+                      color: light.ink2,
+                      fontFamily: FONTS.sans,
+                      ...type.caption,
+                    }}
+                  >
+                    <span dir="auto" translate="no">{SITE_NAME}</span>
+                    {footer ? (
+                      <>
+                        <br />
+                        {footer}
+                      </>
+                    ) : null}
+                  </Text>
+                </Column>
+              </Row>
+            </Section>
+          </Container>
       </Body>
     </Html>
   );

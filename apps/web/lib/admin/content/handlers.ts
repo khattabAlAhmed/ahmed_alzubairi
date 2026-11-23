@@ -4,6 +4,8 @@ import {
   contentCreateBodySchemas,
   contentParamsSchema,
   contentUpdateBodySchemas,
+  missingImageAlt,
+  PHOTO_CONTENT_TYPES,
   publishProblems,
   type ContentType,
   type IdResponse,
@@ -221,6 +223,12 @@ export async function createContent(
   return { status: 201, body: { id: inserted.id } };
 }
 
+function isPhotoType(
+  type: ContentType,
+): type is (typeof PHOTO_CONTENT_TYPES)[number] {
+  return (PHOTO_CONTENT_TYPES as readonly ContentType[]).includes(type);
+}
+
 function auditAction(
   wasPublished: boolean,
   isPublished: boolean,
@@ -263,6 +271,11 @@ export async function updateContent(
   const isPublished = next.status === "published";
   if (isPublished && !canPublish(type, next)) {
     return publishRefused(publishProblems(type, next), locale);
+  }
+  // The body's own check sees only the fields it carries: a published row with
+  // a photo needs its alt in each language it's shown in (P8D-T41).
+  if (isPhotoType(type) && missingImageAlt(type, next).length > 0) {
+    return baseError("validation_failed", 400, locale);
   }
 
   if (!(await serviceIdsExist(deps, changes))) {

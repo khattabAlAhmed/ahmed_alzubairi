@@ -2,8 +2,10 @@ import {
   availableLocales,
   contentCreateBodySchemas,
   contentUpdateBodySchemas,
+  IMAGE_ALT_REQUIRED,
   localizedField,
   LOCALES,
+  PHOTO_CONTENT_TYPES,
   publishProblems,
   REQUIRED_FIELDS,
   type ContentStatus,
@@ -152,7 +154,8 @@ export function buildBody(
     for (const issue of parsed.error.issues) {
       const name = issue.path[0];
       if (typeof name === "string" && name in values && name !== "status") {
-        errors[name] ??= "invalid";
+        // A published photo needs its alt text in each language (`missingImageAlt`).
+        errors[name] ??= issue.message === IMAGE_ALT_REQUIRED ? "required" : "invalid";
       } else {
         formError = true;
       }
@@ -203,12 +206,20 @@ export function rowStatus(row: Row): ContentStatus {
 
 /**
  * The input names a language needs to be available, for the "required" marks.
- * A project with a hidden organization name also needs its general label.
+ * A project with a hidden organization name also needs its general label, and
+ * a row with a photo needs the photo's alt text.
  */
 export function requiredInputNames(type: ContentType, values: Row): Set<string> {
   if (type === "home_sections") return new Set();
   const fields: string[] = [...REQUIRED_FIELDS[type]];
   if (type === "projects" && values.hideOrgName === true) fields.push("orgLabel");
+  if (
+    (PHOTO_CONTENT_TYPES as readonly string[]).includes(type) &&
+    typeof values.imageKey === "string" &&
+    values.imageKey.trim() !== ""
+  ) {
+    fields.push("imageAlt");
+  }
   return new Set(
     fields.flatMap((field) => LOCALES.map((locale) => localizedField(field, locale))),
   );

@@ -94,7 +94,7 @@ export function AboutPage({
           </div>
         </PageSection>
       </div>
-      <ConsultationCta />
+      <ConsultationCta variant="text" />
     </>
   );
 }

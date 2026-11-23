@@ -1,7 +1,7 @@
 import { render } from "@react-email/render";
-import { SITE_NAME } from "@repo/shared";
+import { fillTemplate, LOCALES, SITE_NAME, type EmailEvent, type Locale } from "@repo/shared";
 import { describe, expect, it } from "vitest";
-import { EMAIL_FOOTER } from "./defaults";
+import { EMAIL_ACTIONS, EMAIL_DEFAULTS, EMAIL_FOOTER } from "./defaults";
 import { NotificationEmail, paragraphsOf, titleOf } from "./notification";
 
 const base = {
@@ -41,7 +41,9 @@ describe("NotificationEmail", () => {
 
   it("makes a paragraph of each block and keeps single line breaks", async () => {
     const html = await render(<NotificationEmail {...base} />);
-    expect(html.match(/<p [^>]*class="em-text"/g)).toHaveLength(2);
+    // After the title: the site name above it is text too.
+    const content = html.split("</h1>")[1] ?? "";
+    expect(content.match(/<p [^>]*class="em-text"/g)).toHaveLength(2);
     expect(html).toMatch(/Second paragraph,<br\s*\/?>second line\./);
   });
 
@@ -92,5 +94,54 @@ describe("titleOf and paragraphsOf", () => {
   it("splits on blank lines, whatever the line ending, and drops empty blocks", () => {
     expect(paragraphsOf("One\r\ntwo\r\n\r\n\r\n  \n\nThree\n")).toEqual(["One\ntwo", "Three"]);
     expect(paragraphsOf("   ")).toEqual([]);
+  });
+});
+
+/** Every placeholder in a template, filled with a sample value that names it. */
+function sampleValues(template: { subject: string; body: string }): Record<string, string> {
+  const names = `${template.subject}\n${template.body}`.matchAll(/\{\{\s*(\w+)\s*\}\}/g);
+  return Object.fromEntries(
+    [...names].map(([, name]) => [
+      name,
+      /url/i.test(name ?? "") ? `https://site.example/${name}` : `sample-${name}`,
+    ]),
+  );
+}
+
+/** A template as the sender renders it, with the button its event gets. */
+function templateEmail(event: EmailEvent, locale: Locale) {
+  const template = EMAIL_DEFAULTS[event][locale];
+  const values = sampleValues(template);
+  const action = EMAIL_ACTIONS[event];
+  const href =
+    action?.kind === "path"
+      ? `https://site.example/${locale}${action.path}`
+      : action
+        ? (values.url ?? values.confirmUrl ?? "https://site.example/link")
+        : null;
+  return (
+    <NotificationEmail
+      locale={locale}
+      subject={fillTemplate(template.subject, values)}
+      body={fillTemplate(template.body, values)}
+      action={action && href ? { href, label: action.label[locale] } : undefined}
+    />
+  );
+}
+
+const TEMPLATE_CASES = (Object.keys(EMAIL_DEFAULTS) as EmailEvent[]).flatMap((event) =>
+  LOCALES.map((locale) => [event, locale] as const),
+);
+
+describe("every template", () => {
+  // The words and links of each email: a look change must leave these untouched.
+  it.each(TEMPLATE_CASES)("keeps the text of %s (%s)", async (event, locale) => {
+    const text = await render(templateEmail(event, locale), { plainText: true });
+    expect(text).toMatchSnapshot();
+  });
+
+  it.each(TEMPLATE_CASES)("renders the HTML of %s (%s)", async (event, locale) => {
+    const html = await render(templateEmail(event, locale), { pretty: true });
+    expect(html).toMatchSnapshot();
   });
 });
