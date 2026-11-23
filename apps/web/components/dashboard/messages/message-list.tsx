@@ -1,17 +1,19 @@
 "use client";
 
 import type { ContactMessage } from "@repo/shared";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Badge, Button, buttonClasses } from "@/components/ui";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { LocalTime } from "@/components/consultations/local-time";
 import { replyHref, sendRead } from "./send";
+import { metaSeparator } from "@/components/public/home/format";
 
 type Notice = { tone: "status" | "alert"; text: string };
 
 function MessageItem({ message }: { message: ContactMessage }) {
   const t = useTranslations("DashboardMessages");
+  const locale = useLocale();
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [read, setRead] = useState(message.readAt !== null);
@@ -71,7 +73,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
             </span>
             <span className="mt-0.5 block break-words text-sm font-normal text-text-secondary">
               <bdi>{message.name}</bdi>
-              {" · "}
+              {metaSeparator(locale)}
               {t(`orgTypes.${message.orgType}`)}
             </span>
             <span className="block text-sm font-normal wrap-anywhere text-text-secondary">

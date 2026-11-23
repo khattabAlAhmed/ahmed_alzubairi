@@ -1,8 +1,10 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useId, useState, type DragEvent, type ReactNode } from "react";
 import { cx } from "./cx";
 import { Label } from "./form-field";
+import { metaSeparator } from "@/components/public/home/format";
 
 /**
  * The FileInput board's drop zone. What the field accepts is shown before
@@ -54,6 +56,7 @@ export function FileInput({
   children?: ReactNode;
   className?: string;
 }) {
+  const locale = useLocale();
   const generated = useId();
   const id = idProp ?? generated;
   const limitsId = `${id}-limits`;
@@ -114,7 +117,7 @@ export function FileInput({
           <span dir="ltr" className="font-mono">
             {types}
           </span>
-          {" · "}
+          {metaSeparator(locale)}
           {limits}
         </span>
         <input

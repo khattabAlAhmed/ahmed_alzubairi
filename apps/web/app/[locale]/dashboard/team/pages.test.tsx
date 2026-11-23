@@ -1,5 +1,5 @@
 import { PERMISSIONS } from "@repo/shared";
-import { isValidElement } from "react";
+import { isValidElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -44,6 +44,14 @@ const { default: TeamAuditPage } = await import("./audit/page");
 const { Refusal } = await import("@/components/dashboard/refusal");
 
 const params = Promise.resolve({ locale: "en" });
+
+/** Every string in a rendered tree, depth first, without rendering components. */
+function strings(node: ReactNode): string[] {
+  if (typeof node === "string") return [node];
+  if (Array.isArray(node)) return node.flatMap(strings);
+  if (!isValidElement(node)) return [];
+  return strings((node.props as { children?: ReactNode }).children);
+}
 const searchParams = Promise.resolve({});
 
 const PAGES = [
@@ -90,6 +98,22 @@ describe("Team pages", () => {
       { page: 2, pageSize: 20, status: "disabled" },
       "en",
     );
+  });
+
+  it.each([
+    ["ar", " — "],
+    ["en", " · "],
+  ] as const)("joins an invitation's role and sent date with %s's separator", async (locale, separator) => {
+    mocks.sectionAccess.mockResolvedValue({ locale, allowed: true });
+    mocks.loadTeam.mockResolvedValue({
+      members: [],
+      total: 0,
+      invitations: [{ email: "new@example.com", roleId: "role_x", createdAt: "2026-11-14T10:00:00.000Z" }],
+    });
+    const page = await TeamPage({ params: Promise.resolve({ locale }), searchParams });
+    const text = strings(page);
+    expect(text).toContain(separator);
+    if (locale === "ar") expect(text.join("")).not.toContain("·");
   });
 
   it("loads the actor list with the selected actor in it", async () => {

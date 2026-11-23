@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { useEffect, useRef, useState } from "react";
+import { metaSeparator } from "@/components/public/home/format";
 
 /**
  * Loads pdf.js only in the browser, with its worker. A function so tests can
@@ -104,6 +105,7 @@ export function PdfPages({
   load?: typeof loadPdfJs;
 }) {
   const t = useTranslations("AccountDocuments.viewer");
+  const locale = useLocale();
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
 
   useEffect(() => {
@@ -138,7 +140,7 @@ export function PdfPages({
             <PdfPage
               pdf={pdf}
               number={index + 1}
-              label={`${title} · ${t("page", { page: index + 1, pages })}`}
+              label={`${title}${metaSeparator(locale)}${t("page", { page: index + 1, pages })}`}
               onError={onError}
             />
             <figcaption className="mt-1 text-center text-xs text-text-secondary">

@@ -8,6 +8,7 @@ import { ButtonLink, Card } from "@/components/ui";
 import { StatusPill } from "@/components/workspace";
 import { DecideControls } from "./decide-controls";
 import { RecommendForm } from "./recommend-form";
+import { metaSeparator } from "@/components/public/home/format";
 
 function Field({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) {
   return (
@@ -116,7 +117,8 @@ export async function RequestDetail({
                 <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span className="font-semibold">{t(`recommendation.${rec.recommendation}`)}</span>
                   <span className="text-sm text-text-secondary">
-                    <bdi>{rec.memberName || t("detail.noMember")}</bdi> ·{" "}
+                    <bdi>{rec.memberName || t("detail.noMember")}</bdi>
+                    {metaSeparator(locale)}
                     <LocalTime value={rec.createdAt} locale={locale} />
                   </span>
                 </p>

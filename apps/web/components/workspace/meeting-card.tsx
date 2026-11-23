@@ -7,6 +7,7 @@ import { cx } from "@/components/ui/cx";
 import { dateLocale, formatCount, formatDateTime, formatTimeRange } from "@/lib/time/format";
 import { zoneName } from "./format";
 import { useInBrowser } from "./use-in-browser";
+import { metaSeparator } from "@/components/public/home/format";
 
 export type MeetingCardProps = {
   platform: string;
@@ -75,15 +76,15 @@ export function MeetingCard({
         <p className={show ? "sr-only" : "hidden"}>{date}</p>
         <p className="flex flex-wrap gap-x-2 type-small">
           <span className="tabular-nums">{show && time}</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
           <span className="text-ink-2">{show && zone}</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
           <span>{duration}</span>
         </p>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="min-w-0 text-[13px] leading-[1.7] text-ink-2">
             <bdi>{platform}</bdi>
-            {" · "}
+            {metaSeparator(locale)}
             {/* The address itself, so it can be checked or copied. */}
             <a
               href={url}

@@ -67,6 +67,15 @@ describe("MessageList", () => {
     expect(screen.getByText(ar.orgTypes.company, { exact: false })).toBeTruthy();
   });
 
+  it("joins the sender and the organization type with an em dash in Arabic and a middle dot in English", () => {
+    const line = () => (screen.getByText(UNREAD.name).parentElement as HTMLElement).textContent;
+    show([UNREAD], "ar");
+    expect(line()).toBe(`${UNREAD.name} — ${ar.orgTypes.company}`);
+    cleanup();
+    show([UNREAD]);
+    expect(line()).toBe(`${UNREAD.name} · ${en.orgTypes.company}`);
+  });
+
   it("shows the time in the viewer's locale and time zone", () => {
     const { container } = show([UNREAD]);
     const time = container.querySelector("time");

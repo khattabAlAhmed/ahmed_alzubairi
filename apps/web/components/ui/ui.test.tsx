@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Badge } from "./badge";
 import { Button, buttonClasses } from "./button";
@@ -306,20 +307,35 @@ describe("Radio and Switch", () => {
 
 describe("FileInput", () => {
   const text = { label: "Attachments", prompt: "Drag files here, or", browse: "choose", dropHere: "Drop", types: "PDF · PNG", limits: "up to 10 MB" };
+  const renderInput = (element: ReactNode, locale: "ar" | "en" = "en") =>
+    render(
+      <NextIntlClientProvider locale={locale} messages={{}}>
+        {element}
+      </NextIntlClientProvider>,
+    );
+  const limitsLine = () => {
+    const input = screen.getByLabelText("Attachments") as HTMLInputElement;
+    return document.getElementById(input.getAttribute("aria-describedby") ?? "")?.textContent;
+  };
 
   it("shows the types and limits before anything is picked, and hands picked files up", () => {
     const onFiles = vi.fn();
-    render(<FileInput {...text} onFiles={onFiles} />);
+    renderInput(<FileInput {...text} onFiles={onFiles} />);
+    expect(limitsLine()).toBe("PDF · PNG · up to 10 MB");
     const input = screen.getByLabelText("Attachments") as HTMLInputElement;
-    expect(document.getElementById(input.getAttribute("aria-describedby") ?? "")?.textContent).toBe("PDF · PNG · up to 10 MB");
     const file = new File(["x"], "a.pdf", { type: "application/pdf" });
     fireEvent.change(input, { target: { files: [file] } });
     expect(onFiles).toHaveBeenCalledWith([file]);
   });
 
+  it("joins the types and the limits with an em dash in Arabic, where a dot next to a digit reads as a zero", () => {
+    renderInput(<FileInput {...text} types="PDF — PNG" limits="حتى ١٠ ميغابايت" onFiles={vi.fn()} />, "ar");
+    expect(limitsLine()).toBe("PDF — PNG — حتى ١٠ ميغابايت");
+  });
+
   it("hands dropped files up", () => {
     const onFiles = vi.fn();
-    const { container } = render(<FileInput {...text} onFiles={onFiles} />);
+    const { container } = renderInput(<FileInput {...text} onFiles={onFiles} />);
     const zone = container.querySelector("label:has(input[type=file])") as HTMLElement;
     const file = new File(["x"], "b.png", { type: "image/png" });
     fireEvent.drop(zone, { dataTransfer: { files: [file] } });

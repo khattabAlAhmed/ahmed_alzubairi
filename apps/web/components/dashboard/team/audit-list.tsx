@@ -3,6 +3,7 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { cx, FOCUS_RING } from "@/components/ui/cx";
 import { LocalTime } from "./local-time";
 import { actionLabel, entityLabel } from "./audit-labels";
+import { metaSeparator } from "@/components/public/home/format";
 
 /** One value of an entry's metadata, as plain text. Metadata holds ids and flags only. */
 function metadataText(value: unknown): string {
@@ -35,7 +36,7 @@ export async function AuditList({
                 <span className="font-semibold">
                   <bdi>{entry.actorName ?? t("unknownActor")}</bdi>
                 </span>
-                {" · "}
+                {metaSeparator(locale)}
                 {actionLabel(entry.action, actions)}
               </p>
               <p className="shrink-0 text-sm text-text-secondary">
@@ -46,7 +47,7 @@ export async function AuditList({
               {entityLabel(entry.entity, entities, DashboardContent.types)}
               {entry.entityId && (
                 <>
-                  {" · "}
+                  {metaSeparator(locale)}
                   {t("item")}: <bdi dir="ltr">{entry.entityId}</bdi>
                 </>
               )}

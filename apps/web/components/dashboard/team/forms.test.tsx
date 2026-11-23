@@ -1,16 +1,33 @@
 // @vitest-environment jsdom
-import type { AdminRole, AdminTeamMember } from "@repo/shared";
+import type { AdminRole, AdminTeamMember, AuditLogEntry } from "@repo/shared";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import arContent from "@/messages/ar/DashboardContent.json";
 import ar from "@/messages/ar/DashboardTeam.json";
+import enContent from "@/messages/en/DashboardContent.json";
 import en from "@/messages/en/DashboardTeam.json";
+import { AuditList } from "./audit-list";
 import { InviteForm } from "./invite-form";
 import { MemberList } from "./member-list";
 import { RoleEditor } from "./role-editor";
 
 const refresh = vi.fn();
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ refresh }) }));
+/** The locale the server-side AuditList reads its labels in. */
+const server = vi.hoisted(() => ({ locale: "en" as "ar" | "en" }));
+vi.mock("next-intl/server", async () => {
+  const { createTranslator } = await import("next-intl");
+  const messages = () =>
+    server.locale === "ar"
+      ? { DashboardTeam: ar, DashboardContent: arContent }
+      : { DashboardTeam: en, DashboardContent: enContent };
+  return {
+    getMessages: async () => messages(),
+    getTranslations: async (namespace: string) =>
+      createTranslator({ locale: server.locale, messages: messages(), namespace: namespace as never }),
+  };
+});
 
 const fetchMock = vi.fn<typeof fetch>();
 beforeEach(() => {
@@ -331,5 +348,31 @@ describe("RoleEditor", () => {
     expect(within(form).getByText(en.roles.add.keyInvalid)).toBeTruthy();
     expect(within(form).getByText(en.roles.nameRequired)).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("AuditList", () => {
+  const ENTRY: AuditLogEntry = {
+    id: "77777777-7777-4777-8777-777777777777",
+    actorId: "user_editor",
+    actorName: "Editor",
+    action: "content.publish",
+    entity: "posts",
+    entityId: "abc123",
+    metadata: {},
+    createdAt: "2026-11-14T10:00:00.000Z",
+  };
+
+  it.each([
+    ["ar", " — "],
+    ["en", " · "],
+  ] as const)("joins the actor, the action and the item with %s's separator", async (locale, separator) => {
+    server.locale = locale;
+    wrap(await AuditList({ entries: [ENTRY], locale }), locale);
+    const actorLine = screen.getByText("Editor").closest("p") as HTMLElement;
+    expect(actorLine.textContent).toMatch(new RegExp(`^Editor${separator}\\S`));
+    const itemLine = screen.getByText("abc123").closest("p") as HTMLElement;
+    expect(itemLine.textContent).toContain(separator);
+    if (locale === "ar") expect(`${actorLine.textContent}${itemLine.textContent}`).not.toContain("·");
   });
 });
