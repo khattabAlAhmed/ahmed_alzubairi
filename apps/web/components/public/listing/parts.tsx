@@ -1,6 +1,8 @@
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
+import { metaSeparator } from "../home/format";
 
 /*
  * Shared parts of the work and reading lists (the MediaFrame board and the
@@ -151,15 +153,16 @@ export function Figure({
   );
 }
 
-/** Short facts on one line, split by a dot, wrapping on phones. */
+/** Short facts on one line, split by a dot (an em dash on Arabic pages), wrapping on phones. */
 export function MetaLine({ items: all, className }: { items: ReactNode[]; className?: string }) {
+  const locale = useLocale();
   const items = all.filter(Boolean);
   if (items.length === 0) return null;
   return (
     <p className={cx("flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-ink-2 tabular-nums", className)}>
       {items.map((item, i) => (
         <span key={i} className="inline-flex items-center gap-2">
-          {i > 0 && <span aria-hidden="true">·</span>}
+          {i > 0 && <span aria-hidden="true">{metaSeparator(locale).trim()}</span>}
           {item}
         </span>
       ))}

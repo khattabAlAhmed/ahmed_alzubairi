@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
-import { formatDate } from "../home/format";
+import { formatDate, metaSeparator } from "../home/format";
 import { Heading, LIST_ROW, LIST_RULE, MetaLine, TITLE_LINK, type ListingImage } from "./parts";
 
 /** The date and reading time under an article's title, on a card or the article page. */
@@ -96,7 +96,7 @@ export function ArticleCard({
       <p className={cx("flex flex-wrap gap-x-1.5 text-[13px] text-ink-2 md:flex-nowrap md:justify-end md:whitespace-nowrap", cover && "col-span-2 md:col-span-1")}>
         {end.map((item, index) => (
           <span key={index} className="inline-flex gap-1.5">
-            {index > 0 && <span aria-hidden="true">·</span>}
+            {index > 0 && <span aria-hidden="true">{metaSeparator(locale).trim()}</span>}
             {item}
           </span>
         ))}

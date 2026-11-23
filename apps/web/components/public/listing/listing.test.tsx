@@ -399,6 +399,40 @@ describe("CourseCard", () => {
   });
 });
 
+describe("separators on Arabic pages", () => {
+  // A middle dot beside Arabic-Indic digits reads as a zero (T20): Arabic rows use an em dash.
+  const marks = (container: HTMLElement) =>
+    [...container.querySelectorAll('[aria-hidden="true"]')].map((element) => element.textContent).filter((text) => text === "·" || text === "—");
+
+  it("uses the em dash in the article, course and resource meta lines", () => {
+    intl.locale = "ar";
+    const article = render(
+      <ArticleCard href="/blog/a" title="T" excerpt={null} category="الحوكمة" cover={null} publishedAt="2026-10-21T09:00:00Z" readingMinutes={3} />,
+    );
+    expect(marks(article.container).length).toBeGreaterThan(0);
+    expect(marks(article.container).every((mark) => mark === "—")).toBe(true);
+    cleanup();
+
+    const course = render(
+      <CourseCard href="/training/c" title="C" description={null} startsAt="2027-01-12T12:00:00Z" place="عمّان" action={null} type="in_person" seats={null} />,
+    );
+    expect(marks(course.container)).toEqual(["—"]);
+    cleanup();
+
+    render(<CourseCard href="/training/c" title="C" description={null} startsAt={null} place={null} action={null} type="recorded" seats={null} />);
+    expect(screen.getByText("courseType.recorded — comingSoon")).toBeTruthy();
+    cleanup();
+
+    const resource = render(<ResourceCard kind="guide" fileType="pdf" title="G" description={null} action={null} size="1.1 MB" />);
+    expect(marks(resource.container)).toEqual(["—"]);
+  });
+
+  it("keeps the middle dot on English pages", () => {
+    render(<CourseCard href="/training/c" title="C" description={null} startsAt={null} place={null} action={null} type="recorded" seats={null} />);
+    expect(screen.getByText("courseType.recorded · comingSoon")).toBeTruthy();
+  });
+});
+
 describe("SeatsMeter", () => {
   it("clamps the count, and fills the bar as seats are taken", () => {
     render(<SeatsMeter left={-2} total={10} />);

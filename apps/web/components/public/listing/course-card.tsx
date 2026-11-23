@@ -5,7 +5,7 @@ import { Button, Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { LocalDateTime } from "@/components/training/local-date-time";
 import { Link } from "@/i18n/navigation";
-import { formatDate } from "../home/format";
+import { formatDate, metaSeparator } from "../home/format";
 import { DateBlock } from "./date-block";
 import { seatsLeftRatio } from "./links";
 import { ABOVE_LINK, Heading, LIST_ROW, LIST_RULE, TITLE_LINK } from "./parts";
@@ -119,12 +119,12 @@ export function CourseCard({
         </Heading>
         <p className="flex flex-wrap items-center gap-2 text-[13px] text-ink-2">
           <Tag tone={recorded ? "soon" : "neutral"}>
-            {recorded ? `${t(`courseType.${type}`)} · ${t("comingSoon")}` : t(`courseType.${type}`)}
+            {recorded ? `${t(`courseType.${type}`)}${metaSeparator(locale)}${t("comingSoon")}` : t(`courseType.${type}`)}
           </Tag>
           {where && <span>{where}</span>}
           {!recorded && startsAt && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               {/* The visitor's zone, as on the course page. */}
               <LocalDateTime value={startsAt} fallback={formatDate(startsAt, locale)} dateOnly />
             </>
