@@ -10,9 +10,6 @@ import { metaSeparator } from "../home/format";
  * of identical cards (DESIGN.md "Banned patterns").
  */
 
-/** A list item's frame: no box, no shadow. Kept for older callers. */
-export const LISTING_CARD = "relative flex flex-col text-ink";
-
 /** A row's title link. Its ::after covers the row, so the row is one target. */
 export const TITLE_LINK =
   "no-underline after:absolute after:inset-0 hover:underline hover:decoration-1 hover:underline-offset-7 focus-ring";

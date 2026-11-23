@@ -23,7 +23,7 @@ function prepare(doc: Document) {
     .split(/\s+/)
     .filter((name) => name !== "dark" && name !== "light")
     .join(" ");
-  doc.body.className = "min-h-full bg-background text-text";
+  doc.body.className = "min-h-full bg-bg text-ink";
   // Links and forms are inert: nothing navigates away from the editor or posts.
   const block = (event: Event) => {
     const target = event.target as Element | null;
@@ -112,7 +112,7 @@ export function PreviewFrame({
   const scale = available > 0 ? Math.min(1, available / pixels) : 1;
 
   return (
-    <div ref={box} className="overflow-hidden rounded-md border border-text/20" dir="ltr">
+    <div ref={box} className="overflow-hidden border border-ink/20" dir="ltr">
       <div style={{ height: height * scale, width: pixels * scale }} className="mx-auto">
         <iframe
           ref={frame}

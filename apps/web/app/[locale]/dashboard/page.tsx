@@ -42,7 +42,7 @@ export default async function DashboardPage({
       <SummaryList items={summary} />
       {sections.length === 0 ? (
         <Card as="section">
-          <p className="text-text-secondary">{t("home.noSections")}</p>
+          <p className="text-ink-2">{t("home.noSections")}</p>
         </Card>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -56,7 +56,7 @@ export default async function DashboardPage({
                   {t(`nav.${section.key}`)}
                 </Link>
               </h2>
-              <p className="mt-1 text-sm text-text-secondary">
+              <p className="mt-1 text-sm text-ink-2">
                 {t(`home.sections.${section.key}`)}
               </p>
             </Card>

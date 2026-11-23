@@ -102,7 +102,7 @@ function TrustItem({
             alt=""
             width={96}
             height={48}
-            className="h-12 w-24 rounded border border-text/10 bg-surface object-contain"
+            className="h-12 w-24 border border-ink/10 bg-surface object-contain"
           />
         )}
         <div className="min-w-0 flex-1 basis-48">
@@ -110,7 +110,7 @@ function TrustItem({
             <bdi>{name}</bdi>
           </h3>
           {type === "testimonials" && (
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-ink-2">
               {partner ? (
                 t.rich("testimonials.linkedTo", {
                   name: partner.title,
@@ -139,7 +139,7 @@ function TrustItem({
         </div>
       )}
       {blockers.length > 0 && (
-        <div className="rounded-md border border-text/20 p-3 text-sm">
+        <div className="border border-ink/20 p-3 text-sm">
           <p className="font-semibold">{tc("editor.cantPublish")}</p>
           <ul className="mt-1 list-disc ps-5">
             {blockers.map((blocker) => (
@@ -165,7 +165,7 @@ function TrustItem({
               >
                 {t("letter.open")}
               </a>
-              <span className="text-text-secondary"> {t("letter.openHint")}</span>
+              <span className="text-ink-2"> {t("letter.openHint")}</span>
             </p>
           )}
         </div>
@@ -212,10 +212,10 @@ function TrustItem({
         </div>
       )}
       {canApprove && approved && (
-        <p className="text-sm text-text-secondary">{t("approval.withdrawNote")}</p>
+        <p className="text-sm text-ink-2">{t("approval.withdrawNote")}</p>
       )}
       {!canApprove && !approved && (
-        <p className="text-sm text-text-secondary">{t("approval.onlyAdmin")}</p>
+        <p className="text-sm text-ink-2">{t("approval.onlyAdmin")}</p>
       )}
       <div id={formId}>
         {canEdit && open && (
@@ -261,7 +261,7 @@ function TrustSection({
         }
       />
       {items.length === 0 ? (
-        <p className="text-sm text-text-secondary">{t("empty")}</p>
+        <p className="text-sm text-ink-2">{t("empty")}</p>
       ) : (
         <ul aria-labelledby={headingId} className="space-y-3">
           {items.map((item) => (

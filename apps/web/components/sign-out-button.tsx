@@ -54,8 +54,8 @@ export function SignOutButton() {
         void clerk.signOut({ redirectUrl: home });
       }}
       className={cx(
-        "inline-flex h-9 items-center rounded-md px-2 text-sm font-semibold whitespace-nowrap",
-        ready ? "hover:bg-text/10" : "cursor-not-allowed opacity-50",
+        "inline-flex h-9 items-center px-2 text-sm font-semibold whitespace-nowrap",
+        ready ? "hover:bg-ink/10" : "cursor-not-allowed opacity-50",
       )}
     >
       {t("signOut")}

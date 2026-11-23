@@ -45,7 +45,7 @@ export default async function DocumentViewerPage({ params }: { params: Params })
         {back}
         <Card as="section" role="alert">
           <h1 className="text-2xl">{t("notAvailable")}</h1>
-          <p className="mt-2 max-w-prose text-text-secondary">{t("notAvailableText")}</p>
+          <p className="mt-2 max-w-prose text-ink-2">{t("notAvailableText")}</p>
           <ButtonLink href={requestPath([request.documentId])} variant="secondary" className="mt-4">
             {(await getTranslations("AccountDocuments"))("requestAgain")}
           </ButtonLink>

@@ -27,7 +27,7 @@ export default async function TeamRolesPage({ params }: { params: Promise<{ loca
   return (
     <div className="space-y-6">
       <TeamHeader current="roles" />
-      <p className="max-w-prose text-text-secondary">{t("intro")}</p>
+      <p className="max-w-prose text-ink-2">{t("intro")}</p>
       <NextIntlClientProvider locale={access.locale} messages={{ DashboardTeam: all.DashboardTeam }}>
         <RoleEditor roles={roles} />
       </NextIntlClientProvider>

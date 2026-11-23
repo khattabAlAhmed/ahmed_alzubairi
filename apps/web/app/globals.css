@@ -200,6 +200,13 @@
  * re-colors its own utilities. `static` keeps every token in the output.
  */
 @theme static inline {
+  /*
+   * Only the system's own names exist. Each `initial` drops Tailwind's default
+   * scale, so a class from the old look (a default palette color,
+   * `rounded-lg`, `shadow-md`, `font-serif`) builds nothing at all.
+   */
+  --color-*: initial;
+  --color-white: #ffffff;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
@@ -218,54 +225,20 @@
   --color-info: var(--info);
   --color-scrim: var(--scrim);
 
-  /*
-   * OLD NAMES, kept as aliases so every page switches palette at once.
-   * A later Phase 8 task moves each caller to the new name and deletes these.
-   *
-   *   background      → bg
-   *   text            → ink
-   *   text-secondary  → ink-2
-   *   ring            → focus
-   *   primary         → surface   (the old navy band becomes the quiet raised
-   *                                ground; the focus ring stays 3:1 on it)
-   *   on-primary      → ink
-   *   surface, accent, on-accent, danger: same names, new values
-   *   radius sm…4xl   → 0         (square everywhere; rounded-full stays for
-   *                                true circles)
-   *   shadow 2xs…md   → none      (nothing on the page casts a shadow)
-   *   shadow lg…2xl   → shadow-overlay (dialogs and menus)
-   *   font-heading    → the one sans family
-   */
-  --color-background: var(--bg);
-  --color-text: var(--ink);
-  --color-text-secondary: var(--ink-2);
-  --color-ring: var(--focus);
-  --color-primary: var(--surface);
-  --color-on-primary: var(--ink);
-
-  --radius: 0;
-  --radius-xs: 0;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
+  /* Square everywhere; `rounded-round` (and `rounded-full`) only for true circles. */
+  --radius-*: initial;
   --radius-0: 0;
   --radius-round: 999px;
 
-  --shadow-2xs: 0 0 #0000;
-  --shadow-xs: 0 0 #0000;
-  --shadow-sm: 0 0 #0000;
-  --shadow-md: 0 0 #0000;
-  --shadow-lg: var(--shadow-overlay);
-  --shadow-xl: var(--shadow-overlay);
-  --shadow-2xl: var(--shadow-overlay);
+  /* Nothing on the page casts a shadow: only overlays (dialogs, menus). */
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
   --shadow-overlay: var(--shadow-overlay);
 
+  --font-*: initial;
   --font-sans: var(--font-alexandria), "Noto Sans Arabic", system-ui, sans-serif;
-  --font-heading: var(--font-alexandria), "Noto Sans Arabic", system-ui, sans-serif;
   --font-mono: var(--font-ibm-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 
   /* Widths: `max-w-page`, `max-w-measure` (by language), `w-label-col`. */
@@ -446,7 +419,7 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-heading);
+    font-family: var(--font-sans);
     font-weight: 500;
     text-wrap: balance;
   }

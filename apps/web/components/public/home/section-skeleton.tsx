@@ -25,7 +25,7 @@ export function SectionSkeleton({
   label: string;
 }) {
   return (
-    <HomeSectionShell sectionKey={sectionKey} heading={heading} intro={intro} band="plain">
+    <HomeSectionShell sectionKey={sectionKey} heading={heading} intro={intro}>
       {kind === "projects" ? (
         <ListSkeleton kind="projects" label={label} rows={2} />
       ) : (

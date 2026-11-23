@@ -62,7 +62,7 @@ export default async function TeamAuditPage({
   return (
     <div className="space-y-6">
       <TeamHeader current="audit" />
-      <p className="max-w-prose text-text-secondary">{t("intro")}</p>
+      <p className="max-w-prose text-ink-2">{t("intro")}</p>
 
       {/* Keyed by the applied filters: a new address resets the controls to it. */}
       <form
@@ -126,14 +126,14 @@ export default async function TeamAuditPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total: log.total })}
       </p>
 
       {log.entries.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{filtered ? t("empty.filteredTitle") : t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : t("empty.text")}
           </p>
         </Card>

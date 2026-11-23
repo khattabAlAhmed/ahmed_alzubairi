@@ -53,7 +53,7 @@ export default async function ContentPage({
                   {t(`types.${type}`)}
                 </Link>
               </h2>
-              <p className="mt-1 text-sm text-text-secondary">
+              <p className="mt-1 text-sm text-ink-2">
                 {t("list.counts", { total: rows.length, published })}
               </p>
             </Card>

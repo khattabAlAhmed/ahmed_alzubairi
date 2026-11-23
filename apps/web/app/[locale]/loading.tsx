@@ -5,7 +5,7 @@ export default function Loading() {
 
   return (
     <div role="status" className="flex flex-1 items-center justify-center p-6">
-      <p className="text-text-secondary">{t("loading")}</p>
+      <p className="text-ink-2">{t("loading")}</p>
     </div>
   );
 }

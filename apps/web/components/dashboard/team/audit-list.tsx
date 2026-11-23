@@ -26,7 +26,7 @@ export async function AuditList({
   const { actions, entities } = DashboardTeam.audit;
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {entries.map((entry) => {
         const metadata = Object.entries(entry.metadata);
         return (
@@ -39,11 +39,11 @@ export async function AuditList({
                 {metaSeparator(locale)}
                 {actionLabel(entry.action, actions)}
               </p>
-              <p className="shrink-0 text-sm text-text-secondary">
+              <p className="shrink-0 text-sm text-ink-2">
                 <LocalTime value={entry.createdAt} locale={locale} />
               </p>
             </div>
-            <p className="text-sm wrap-anywhere text-text-secondary">
+            <p className="text-sm wrap-anywhere text-ink-2">
               {entityLabel(entry.entity, entities, DashboardContent.types)}
               {entry.entityId && (
                 <>
@@ -56,7 +56,7 @@ export async function AuditList({
               <details className="text-sm">
                 <summary
                   className={cx(
-                    "w-fit cursor-pointer rounded-sm text-text-secondary hover:text-text",
+                    "w-fit cursor-pointer text-ink-2 hover:text-ink",
                     FOCUS_RING,
                   )}
                 >

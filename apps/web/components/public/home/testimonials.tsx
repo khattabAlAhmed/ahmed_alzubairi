@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { TestimonialSet } from "@/components/public/pages/identity";
 import type { Testimonial } from "@/lib/content";
-import { HomeSectionShell, type SectionBand } from "./section";
+import { HomeSectionShell } from "./section";
 
 /**
  * §6.2 #8: one in full, the others as excerpts (the Testimonial board).
@@ -10,12 +10,10 @@ import { HomeSectionShell, type SectionBand } from "./section";
 export function TestimonialsSection({
   heading,
   intro,
-  band,
   testimonials,
 }: {
   heading: string;
   intro?: string;
-  band: SectionBand;
   testimonials: Testimonial[];
 }) {
   const t = useTranslations("Home");
@@ -26,7 +24,6 @@ export function TestimonialsSection({
       sectionKey="testimonials"
       heading={heading}
       intro={intro}
-      band={band}
       action={{ href: "/clients", label: t("allClients") }}
     >
       <TestimonialSet testimonials={testimonials} source={tIdentity("testimonial.source")} />

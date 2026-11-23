@@ -23,7 +23,7 @@ export async function AccessLog({
       <h2 id={`access-log-${scope}`} className="text-xl">
         {t("title")}
       </h2>
-      <p className="mt-1 text-sm text-text-secondary">
+      <p className="mt-1 text-sm text-ink-2">
         {scope === "document" ? t("intro") : t("requestIntro")}
       </p>
       {entries.length === 0 ? (
@@ -31,7 +31,7 @@ export async function AccessLog({
       ) : (
         <>
           {/* A list, not a table: each row stays readable at 375 px. */}
-          <ul className="mt-4 divide-y divide-text/10">
+          <ul className="mt-4 divide-y divide-ink/10">
             {entries.map((entry) => (
               <li
                 key={entry.id}
@@ -41,7 +41,7 @@ export async function AccessLog({
                   <span className="sr-only">{t("who")}: </span>
                   {entry.clientName ? <bdi>{entry.clientName}</bdi> : t("noName")}
                 </p>
-                <p className="flex flex-wrap gap-x-3 text-sm text-text-secondary">
+                <p className="flex flex-wrap gap-x-3 text-sm text-ink-2">
                   <span>
                     <span className="sr-only">{t("action")}: </span>
                     {t(`actions.${entry.action}`)}
@@ -55,7 +55,7 @@ export async function AccessLog({
             ))}
           </ul>
           {entries.length >= ACCESS_LOG_LIMIT && (
-            <p className="mt-3 text-sm text-text-secondary">{t("limit", { count: ACCESS_LOG_LIMIT })}</p>
+            <p className="mt-3 text-sm text-ink-2">{t("limit", { count: ACCESS_LOG_LIMIT })}</p>
           )}
         </>
       )}

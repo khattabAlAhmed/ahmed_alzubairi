@@ -53,7 +53,7 @@ export function EmailPreview({
   return (
     <div className="space-y-2">
       <p className="text-sm font-semibold">{t("previewHeading")}</p>
-      <p className="text-sm text-text-secondary">{t("previewHint")}</p>
+      <p className="text-sm text-ink-2">{t("previewHint")}</p>
       <p className="text-sm">
         <span className="font-semibold">{t("previewSubject")}</span>{" "}
         <bdi lang={locale} className="break-words">
@@ -65,7 +65,7 @@ export function EmailPreview({
         <p
           lang={locale}
           dir={locale === "ar" ? "rtl" : "ltr"}
-          className="rounded-md border border-text/15 p-3 text-sm break-words whitespace-pre-wrap"
+          className="border border-ink/15 p-3 text-sm break-words whitespace-pre-wrap"
         >
           {filledBody}
         </p>
@@ -75,7 +75,7 @@ export function EmailPreview({
           sandbox=""
           srcDoc={html}
           // Taller from md up, where the whole email (footer included) then fits without scrolling the frame.
-          className="h-112 w-full rounded-md border border-text/15 bg-white md:h-140"
+          className="h-112 w-full border border-ink/15 bg-white md:h-140"
         />
       )}
     </div>

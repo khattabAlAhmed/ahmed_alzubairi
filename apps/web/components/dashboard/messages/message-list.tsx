@@ -58,7 +58,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
           aria-controls={panelId}
           onClick={toggle}
           className={cx(
-            "flex w-full flex-col gap-1 rounded-md text-start sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+            "flex w-full flex-col gap-1 text-start sm:flex-row sm:items-start sm:justify-between sm:gap-4",
             FOCUS_RING,
           )}
         >
@@ -71,16 +71,16 @@ function MessageItem({ message }: { message: ContactMessage }) {
             >
               <bdi>{message.subject}</bdi>
             </span>
-            <span className="mt-0.5 block break-words text-sm font-normal text-text-secondary">
+            <span className="mt-0.5 block break-words text-sm font-normal text-ink-2">
               <bdi>{message.name}</bdi>
               {metaSeparator(locale)}
               {t(`orgTypes.${message.orgType}`)}
             </span>
-            <span className="block text-sm font-normal wrap-anywhere text-text-secondary">
+            <span className="block text-sm font-normal wrap-anywhere text-ink-2">
               <bdi dir="ltr">{message.email}</bdi>
             </span>
           </span>
-          <span className="flex shrink-0 flex-wrap items-center gap-2 text-sm font-normal text-text-secondary">
+          <span className="flex shrink-0 flex-wrap items-center gap-2 text-sm font-normal text-ink-2">
             <Badge tone={read ? "neutral" : "strong"}>
               {read ? t("row.read") : t("row.unread")}
             </Badge>
@@ -93,7 +93,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
           role={notice.tone}
           className={cx(
             "mt-2 text-sm font-semibold",
-            notice.tone === "alert" ? "text-danger" : "text-text",
+            notice.tone === "alert" ? "text-danger" : "text-ink",
           )}
         >
           {notice.text}
@@ -102,7 +102,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
       <div id={panelId} hidden={!open} className="mt-3 space-y-4">
         <p
           dir="auto"
-          className="max-w-prose whitespace-pre-wrap break-words rounded-md border border-text/10 bg-background p-3"
+          className="max-w-prose whitespace-pre-wrap break-words border border-ink/10 bg-bg p-3"
         >
           {message.message}
         </p>
@@ -130,7 +130,7 @@ function MessageItem({ message }: { message: ContactMessage }) {
 /** The page's messages. Opening one shows its text and marks it read. */
 export function MessageList({ messages }: { messages: ContactMessage[] }) {
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {messages.map((message) => (
         // The key carries the stored state, so a reload resets the row's own.
         <MessageItem key={`${message.id}:${message.readAt}`} message={message} />

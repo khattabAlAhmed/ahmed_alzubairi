@@ -23,14 +23,14 @@ export function RequestList({ requests, locale }: { requests: CustomRequestRow[]
   const format = useFormatter();
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {requests.map((row) => (
         <li key={row.id} className="space-y-2 p-4">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
             <h2 className="min-w-0 text-base font-semibold wrap-anywhere">
               <bdi>{row.orgName}</bdi>
             </h2>
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-ink-2">
               <span className="sr-only">{t("received")}: </span>
               <LocalTime value={row.createdAt} />
             </p>
@@ -39,22 +39,22 @@ export function RequestList({ requests, locale }: { requests: CustomRequestRow[]
             <span className="sr-only">{t("topic")}: </span>
             <bdi>{row.topic}</bdi>
           </p>
-          <dl className="grid gap-x-6 gap-y-1 text-sm text-text-secondary sm:grid-cols-2 xl:grid-cols-[auto_auto_minmax(0,1fr)_minmax(0,1.5fr)]">
+          <dl className="grid gap-x-6 gap-y-1 text-sm text-ink-2 sm:grid-cols-2 xl:grid-cols-[auto_auto_minmax(0,1fr)_minmax(0,1.5fr)]">
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("trainees")}:</dt>
-              <dd className="text-text">{format.number(row.traineeCount)}</dd>
+              <dd className="text-ink">{format.number(row.traineeCount)}</dd>
             </div>
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("suggestedDate")}:</dt>
-              <dd className="text-text">{calendarDate(row.suggestedDate, locale)}</dd>
+              <dd className="text-ink">{calendarDate(row.suggestedDate, locale)}</dd>
             </div>
             <div className="flex min-w-0 flex-wrap gap-x-1">
               <dt>{t("place")}:</dt>
-              <dd className="min-w-0 text-text wrap-anywhere">{row.place ? <bdi>{row.place}</bdi> : t("noPlace")}</dd>
+              <dd className="min-w-0 text-ink wrap-anywhere">{row.place ? <bdi>{row.place}</bdi> : t("noPlace")}</dd>
             </div>
             <div className="flex min-w-0 flex-wrap gap-x-1">
               <dt>{t("email")}:</dt>
-              <dd className="min-w-0 text-text wrap-anywhere">
+              <dd className="min-w-0 text-ink wrap-anywhere">
                 <bdi dir="ltr">{row.contactEmail}</bdi>
               </dd>
             </div>

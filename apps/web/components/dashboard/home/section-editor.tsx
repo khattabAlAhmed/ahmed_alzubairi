@@ -193,9 +193,9 @@ export function SectionEditor({
             />
           )}
           {own.filter((field) => field.path === "signOff").map((field) => input(locale, field))}
-          {items.length > 0 && <p className="text-sm text-text-secondary">{isolate(t("fields.audiencesHint"))}</p>}
+          {items.length > 0 && <p className="text-sm text-ink-2">{isolate(t("fields.audiencesHint"))}</p>}
           {items.map((item) => (
-            <fieldset key={item} className="space-y-3 rounded-md border border-text/10 p-3">
+            <fieldset key={item} className="space-y-3 border border-ink/10 p-3">
               <legend className="px-1 text-sm font-semibold">
                 {isolate(t("fields.audience", { number: item + 1 }))}
               </legend>
@@ -219,7 +219,7 @@ export function SectionEditor({
     <form noValidate onSubmit={(event) => void editor.save(event)} className="mt-4 space-y-6">
       {/* Hero, letter and audiences edit everything here, so the note about the Content list doesn't apply. */}
       {sectionKey !== "hero" && sectionKey !== "letter" && sectionKey !== "audiences" && (
-        <p className="text-sm text-text-secondary">{t("sections.rowsNote")}</p>
+        <p className="text-sm text-ink-2">{t("sections.rowsNote")}</p>
       )}
       <LanguageTabs
         label={text.t("editor.languageTabs")}
@@ -230,7 +230,7 @@ export function SectionEditor({
       {sectionKey === "hero" && (
         <div className="space-y-1">
           <UploadInput field={PHOTO_FIELD} name="imageKey" ctx={photoCtx} />
-          <p className="text-sm text-text-secondary">{t("fields.photoHint")}</p>
+          <p className="text-sm text-ink-2">{t("fields.photoHint")}</p>
         </div>
       )}
       {content.letter && originalLetter && (

@@ -59,12 +59,12 @@ export default async function ConsultationPage({ params }: { params: Promise<{ l
     <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
       {detail.serviceTitle && (
         <div className="flex gap-1.5">
-          <dt className="text-text-secondary">{t("service")}:</dt>
+          <dt className="text-ink-2">{t("service")}:</dt>
           <dd className="font-semibold">{detail.serviceTitle}</dd>
         </div>
       )}
       <div className="flex gap-1.5">
-        <dt className="text-text-secondary">{t("opened")}:</dt>
+        <dt className="text-ink-2">{t("opened")}:</dt>
         <dd className="font-semibold">
           <LocalTime value={consultation.createdAt} />
         </dd>
@@ -85,7 +85,7 @@ export default async function ConsultationPage({ params }: { params: Promise<{ l
         {/* The status is always visible at the top (§6.17): the header stays in view while the chat scrolls.
             On a phone the pinned part is one compact row, the status and the title on one line; the full
             title, the details and Refresh follow below it, in the page flow. */}
-        <header className="sticky top-0 z-10 -mx-4 border-b border-text/10 bg-background/95 px-4 py-3.5 backdrop-blur sm:mx-0 sm:rounded-lg sm:border sm:px-5 sm:py-4">
+        <header className="sticky top-0 z-10 -mx-4 border-b border-ink/10 bg-bg px-4 py-3.5 sm:mx-0 sm:border sm:px-5 sm:py-4">
           <div className="flex items-center justify-between gap-3 sm:flex-wrap">
             <div className="flex min-w-0 items-center gap-3 sm:flex-wrap">
               <span className="sr-only">{t("status")}</span>
@@ -105,7 +105,7 @@ export default async function ConsultationPage({ params }: { params: Promise<{ l
         </header>
         {/* The full title is in the h1 for screen readers; this copy is for sighted phone users. */}
         <div className="-mt-2 space-y-3 sm:hidden">
-          <p aria-hidden="true" dir="auto" className="text-start font-heading text-2xl leading-tight font-bold wrap-anywhere">
+          <p aria-hidden="true" dir="auto" className="text-start text-2xl leading-tight font-bold wrap-anywhere">
             {consultation.title}
           </p>
           {meta}
@@ -121,7 +121,7 @@ export default async function ConsultationPage({ params }: { params: Promise<{ l
             {consultation.description}
           </p>
           {consultation.organization && (
-            <p dir="auto" className="text-start text-sm text-text-secondary">
+            <p dir="auto" className="text-start text-sm text-ink-2">
               {consultation.organization}
             </p>
           )}

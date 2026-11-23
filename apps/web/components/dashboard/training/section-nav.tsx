@@ -21,11 +21,11 @@ export function TrainingNav({ current }: { current: (typeof LINKS)[number]["key"
               href={link.href}
               aria-current={current === link.key ? "page" : undefined}
               className={cx(
-                "inline-flex h-9 items-center rounded-md border px-3 text-sm font-semibold",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                "inline-flex h-9 items-center border px-3 text-sm font-semibold",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
                 current === link.key
-                  ? "border-text bg-text text-background"
-                  : "border-text/20 text-text hover:bg-text/10",
+                  ? "border-ink bg-ink text-bg"
+                  : "border-ink/20 text-ink hover:bg-ink/10",
               )}
             >
               {t(link.key)}

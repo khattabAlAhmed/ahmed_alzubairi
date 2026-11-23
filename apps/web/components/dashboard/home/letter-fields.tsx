@@ -45,7 +45,7 @@ export function ParagraphList({
       <legend className="text-sm font-semibold">
         {isolate(`${t("paragraphs")} ${text.t("editor.requiredMark")}`)}
       </legend>
-      <p className="text-sm text-text-secondary">
+      <p className="text-sm text-ink-2">
         {isolate(t("paragraphsHint", { max: LETTER_MAX_PARAGRAPHS }))}
       </p>
       <ol className="space-y-3">
@@ -120,7 +120,7 @@ export function ParagraphList({
         {t("add")}
       </Button>
       {count >= LETTER_MAX_PARAGRAPHS && (
-        <p className="text-sm text-text-secondary">{isolate(t("full", { max: LETTER_MAX_PARAGRAPHS }))}</p>
+        <p className="text-sm text-ink-2">{isolate(t("full", { max: LETTER_MAX_PARAGRAPHS }))}</p>
       )}
       <p role="status" className="sr-only">
         {status}
@@ -188,7 +188,7 @@ function SignatureInput({
       <p id={`${id}-label`} className="text-sm font-semibold">
         {t(forDark ? "signatureDark" : "signature")}
       </p>
-      <p id={`${id}-hint`} className="text-sm text-text-secondary">
+      <p id={`${id}-hint`} className="text-sm text-ink-2">
         {isolate(t(forDark ? "signatureDarkHint" : "signatureHint"))}
       </p>
       {value !== "" && (
@@ -259,7 +259,7 @@ export function LetterSharedFields({
   const text = useFieldText();
   return (
     <div className="space-y-6">
-      <p className="text-sm text-text-secondary">{t("sharedNote")}</p>
+      <p className="text-sm text-ink-2">{t("sharedNote")}</p>
       <div className="grid gap-6 md:grid-cols-2">
         {(["signatureKey", "signatureDarkKey"] as const).map((field) => (
           <SignatureInput

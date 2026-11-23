@@ -133,7 +133,7 @@ export function NotificationList({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p role="status" className="text-sm text-text-secondary">
+        <p role="status" className="text-sm text-ink-2">
           {t("summary", { count: unread })}
         </p>
         <Button
@@ -152,7 +152,7 @@ export function NotificationList({
           role={shown.tone}
           className={cx(
             "text-sm font-semibold",
-            shown.tone === "alert" ? "text-danger" : "text-text",
+            shown.tone === "alert" ? "text-danger" : "text-ink",
           )}
         >
           {shown.text}
@@ -161,7 +161,7 @@ export function NotificationList({
       <ul
         aria-label={t("listLabel")}
         // Clipped to the card's corners, so the first and last rows' hover fits them.
-        className="divide-y divide-text/10 overflow-hidden rounded-lg border border-text/10 bg-surface shadow-sm"
+        className="divide-y divide-ink/10 overflow-hidden border border-ink/10 bg-surface"
       >
         {items.map((item) => {
           const read = item.readAt !== null;
@@ -175,22 +175,22 @@ export function NotificationList({
                   if (event.button === 1) markInPlace(item);
                 }}
                 className={cx(
-                  "flex flex-col gap-1 p-4 hover:bg-text/5 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+                  "flex flex-col gap-1 p-4 hover:bg-ink/5 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
                   // FOCUS_RING's colors with a negative offset: the list clips
                   // overflow, so the ring sits inside the row. FOCUS_RING itself
                   // can't be combined with it, since its positive offset wins.
-                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus",
                 )}
               >
                 <span className="min-w-0">
                   <span className={cx("block break-words", read ? "font-normal" : "font-bold")}>
                     {t(`types.${item.typeKey}`)}
                   </span>
-                  <span className="mt-0.5 block text-sm text-text-secondary">
+                  <span className="mt-0.5 block text-sm text-ink-2">
                     {t("row.opens", { section: t(`sections.${item.section}`) })}
                   </span>
                 </span>
-                <span className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-text-secondary">
+                <span className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-ink-2">
                   <Badge tone={read ? "neutral" : "strong"}>
                     {read ? t("row.read") : t("row.unread")}
                   </Badge>

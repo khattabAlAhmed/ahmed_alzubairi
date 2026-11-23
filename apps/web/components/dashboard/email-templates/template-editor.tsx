@@ -211,16 +211,16 @@ export function TemplateEditor({
         <h4 id={placeholdersId} className="text-base font-semibold">
           {t("placeholdersHeading")}
         </h4>
-        <p className="text-sm text-text-secondary">{t("placeholdersHint")}</p>
+        <p className="text-sm text-ink-2">{t("placeholdersHint")}</p>
         <dl className="grid gap-x-4 gap-y-2 sm:grid-cols-[auto_minmax(0,1fr)]">
           {EMAIL_PLACEHOLDERS[event].map((name) => (
             <div key={name} className="contents">
               <dt>
-                <code dir="ltr" className="rounded bg-text/10 px-1.5 py-0.5 text-sm wrap-anywhere">
+                <code dir="ltr" className="bg-ink/10 px-1.5 py-0.5 text-sm wrap-anywhere">
                   {placeholderToken(name)}
                 </code>
               </dt>
-              <dd className="text-sm text-text-secondary">
+              <dd className="text-sm text-ink-2">
                 {describe(name)}
               </dd>
             </div>
@@ -264,7 +264,7 @@ export function TemplateEditor({
         <div
           role="group"
           aria-labelledby={resetId}
-          className="space-y-3 rounded-md border border-danger p-4"
+          className="space-y-3 border border-danger p-4"
         >
           <p id={resetId} className="text-sm font-semibold">
             {t("resetQuestion")}

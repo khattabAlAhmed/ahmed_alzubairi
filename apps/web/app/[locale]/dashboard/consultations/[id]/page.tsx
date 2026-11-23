@@ -94,13 +94,13 @@ export default async function ConsultationPage({ params }: { params: Params }) {
 
   // The client, service and opened date: inside the pinned header from `sm` up, below it on a phone.
   const meta = (
-    <p className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-text-secondary">
+    <p className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
       <span>
-        {t("detail.client")}: <bdi className="font-semibold text-text">{client}</bdi>
+        {t("detail.client")}: <bdi className="font-semibold text-ink">{client}</bdi>
       </span>
       {serviceTitle && (
         <span>
-          {t("detail.service")}: <span className="font-semibold text-text">{serviceTitle}</span>
+          {t("detail.service")}: <span className="font-semibold text-ink">{serviceTitle}</span>
         </span>
       )}
       <span>
@@ -119,7 +119,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
         {/* The status is always visible at the top (§6.17): the header stays in view while the chat scrolls.
             On a phone the pinned part is one compact row, the status and the title on one line; the full
             title, the details and Refresh follow below it, in the page flow. */}
-        <header className="sticky top-0 z-10 -mx-4 border-b border-text/10 bg-background/95 px-4 py-3.5 backdrop-blur sm:mx-0 sm:rounded-lg sm:border sm:px-5 sm:py-4">
+        <header className="sticky top-0 z-10 -mx-4 border-b border-ink/10 bg-bg px-4 py-3.5 sm:mx-0 sm:border sm:px-5 sm:py-4">
           <div className="flex items-center justify-between gap-3 sm:flex-wrap">
             <div className="flex min-w-0 items-center gap-3 sm:flex-wrap">
               <span className="sr-only">{t("status.label")}</span>
@@ -139,7 +139,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
         </header>
         {/* The full title is in the h1 for screen readers; this copy is for sighted phone users. */}
         <div className="-mt-2 space-y-3 sm:hidden">
-          <p aria-hidden="true" dir="auto" className="text-start font-heading text-2xl leading-tight font-bold wrap-anywhere">
+          <p aria-hidden="true" dir="auto" className="text-start text-2xl leading-tight font-bold wrap-anywhere">
             {consultation.title}
           </p>
           {meta}
@@ -189,14 +189,14 @@ export default async function ConsultationPage({ params }: { params: Params }) {
               </h2>
               <dl className="space-y-2 text-sm">
                 <div>
-                  <dt className="text-xs text-text-secondary">{t("detail.client")}</dt>
+                  <dt className="text-xs text-ink-2">{t("detail.client")}</dt>
                   <dd className="font-semibold wrap-anywhere">
                     <bdi>{client}</bdi>
                   </dd>
                 </div>
                 {view.client.email && (
                   <div>
-                    <dt className="text-xs text-text-secondary">{t("detail.email")}</dt>
+                    <dt className="text-xs text-ink-2">{t("detail.email")}</dt>
                     <dd dir="ltr" className="text-start wrap-anywhere">
                       <a href={`mailto:${view.client.email}`} className="underline-offset-2 hover:underline">
                         {view.client.email}
@@ -206,7 +206,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
                 )}
                 {view.client.phone && (
                   <div>
-                    <dt className="text-xs text-text-secondary">{t("detail.phone")}</dt>
+                    <dt className="text-xs text-ink-2">{t("detail.phone")}</dt>
                     <dd dir="ltr" className="text-start">
                       {view.client.phone}
                     </dd>
@@ -214,7 +214,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
                 )}
                 {(consultation.organization || view.client.orgName) && (
                   <div>
-                    <dt className="text-xs text-text-secondary">{t("detail.organization")}</dt>
+                    <dt className="text-xs text-ink-2">{t("detail.organization")}</dt>
                     <dd dir="auto" className="text-start wrap-anywhere">
                       {consultation.organization || view.client.orgName}
                     </dd>
@@ -228,7 +228,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
                 {t("status.label")}
               </h2>
               {closed ? (
-                <p className="text-sm text-text-secondary">{t("status.closed")}</p>
+                <p className="text-sm text-ink-2">{t("status.closed")}</p>
               ) : (
                 // Keyed on the saved value: after a refresh the draft starts from what's stored.
                 canWork && <StatusControl key={consultation.status} id={consultation.id} status={consultation.status} />
@@ -243,7 +243,7 @@ export default async function ConsultationPage({ params }: { params: Params }) {
               )}
               {(closed || !access.assign) && (
                 <p className="text-sm">
-                  <span className="text-text-secondary">{t("assign.label")}: </span>
+                  <span className="text-ink-2">{t("assign.label")}: </span>
                   {view.assigneeName === null ? t("list.unassigned") : <bdi>{view.assigneeName}</bdi>}
                 </p>
               )}

@@ -20,19 +20,19 @@ export async function TeamHeader({ current }: { current: TeamTab }) {
       <PageHeader title={t("title")} intro={t("intro")} />
       <nav aria-label={t("tabs.label")}>
         {/* One row of tabs. On a narrow phone the row scrolls inside itself; the page never does. */}
-        <ul className="flex gap-1 overflow-x-auto border-b border-text/15">
+        <ul className="flex gap-1 overflow-x-auto border-b border-ink/15">
           {TABS.map((tab) => (
             <li key={tab.key} className="shrink-0">
               <Link
                 href={tab.href}
                 aria-current={tab.key === current ? "page" : undefined}
                 className={cx(
-                  "-mb-px inline-flex h-11 items-center rounded-t-md border-b-2 border-transparent px-3 text-sm whitespace-nowrap text-text-secondary hover:bg-text/5 hover:text-text sm:px-4",
-                  "aria-[current=page]:border-text aria-[current=page]:font-semibold aria-[current=page]:text-text",
+                  "-mb-px inline-flex h-11 items-center border-b-2 border-transparent px-3 text-sm whitespace-nowrap text-ink-2 hover:bg-ink/5 hover:text-ink sm:px-4",
+                  "aria-[current=page]:border-ink aria-[current=page]:font-semibold aria-[current=page]:text-ink",
                   // FOCUS_RING's colors with a negative offset: the row clips
                   // overflow, so the ring sits inside the tab. FOCUS_RING itself
                   // can't be combined with it, since its positive offset wins.
-                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus",
                 )}
               >
                 {t(`tabs.${tab.key}`)}

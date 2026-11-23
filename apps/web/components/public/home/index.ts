@@ -15,7 +15,6 @@ export { NewsletterSection } from "./newsletter";
 export { PartnersSection } from "./partners";
 export { HOME_PROJECT_COUNT, ProjectsSection, selectHomeProjects } from "./projects";
 export { HOME_LATEST_COUNT, HOME_READING, ReadingSection } from "./reading";
-export type { SectionBand } from "./section";
 export { ServicesSection } from "./services";
 export { StatsSection } from "./stats";
 export { TestimonialsSection } from "./testimonials";

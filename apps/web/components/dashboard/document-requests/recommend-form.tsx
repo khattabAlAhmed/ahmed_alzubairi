@@ -61,9 +61,9 @@ export function RecommendForm({ requestId }: { requestId: string }) {
             <label
               key={value}
               className={cx(
-                "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3",
-                choice === value ? "border-text bg-text/10" : "border-text/40",
-                "has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-ring",
+                "inline-flex min-h-11 cursor-pointer items-center gap-2 border px-3",
+                choice === value ? "border-ink bg-ink/10" : "border-ink/40",
+                "has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-focus",
               )}
             >
               <input
@@ -99,7 +99,7 @@ export function RecommendForm({ requestId }: { requestId: string }) {
         {notice && (
           <p
             role={notice.ok ? "status" : "alert"}
-            className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+            className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
           >
             {notice.text}
           </p>

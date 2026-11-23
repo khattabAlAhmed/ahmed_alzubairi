@@ -22,7 +22,7 @@ export function RegistrationList({
   const t = useTranslations("DashboardTraining.registrations");
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {registrations.map((row) => {
         const name = row.name?.trim() || t("unknownClient");
         const course = courseTitle({ titleAr: row.courseTitleAr, titleEn: row.courseTitleEn }, locale) ?? t("noTitle");
@@ -38,17 +38,17 @@ export function RegistrationList({
                   name
                 )}
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-ink-2">
                 <span className="sr-only">{t("date")}: </span>
                 <LocalTime value={row.createdAt} />
               </p>
             </div>
-            <dl className="grid gap-x-6 gap-y-1 text-sm text-text-secondary sm:grid-cols-2">
+            <dl className="grid gap-x-6 gap-y-1 text-sm text-ink-2 sm:grid-cols-2">
               {row.email && (
                 <div className="flex min-w-0 flex-wrap gap-x-1">
                   <dt>{t("email")}:</dt>
                   {/* An address reads left to right in both languages, and may be long. */}
-                  <dd className="min-w-0 text-text wrap-anywhere">
+                  <dd className="min-w-0 text-ink wrap-anywhere">
                     <bdi dir="ltr">{row.email}</bdi>
                   </dd>
                 </div>
@@ -56,7 +56,7 @@ export function RegistrationList({
               {showCourse && (
                 <div className="flex min-w-0 flex-wrap gap-x-1">
                   <dt>{t("course")}:</dt>
-                  <dd className="min-w-0 text-text wrap-anywhere">
+                  <dd className="min-w-0 text-ink wrap-anywhere">
                     <Link href={coursePagePath(row.courseId)} className="hover:underline">
                       <bdi>{course}</bdi>
                     </Link>

@@ -15,9 +15,9 @@ export function ConsultationList({ consultations }: { consultations: Consultatio
 
   if (consultations.length === 0) {
     return (
-      <section className="rounded-lg border border-text/10 bg-surface p-6 shadow-sm">
+      <section className="border border-ink/10 bg-surface p-6">
         <h2 className="text-xl">{t("emptyTitle")}</h2>
-        <p className="mt-2 text-text-secondary">{t("emptyText")}</p>
+        <p className="mt-2 text-ink-2">{t("emptyText")}</p>
         <ButtonLink href={NEW_CONSULTATION_HREF} className="mt-4">
           {t("new")}
         </ButtonLink>
@@ -33,7 +33,7 @@ export function ConsultationList({ consultations }: { consultations: Consultatio
             href={`/account/consultations/${item.id}`}
             aria-label={t("open", { title: item.title })}
             className={cx(
-              "block rounded-lg border border-text/10 bg-surface p-4 shadow-sm transition-colors hover:border-text/30 motion-reduce:transition-none",
+              "block border border-ink/10 bg-surface p-4 transition-colors hover:border-ink/30 motion-reduce:transition-none",
               FOCUS_RING,
             )}
           >
@@ -47,11 +47,11 @@ export function ConsultationList({ consultations }: { consultations: Consultatio
             </div>
             <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               <div className="min-w-0">
-                <dt className="text-xs text-text-secondary">{t("service")}</dt>
+                <dt className="text-xs text-ink-2">{t("service")}</dt>
                 <dd className="font-semibold wrap-anywhere">{item.serviceTitle ?? t("noService")}</dd>
               </div>
               <div>
-                <dt className="text-xs text-text-secondary">{t("lastActivity")}</dt>
+                <dt className="text-xs text-ink-2">{t("lastActivity")}</dt>
                 <dd className="font-semibold">
                   <LocalTime value={item.lastActivityAt} />
                 </dd>

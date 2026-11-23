@@ -34,11 +34,11 @@ function Segmented<T extends string>({
   return (
     <fieldset className="min-w-0">
       <legend className="text-sm font-semibold">{legend}</legend>
-      <div className="mt-1 inline-flex flex-wrap rounded-md border border-text/20 p-0.5">
+      <div className="mt-1 inline-flex flex-wrap border border-ink/20 p-0.5">
         {options.map((option) => (
           <label
             key={option.value}
-            className="cursor-pointer rounded px-3 py-1.5 text-sm has-checked:bg-text has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-ring"
+            className="cursor-pointer px-3 py-1.5 text-sm has-checked:bg-ink has-checked:text-bg has-focus-visible:outline-2 has-focus-visible:outline-focus"
           >
             <input
               type="radio"
@@ -77,8 +77,8 @@ function Notice({ tone = "info", children }: { tone?: "info" | "warning"; childr
     <div
       className={
         tone === "warning"
-          ? "rounded-md border border-danger p-3 text-sm"
-          : "rounded-md border border-text/20 p-3 text-sm"
+          ? "border border-danger p-3 text-sm"
+          : "border border-ink/20 p-3 text-sm"
       }
     >
       {children}
@@ -131,7 +131,7 @@ function Preview({ editor }: { editor: ContentEditorState }) {
           <h2 id={`${id}-heading`} className="text-lg">
             {t("heading")}
           </h2>
-          <p className="mt-1 text-sm text-text-secondary">{t("intro")}</p>
+          <p className="mt-1 text-sm text-ink-2">{t("intro")}</p>
         </div>
         <Button
           variant="secondary"

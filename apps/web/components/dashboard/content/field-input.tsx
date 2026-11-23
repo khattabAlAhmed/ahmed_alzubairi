@@ -106,7 +106,7 @@ function ReferencesInput({ field, name, ctx }: FieldRendererProps) {
     <fieldset>
       <legend className="text-sm font-semibold">{text.label(field)}</legend>
       {options.length === 0 ? (
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm text-ink-2">
           {text.isolate(text.t("editor.none"))}
         </p>
       ) : (
@@ -175,7 +175,7 @@ function LaterField({ field }: FieldRendererProps) {
   return (
     <div>
       <p className="text-sm font-semibold">{text.label(field)}</p>
-      <p className="mt-1 text-sm text-text-secondary">{text.isolate(text.t("editor.laterField"))}</p>
+      <p className="mt-1 text-sm text-ink-2">{text.isolate(text.t("editor.laterField"))}</p>
     </div>
   );
 }

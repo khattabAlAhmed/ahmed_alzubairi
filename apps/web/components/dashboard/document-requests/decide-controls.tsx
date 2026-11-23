@@ -91,7 +91,7 @@ export function DecideControls({
   const noticeLine = notice && (
     <p
       role={notice.ok ? "status" : "alert"}
-      className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+      className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
     >
       {notice.text}
     </p>
@@ -100,9 +100,9 @@ export function DecideControls({
   if (status === "granted") {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-text-secondary">{t("withdrawIntro")}</p>
+        <p className="text-sm text-ink-2">{t("withdrawIntro")}</p>
         {confirming ? (
-          <div role="group" aria-label={t("withdrawTitle")} className="space-y-3 rounded-md border border-text/20 bg-background p-3">
+          <div role="group" aria-label={t("withdrawTitle")} className="space-y-3 border border-ink/20 bg-bg p-3">
             <p className="max-w-prose text-sm">
               {t("withdrawConfirm", { document: documentTitle, client: clientName })}
             </p>
@@ -133,7 +133,7 @@ export function DecideControls({
   if (status !== "pending_review" && status !== "in_contact") {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-text-secondary">{t("closed")}</p>
+        <p className="text-sm text-ink-2">{t("closed")}</p>
         {noticeLine}
       </div>
     );
@@ -141,8 +141,8 @@ export function DecideControls({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-text-secondary">{t("intro")}</p>
-      <form noValidate onSubmit={grant} className="space-y-3 rounded-md border border-text/15 p-4">
+      <p className="text-sm text-ink-2">{t("intro")}</p>
+      <form noValidate onSubmit={grant} className="space-y-3 border border-ink/15 p-4">
         <TextField
           type="date"
           label={t("expiry")}
@@ -156,14 +156,14 @@ export function DecideControls({
           error={dateError}
           className="max-w-xs"
         />
-        <p className="text-sm text-text-secondary">{t("grantHint")}</p>
+        <p className="text-sm text-ink-2">{t("grantHint")}</p>
         <Button type="submit" loading={busy === "grant"} loadingLabel={t("working")} disabled={busy !== null}>
           {t("grant")}
         </Button>
       </form>
       {status === "pending_review" && (
-        <div className="space-y-3 rounded-md border border-text/15 p-4">
-          <p className="text-sm text-text-secondary">{t("contactFirstHint")}</p>
+        <div className="space-y-3 border border-ink/15 p-4">
+          <p className="text-sm text-ink-2">{t("contactFirstHint")}</p>
           <Button
             variant="secondary"
             loading={busy === "contact_first"}

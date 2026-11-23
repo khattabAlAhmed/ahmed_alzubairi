@@ -75,8 +75,8 @@ function TimeField({
         value={value}
         onChange={onChange}
         className={cx(
-          "mt-1 block h-11 w-full rounded-md border border-text/50 bg-surface px-3 text-text",
-          "focus:outline-2 focus:outline-offset-1 focus:outline-ring",
+          "mt-1 block h-11 w-full border border-ink/50 bg-surface px-3 text-ink",
+          "focus:outline-2 focus:outline-offset-1 focus:outline-focus",
         )}
       />
     </div>
@@ -183,7 +183,7 @@ export function MeetingForm({
           />
         </div>
         {/* The zone is isolated left to right: a Latin code inside an Arabic sentence. */}
-        <p className="text-sm text-text-secondary">{t("zone", { zone: `\u2066${zoneText}\u2069` })}</p>
+        <p className="text-sm text-ink-2">{t("zone", { zone: `\u2066${zoneText}\u2069` })}</p>
         {error && (
           <p role="alert" className="text-sm font-semibold text-danger">
             {error}
@@ -222,7 +222,7 @@ export function Meetings({
   return (
     <div className="space-y-3">
       {meetings.length === 0 && open !== "new" && (
-        <p className="text-sm text-text-secondary">{t("detail.noMeetings")}</p>
+        <p className="text-sm text-ink-2">{t("detail.noMeetings")}</p>
       )}
       {meetings.map((meeting) =>
         open === meeting.id ? (

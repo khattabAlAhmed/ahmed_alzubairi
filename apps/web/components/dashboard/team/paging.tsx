@@ -23,7 +23,7 @@ export async function Paging({
       ) : (
         <span />
       )}
-      <p className="text-sm text-text-secondary">{t("position", { page, pages })}</p>
+      <p className="text-sm text-ink-2">{t("position", { page, pages })}</p>
       {page < pages ? (
         <ButtonLink href={link(page + 1)} variant="secondary" size="sm">
           {t("next")}

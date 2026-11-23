@@ -41,7 +41,7 @@ export default async function MyCoursesPage({ params }: { params: Promise<{ loca
       {courses.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{t("emptyTitle")}</h2>
-          <p className="mt-2 max-w-prose text-text-secondary">{t("emptyText")}</p>
+          <p className="mt-2 max-w-prose text-ink-2">{t("emptyText")}</p>
           <ButtonLink href={TRAINING_PATH} className="mt-4">
             {t("browse")}
           </ButtonLink>
@@ -58,7 +58,7 @@ export default async function MyCoursesPage({ params }: { params: Promise<{ loca
                 <h2 className="mt-3 text-xl leading-snug">{course.title}</h2>
                 <dl className="mt-4 grid gap-3 text-sm">
                   <div>
-                    <dt className="font-semibold text-text-secondary">{t("date")}</dt>
+                    <dt className="font-semibold text-ink-2">{t("date")}</dt>
                     <dd className="mt-0.5">
                       {course.startsAt ? (
                         <LocalDateTime
@@ -72,14 +72,14 @@ export default async function MyCoursesPage({ params }: { params: Promise<{ loca
                   </div>
                   {(course.place || course.type === "online_live") && (
                     <div>
-                      <dt className="font-semibold text-text-secondary">{t("place")}</dt>
+                      <dt className="font-semibold text-ink-2">{t("place")}</dt>
                       <dd className="mt-0.5">
                         {course.type === "online_live" ? t("online") : course.place}
                       </dd>
                     </div>
                   )}
                   <div>
-                    <dt className="font-semibold text-text-secondary">{t("registeredOn")}</dt>
+                    <dt className="font-semibold text-ink-2">{t("registeredOn")}</dt>
                     <dd className="mt-0.5">
                       <LocalDateTime
                         value={course.registeredAt}

@@ -16,7 +16,7 @@ export function CourseList({ courses, locale }: { courses: AdminCourse[]; locale
   const t = useTranslations("DashboardTraining");
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {courses.map((course) => {
         const title = courseTitle(course, locale) ?? t("list.noTitle");
         const other = locale === "ar" ? course.titleEn : course.titleAr;
@@ -35,7 +35,7 @@ export function CourseList({ courses, locale }: { courses: AdminCourse[]; locale
                   </Link>
                 </h2>
                 {showOther && (
-                  <p className="text-sm text-text-secondary wrap-anywhere">
+                  <p className="text-sm text-ink-2 wrap-anywhere">
                     <span className="sr-only">{t("list.otherTitle")}: </span>
                     <bdi lang={locale === "ar" ? "en" : "ar"}>{other}</bdi>
                   </p>
@@ -45,14 +45,14 @@ export function CourseList({ courses, locale }: { courses: AdminCourse[]; locale
                 {t(`status.${course.status}`)}
               </Badge>
             </div>
-            <dl className="grid gap-x-6 gap-y-1 text-sm text-text-secondary sm:grid-cols-3">
+            <dl className="grid gap-x-6 gap-y-1 text-sm text-ink-2 sm:grid-cols-3">
               <div className="flex flex-wrap gap-x-1">
                 <dt>{t("list.type")}:</dt>
-                <dd className="text-text">{t(`types.${course.type}`)}</dd>
+                <dd className="text-ink">{t(`types.${course.type}`)}</dd>
               </div>
               <div className="flex flex-wrap gap-x-1">
                 <dt>{t("list.date")}:</dt>
-                <dd className="text-text">
+                <dd className="text-ink">
                   {course.type === "recorded" ? (
                     t("list.noDateRecorded")
                   ) : course.startsAt ? (
@@ -64,7 +64,7 @@ export function CourseList({ courses, locale }: { courses: AdminCourse[]; locale
               </div>
               <div className="flex flex-wrap gap-x-1">
                 <dt>{t("list.seats")}:</dt>
-                <dd className="text-text">
+                <dd className="text-ink">
                   {SCHEDULED_TYPES.includes(course.type) && course.seats !== null
                     ? t("list.seatsTaken", { taken: course.registrationCount, total: course.seats })
                     : t("list.registered", { count: course.registrationCount })}

@@ -16,9 +16,9 @@ export default function StatisticsError({ reset }: { reset: () => void }) {
   const [pending, startTransition] = useTransition();
 
   return (
-    <section role="alert" className="rounded-lg border border-text/10 bg-surface p-6 shadow-sm">
+    <section role="alert" className="border border-ink/10 bg-surface p-6">
       <h1 className="text-2xl">{t("title")}</h1>
-      <p className="mt-2 max-w-prose text-text-secondary">{t("description")}</p>
+      <p className="mt-2 max-w-prose text-ink-2">{t("description")}</p>
       <Button
         variant="secondary"
         className="mt-4"

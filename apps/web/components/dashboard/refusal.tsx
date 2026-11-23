@@ -8,10 +8,10 @@ export async function Refusal() {
   return (
     <section
       role="alert"
-      className="rounded-lg border border-text/10 bg-surface p-6 shadow-sm"
+      className="border border-ink/10 bg-surface p-6"
     >
       <h1 className="text-2xl">{t("title")}</h1>
-      <p className="mt-2 max-w-prose text-text-secondary">{t("text")}</p>
+      <p className="mt-2 max-w-prose text-ink-2">{t("text")}</p>
       <ButtonLink href="/dashboard" variant="secondary" className="mt-4">
         {t("back")}
       </ButtonLink>

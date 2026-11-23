@@ -124,18 +124,18 @@ export function DetailsForm({
         <h2 id="details-title" className="text-xl">
           {t("details.title")}
         </h2>
-        <p className="mt-1 text-sm text-text-secondary">{t("details.identity")}</p>
+        <p className="mt-1 text-sm text-ink-2">{t("details.identity")}</p>
       </div>
       {/* Name and email are text, never HTML (§9). */}
       <dl className="grid gap-3 sm:grid-cols-2">
         <div className="min-w-0">
-          <dt className="text-sm text-text-secondary">{t("details.name")}</dt>
+          <dt className="text-sm text-ink-2">{t("details.name")}</dt>
           <dd className="font-semibold break-words">
             <bdi>{fullName}</bdi>
           </dd>
         </div>
         <div className="min-w-0">
-          <dt className="text-sm text-text-secondary">{t("details.email")}</dt>
+          <dt className="text-sm text-ink-2">{t("details.email")}</dt>
           <dd className="font-semibold wrap-anywhere">
             <bdi dir="ltr">{email}</bdi>
           </dd>

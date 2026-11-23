@@ -54,7 +54,7 @@ export function InviteForm({ roles }: { roles: AdminRole[] }) {
       <h2 id="invite-title" className="text-xl">
         {t("title")}
       </h2>
-      <p className="mt-1 max-w-prose text-sm text-text-secondary">{t("intro")}</p>
+      <p className="mt-1 max-w-prose text-sm text-ink-2">{t("intro")}</p>
       <form noValidate onSubmit={onSubmit} className="mt-4 flex flex-wrap items-start gap-3">
         <TextField
           label={t("email")}
@@ -92,7 +92,7 @@ export function InviteForm({ roles }: { roles: AdminRole[] }) {
       {notice && (
         <p
           role={notice.ok ? "status" : "alert"}
-          className={cx("mt-3 text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+          className={cx("mt-3 text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
         >
           {notice.text}
         </p>

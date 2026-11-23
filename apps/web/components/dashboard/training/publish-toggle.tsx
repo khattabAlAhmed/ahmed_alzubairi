@@ -56,7 +56,7 @@ export function PublishToggle({
       {notice && (
         <p
           role={notice.ok ? "status" : "alert"}
-          className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+          className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
         >
           {notice.text}
         </p>

@@ -7,26 +7,12 @@ import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
-import type { Project } from "@/lib/content";
-
-/**
- * The one focus ring (DESIGN.md "States"): 2px `focus`, 3px offset, solid,
- * 3:1 or better on every surface in both themes. The name is from the navy
- * band it was made for; it now forces the same ring as everywhere else, over
- * a component's own older ring.
- */
-export const RING_ON_NAVY =
-  "focus-visible:outline-2! focus-visible:outline-solid! focus-visible:outline-offset-3! focus-visible:outline-focus!";
 
 /**
  * The page column: `container` (1312) of content, centered, with the page
  * margin outside it (16 on phones, 32 from 768, 48 from 1280; the Grid board).
  */
 export const CONTAINER = "mx-auto w-full max-w-[calc(var(--container)+2*var(--page-margin))] px-page-margin";
-
-/** A card link whose whole card is the target. */
-export const CARD_LINK =
-  "rounded-sm after:absolute after:inset-0 after:rounded-lg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 /**
  * A bounded item, until the content tasks turn each list into its own record
@@ -226,40 +212,6 @@ export function MoreLink({
 }
 
 /**
- * Project cards. `organization` is already the general label when the name
- * is hidden: the real name never reaches this component (§6.6).
- */
-export function ProjectCards({ projects }: { projects: Project[] }) {
-  const t = useTranslations("Pages");
-
-  return (
-    <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project) => (
-        <li key={project.id} className={cx(CARD, "flex flex-col")}>
-          {project.organization && (
-            <p className="text-sm font-semibold text-text-secondary">{project.organization}</p>
-          )}
-          <h3 className="mt-1 text-xl">
-            <Link href={`/projects/${project.slug}`} className={CARD_LINK}>
-              {project.title}
-            </Link>
-          </h3>
-          {/* The padding sits outside the gold bar, so the bar spans the text only. */}
-          {project.keyResult && (
-            <div className="mt-auto pt-5">
-              <p className="border-s-2 border-accent ps-3">
-                <span className="block text-xs font-semibold text-text-secondary">{t("keyResult")}</span>
-                <span className="mt-0.5 block font-semibold">{project.keyResult}</span>
-              </p>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/**
  * The closing invitation on public pages (the ConsultationCta board): a quiet
  * photo, his invitation with «اطلب استشارة» and a direct line, and what happens
  * next in three steps. An invitation to talk, never a coloured banner.
@@ -311,7 +263,3 @@ export function ConsultationCta() {
   );
 }
 
-/** What a list page shows when nothing is published in this language. */
-export function EmptyNote({ text }: { text: string }) {
-  return <p className="text-text-secondary">{text}</p>;
-}

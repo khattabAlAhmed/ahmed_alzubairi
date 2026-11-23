@@ -13,7 +13,7 @@ import { metaSeparator } from "@/components/public/home/format";
 function Field({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) {
   return (
     <div className={wide ? "min-w-0 sm:col-span-2" : "min-w-0"}>
-      <dt className="text-sm text-text-secondary">{label}</dt>
+      <dt className="text-sm text-ink-2">{label}</dt>
       <dd className="mt-0.5 break-words">{children}</dd>
     </div>
   );
@@ -91,8 +91,8 @@ export async function RequestDetail({
           )}
         </dl>
         {request.status === "in_contact" && request.consultationId && (
-          <div className="mt-4 space-y-2 border-t border-text/10 pt-4">
-            <p className="text-sm text-text-secondary">{t("detail.chatHint")}</p>
+          <div className="mt-4 space-y-2 border-t border-ink/10 pt-4">
+            <p className="text-sm text-ink-2">{t("detail.chatHint")}</p>
             <ButtonLink
               href={`/dashboard/consultations/${encodeURIComponent(request.consultationId)}`}
               variant="secondary"
@@ -109,14 +109,14 @@ export async function RequestDetail({
           {t("detail.recommendations")}
         </h2>
         {request.recommendations.length === 0 ? (
-          <p className="mt-3 text-text-secondary">{t("detail.noRecommendations")}</p>
+          <p className="mt-3 text-ink-2">{t("detail.noRecommendations")}</p>
         ) : (
-          <ul className="mt-3 divide-y divide-text/10">
+          <ul className="mt-3 divide-y divide-ink/10">
             {request.recommendations.map((rec) => (
               <li key={rec.id} className="space-y-1 py-3">
                 <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span className="font-semibold">{t(`recommendation.${rec.recommendation}`)}</span>
-                  <span className="text-sm text-text-secondary">
+                  <span className="text-sm text-ink-2">
                     <bdi>{rec.memberName || t("detail.noMember")}</bdi>
                     {metaSeparator(locale)}
                     <LocalTime value={rec.createdAt} locale={locale} />
@@ -134,7 +134,7 @@ export async function RequestDetail({
           <h2 id="request-recommend" className="text-xl">
             {t("recommend.title")}
           </h2>
-          <p className="mt-1 mb-4 text-sm text-text-secondary">{t("recommend.intro")}</p>
+          <p className="mt-1 mb-4 text-sm text-ink-2">{t("recommend.intro")}</p>
           <RecommendForm requestId={request.id} />
         </Card>
       )}

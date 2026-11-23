@@ -8,11 +8,11 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
       <h1 className="text-3xl">{t("title")}</h1>
-      <p className="text-text-secondary">{t("description")}</p>
+      <p className="text-ink-2">{t("description")}</p>
       <button
         type="button"
         onClick={reset}
-        className="inline-flex h-9 items-center rounded-md bg-accent px-3 text-sm font-semibold text-on-accent"
+        className="inline-flex h-9 items-center bg-accent px-3 text-sm font-semibold text-on-accent"
       >
         {t("retry")}
       </button>

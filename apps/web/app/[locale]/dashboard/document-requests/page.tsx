@@ -145,26 +145,26 @@ export default async function DocumentRequestsPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total })}
       </p>
 
       {requests.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{filtered ? t("empty.filteredTitle") : t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : t("empty.text")}
           </p>
         </Card>
       ) : (
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+          <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
             {requests.map((request) => {
               const title = requestTitle(request, locale) || t("list.noTitle");
               const client = request.clientName || t("list.noName");
               return (
                 // Every value is rendered as text, never as HTML (§9).
-                <li key={request.id} className="relative space-y-1 p-4 hover:bg-text/5">
+                <li key={request.id} className="relative space-y-1 p-4 hover:bg-ink/5">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <h2 className="min-w-0 text-base font-semibold wrap-anywhere">
                       <Link
@@ -177,7 +177,7 @@ export default async function DocumentRequestsPage({
                     </h2>
                     <StatusPill kind="documentRequest" status={request.status} className="self-start" />
                   </div>
-                  <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+                  <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
                     <bdi className="min-w-0 wrap-anywhere">{client}</bdi>
                     <span>
                       {t("list.requested")}: <LocalTime value={request.createdAt} locale={locale} />
@@ -201,7 +201,7 @@ export default async function DocumentRequestsPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-ink-2">
             {t("paging.position", { page: list.page, pages })}
           </p>
           {list.page < pages ? (

@@ -112,14 +112,14 @@ export default async function NewsletterPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total })}
       </p>
 
       {subscribers.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{filtered ? t("empty.filteredTitle") : t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : t("empty.text")}
           </p>
         </Card>
@@ -145,7 +145,7 @@ export default async function NewsletterPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-ink-2">
             {t("paging.position", { page: list.page, pages })}
           </p>
           {list.page < pages ? (
@@ -162,10 +162,10 @@ export default async function NewsletterPage({
         <h2 id="newsletter-export-title" className="text-xl">
           {t("export.title")}
         </h2>
-        <p className="mt-2 text-text-secondary">{t("export.text")}</p>
-        {list.search && <p className="mt-1 text-text-secondary">{t("export.withSearch")}</p>}
+        <p className="mt-2 text-ink-2">{t("export.text")}</p>
+        {list.search && <p className="mt-1 text-ink-2">{t("export.withSearch")}</p>}
         {list.status && list.status !== "confirmed" && (
-          <p className="mt-1 font-semibold text-text">{t("export.statusIgnored")}</p>
+          <p className="mt-1 font-semibold text-ink">{t("export.statusIgnored")}</p>
         )}
         {/* A plain link to the API route: the browser saves the file. Not a
             locale link, so no language prefix is added. */}

@@ -20,35 +20,35 @@ export function SubscriberList({ subscribers }: { subscribers: NewsletterSubscri
   const t = useTranslations("DashboardNewsletter");
 
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/15 bg-surface">
+    <ul className="divide-y divide-ink/10 border border-ink/15 bg-surface">
       {subscribers.map((subscriber) => (
         <li key={subscriber.id} className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             {/* An address reads left to right in both languages, and may be long. */}
-            <p className="min-w-0 font-semibold text-text wrap-anywhere">
+            <p className="min-w-0 font-semibold text-ink wrap-anywhere">
               <span className="sr-only">{t("row.email")}: </span>
               <bdi dir="ltr">{subscriber.email}</bdi>
             </p>
             <Badge tone={TONES[subscriber.status]}>{t(`statuses.${subscriber.status}`)}</Badge>
           </div>
-          <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm text-text-secondary sm:grid-cols-2 xl:grid-cols-4">
+          <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm text-ink-2 sm:grid-cols-2 xl:grid-cols-4">
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("row.source")}:</dt>
-              <dd className="text-text">{t(`sources.${subscriber.source}`)}</dd>
+              <dd className="text-ink">{t(`sources.${subscriber.source}`)}</dd>
             </div>
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("row.language")}:</dt>
-              <dd className="text-text">{t(`languages.${subscriber.locale}`)}</dd>
+              <dd className="text-ink">{t(`languages.${subscriber.locale}`)}</dd>
             </div>
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("row.signedUp")}:</dt>
-              <dd className="text-text">
+              <dd className="text-ink">
                 <LocalTime value={subscriber.createdAt} />
               </dd>
             </div>
             <div className="flex flex-wrap gap-x-1">
               <dt>{t("row.consented")}:</dt>
-              <dd className="text-text">
+              <dd className="text-ink">
                 {subscriber.consentedAt ? <LocalTime value={subscriber.consentedAt} /> : t("row.none")}
               </dd>
             </div>
