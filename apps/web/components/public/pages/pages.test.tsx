@@ -619,3 +619,68 @@ describe("TestimonialSet", () => {
     expect(screen.getByText("مديرة برنامج — منظمة دولية")).toBeTruthy();
   });
 });
+
+describe("Page closings and breadcrumbs (the T23 check)", () => {
+  const aboutPage: Page = { key: "about", title: "About", body: doc("Short bio"), updatedAt: "2026-03-01T00:00:00Z", availableIn: ["ar"] };
+  const area: ExpertiseAreaDetail = {
+    id: "a1",
+    slug: "humanitarian",
+    title: "Humanitarian work",
+    summary: "Area summary",
+    body: null,
+    availableIn: ["ar", "en"],
+  };
+  /** The page's closing band: the aside named by its title. */
+  const closing = () => document.querySelector("aside[aria-labelledby]");
+
+  it("closes About with his line and one button, no photo and no steps", () => {
+    render(<AboutPage page={aboutPage} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
+    const band = closing()!;
+    expect(within(band as HTMLElement).getByRole("heading", { level: 2 }).textContent).toBe("ctaAboutTitle");
+    expect(band.textContent).toContain("ctaAboutText");
+    expect(within(band as HTMLElement).getAllByRole("button")).toHaveLength(1);
+    expect(within(band as HTMLElement).queryAllByRole("link")).toHaveLength(0);
+    expect(band.querySelector("img, ol")).toBeNull();
+  });
+
+  it("closes Services with the photo, his line and one button, no steps", () => {
+    render(<ServicesListPage services={[service]} />);
+    const band = closing()!;
+    expect(within(band as HTMLElement).getByRole("heading", { level: 2 }).textContent).toBe("ctaServicesTitle");
+    expect(band.textContent).toContain("ctaServicesText");
+    expect(band.querySelector("img")).not.toBeNull();
+    expect(band.querySelector("ol")).toBeNull();
+    expect(within(band as HTMLElement).getAllByRole("button")).toHaveLength(1);
+    expect(within(band as HTMLElement).queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("ends an expertise area without a closing band", () => {
+    render(<ExpertiseDetailPage area={area} services={[]} projects={[]} />);
+    expect(screen.queryByRole("heading", { name: "ctaTitle" })).toBeNull();
+    expect(closing()).toBeNull();
+  });
+
+  it("keeps the full closing where a page has no closing of its own", () => {
+    render(<ExpertiseListPage areas={[]} services={[]} projects={[]} />);
+    const band = closing()!;
+    expect(within(band as HTMLElement).getByRole("heading", { level: 2 }).textContent).toBe("ctaTitle");
+    expect(within(band as HTMLElement).getByRole("list", { name: "ctaStepsLabel" })).toBeTruthy();
+    expect(within(band as HTMLElement).getByRole("link", { name: "ctaDirect" })).toBeTruthy();
+  });
+
+  it("shows «Services / name» on a service page, with no back link", () => {
+    render(<ServiceDetailPage service={service} area={null} projects={[]} faqs={[]} />);
+    const crumbs = screen.getByRole("navigation", { name: "breadcrumbLabel" });
+    expect(within(crumbs).getByRole("link", { name: "services" }).getAttribute("href")).toBe("/services");
+    expect(within(crumbs).getByText(service.title).getAttribute("aria-current")).toBe("page");
+    expect(screen.queryByRole("link", { name: "services" })).toBe(within(crumbs).getByRole("link", { name: "services" }));
+  });
+
+  it("shows «Expertise / name» on an area page, with no back link", () => {
+    render(<ExpertiseDetailPage area={area} services={[]} projects={[]} />);
+    const crumbs = screen.getByRole("navigation", { name: "breadcrumbLabel" });
+    expect(within(crumbs).getByRole("link", { name: "expertise" }).getAttribute("href")).toBe("/expertise");
+    expect(within(crumbs).getByText("Humanitarian work").getAttribute("aria-current")).toBe("page");
+    expect(screen.getAllByRole("link", { name: "expertise" })).toHaveLength(1);
+  });
+});

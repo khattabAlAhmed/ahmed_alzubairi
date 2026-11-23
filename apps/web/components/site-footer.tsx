@@ -6,6 +6,7 @@ import { cacheLife } from "next/cache";
 import { connection } from "next/server";
 import { Fragment, Suspense } from "react";
 import { NewsletterSignup } from "@/components/newsletter";
+import { FooterNewsletterSlot } from "@/components/footer-newsletter-slot";
 import { contactChannels } from "@/components/public/contact";
 import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { CONTAINER } from "@/components/public/parts";
@@ -98,7 +99,8 @@ async function Copyright() {
 
 /**
  * The public footer (the Footer board): his short line, the two indexes of the
- * site, the newsletter and the contact channels, then the legal links.
+ * site, the newsletter (on every page but home) and the contact channels,
+ * then the legal links.
  */
 export function SiteFooter() {
   const t = useTranslations("Footer");
@@ -127,7 +129,10 @@ export function SiteFooter() {
             </nav>
           ))}
           <div className="flex min-w-0 flex-col gap-4 md:col-span-12 lg:col-span-4">
-            <NewsletterSignup source="footer" inFooter />
+            {/* Not on home: it has its own newsletter section, so home's footer shows Contact alone. */}
+            <FooterNewsletterSlot>
+              <NewsletterSignup source="footer" inFooter />
+            </FooterNewsletterSlot>
             <div>
               <h2 className={COLUMN_HEADING}>
                 <Link href="/contact" className={cx(INLINE_LINK, "text-ink-2")}>
