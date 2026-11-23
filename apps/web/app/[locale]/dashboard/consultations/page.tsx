@@ -107,25 +107,25 @@ export default async function ConsultationsPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total })}
       </p>
 
       {consultations.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{filtered ? t("empty.filteredTitle") : t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : access.viewAll ? t("empty.text") : t("empty.assistantText")}
           </p>
         </Card>
       ) : (
         <NextIntlClientProvider locale={locale} messages={{ Workspace: all.Workspace }}>
-          <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+          <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
             {consultations.map((item) => {
               const client = item.clientName || t("list.noName");
               return (
                 // Every value is rendered as text, never as HTML (§9).
-                <li key={item.id} className="relative space-y-1 p-4 hover:bg-text/5">
+                <li key={item.id} className="relative space-y-1 p-4 hover:bg-ink/5">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <h2 dir="auto" className="min-w-0 text-start text-base font-semibold wrap-anywhere">
                       <Link
@@ -138,7 +138,7 @@ export default async function ConsultationsPage({
                     </h2>
                     <StatusPill kind="consultation" status={item.status} className="self-start" />
                   </div>
-                  <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+                  <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
                     <span>
                       {t("list.client")}: <bdi className="wrap-anywhere">{client}</bdi>
                     </span>
@@ -167,7 +167,7 @@ export default async function ConsultationsPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">{t("paging.position", { page: list.page, pages })}</p>
+          <p className="text-sm text-ink-2">{t("paging.position", { page: list.page, pages })}</p>
           {list.page < pages ? (
             <ButtonLink href={link(list.page + 1)} variant="secondary" size="sm">
               {t("paging.next")}

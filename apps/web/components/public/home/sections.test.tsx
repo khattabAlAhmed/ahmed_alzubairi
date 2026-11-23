@@ -105,7 +105,7 @@ describe("ProjectsSection", () => {
     render(
       <ProjectsSection
         heading="Selected projects"
-        band="plain"
+       
         projects={[
           project("1", { isFeatured: true, organization: "An international organization", keyResult: "30% faster" }),
           project("2", { isFeatured: true }),

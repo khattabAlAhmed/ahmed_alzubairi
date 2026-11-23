@@ -54,8 +54,8 @@ function TimeField({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cx(
-          "mt-1 block h-11 w-full rounded-md border border-text/50 bg-surface px-3 text-text",
-          "focus:outline-2 focus:outline-offset-1 focus:outline-ring aria-invalid:border-2 aria-invalid:border-danger",
+          "mt-1 block h-11 w-full border border-ink/50 bg-surface px-3 text-ink",
+          "focus:outline-2 focus:outline-offset-1 focus:outline-focus aria-invalid:border-2 aria-invalid:border-danger",
         )}
       />
       {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
@@ -238,7 +238,7 @@ export function CourseForm({
           />
 
           {recorded ? (
-            <p className="text-sm text-text-secondary">{t("recordedNote")}</p>
+            <p className="text-sm text-ink-2">{t("recordedNote")}</p>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2">
               <TextField
@@ -287,7 +287,7 @@ export function CourseForm({
           {notice && (
             <p
               role={notice.ok ? "status" : "alert"}
-              className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+              className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
             >
               {notice.text}
             </p>

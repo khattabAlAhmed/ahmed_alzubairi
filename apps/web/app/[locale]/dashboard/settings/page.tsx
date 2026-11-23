@@ -32,7 +32,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
         <h2 id="email-templates-heading" className="text-lg">
           {templates("heading")}
         </h2>
-        <p className="text-sm text-text-secondary">{templates("text")}</p>
+        <p className="text-sm text-ink-2">{templates("text")}</p>
         <ButtonLink href="/dashboard/settings/email-templates" variant="secondary" size="sm">
           {templates("open")}
         </ButtonLink>

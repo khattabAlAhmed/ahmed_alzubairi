@@ -33,14 +33,14 @@ export default async function TrainingPage({ params }: { params: Promise<{ local
         actions={<ButtonLink href={`${TRAINING_BASE}/new`}>{t("add")}</ButtonLink>}
       />
       <TrainingNav current="courses" />
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total: courses.length })}
       </p>
 
       {courses.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">{t("empty.text")}</p>
+          <p className="mt-2 text-ink-2">{t("empty.text")}</p>
         </Card>
       ) : (
         // The browser gets only this section's namespace.

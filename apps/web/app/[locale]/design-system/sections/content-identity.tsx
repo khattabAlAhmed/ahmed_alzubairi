@@ -3,7 +3,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { HeroSection } from "@/components/public/home/hero";
-import { EmptyNote } from "@/components/public/parts";
 import {
   AudienceRows,
   CareerTimeline,
@@ -105,7 +104,7 @@ function Empty({ t, text }: { t: T; text: string }) {
   return (
     <State label={t("states.empty")}>
       <p className="type-small max-w-measure text-ink-2">{t("empty")}</p>
-      <EmptyNote text={text} />
+      <p className="text-ink-2">{text}</p>
     </State>
   );
 }

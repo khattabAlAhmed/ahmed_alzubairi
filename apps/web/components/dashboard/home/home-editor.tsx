@@ -182,7 +182,7 @@ export function HomeEditor({
               <div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <h3 className="text-lg">{item.name}</h3>
-                  <span className="text-sm text-text-secondary">
+                  <span className="text-sm text-ink-2">
                     {t("sections.position", { position: index + 1, total: sectionItems.length })}
                   </span>
                   <StatusBadges row={item.row} hidden={!visible} />
@@ -212,7 +212,7 @@ export function HomeEditor({
       <section aria-labelledby="stats-heading" className="space-y-4">
         <SectionHeading id="stats-heading" title={t("stats.heading")} intro={t("stats.intro")} />
         {statItems.length === 0 ? (
-          <p className="text-text-secondary">{t("stats.empty")}</p>
+          <p className="text-ink-2">{t("stats.empty")}</p>
         ) : (
           <ReorderList
             items={statItems}
@@ -228,7 +228,7 @@ export function HomeEditor({
                     <h3 className="text-lg">
                       <bdi>{item.name}</bdi>
                     </h3>
-                    <span className="text-sm text-text-secondary">
+                    <span className="text-sm text-ink-2">
                       {value ? <bdi>{value}</bdi> : t("stats.noValue")}
                     </span>
                     <StatusBadges row={item.row} />

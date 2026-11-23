@@ -143,7 +143,7 @@ export async function StatisticsView({ statistics, locale }: { statistics: Stati
         ))}
       </ul>
       {/* Next to the visitor tile it qualifies, not after every chart. */}
-      {visitors && <p className="-mt-2 text-sm text-pretty text-text-secondary">{t("approximate")}</p>}
+      {visitors && <p className="-mt-2 text-sm text-pretty text-ink-2">{t("approximate")}</p>}
       {charts.length > 0 && (
         <ul className="grid gap-4 lg:grid-cols-2">
           {charts.map((item) => (

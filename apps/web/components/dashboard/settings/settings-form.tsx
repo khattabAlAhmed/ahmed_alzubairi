@@ -55,7 +55,7 @@ function CvUpload({
       <p id={`${id}-label`} className="text-sm font-semibold">
         {t("cvFile")}
       </p>
-      <p id={`${id}-hint`} className="mt-1 text-sm text-text-secondary">
+      <p id={`${id}-hint`} className="mt-1 text-sm text-ink-2">
         {t("cvFileHint")}
       </p>
       {fileKey ? (
@@ -199,7 +199,7 @@ export function SettingsForm({ saved, mediaBase }: { saved: SiteSettings; mediaB
           <h2 id={socialId} className="text-lg">
             {t("socialHeading")}
           </h2>
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="mt-1 text-sm text-ink-2">
             {t("socialHint", { max: MAX_SOCIAL_LINKS })}
           </p>
         </div>
@@ -209,7 +209,7 @@ export function SettingsForm({ saved, mediaBase }: { saved: SiteSettings; mediaB
               <li
                 // Rows have no id; the index is their identity while editing.
                 key={index}
-                className="grid gap-3 rounded-md border border-text/10 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] sm:items-start"
+                className="grid gap-3 border border-ink/10 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] sm:items-start"
               >
                 <TextField
                   label={t("platformNumber", { number: index + 1 })}

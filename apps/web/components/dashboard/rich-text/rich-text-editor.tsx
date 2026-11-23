@@ -18,8 +18,8 @@ import { isAllowedLink, richTextExtensions } from "./extensions";
 
 /** Styles for the editing area. They match the public renderer's look. */
 const CONTENT_CLASS = cx(
-  "min-h-48 rounded-b-md border border-t-0 border-text/30 bg-background px-3 py-2 leading-relaxed",
-  "focus:outline-2 focus:outline-offset-2 focus:outline-ring",
+  "min-h-48 border border-t-0 border-ink/30 bg-bg px-3 py-2 leading-relaxed",
+  "focus:outline-2 focus:outline-offset-2 focus:outline-focus",
   "[&>*+*]:mt-3 [&_h2]:text-xl [&_h3]:text-lg [&_a]:underline [&_a]:underline-offset-4",
   "[&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6",
   "[&_blockquote]:border-s-2 [&_blockquote]:border-accent [&_blockquote]:ps-4",
@@ -131,7 +131,7 @@ function ToolIcon({ tool, lang }: { tool: ToolKey | "link"; lang: Locale }) {
 
 /** A thin line between tool groups. */
 function ToolDivider() {
-  return <span aria-hidden="true" className="mx-0.5 my-1 w-px self-stretch bg-text/20" />;
+  return <span aria-hidden="true" className="mx-0.5 my-1 w-px self-stretch bg-ink/20" />;
 }
 
 /**
@@ -188,9 +188,9 @@ function ToolButton({
         }}
         onBlur={() => setActive((state) => ({ ...state, focus: false }))}
         className={cx(
-          "inline-flex size-8 items-center justify-center rounded",
+          "inline-flex size-8 items-center justify-center",
           FOCUS_RING,
-          pressed ? "bg-text text-background" : "hover:bg-text/10",
+          pressed ? "bg-ink text-bg" : "hover:bg-ink/10",
         )}
       >
         {children}
@@ -207,7 +207,7 @@ function ToolButton({
           shown && !dismissed ? "flex" : "hidden",
         )}
       >
-        <span className="rounded bg-text px-2 py-1 text-xs font-semibold whitespace-nowrap text-background shadow-md">
+        <span className="bg-ink px-2 py-1 text-xs font-semibold whitespace-nowrap text-bg">
           {label}
         </span>
       </span>
@@ -250,7 +250,7 @@ function LinkForm({ editor, onDone }: { editor: Editor; onDone: () => void }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 border-x border-text/30 p-2 sm:flex-row sm:items-end">
+    <div className="flex flex-col gap-2 border-x border-ink/30 p-2 sm:flex-row sm:items-end">
       {/* The hint and error carry markup, so they sit here, not in TextField's text props. */}
       <div className="min-w-0 flex-1">
         <TextField
@@ -357,7 +357,7 @@ export function RichTextEditor({
         {label}
       </p>
       {hint && (
-        <p id={`${id}-hint`} className="mb-1 text-sm text-text-secondary">
+        <p id={`${id}-hint`} className="mb-1 text-sm text-ink-2">
           {hint}
         </p>
       )}
@@ -365,7 +365,7 @@ export function RichTextEditor({
         role="toolbar"
         aria-label={t("toolbar")}
         aria-controls={`${id}-input`}
-        className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-text/30 bg-surface p-1"
+        className="flex flex-wrap items-center gap-0.5 border border-ink/30 bg-surface p-1"
       >
         {TOOLS.map((tool) => (
           <Fragment key={tool.key}>

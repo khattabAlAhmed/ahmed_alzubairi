@@ -93,7 +93,7 @@ export default async function RegistrationsPage({ params, searchParams }: { para
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("registrations.count", { total })}
       </p>
 

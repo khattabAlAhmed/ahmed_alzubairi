@@ -50,7 +50,7 @@ export default async function NewConsultationPage(props: {
         }
       />
       {services.length === 0 ? (
-        <p role="status" className="rounded-lg border border-text/10 bg-surface p-6 text-text-secondary shadow-sm">
+        <p role="status" className="border border-ink/10 bg-surface p-6 text-ink-2">
           {t("noServices")}
         </p>
       ) : (

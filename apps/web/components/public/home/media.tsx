@@ -5,7 +5,7 @@ import type { MediaItem } from "@/lib/content";
 import { MediaCard } from "../listing/media-card";
 import { VideoFacade } from "../listing/media-frame";
 import { embedUrl, webUrl } from "../media/query";
-import { HomeSectionShell, type SectionBand } from "./section";
+import { HomeSectionShell } from "./section";
 
 /**
  * The latest appearance or event, as the press log's featured item (MediaItem
@@ -67,12 +67,10 @@ export function FeaturedMedia({ item, className }: { item: MediaItem; className?
 export function MediaSection({
   heading,
   intro,
-  band = "plain",
   item,
 }: {
   heading: string;
   intro?: string;
-  band?: SectionBand;
   item: MediaItem;
   /** Kept for the caller; the date reads the page's language. */
   locale?: Locale;
@@ -84,7 +82,6 @@ export function MediaSection({
       sectionKey="media"
       heading={heading}
       intro={intro}
-      band={band}
       action={{ href: "/media", label: t("allMedia") }}
     >
       <FeaturedMedia item={item} className="md:max-w-[42rem]" />

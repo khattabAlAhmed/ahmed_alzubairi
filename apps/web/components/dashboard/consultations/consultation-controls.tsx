@@ -72,7 +72,7 @@ export function StatusControl({
       </form>
 
       {confirming ? (
-        <div role="group" aria-label={t("close")} className="space-y-3 rounded-md border border-text/20 p-3">
+        <div role="group" aria-label={t("close")} className="space-y-3 border border-ink/20 p-3">
           <p className="text-sm">{t("closeQuestion")}</p>
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => void save("closed")} loading={busy} loadingLabel={t("saving")}>

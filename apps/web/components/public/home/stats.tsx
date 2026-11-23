@@ -16,7 +16,7 @@ export function StatsSection({
   stats: HomeStat[];
 }) {
   return (
-    <HomeSectionShell sectionKey="stats" heading={heading} intro={intro} band="plain">
+    <HomeSectionShell sectionKey="stats" heading={heading} intro={intro}>
       <StatBand stats={stats} />
     </HomeSectionShell>
   );

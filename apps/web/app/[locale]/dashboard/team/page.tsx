@@ -68,9 +68,9 @@ export default async function TeamPage({
           {t("invitations.title")}
         </h2>
         {team.invitations.length === 0 ? (
-          <p className="mt-2 text-sm text-text-secondary">{t("invitations.empty")}</p>
+          <p className="mt-2 text-sm text-ink-2">{t("invitations.empty")}</p>
         ) : (
-          <ul className="mt-3 divide-y divide-text/10">
+          <ul className="mt-3 divide-y divide-ink/10">
             {team.invitations.map((invitation) => {
               const role = roles.find((item) => item.id === invitation.roleId);
               return (
@@ -81,7 +81,7 @@ export default async function TeamPage({
                   <bdi dir="ltr" className="break-all">
                     {invitation.email}
                   </bdi>
-                  <span className="text-text-secondary">
+                  <span className="text-ink-2">
                     {role ? roleName(role, locale) : t("members.unknownRole")}
                     {metaSeparator(locale)}
                     {t("invitations.sent")}:{" "}
@@ -141,14 +141,14 @@ export default async function TeamPage({
           </div>
         </form>
 
-        <p role="status" className="text-sm text-text-secondary">
+        <p role="status" className="text-sm text-ink-2">
           {t("members.count", { total: team.total })}
         </p>
 
         {team.members.length === 0 ? (
           <Card>
             <p className="font-semibold">{t("members.empty.title")}</p>
-            <p className="mt-1 text-sm text-text-secondary">{t("members.empty.text")}</p>
+            <p className="mt-1 text-sm text-ink-2">{t("members.empty.text")}</p>
           </Card>
         ) : (
           <NextIntlClientProvider locale={locale} messages={{ DashboardTeam: all.DashboardTeam }}>

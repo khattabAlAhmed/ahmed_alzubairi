@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/content";
 import { ProjectStoryFeatured, ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
-import { HomeSectionShell, type SectionBand } from "./section";
+import { HomeSectionShell } from "./section";
 
 /** §6.2 #6: three projects. */
 export const HOME_PROJECT_COUNT = 3;
@@ -24,12 +24,10 @@ export function selectHomeProjects(projects: Project[], count = HOME_PROJECT_COU
 export function ProjectsSection({
   heading,
   intro,
-  band,
   projects,
 }: {
   heading: string;
   intro?: string;
-  band: SectionBand;
   projects: Project[];
 }) {
   const t = useTranslations("Home");
@@ -41,7 +39,6 @@ export function ProjectsSection({
       sectionKey="projects"
       heading={heading}
       intro={intro}
-      band={band}
       action={{ href: "/projects", label: t("allProjects") }}
     >
       {first && (

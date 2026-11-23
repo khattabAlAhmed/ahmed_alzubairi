@@ -81,12 +81,12 @@ function CoursePageView({ course }: { course: CourseDetail }) {
           <h2 className="text-xl">{t("course.details")}</h2>
           <dl className="space-y-4">
             <div>
-              <dt className="text-sm font-semibold text-text-secondary">{t("course.type")}</dt>
+              <dt className="text-sm font-semibold text-ink-2">{t("course.type")}</dt>
               <dd className="mt-1">{tListing(`courseType.${course.type}`)}</dd>
             </div>
             {!recorded && (
               <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.date")}</dt>
+                <dt className="text-sm font-semibold text-ink-2">{t("course.date")}</dt>
                 <dd className="mt-1">
                   {course.startsAt ? (
                     <LocalDateTime value={course.startsAt} fallback={formatDate(course.startsAt, locale)} />
@@ -98,13 +98,13 @@ function CoursePageView({ course }: { course: CourseDetail }) {
             )}
             {!recorded && (online || course.place) && (
               <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.place")}</dt>
+                <dt className="text-sm font-semibold text-ink-2">{t("course.place")}</dt>
                 <dd className="mt-1">{online ? t("course.online") : course.place}</dd>
               </div>
             )}
             {!recorded && course.type !== "custom" && (
               <div>
-                <dt className="text-sm font-semibold text-text-secondary">{t("course.seats")}</dt>
+                <dt className="text-sm font-semibold text-ink-2">{t("course.seats")}</dt>
                 <dd className="mt-1">
                   {course.seats !== null && course.seatsLeft !== null ? (
                     <SeatsMeter left={course.seatsLeft} total={course.seats} />
@@ -116,9 +116,9 @@ function CoursePageView({ course }: { course: CourseDetail }) {
             )}
           </dl>
           {!recorded && course.type !== "custom" && (
-            <div className="border-t border-text/10 pt-6">
+            <div className="border-t border-ink/10 pt-6">
               {full ? (
-                <span className="inline-flex h-11 w-full items-center justify-center rounded-md border border-dashed border-text/40 px-4 font-semibold text-text-secondary">
+                <span className="inline-flex h-11 w-full items-center justify-center border border-dashed border-ink/40 px-4 font-semibold text-ink-2">
                   {tListing("courseFull")}
                 </span>
               ) : (
@@ -171,11 +171,11 @@ function Segmented<T extends string>({
   return (
     <fieldset className="min-w-0">
       <legend className="text-sm font-semibold">{legend}</legend>
-      <div className="mt-1 inline-flex flex-wrap rounded-md border border-text/20 p-0.5">
+      <div className="mt-1 inline-flex flex-wrap border border-ink/20 p-0.5">
         {options.map((option) => (
           <label
             key={option.value}
-            className="cursor-pointer rounded px-3 py-1.5 text-sm has-checked:bg-text has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-ring"
+            className="cursor-pointer px-3 py-1.5 text-sm has-checked:bg-ink has-checked:text-bg has-focus-visible:outline-2 has-focus-visible:outline-focus"
           >
             <input
               type="radio"
@@ -257,7 +257,7 @@ export function CoursePreview({
           <h2 id={`${id}-heading`} className="text-lg">
             {t("heading")}
           </h2>
-          <p className="mt-1 text-sm text-text-secondary">{t("intro")}</p>
+          <p className="mt-1 text-sm text-ink-2">{t("intro")}</p>
         </div>
         <Button
           type="button"
@@ -315,13 +315,13 @@ export function CoursePreview({
 
             <div aria-live="polite" className="space-y-2">
               {values.status !== "published" && (
-                <p className="rounded-md border border-text/20 p-3 text-sm">{t("draftNote")}</p>
+                <p className="border border-ink/20 p-3 text-sm">{t("draftNote")}</p>
               )}
               {!course && (
-                <p className="rounded-md border border-danger p-3 text-sm">{t("incomplete", { language })}</p>
+                <p className="border border-danger p-3 text-sm">{t("incomplete", { language })}</p>
               )}
               {failedLocale === locale && (
-                <p className="rounded-md border border-danger p-3 text-sm">{t("loadFailed")}</p>
+                <p className="border border-danger p-3 text-sm">{t("loadFailed")}</p>
               )}
             </div>
 

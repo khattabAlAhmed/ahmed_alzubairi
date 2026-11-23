@@ -42,7 +42,7 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
       {rows.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{t("list.emptyTitle")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {creatable ? t("list.emptyText") : t("list.emptyFixed")}
           </p>
         </Card>
@@ -71,7 +71,7 @@ export async function TypeList({ type, locale }: { type: ContentType; locale: Lo
                     <p className="font-semibold break-words">{title}</p>
                   )}
                   {updated && (
-                    <p className="mt-0.5 text-xs text-text-secondary">
+                    <p className="mt-0.5 text-xs text-ink-2">
                       {t("list.updated", { date: formatDateTime(updated, locale, { time: false, timeZone: "UTC" }) })}
                     </p>
                   )}

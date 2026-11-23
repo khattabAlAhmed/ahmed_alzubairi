@@ -102,7 +102,7 @@ export default async function MessagesPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total })}
       </p>
 
@@ -111,7 +111,7 @@ export default async function MessagesPage({
           <h2 className="text-xl">
             {filtered ? t("empty.filteredTitle") : t("empty.title")}
           </h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : t("empty.text")}
           </p>
         </Card>
@@ -137,7 +137,7 @@ export default async function MessagesPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-ink-2">
             {t("paging.position", { page: list.page, pages })}
           </p>
           {list.page < pages ? (

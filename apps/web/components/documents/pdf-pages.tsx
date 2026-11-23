@@ -83,7 +83,7 @@ function PdfPage({
       aria-label={label}
       // The copy is for viewing: no right-click "Save image".
       onContextMenu={(event) => event.preventDefault()}
-      className="block h-auto w-full rounded-md border border-text/15 bg-white shadow-sm"
+      className="block h-auto w-full border border-ink/15 bg-white"
     />
   );
 }
@@ -143,7 +143,7 @@ export function PdfPages({
               label={`${title}${metaSeparator(locale)}${t("page", { page: index + 1, pages })}`}
               onError={onError}
             />
-            <figcaption className="mt-1 text-center text-xs text-text-secondary">
+            <figcaption className="mt-1 text-center text-xs text-ink-2">
               {t("page", { page: index + 1, pages })}
             </figcaption>
           </figure>

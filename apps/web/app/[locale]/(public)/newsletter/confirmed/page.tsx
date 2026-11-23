@@ -49,7 +49,7 @@ export default async function NewsletterConfirmedPage({ params, searchParams }: 
     <main id={MAIN_CONTENT_ID} className="flex-1">
       <div className={`${CONTAINER} max-w-2xl py-16 md:py-24`}>
         <h1 className="text-3xl md:text-4xl">{t(`confirm.${status}.title`)}</h1>
-        <p className="mt-4 text-lg text-text-secondary">{t(`confirm.${status}.text`)}</p>
+        <p className="mt-4 text-lg text-ink-2">{t(`confirm.${status}.text`)}</p>
         {justConfirmed(raw) && <TrackConfirmed />}
         <ButtonLink href="/" variant="secondary" className="mt-8">
           {t("confirm.home")}

@@ -43,7 +43,7 @@ export function ReadingSection({
       sectionKey="latest"
       heading={heading}
       intro={intro}
-      band="plain"
+     
       action={shownPosts.length > 0 ? { href: "/blog", label: t("readingMore") } : undefined}
     >
       <div className={cx("grid gap-x-gutter gap-y-10", media && writing && "lg:grid-cols-2")}>

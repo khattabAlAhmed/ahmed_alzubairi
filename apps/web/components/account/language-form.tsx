@@ -43,7 +43,7 @@ export function LanguageForm({ saved }: { saved: Locale }) {
         <h2 id="language-title" className="text-xl">
           {t("title")}
         </h2>
-        <p className="mt-1 text-sm text-text-secondary">{t("intro")}</p>
+        <p className="mt-1 text-sm text-ink-2">{t("intro")}</p>
       </div>
       <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
         <Select

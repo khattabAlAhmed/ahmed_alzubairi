@@ -11,7 +11,7 @@ export {
   parseProjectFilters,
   type ProjectFilters,
 } from "./filters";
-export { CARD, CONTAINER, EmptyNote, PageHero, PageSection } from "../parts";
+export { CONTAINER, PageHero, PageSection } from "../parts";
 export { ProjectDetailPage } from "./project-detail";
 export { orderProjects, pageOf, PROJECTS_PER_PAGE, ProjectsList } from "./projects-list";
 export { routeSlug, staticSlugs } from "../static-slugs";

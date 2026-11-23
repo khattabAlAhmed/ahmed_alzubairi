@@ -82,28 +82,28 @@ async function Stats({ block, locale }: { block: Extract<HomeBlock, { key: "stat
 
 async function Expertise({ block, locale }: { block: Extract<HomeBlock, { key: "expertise" }>; locale: Locale }) {
   const areas = await getExpertiseAreas(locale);
-  return areas.length > 0 ? <ExpertiseSection {...block.section.content} band="plain" areas={areas} /> : null;
+  return areas.length > 0 ? <ExpertiseSection {...block.section.content} areas={areas} /> : null;
 }
 
 async function Services({ block, locale }: { block: Extract<HomeBlock, { key: "services" }>; locale: Locale }) {
   const services = (await getServices(locale)).filter((service) => service.isFeatured);
-  return services.length > 0 ? <ServicesSection {...block.section.content} band="plain" services={services} /> : null;
+  return services.length > 0 ? <ServicesSection {...block.section.content} services={services} /> : null;
 }
 
 async function Projects({ block, locale }: { block: Extract<HomeBlock, { key: "projects" }>; locale: Locale }) {
   const projects = await getProjects(locale);
-  return projects.length > 0 ? <ProjectsSection {...block.section.content} band="plain" projects={projects} /> : null;
+  return projects.length > 0 ? <ProjectsSection {...block.section.content} projects={projects} /> : null;
 }
 
 async function Partners({ block, locale }: { block: Extract<HomeBlock, { key: "partners" }>; locale: Locale }) {
   const partners = await getPartners(locale);
-  return partners.length > 0 ? <PartnersSection {...block.section.content} band="plain" partners={partners} /> : null;
+  return partners.length > 0 ? <PartnersSection {...block.section.content} partners={partners} /> : null;
 }
 
 async function Testimonials({ block, locale }: { block: Extract<HomeBlock, { key: "testimonials" }>; locale: Locale }) {
   const testimonials = await getTestimonials(locale);
   return testimonials.length > 0 ? (
-    <TestimonialsSection {...block.section.content} band="plain" testimonials={testimonials} />
+    <TestimonialsSection {...block.section.content} testimonials={testimonials} />
   ) : null;
 }
 
@@ -132,7 +132,7 @@ async function Contact({ block, locale }: { block: Extract<HomeBlock, { key: "co
 export function HomeBlockView({ block, locale }: { block: Exclude<HomeBlock, { key: "hero" | "letter" }>; locale: Locale }) {
   switch (block.key) {
     case "audiences":
-      return <AudiencesSection content={block.section.content} band="plain" />;
+      return <AudiencesSection content={block.section.content} />;
     case "newsletter":
       return <NewsletterSection {...block.section.content} />;
     default:

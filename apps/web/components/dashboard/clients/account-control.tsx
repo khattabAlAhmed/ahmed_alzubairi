@@ -79,7 +79,7 @@ export function AccountControl({
         <div
           role="group"
           aria-label={status === "active" ? t("disable") : t("enable")}
-          className="space-y-3 rounded-md border border-text/20 bg-background p-3"
+          className="space-y-3 border border-ink/20 bg-bg p-3"
         >
           <p className="max-w-prose text-sm">
             {status === "active" ? t("confirmDisable", { name }) : t("confirmEnable", { name })}
@@ -101,7 +101,7 @@ export function AccountControl({
       {notice && (
         <p
           role={notice.ok ? "status" : "alert"}
-          className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+          className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
         >
           {notice.text}
         </p>

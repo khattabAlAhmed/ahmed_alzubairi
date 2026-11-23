@@ -74,12 +74,12 @@ function MemberRow({
               <Badge className="ms-2 align-middle">{t("you")}</Badge>
             )}
           </p>
-          <p className="text-sm wrap-anywhere text-text-secondary">
+          <p className="text-sm wrap-anywhere text-ink-2">
             <bdi dir="ltr">{member.email}</bdi>
           </p>
         </div>
         {/* Under the name until xl: beside it, a long role name squeezed the name and email. Capped at half the row there. */}
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary xl:max-w-[50%] xl:justify-end">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-2 xl:max-w-[50%] xl:justify-end">
           <Badge tone={member.status === "active" ? "strong" : "neutral"}>
             {tStatus(member.status)}
           </Badge>
@@ -91,7 +91,7 @@ function MemberRow({
       </div>
 
       {locked ? (
-        <p className="text-sm text-text-secondary">{isSelf ? t("selfNote") : t("adminNote")}</p>
+        <p className="text-sm text-ink-2">{isSelf ? t("selfNote") : t("adminNote")}</p>
       ) : (
         <div className="flex flex-wrap items-end gap-3">
           <Select
@@ -128,7 +128,7 @@ function MemberRow({
         <div
           role="group"
           aria-label={member.status === "active" ? t("disable") : t("enable")}
-          className="space-y-3 rounded-md border border-text/20 bg-background p-3"
+          className="space-y-3 border border-ink/20 bg-bg p-3"
         >
           <p className="text-sm">
             {member.status === "active"
@@ -159,7 +159,7 @@ function MemberRow({
       {notice && (
         <p
           role={notice.tone}
-          className={cx("text-sm font-semibold", notice.tone === "alert" ? "text-danger" : "text-text")}
+          className={cx("text-sm font-semibold", notice.tone === "alert" ? "text-danger" : "text-ink")}
         >
           {notice.text}
         </p>
@@ -179,7 +179,7 @@ export function MemberList({
   selfId: string;
 }) {
   return (
-    <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface shadow-sm">
+    <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
       {members.map((member) => (
         <MemberRow
           key={member.id}

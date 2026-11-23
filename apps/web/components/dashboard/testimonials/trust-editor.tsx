@@ -62,7 +62,7 @@ function LetterUpload({
       <p id={`${id}-label`} className="text-sm font-semibold">
         {t("heading")}
       </p>
-      <p id={`${id}-hint`} className="mt-1 text-sm text-text-secondary">
+      <p id={`${id}-hint`} className="mt-1 text-sm text-ink-2">
         {t("hint")} {text.t("upload.fileHint")}
       </p>
       <p className="mt-2 text-sm">{attached ? t("attached") : t("none")}</p>

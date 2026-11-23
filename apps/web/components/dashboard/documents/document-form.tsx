@@ -203,7 +203,7 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
         <div className="space-y-1.5">
           <Label htmlFor={fileId}>{document ? t("replaceFile") : t("file")}</Label>
           {document && (
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-ink-2">
               {t("currentFile", { type: fileTypeLabel(document.mime) })}
             </p>
           )}
@@ -216,9 +216,9 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
             aria-describedby={fileDescribed}
             onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             className={cx(
-              "block w-full max-w-full rounded-md border border-text/50 bg-surface p-2 text-sm text-text",
-              "file:me-3 file:rounded file:border-0 file:bg-text/10 file:px-3 file:py-1.5 file:text-text",
-              "focus:outline-2 focus:outline-offset-1 focus:outline-ring aria-invalid:border-2 aria-invalid:border-danger",
+              "block w-full max-w-full border border-ink/50 bg-surface p-2 text-sm text-ink",
+              "file:me-3 file:border-0 file:bg-ink/10 file:px-3 file:py-1.5 file:text-ink",
+              "focus:outline-2 focus:outline-offset-1 focus:outline-focus aria-invalid:border-2 aria-invalid:border-danger",
             )}
           />
           <FieldHint id={`${fileId}-hint`}>{fileHint}</FieldHint>
@@ -237,7 +237,7 @@ export function DocumentForm({ document }: { document?: AdminDocument }) {
         {notice && (
           <p
             role={notice.ok ? "status" : "alert"}
-            className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+            className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
           >
             {notice.text}
           </p>

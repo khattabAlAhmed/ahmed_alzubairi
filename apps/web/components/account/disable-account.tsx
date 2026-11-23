@@ -52,14 +52,14 @@ export function DisableAccount() {
       <h2 id="disable-title" className="text-xl">
         {t("title")}
       </h2>
-      <p className="max-w-prose text-text-secondary">{t("intro")}</p>
+      <p className="max-w-prose text-ink-2">{t("intro")}</p>
       <p className="max-w-prose font-semibold">{t("adminOnly")}</p>
       {step === "closed" ? (
         <Button variant="secondary" onClick={() => setStep("confirm")}>
           {t("start")}
         </Button>
       ) : (
-        <div role="group" aria-labelledby="disable-confirm" className="space-y-3 rounded-md border border-danger p-3">
+        <div role="group" aria-labelledby="disable-confirm" className="space-y-3 border border-danger p-3">
           <p id="disable-confirm" className="font-semibold">
             {t("confirmTitle")}
           </p>

@@ -95,22 +95,22 @@ export default async function ClientsPage({
         </div>
       </form>
 
-      <p role="status" className="text-sm text-text-secondary">
+      <p role="status" className="text-sm text-ink-2">
         {t("count", { total })}
       </p>
 
       {clients.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{filtered ? t("empty.filteredTitle") : t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-2 text-ink-2">
             {filtered ? t("empty.filteredText") : t("empty.text")}
           </p>
         </Card>
       ) : (
-        <ul className="divide-y divide-text/10 rounded-lg border border-text/10 bg-surface">
+        <ul className="divide-y divide-ink/10 border border-ink/10 bg-surface">
           {clients.map((client) => (
             // Every value is rendered as text, never as HTML (§9).
-            <li key={client.id} className="relative space-y-1 p-4 hover:bg-text/5">
+            <li key={client.id} className="relative space-y-1 p-4 hover:bg-ink/5">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <h2 className="min-w-0 text-base font-semibold break-words">
                   <Link
@@ -125,13 +125,13 @@ export default async function ClientsPage({
                   {t(`status.${client.status}`)}
                 </Badge>
               </div>
-              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
                 <bdi dir="ltr" className="break-all">
                   {client.email}
                 </bdi>
                 <bdi dir="ltr">{client.phone}</bdi>
               </p>
-              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
                 {(client.orgType || client.orgName) && (
                   <span className="min-w-0 wrap-anywhere">
                     {t("list.organization")}:{" "}
@@ -162,7 +162,7 @@ export default async function ClientsPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-ink-2">
             {t("paging.position", { page: list.page, pages })}
           </p>
           {list.page < pages ? (

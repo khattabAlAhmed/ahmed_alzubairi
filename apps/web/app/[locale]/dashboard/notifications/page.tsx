@@ -48,7 +48,7 @@ export default async function NotificationsPage({
       {items.length === 0 ? (
         <Card as="section">
           <h2 className="text-xl">{t("empty.title")}</h2>
-          <p className="mt-2 text-text-secondary">{t("empty.text")}</p>
+          <p className="mt-2 text-ink-2">{t("empty.text")}</p>
         </Card>
       ) : (
         // The browser gets only this section's namespace.
@@ -72,7 +72,7 @@ export default async function NotificationsPage({
           ) : (
             <span />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-ink-2">
             {t("paging.position", { page, pages })}
           </p>
           {page < pages ? (

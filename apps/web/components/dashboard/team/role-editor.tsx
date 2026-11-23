@@ -29,7 +29,7 @@ function NoticeLine({ notice }: { notice: Notice | null }) {
   return (
     <p
       role={notice.ok ? "status" : "alert"}
-      className={cx("text-sm font-semibold", notice.ok ? "text-text" : "text-danger")}
+      className={cx("text-sm font-semibold", notice.ok ? "text-ink" : "text-danger")}
     >
       {notice.text}
     </p>
@@ -133,14 +133,14 @@ function RoleCard({ role }: { role: AdminRole }) {
           <bdi>{name}</bdi>
         </h2>
         <Badge>{role.isSystem ? t("system") : t("custom")}</Badge>
-        <span className="text-sm text-text-secondary">
+        <span className="text-sm text-ink-2">
           {t("key")}: <bdi dir="ltr">{role.key}</bdi>
         </span>
       </div>
 
       {locked ? (
         <>
-          <p className="max-w-prose text-sm text-text-secondary">{t("adminLocked")}</p>
+          <p className="max-w-prose text-sm text-ink-2">{t("adminLocked")}</p>
           <PermissionChecklist
             legend={t("permissionsFor", { name })}
             value={role.permissions}
@@ -239,7 +239,7 @@ function AddRoleForm() {
         <h2 id="add-role-title" className="text-xl">
           {t("add.title")}
         </h2>
-        <p className="mt-1 max-w-prose text-sm text-text-secondary">{t("add.intro")}</p>
+        <p className="mt-1 max-w-prose text-sm text-ink-2">{t("add.intro")}</p>
       </div>
       <form noValidate onSubmit={onSubmit} className="space-y-4">
         <TextField

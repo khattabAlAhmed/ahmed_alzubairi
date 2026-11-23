@@ -76,7 +76,7 @@ export function PasswordForm() {
         <h2 id="password-title" className="text-xl">
           {t("title")}
         </h2>
-        <p className="mt-1 text-sm text-text-secondary">{t("intro")}</p>
+        <p className="mt-1 text-sm text-ink-2">{t("intro")}</p>
       </div>
       <form noValidate onSubmit={onSubmit} className="space-y-4">
         {/* Same grid as the two fields below, so the current password lines up with them. */}

@@ -103,7 +103,7 @@ export function UploadInput({ field, name, ctx }: FieldRendererProps) {
       <p id={`${id}-label`} className="text-sm font-semibold">
         {text.requiredLabel(ctx, field, name)}
       </p>
-      <p id={hintId} className="mt-1 text-sm text-text-secondary">
+      <p id={hintId} className="mt-1 text-sm text-ink-2">
         {text.isolate(isImage ? text.t("upload.imageHint") : text.t("upload.fileHint"))}
       </p>
       {value !== "" && isImage && (
@@ -159,7 +159,7 @@ export function ImagesInput({
   return (
     <fieldset>
       <legend className="text-sm font-semibold">{text.label(field)}</legend>
-      <p className="mt-1 text-sm text-text-secondary">{text.isolate(text.t("upload.imageHint"))}</p>
+      <p className="mt-1 text-sm text-ink-2">{text.isolate(text.t("upload.imageHint"))}</p>
       {images.length > 0 && (
         <ul className="mt-3 grid gap-4 md:grid-cols-2">
           {images.map((image, index) => (

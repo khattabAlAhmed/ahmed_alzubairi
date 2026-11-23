@@ -61,7 +61,7 @@ export function NotifySwitch({ saved }: { saved: boolean }) {
           <span className="sr-only">{on ? t("on") : t("off")}</span>
         </button>
       </div>
-      <p className="text-sm text-text-secondary">{t("always")}</p>
+      <p className="text-sm text-ink-2">{t("always")}</p>
       <NoticeLine notice={notice} />
     </Card>
   );

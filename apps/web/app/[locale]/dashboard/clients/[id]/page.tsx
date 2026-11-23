@@ -15,7 +15,7 @@ type Params = Promise<{ locale: string; id: string }>;
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-sm text-text-secondary">{label}</dt>
+      <dt className="text-sm text-ink-2">{label}</dt>
       <dd className="mt-0.5 break-words">{children}</dd>
     </div>
   );
@@ -40,7 +40,7 @@ export default async function ClientPage({ params }: { params: Params }) {
     loadClient(id.data),
   ]);
   if (!client) notFound();
-  const none = <span className="text-text-secondary">{t("detail.none")}</span>;
+  const none = <span className="text-ink-2">{t("detail.none")}</span>;
 
   return (
     <div className="space-y-6">
@@ -91,7 +91,7 @@ export default async function ClientPage({ params }: { params: Params }) {
             {t(`status.${client.status}`)}
           </Badge>
         </div>
-        <p className="text-text-secondary">
+        <p className="text-ink-2">
           {client.status === "active" ? t("account.activeText") : t("account.disabledText")}
         </p>
         {access.canManage && (
@@ -106,9 +106,9 @@ export default async function ClientPage({ params }: { params: Params }) {
         <h2 id="history-title" className="text-xl">
           {t("detail.history")}
         </h2>
-        <div className="mt-4 rounded-md border border-dashed border-text/20 p-6 text-center">
+        <div className="mt-4 border border-dashed border-ink/20 p-6 text-center">
           <p className="font-semibold">{t("detail.historyEmptyTitle")}</p>
-          <p className="mt-1 text-sm text-text-secondary">{t("detail.historyEmptyText")}</p>
+          <p className="mt-1 text-sm text-ink-2">{t("detail.historyEmptyText")}</p>
         </div>
       </Card>
     </div>
