@@ -175,7 +175,7 @@ describe("RequestServiceButton", () => {
 });
 
 describe("AboutPage", () => {
-  const page: Page = { key: "about", title: "About", body: doc("Short bio", "Long bio"), availableIn: ["ar"] };
+  const page: Page = { key: "about", title: "About", body: doc("Short bio", "Long bio"), updatedAt: "2026-03-01T00:00:00Z", availableIn: ["ar"] };
   const timeline: TimelineItem[] = [
     { id: "1", kind: "career", title: "Senior consultant", description: null, period: "2018 – 2024" },
     { id: "2", kind: "qualification", title: "Master's degree", description: null, period: "2010" },
