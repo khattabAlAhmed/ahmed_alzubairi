@@ -28,6 +28,11 @@
     "meet": "If we need to, we set a video meeting at a time that suits you."
   },
   "ctaPhotoAlt": "Placeholder photo: a table and two facing chairs by a window",
+  "ctaAboutTitle": "If you want to talk, I am here.",
+  "ctaAboutText": "Write what you are facing the way you would explain it to a colleague.",
+  "ctaServicesTitle": "Tell me what you are facing.",
+  "ctaServicesText": "I will read your message myself, and tell you whether I am the right person.",
+  "breadcrumbLabel": "Breadcrumb",
   "aboutSentence": "I learned to ask before I plan. I still do.",
   "inShort": "In short",
   "careerIntro": "Most recent first.",

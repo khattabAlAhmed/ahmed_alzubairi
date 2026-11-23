@@ -65,7 +65,7 @@ export function ServicesListPage({
           />
         </PageSection>
       </div>
-      <ConsultationCta />
+      <ConsultationCta variant="photo" />
     </>
   );
 }
@@ -131,7 +131,7 @@ export function ServiceDetailPage({
   return (
     <>
       <PageHero
-        back={{ href: "/services", label: tNav("services") }}
+        breadcrumb={[{ label: tNav("services"), href: "/services" }, { label: service.title }]}
         title={service.title}
         intro={<p>{service.summary}</p>}
         facts={facts}

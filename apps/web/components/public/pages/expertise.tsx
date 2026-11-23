@@ -109,7 +109,7 @@ export function ExpertiseDetailPage({
   return (
     <>
       <PageHero
-        back={{ href: "/expertise", label: tNav("expertise") }}
+        breadcrumb={[{ label: tNav("expertise"), href: "/expertise" }, { label: area.title }]}
         title={area.title}
         intro={<p>{area.summary}</p>}
         facts={facts}
@@ -174,7 +174,6 @@ export function ExpertiseDetailPage({
           </PageSection>
         )}
       </div>
-      <ConsultationCta />
     </>
   );
 }

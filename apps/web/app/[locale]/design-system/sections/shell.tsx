@@ -2,6 +2,7 @@ import type { Locale } from "@repo/shared";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+import { Breadcrumb } from "@/components/public/breadcrumb";
 import { formatNumber } from "@/components/public/home/format";
 import { ConsultationCta, PageHero, PageSection } from "@/components/public/parts";
 import { HeaderBar } from "@/components/site-header";
@@ -184,12 +185,25 @@ export async function ShellSection({ locale }: Props) {
           <DsNote className="mt-3">{t("section.note")}</DsNote>
         </DsBlock>
 
-        <DsBlock title={t("cta.title")} intro={t("cta.intro")}>
-          <Themed locale={locale}>
+        <DsBlock title={t("breadcrumb.title")} intro={t("breadcrumb.intro")}>
+          <Pair locale={locale}>
             {() => (
-              <ConsultationCta />
+              <Breadcrumb
+                items={[{ label: t("breadcrumb.sampleSection"), href: "/services" }, { label: t("breadcrumb.samplePage") }]}
+              />
             )}
-          </Themed>
+          </Pair>
+          <DsNote className="mt-3">{t("breadcrumb.note")}</DsNote>
+        </DsBlock>
+
+        <DsBlock title={t("cta.title")} intro={t("cta.intro")}>
+          <DsNote>{t("cta.fullNote")}</DsNote>
+          <Themed locale={locale}>{() => <ConsultationCta />}</Themed>
+          <DsNote className="mt-6">{t("cta.textNote")}</DsNote>
+          <Themed locale={locale}>{() => <ConsultationCta variant="text" />}</Themed>
+          <DsNote className="mt-6">{t("cta.photoNote")}</DsNote>
+          <Themed locale={locale}>{() => <ConsultationCta variant="photo" />}</Themed>
+          <DsNote className="mt-6">{t("cta.noneNote")}</DsNote>
         </DsBlock>
       </NextIntlClientProvider>
     </DsSection>

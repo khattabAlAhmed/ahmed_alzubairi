@@ -7,6 +7,7 @@ import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
+import { Breadcrumb, type BreadcrumbItem } from "./breadcrumb";
 
 /**
  * The page column: `container` (1312) of content, centered, with the page
@@ -36,8 +37,8 @@ export const PAGE_TITLE = "type-h1 max-md:text-[28px] max-md:[:lang(en)_&]:text-
 
 /**
  * The top of every main page (the PageHeader board): the 2px rule, then three
- * columns. The start one says where you are (the section, or the way back);
- * the middle one holds the title and one sentence of his; the end one lists
+ * columns. The start one says where you are (the section, a breadcrumb, or
+ * the way back); the middle one holds the title and one sentence of his; the end one lists
  * the page's facts as a ledger. Never a centred hero. On phones the columns
  * stack. An optional 4:5 photo of him takes the end column (the About page),
  * with the facts under it when both are given. A page with no facts can put
@@ -46,6 +47,7 @@ export const PAGE_TITLE = "type-h1 max-md:text-[28px] max-md:[:lang(en)_&]:text-
 export function PageHero({
   eyebrow,
   back,
+  breadcrumb,
   title,
   intro,
   actions,
@@ -56,6 +58,8 @@ export function PageHero({
   /** Where the page sits, e.g. the section's name. */
   eyebrow?: string;
   back?: { href: string; label: string };
+  /** The path to this page, ending with the page itself (the Service and Expertise mockups). */
+  breadcrumb?: readonly BreadcrumbItem[];
   title: string;
   /** One sentence of his (SOUL.md principle 1). */
   intro?: ReactNode;
@@ -70,6 +74,7 @@ export function PageHero({
     <header className={cx(CONTAINER, "mt-8 md:mt-12")}>
       <div className="grid gap-5 border-t-2 border-rule pt-6 pb-10 md:grid-cols-12 md:gap-gutter">
         <div className="type-small flex flex-col items-start gap-2 text-ink-2 md:col-span-3">
+          {breadcrumb && <Breadcrumb items={breadcrumb} />}
           {back && <MoreLink href={back.href} label={back.label} back />}
           {eyebrow && <p>{eyebrow}</p>}
         </div>
@@ -211,12 +216,90 @@ export function MoreLink({
   );
 }
 
+/** Which closing a page gets (the ConsultationCta board, per the page mockups). */
+export type ConsultationCtaVariant = "full" | "text" | "photo";
+
 /**
- * The closing invitation on public pages (the ConsultationCta board): a quiet
- * photo, his invitation with «اطلب استشارة» and a direct line, and what happens
- * next in three steps. An invitation to talk, never a coloured banner.
+ * The closing invitation on public pages (the ConsultationCta board): an
+ * invitation to talk, never a coloured banner. Three forms, each from a page
+ * mockup:
+ * - `full` (default): a quiet photo, his invitation with «اطلب استشارة» and a
+ *   direct line, and what happens next in three steps.
+ * - `text` (About): his line and one button, nothing else.
+ * - `photo` (Services): the photo, his line and one button, no steps.
+ * A page that ends without one (an expertise area) simply leaves it out.
  */
-export function ConsultationCta() {
+export function ConsultationCta({ variant = "full" }: { variant?: ConsultationCtaVariant }) {
+  if (variant === "text") return <TextCta />;
+  if (variant === "photo") return <PhotoCta />;
+  return <FullCta />;
+}
+
+/** The band's frame: the 2px rule above, a hairline below, on the 12-column grid. */
+const CTA_BAND = "grid gap-6 border-t-2 border-b border-t-rule border-b-line py-7 md:grid-cols-12 md:gap-gutter";
+
+/** The quiet photo that opens the `full` and `photo` closings, desktop only. */
+function CtaPhoto() {
+  const t = useTranslations("Pages");
+  return (
+    <Image
+      src="/images/the-table.webp"
+      alt={t("ctaPhotoAlt")}
+      width={600}
+      height={400}
+      sizes="(min-width: 1280px) 300px, (min-width: 768px) 25vw, 100vw"
+      className="aspect-[3/2] w-full object-cover max-md:hidden md:col-span-3"
+    />
+  );
+}
+
+/** About's closing: his line, a sentence, and the button on the end side. */
+function TextCta() {
+  const t = useTranslations("Pages");
+  const titleId = useId();
+
+  return (
+    <aside aria-labelledby={titleId} className={cx(CONTAINER, "mt-section")}>
+      <div className={CTA_BAND}>
+        <div className="flex min-w-0 flex-col gap-3 md:col-span-7">
+          <h2 id={titleId} className="type-h2">
+            {t("ctaAboutTitle")}
+          </h2>
+          <p className="type-body max-w-[30em] text-pretty text-ink-2">{t("ctaAboutText")}</p>
+        </div>
+        <div className="flex items-center md:col-span-5 md:justify-end">
+          <ConsultationButton size="md" />
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/** Services' closing: the photo, his line and one button. */
+function PhotoCta() {
+  const t = useTranslations("Pages");
+  const titleId = useId();
+
+  return (
+    <aside aria-labelledby={titleId} className={cx(CONTAINER, "mt-section")}>
+      <div className={CTA_BAND}>
+        <CtaPhoto />
+        <div className="flex min-w-0 flex-col gap-3 md:col-span-9 lg:col-span-6">
+          <h2 id={titleId} className="type-h2">
+            {t("ctaServicesTitle")}
+          </h2>
+          <p className="type-body max-w-[30em] text-pretty text-ink-2">{t("ctaServicesText")}</p>
+          <div className="mt-1.5">
+            <ConsultationButton size="md" />
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/** The full closing, unchanged for articles, projects and every page without its own. */
+function FullCta() {
   const t = useTranslations("Pages");
   const locale = useLocale();
   const steps = [t("ctaSteps.write"), t("ctaSteps.reply"), t("ctaSteps.meet")];
@@ -224,15 +307,8 @@ export function ConsultationCta() {
 
   return (
     <aside aria-labelledby={titleId} className={cx(CONTAINER, "mt-section")}>
-      <div className="grid gap-6 border-t-2 border-b border-t-rule border-b-line py-7 md:grid-cols-12 md:gap-gutter">
-        <Image
-          src="/images/the-table.webp"
-          alt={t("ctaPhotoAlt")}
-          width={600}
-          height={400}
-          sizes="(min-width: 1280px) 300px, (min-width: 768px) 25vw, 100vw"
-          className="aspect-[3/2] w-full object-cover max-md:hidden md:col-span-3"
-        />
+      <div className={CTA_BAND}>
+        <CtaPhoto />
         <div className="flex min-w-0 flex-col gap-3 md:col-span-9 lg:col-span-5">
           <h2 id={titleId} className="type-h2">
             {t("ctaTitle")}
@@ -262,4 +338,3 @@ export function ConsultationCta() {
     </aside>
   );
 }
-
