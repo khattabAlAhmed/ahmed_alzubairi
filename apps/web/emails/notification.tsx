@@ -52,15 +52,15 @@ export function NotificationEmail({
       preview={paragraphs[0] ?? subject}
       footer={EMAIL_FOOTER[locale]}
     >
-      <EmailHeading>
+      <EmailHeading locale={locale}>
         {/* A title may be in the other language: let it set its own direction. */}
         <span dir="auto">{titleOf(subject)}</span>
       </EmailHeading>
       {paragraphs.map((paragraph, index) => (
-        <EmailText key={index}>{paragraph}</EmailText>
+        <EmailText locale={locale} key={index}>{paragraph}</EmailText>
       ))}
       {action ? (
-        <EmailButton href={action.href}>{action.label}</EmailButton>
+        <EmailButton locale={locale} href={action.href}>{action.label}</EmailButton>
       ) : null}
     </EmailLayout>
   );
