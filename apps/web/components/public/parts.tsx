@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, type ReactNode } from "react";
 import { ConsultationButton } from "@/components/consultation-button";
 import { ArrowForwardIcon } from "@/components/icons";
-import { formatNumber } from "@/components/public/home/format";
+import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
@@ -180,7 +180,7 @@ export function TextBlock({ text }: { text: string }) {
 
 /**
  * The "more" link (the Link board): it says where it goes and how much is
- * there ("All projects · 38"), in the accent with a hairline under it, and an
+ * there ("All projects · 38"; an em dash in Arabic, see `metaSeparator`), in the accent with a hairline under it, and an
  * arrow that mirrors with the language. `back` turns the arrow around and
  * puts it first, for links that lead back up, such as "All services".
  */
@@ -196,13 +196,14 @@ export function MoreLink({
   /** How many items wait there, formatted in the page's digits. */
   count?: string;
 }) {
+  const locale = useLocale();
   return (
     <Link
       href={href}
       className="inline-flex items-center gap-2 border-b border-current py-1 text-[15px] text-accent transition-state hover:text-ink focus-ring"
     >
       {back && <ArrowForwardIcon aria-hidden="true" className="size-4 rotate-180" />}
-      {count ? `${label} · ${count}` : label}
+      {count ? `${label}${metaSeparator(locale)}${count}` : label}
       {!back && <ArrowForwardIcon aria-hidden="true" className="size-4" />}
     </Link>
   );

@@ -35,7 +35,7 @@
     "dropPrompt": "اسحب الملفات إلى هنا، أو",
     "dropBrowse": "اخترها من جهازك",
     "dropHere": "أفلت الملفات للإرفاق",
-    "dropLimits": "حتى {size} للملف · {count, number} ملفات في الرسالة"
+    "dropLimits": "حتى {size} للملف — {count, number} ملفات في الرسالة"
   },
   "detail": {
     "back": "العودة إلى استشاراتي",
