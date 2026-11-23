@@ -22,6 +22,8 @@ const content = vi.hoisted(() => ({
   /** Reads that throw, to check a section's error. */
   failing: new Set<string>(),
   calls: [] as string[],
+  /** When set, getHomeSections waits on it, to see what starts before it ends. */
+  sectionsGate: null as Promise<void> | null,
 }));
 
 vi.mock("@/lib/content", () => {
@@ -31,7 +33,11 @@ vi.mock("@/lib/content", () => {
     return value();
   };
   return {
-    getHomeSections: read("sections", () => content.sections),
+    getHomeSections: async () => {
+      content.calls.push("sections");
+      if (content.sectionsGate) await content.sectionsGate;
+      return content.sections;
+    },
     getHomeStats: read("stats", () => content.stats),
     getExpertiseAreas: read("areas", () => content.areas),
     getServices: read("services", () => content.services),
@@ -53,6 +59,7 @@ vi.mock("@/lib/content", () => {
 vi.mock("@/lib/content/home", () => ({
   getLetterWrittenAt: async () => {
     content.calls.push("letterDate");
+    if (content.failing.has("letterDate")) throw new Error("letterDate failed");
     return content.writtenAt;
   },
 }));
@@ -160,6 +167,7 @@ const shownSections = () =>
 beforeEach(() => {
   content.calls = [];
   content.failing = new Set();
+  content.sectionsGate = null;
   content.writtenAt = null;
   content.stats = [{ id: "s1", label: "Projects", value: "40" }];
   content.areas = [{ id: "a1", slug: "governance", title: "Governance", summary: "Summary" }];
@@ -277,7 +285,7 @@ describe("home page", () => {
     expect(within(hero).queryByText("Projects")).toBeNull();
     const reading = document.querySelector('[data-section="latest"]') as HTMLElement;
     expect(within(reading).queryByRole("heading", { level: 3, name: "Talk" })).toBeNull();
-    expect(content.calls).not.toContain("stats");
+    // The stats are read with the sections either way (T36); the media block's own read never runs.
     expect(content.calls).not.toContain("media");
   });
 
@@ -296,7 +304,7 @@ describe("home page", () => {
     await renderPage();
     expect(shownSections()).toEqual(["hero", "expertise"]);
     expect(document.querySelector('[data-section="letter"]')).toBeNull();
-    expect(content.calls).not.toContain("letterDate");
+    expect(document.body.textContent).not.toContain("letterWritten");
   });
 
   it("shows the newsletter signup under the dashboard's heading, with no read of its own", async () => {
@@ -307,7 +315,7 @@ describe("home page", () => {
     expect(within(block).getByRole("heading", { level: 2, name: "newsletter heading" })).toBeTruthy();
     expect(within(block).getByLabelText("email")).toBeTruthy();
     expect(within(block).getByRole("button", { name: "subscribe" })).toBeTruthy();
-    expect(content.calls).toEqual(["sections"]);
+    expect(content.calls.sort()).toEqual(["letterDate", "sections", "stats"]);
   });
 
   it("leaves out sections with nothing to show", async () => {
@@ -336,10 +344,47 @@ describe("home page", () => {
     expect(screen.queryByText("Other service")).toBeNull();
   });
 
-  it("reads only what the visible sections need", async () => {
+  it("reads only what the visible sections need, besides the opening reads", async () => {
     content.sections = [section("hero", 1), section("expertise", 2)];
     await renderPage();
-    expect(content.calls.sort()).toEqual(["areas", "sections"]);
+    // The stats and the letter date always run with the sections (T36);
+    // hidden sections' own block reads never run.
+    expect(content.calls.sort()).toEqual(["areas", "letterDate", "sections", "stats"]);
+  });
+
+  it("starts the opening reads with the sections, not after them", async () => {
+    let release = () => {};
+    content.sectionsGate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    content.sections = [section("hero", 1), section("stats", 2), section("letter", 3)];
+    const page = HomePage({ params: Promise.resolve({ locale: "en" }) });
+    await vi.waitFor(() => expect(content.calls).toContain("sections"));
+    // getHomeSections hasn't returned yet, and the stats and the date are already on their way.
+    expect(content.calls.sort()).toEqual(["letterDate", "sections", "stats"]);
+    release();
+    await page;
+  });
+
+  it("keeps the hero and the letter when the stats or the date fail: only the ledger or the date goes", async () => {
+    content.writtenAt = "2026-03-10T08:00:00Z";
+    const placeholder = section("letter", 3) as Extract<HomeSection, { key: "letter" }>;
+    const signed = { ...placeholder, content: { ...placeholder.content, isPlaceholder: false } };
+    content.sections = [section("hero", 1), section("stats", 2), signed];
+    await renderPage();
+    const hero = () => document.querySelector('[data-section="hero"]') as HTMLElement;
+    expect(within(hero()).getByText("Projects")).toBeTruthy();
+    expect(document.querySelector('[data-section="letter"]')?.textContent).toContain("letterWritten");
+    cleanup();
+
+    content.failing = new Set(["stats", "letterDate"]);
+    await renderPage();
+    expect(shownSections()).toEqual(["hero", "letter"]);
+    expect(within(hero()).getByRole("heading", { level: 1, name: "Example Name" })).toBeTruthy();
+    expect(within(hero()).queryByText("Projects")).toBeNull();
+    const letter = document.querySelector('[data-section="letter"]') as HTMLElement;
+    expect(within(letter).getByRole("heading", { level: 2, name: "A letter" })).toBeTruthy();
+    expect(letter.textContent).not.toContain("letterWritten");
   });
 
   it("has exactly one h1: the hero's name, or the site name without a hero", async () => {

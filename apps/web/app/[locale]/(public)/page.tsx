@@ -12,16 +12,17 @@ import { getHomeSections, getHomeStats, type HomeStat } from "@/lib/content";
 import { getLetterWrittenAt } from "@/lib/content/home";
 
 /**
- * Reads that the hero and the letter need before the first paint. They are
- * small and cached; a failure leaves out the ledger or the date, never the
- * section.
+ * Reads that the hero and the letter need before the first paint. They start
+ * with getHomeSections, not after it, so the hero waits for the slower of the
+ * reads rather than their sum (T36). They run even when the hero or the letter
+ * turns out hidden: both are small and cached. A failure leaves out the ledger
+ * or the date, never the section.
  */
-async function loadOpening(locale: Locale, withStats: boolean, withLetter: boolean) {
-  const [stats, writtenAt] = await Promise.all([
-    withStats ? getHomeStats(locale).catch((): HomeStat[] => []) : Promise.resolve([]),
-    withLetter ? getLetterWrittenAt().catch(() => null) : Promise.resolve(null),
-  ]);
-  return { stats, writtenAt };
+function loadOpening(locale: Locale) {
+  return Promise.all([
+    getHomeStats(locale).catch((): HomeStat[] => []),
+    getLetterWrittenAt().catch(() => null),
+  ]).then(([stats, writtenAt]) => ({ stats, writtenAt }));
 }
 
 /**
@@ -54,13 +55,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // The dashboard's visible, published sections in its order. Each block
   // reads its own rows (components/public/home/blocks.tsx), so one failed
   // read shows that section's error and the rest of the page still renders.
-  const blocks = composeHome(await getHomeSections(locale));
+  const [sections, opening] = await Promise.all([getHomeSections(locale), loadOpening(locale)]);
+  const blocks = composeHome(sections);
   const hero = blocks.find((block) => block.key === "hero");
-  const opening = await loadOpening(
-    locale,
-    hero?.key === "hero" && hero.withStats,
-    blocks.some((block) => block.key === "letter"),
-  );
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1">
@@ -68,7 +65,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {blocks.map((block) => {
         switch (block.key) {
           case "hero":
-            return <HeroSection key="hero" content={block.section.content} stats={opening.stats} />;
+            return <HeroSection key="hero" content={block.section.content} stats={block.withStats ? opening.stats : []} />;
           case "letter":
             return (
               <LetterSection key="letter" content={block.section.content} writtenAt={opening.writtenAt} locale={locale} />
