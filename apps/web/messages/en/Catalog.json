@@ -92,6 +92,12 @@
     "empty": {
       "title": "Nothing published here yet",
       "text": "I publish a logo or a testimonial only with its owner's consent."
+    },
+    "loading": "Loading the organizations and testimonials",
+    "error": {
+      "title": "The organizations and testimonials didn't load",
+      "text": "The connection may be weak. The rest of the page works.",
+      "retry": "Try again"
     }
   },
   "documentsPage": {
