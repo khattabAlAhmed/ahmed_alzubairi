@@ -85,5 +85,10 @@
   },
   "factStages": "Stages",
   "factPastProjects": "Past projects",
-  "emptyServicesTitle": "No services here yet"
+  "emptyServicesTitle": "No services here yet",
+  "legal": {
+    "indexLabel": "Legal pages",
+    "lastUpdated": "Last updated",
+    "contentsLabel": "On this page"
+  }
 }

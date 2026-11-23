@@ -1,6 +1,8 @@
 {
   "title": "Contact",
-  "intro": "Write to me through the form, or use one of the channels below.",
+  "heading": "Tell me what you are facing.",
+  "lead": "You don't need an account to send a message. If you want to start a consultation with files and a conversation, <signIn>sign in to your account</signIn>.",
+  "photoAlt": "A table and two chairs facing each other by a window",
   "channelsTitle": "Direct channels",
   "email": "Email",
   "whatsapp": "WhatsApp",

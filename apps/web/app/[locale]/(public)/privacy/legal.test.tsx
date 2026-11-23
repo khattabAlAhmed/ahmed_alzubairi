@@ -33,7 +33,7 @@ vi.mock("@/components/consultation-button", () => ({
   ConsultationButton: () => <button type="button">requestConsultation</button>,
 }));
 vi.mock("@/i18n/navigation", () => ({
-  Link: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
+  Link: ({ children, ...props }: { href: string; children: ReactNode }) => <a {...props}>{children}</a>,
 }));
 vi.mock("@/components/language-switch", () => ({
   LanguageFallback: ({ href }: { href: string }) => <span data-testid="fallback">{href}</span>,
@@ -70,6 +70,17 @@ describe.each([
     expect(screen.getByText(`Body ${key}`)).toBeTruthy();
     expect(screen.queryByTestId("fallback")).toBeNull();
     expect(mocks.readBeforeConnection).toBe(false);
+  });
+
+  it("lists both legal pages beside the text and marks this one", async () => {
+    mocks.page = { key, title: "T", body: doc("B"), availableIn: ["ar", "en"] };
+    render(await route.default(params("en")));
+    const index = screen.getByRole("navigation", { name: "en:indexLabel" });
+    const links = Array.from(index.querySelectorAll("a"));
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/privacy", "/terms"]);
+    expect(links.map((link) => link.textContent)).toEqual(["en:privacy", "en:terms"]);
+    const current = links.filter((link) => link.getAttribute("aria-current") === "page");
+    expect(current.map((link) => link.getAttribute("href"))).toEqual([`/${key}`]);
   });
 
   it("sends the language switch home when there's no translation", async () => {

@@ -50,13 +50,26 @@ export default async function OnboardingPage({
   if (await readOwnProfile(userId)) redirect(destination);
 
   const user = await currentUser();
-  const t = await getTranslations("Onboarding");
+  const [t, steps] = await Promise.all([
+    getTranslations("Onboarding"),
+    getTranslations("AuthReason.signUp.steps"),
+  ]);
   const { Onboarding, Errors } = await getMessages();
 
+  // The second of sign-up's two steps (the SignUp board's next step). The
+  // form opens with its own heavy rule, so no box around it.
   return (
-    <section className="w-full max-w-lg rounded-lg border border-text/10 bg-surface p-6 shadow-sm">
-      <h1 className="text-2xl">{t("title")}</h1>
-      <p className="mt-2 text-text-secondary">{t("intro")}</p>
+    <section aria-labelledby="onboarding-title" className="flex w-full max-w-[44rem] flex-col gap-4">
+      <ol aria-label={steps("label")} className="grid grid-cols-2 border-t border-line text-[13px]">
+        <li className="py-2.5 text-ink-2">{steps("account")}</li>
+        <li aria-current="step" className="py-2.5 text-ink shadow-[inset_0_2px_0_var(--accent)]">
+          {steps("details")}
+        </li>
+      </ol>
+      <h1 id="onboarding-title" className="type-h2">
+        {t("title")}
+      </h1>
+      <p className="max-w-measure text-pretty text-ink-2">{t("intro")}</p>
       <NextIntlClientProvider messages={{ Onboarding, Errors }}>
         <OnboardingForm
           destination={destination}
