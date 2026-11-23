@@ -99,7 +99,7 @@ function headingLevel(node: JsonNode): 2 | 3 | 4 {
   return 2;
 }
 
-function renderNode(node: JsonNode, key: number, depth: number): ReactNode {
+function renderNode(node: JsonNode, key: number, depth: number, id?: string): ReactNode {
   if (depth > MAX_DEPTH) return null;
   const inner = () => children(node).map((child, index) => renderNode(child, index, depth + 1));
 
@@ -118,7 +118,7 @@ function renderNode(node: JsonNode, key: number, depth: number): ReactNode {
       // h2 opens a part of the text with a hairline; smaller ones only step down.
       const size = level === 2 ? "mt-4 border-t border-line pt-3.5 type-h2" : level === 3 ? "mt-2 type-h3" : "font-semibold";
       return (
-        <Tag key={key} className={cx("text-balance", size)}>
+        <Tag key={key} id={id} className={cx("text-balance", size)}>
           {inner()}
         </Tag>
       );
@@ -174,13 +174,48 @@ function renderNode(node: JsonNode, key: number, depth: number): ReactNode {
  */
 export const ARTICLE_PROSE = "max-w-measure text-[18px] leading-[2.05] [&:lang(en)]:text-[17px] [&:lang(en)]:leading-[1.7]";
 
-export function RichText({ doc, className }: { doc: TiptapDoc; className?: string }) {
+/** A top-level node that renders as an h2. */
+function isPartHeading(node: JsonNode): boolean {
+  return node.type === "heading" && headingLevel(node) === 2;
+}
+
+/**
+ * `headingIds` (a prefix) numbers the top-level h2s `<prefix>-1`, `<prefix>-2`…,
+ * so a contents list can link to them (see `contentHeadings`). Without it the
+ * output is exactly as before.
+ */
+export function RichText({ doc, className, headingIds }: { doc: TiptapDoc; className?: string; headingIds?: string }) {
   if (!isNode(doc) || doc.type !== "doc") return null;
+  let part = 0;
   return (
     <div className={cx("flex flex-col gap-5 type-body", className)}>
-      {children(doc).map((node, index) => renderNode(node, index, 1))}
+      {children(doc).map((node, index) =>
+        renderNode(node, index, 1, headingIds && isPartHeading(node) ? `${headingIds}-${++part}` : undefined),
+      )}
     </div>
   );
+}
+
+/** A node's text, as plain characters. */
+function plainText(node: JsonNode, depth = 0): string {
+  if (depth > MAX_DEPTH) return "";
+  if (node.type === "text") return typeof node.text === "string" ? node.text : "";
+  return children(node)
+    .map((child) => plainText(child, depth + 1))
+    .join("");
+}
+
+/**
+ * The parts of a document for a contents list: each top-level h2's text and
+ * the id `RichText` gives it with the same `prefix`. Numbering counts every
+ * h2, so an empty one keeps the ids in step but isn't listed.
+ */
+export function contentHeadings(doc: TiptapDoc, prefix: string): { id: string; label: string }[] {
+  if (!isNode(doc) || doc.type !== "doc") return [];
+  return children(doc)
+    .filter(isPartHeading)
+    .map((node, index) => ({ id: `${prefix}-${index + 1}`, label: plainText(node).trim() }))
+    .filter((heading) => heading.label !== "");
 }
 
 /** True when the node or anything under it has visible text. */

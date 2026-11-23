@@ -290,6 +290,28 @@ describe("drafts", () => {
   });
 });
 
+describe("pages", () => {
+  it("return the published page with when it last changed", async () => {
+    db.rows.pages = [
+      {
+        key: "privacy",
+        status: "published",
+        ...both("title", "Privacy"),
+        body_ar: doc("نص"),
+        body_en: doc("Text"),
+        updated_at: "2026-03-04T10:00:00+00:00",
+      },
+    ];
+    expect(await content.getPage("privacy", "en")).toEqual({
+      key: "privacy",
+      title: "Privacy (en)",
+      body: doc("Text"),
+      updatedAt: "2026-03-04T10:00:00+00:00",
+      availableIn: ["ar", "en"],
+    });
+  });
+});
+
 describe("home letter (Phase 8)", () => {
   it("is parsed when published and visible, with its signatures as public-media URLs", async () => {
     db.rows.home_sections = [

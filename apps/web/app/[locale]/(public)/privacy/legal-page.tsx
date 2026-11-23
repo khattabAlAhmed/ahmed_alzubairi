@@ -5,12 +5,12 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { LanguageFallback } from "@/components/language-switch";
-import { CONTAINER } from "@/components/public/parts";
-import { RichText } from "@/components/public/rich-text";
-import { ARTICLE_PROSE } from "@/components/public/rich-text/rich-text";
+import { formatMonth } from "@/components/public/home/format";
+import { CONTAINER, Ledger } from "@/components/public/parts";
+import { ARTICLE_PROSE, contentHeadings, RichText } from "@/components/public/rich-text/rich-text";
+import { SectionIndex } from "@/components/public/section-index";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
-import { cx } from "@/components/ui/cx";
-import { Link } from "@/i18n/navigation";
+import { cx, INLINE_LINK } from "@/components/ui/cx";
 import { otherLocale, routing } from "@/i18n/routing";
 import { getPage } from "@/lib/content";
 import { staticPageMetadata } from "@/lib/seo/static-pages";
@@ -22,6 +22,9 @@ const LEGAL_PAGES = [
   { key: "privacy", href: "/privacy" },
   { key: "terms", href: "/terms" },
 ] as const satisfies readonly { key: LegalKey; href: string }[];
+
+/** The ids of the text's parts, for the contents list ("part-1", "part-2"…). */
+const PART_PREFIX = "part";
 type Props = { params: Promise<{ locale: string }> };
 
 /**
@@ -48,6 +51,7 @@ export function legalPage(key: LegalKey) {
 
     const page = await getPage(key, locale);
     if (!page) notFound();
+    const parts = contentHeadings(page.body, PART_PREFIX);
     const [t, footer] = await Promise.all([
       getTranslations({ locale, namespace: "Pages.legal" }),
       getTranslations({ locale, namespace: "Footer" }),
@@ -62,25 +66,31 @@ export function legalPage(key: LegalKey) {
         <article className={cx(CONTAINER, "pt-8 pb-16 md:pt-12")}>
           <div className="grid gap-8 border-t-2 border-rule pt-6 lg:grid-cols-12 lg:gap-gutter">
             <aside className="flex flex-col gap-4 self-start lg:col-span-3">
-              <nav aria-label={t("indexLabel")}>
-                <ul>
-                  {LEGAL_PAGES.map((item) => (
-                    <li key={item.key}>
-                      <Link
-                        href={item.href}
-                        aria-current={item.key === key ? "page" : undefined}
-                        className="flex border-b border-line py-2.5 text-[15px] text-ink-2 no-underline transition-state hover:text-ink focus-ring focus-visible:-outline-offset-2 aria-[current=page]:font-medium aria-[current=page]:text-ink"
-                      >
-                        {footer(item.key)}
-                      </Link>
-                    </li>
+              <SectionIndex
+                label={t("indexLabel")}
+                items={LEGAL_PAGES.map((item) => ({ label: footer(item.key), href: item.href, current: item.key === key }))}
+              />
+              <Ledger
+                facts={[
+                  {
+                    label: t("lastUpdated"),
+                    value: <time dateTime={page.updatedAt}>{formatMonth(page.updatedAt, locale)}</time>,
+                  },
+                ]}
+              />
+              {parts.length > 1 && (
+                <nav aria-label={t("contentsLabel")} className="flex flex-col items-start gap-1.5 border-t border-line pt-3">
+                  {parts.map((part) => (
+                    <a key={part.id} href={`#${part.id}`} className={cx(INLINE_LINK, "text-[14px]")}>
+                      {part.label}
+                    </a>
                   ))}
-                </ul>
-              </nav>
+                </nav>
+              )}
             </aside>
             <div className="flex min-w-0 flex-col gap-5 lg:col-span-6">
               <h1 className="type-h1 text-balance settle">{page.title}</h1>
-              <RichText doc={page.body} className={ARTICLE_PROSE} />
+              <RichText doc={page.body} className={ARTICLE_PROSE} headingIds={PART_PREFIX} />
             </div>
           </div>
         </article>

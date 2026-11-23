@@ -53,6 +53,8 @@ export type Page = Availability & {
   key: PageKey;
   title: string;
   body: TiptapDoc;
+  /** When the page was last changed (ISO, UTC), for the legal pages' "last updated". */
+  updatedAt: string;
 };
 
 export type TimelineItem = {

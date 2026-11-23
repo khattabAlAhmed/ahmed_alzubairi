@@ -269,5 +269,22 @@
         "a": "Yes, in person or remotely, as the work needs."
       }
     ]
+  },
+  "sectionIndex": {
+    "title": "Section index",
+    "intro": "A side column opened by the heavy rule: one row per page or section, the current one in ink. Used on the legal pages and the FAQ.",
+    "pagesLabel": "Legal pages",
+    "sectionsLabel": "Question sections",
+    "pages": [
+      "Privacy policy",
+      "Terms of use"
+    ],
+    "sections": [
+      "Consultations",
+      "Documents",
+      "Training"
+    ],
+    "statePages": "Pages · current marked",
+    "stateSections": "Sections on the page · with counts"
   }
 }

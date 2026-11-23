@@ -52,6 +52,17 @@ const VALID = {
 const submit = () => fireEvent.click(screen.getByRole("button", { name: "send" }));
 
 describe("ContactForm", () => {
+  it("is a named form with no heading of its own, and asks for the message plainly", () => {
+    render(<ContactForm />);
+    expect(screen.getByRole("form", { name: "formTitle" })).toBeTruthy();
+    expect(screen.queryByRole("heading")).toBeNull();
+    const message = document.querySelector<HTMLTextAreaElement>('[name="message"]')!;
+    const hintId = message.getAttribute("aria-describedby");
+    expect(hintId && document.getElementById(hintId)?.textContent).toBe("messageHint");
+    // The page header says no account is needed; the form doesn't repeat it.
+    expect(screen.queryByText("noAccount")).toBeNull();
+  });
+
   it("checks each field before sending, and sends nothing while one is invalid", () => {
     render(<ContactForm />);
     fill({ ...VALID, email: "nope", subject: "  " });
@@ -158,8 +169,9 @@ describe("contact channels", () => {
 
 describe("Contact messages", () => {
   it("never promise a response time (§6.14)", () => {
+    // Saying he replies himself is his voice (the footer says it too); saying when is the promise.
     const text = JSON.stringify([ar, en]);
-    expect(text).not.toMatch(/\d|hour|day|week|within|soon|respond|reply|ساع|يوم|أيام|أسبوع|خلال|قريب|سأرد|الرد/i);
+    expect(text).not.toMatch(/\d|hour|day|week|within|soon|shortly|asap|ساع|يوم|أيام|أسبوع|خلال|قريب|فور/i);
   });
 });
 
