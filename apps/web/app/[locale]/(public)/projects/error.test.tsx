@@ -15,17 +15,17 @@ import ProjectsError from "./error";
  */
 afterEach(cleanup);
 
-const pages: [string, ComponentType<{ reset: () => void }>, Record<"ar" | "en", { title: string; text: string; retry: string }>][] = [
+const pages: [string, ComponentType<{ retry: () => void }>, Record<"ar" | "en", { title: string; text: string; retry: string }>][] = [
   ["projects", ProjectsError, { ar: ar.projectsPage.error, en: en.projectsPage.error }],
 ];
 
 describe.each(pages)("%s error page", (_name, ErrorPage, copy) => {
   it.each(["ar", "en"] as const)("shows its copy in %s, and retries", (locale) => {
     const missing: string[] = [];
-    const reset = vi.fn();
+    const retry = vi.fn();
     render(
       <NextIntlClientProvider locale={locale} messages={{}} onError={(error) => missing.push(error.message)}>
-        <ErrorPage reset={reset} />
+        <ErrorPage retry={retry} />
       </NextIntlClientProvider>,
     );
     const alert = screen.getByRole("alert");
@@ -34,6 +34,6 @@ describe.each(pages)("%s error page", (_name, ErrorPage, copy) => {
     expect(alert.textContent).not.toMatch(/\.error\.|projectsPage|Catalog|Blog\.|Resources\.|Media\./);
     expect(missing).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: copy[locale].retry }));
-    expect(reset).toHaveBeenCalledTimes(1);
+    expect(retry).toHaveBeenCalledTimes(1);
   });
 });

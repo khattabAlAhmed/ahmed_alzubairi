@@ -8,8 +8,7 @@
     "label": "استشاراتك",
     "service": "الخدمة",
     "noService": "خدمة لم تعد معروضة",
-    "lastActivity": "آخر نشاط",
-    "open": "فتح {title}"
+    "lastActivity": "آخر نشاط"
   },
   "form": {
     "title": "بدء استشارة جديدة",
