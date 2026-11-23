@@ -225,7 +225,7 @@ A record is a 2px `rule`, then a meta line (organization · area · years), then
 ## Imagery
 
 - Use documentary photos in natural light: people working, talking, listening, deciding, shown with dignity, never as objects of pity. Show their true colours, with no filters, frames, rounded corners or shadows.
-- There are four crops: 4:5 for Ahmed, 3:2 for work, 1:1 for detail, 16:9 for quiet backgrounds. A caption line in `ar-caption` sits underneath. A missing photo shows the hatched `.r-photo-missing`, never a broken image.
+- There are four crops: 4:5 for Ahmed, 3:2 for work, 1:1 for detail, 16:9 for quiet backgrounds. One more, 21:8, is only for the band under an expertise area's header. A caption line in `ar-caption` sits underneath. A missing photo shows the hatched `.r-photo-missing`, never a broken image.
 - The photos uploaded in this system are AI-generated **dev placeholders**. Real photos, with consent, replace every person before launch.
 - Heritage shows only through Arabic typography and the dignity of people. Use no flags, landmarks or national motifs.
 

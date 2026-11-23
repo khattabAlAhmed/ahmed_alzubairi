@@ -2,7 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
-export default function ErrorPage({ reset }: { reset: () => void }) {
+/**
+ * The last-resort error page for a locale. The retry is Next's `retry()`,
+ * which fetches the segment again; `reset()` would only re-render the error
+ * it already has.
+ */
+export default function ErrorPage({ retry }: { retry: () => void }) {
   const t = useTranslations("Error");
 
   return (
@@ -11,7 +16,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
       <p className="text-ink-2">{t("description")}</p>
       <button
         type="button"
-        onClick={reset}
+        onClick={() => retry()}
         className="inline-flex h-9 items-center bg-accent px-3 text-sm font-semibold text-on-accent"
       >
         {t("retry")}

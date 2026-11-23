@@ -7,6 +7,7 @@ import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, ExpertiseAreaDetail, Project, Service } from "@/lib/content";
 import { RichText } from "../rich-text";
+import { Figure } from "../listing/parts";
 import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection } from "../parts";
 import { ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
 import { ExpertiseChapters, OrganizationRegister } from "./identity";
@@ -114,6 +115,19 @@ export function ExpertiseDetailPage({
         intro={<p>{area.summary}</p>}
         facts={facts}
       />
+      {area.image && (
+        // The wide photo under the header (the Expertise mockup). It sits in the first screen at every width and is often the LCP, so it loads at once.
+        <div className={CONTAINER}>
+          <Figure
+            image={{ src: area.image.url, alt: area.image.alt }}
+            crop="band"
+            caption={area.image.caption ?? undefined}
+            // The page column: 100vw less the page margins (16/32/48 px), at most 1312 px.
+            sizes="(min-width: 1408px) 1312px, (min-width: 1280px) calc(100vw - 96px), (min-width: 768px) calc(100vw - 64px), calc(100vw - 32px)"
+            priority
+          />
+        </div>
+      )}
       <div className={cx(CONTAINER, "mt-section grid gap-section")}>
         {(area.body || services.length > 0) && (
           <section aria-labelledby="area-meaning" className="grid gap-x-gutter gap-y-6 md:grid-cols-12">

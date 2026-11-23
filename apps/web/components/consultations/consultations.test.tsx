@@ -8,6 +8,7 @@ import arWorkspace from "@/messages/ar/Workspace.json";
 import enPage from "@/messages/en/AccountConsultations.json";
 import enWorkspace from "@/messages/en/Workspace.json";
 import { ApiError, consultationApi, type ConsultationApi, type PutFile } from "./api";
+import type { ConsultationRow } from "./read";
 
 const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
@@ -24,6 +25,7 @@ vi.mock("@/lib/analytics/track", () => ({ track }));
 
 const { NewConsultationForm, preselectedService } = await import("./new-consultation-form");
 const { ConsultationThread, attachmentHref } = await import("./consultation-thread");
+const { ConsultationList } = await import("./consultation-list");
 
 const SERVICES = [
   { id: "11111111-1111-4111-8111-111111111111", slug: "strategy-review", title: "Strategy review" },
@@ -78,6 +80,35 @@ beforeEach(() => {
   router.refresh.mockReset();
 });
 afterEach(cleanup);
+
+describe("ConsultationList", () => {
+  const row = {
+    id: CONSULTATION,
+    title: "Board charter review",
+    status: "in_review",
+    serviceTitle: "Governance",
+    lastActivityAt: "2026-11-20T09:30:00Z",
+  } as unknown as ConsultationRow;
+
+  it.each(["ar", "en"] as const)("names each card's single link by its visible text in %s (no aria-label)", (locale) => {
+    wrap(<ConsultationList consultations={[row]} />, locale);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    const link = links[0]!;
+    expect(link.getAttribute("aria-label")).toBeNull();
+    expect(link.getAttribute("href")).toBe(`/account/consultations/${CONSULTATION}`);
+    const name = link.textContent ?? "";
+    expect(name).toContain("Board charter review");
+    expect(name).toContain("Governance");
+    expect(name).toContain(locale === "ar" ? arWorkspace.status.consultation.in_review : enWorkspace.status.consultation.in_review);
+  });
+
+  it("lets the empty-state text wrap without a one-word last line", () => {
+    wrap(<ConsultationList consultations={[]} />);
+    expect(screen.getByText(enPage.list.emptyText).className).toContain("text-pretty");
+    expect(screen.getByRole("link", { name: enPage.list.new })).toBeTruthy();
+  });
+});
 
 describe("preselectedService", () => {
   it("matches ?service by slug, or by id from an older link", () => {

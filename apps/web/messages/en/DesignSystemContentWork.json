@@ -22,7 +22,8 @@
     "caption": "Image with caption",
     "sheet": "Project gallery",
     "log": "Press log",
-    "shareCopied": "After copying the link"
+    "shareCopied": "After copying the link",
+    "band": "Wide band · 21:8, under an expertise area's header"
   },
   "project": {
     "title": "Project story",
@@ -201,7 +202,8 @@
       "Design workshop",
       "The meeting room"
     ],
-    "figureCaption": "Writing the manual with the directorate's team"
+    "figureCaption": "Writing the manual with the directorate's team",
+    "bandCaption": "Listening session with a host community"
   },
   "course": {
     "title": "Course item",
