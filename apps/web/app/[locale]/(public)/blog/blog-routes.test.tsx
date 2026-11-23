@@ -25,8 +25,8 @@ vi.mock("@/components/language-switch", () => ({
 }));
 vi.mock("@/components/public/parts", () => ({ CONTAINER: "", PageHero: ({ title }: { title: string }) => <h1>{title}</h1> }));
 vi.mock("@/components/ui", () => ({ Skeleton: () => <div /> }));
-vi.mock("@/components/newsletter", () => ({
-  NewsletterSignup: ({ source }: { source: string }) => <form data-testid="newsletter" data-source={source} />,
+vi.mock("@/components/public/home/newsletter", () => ({
+  NewsletterSection: ({ source }: { source: string }) => <form data-testid="newsletter" data-source={source} />,
 }));
 vi.mock("@/components/public/blog", async () => ({
   ...(await vi.importActual<typeof import("@/components/public/blog/query")>("@/components/public/blog/query")),

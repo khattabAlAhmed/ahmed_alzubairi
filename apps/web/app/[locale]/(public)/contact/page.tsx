@@ -60,7 +60,7 @@ export default async function ContactPage({ params }: Props) {
           </p>
         }
       />
-      <div className={cx(CONTAINER, "grid gap-12 pb-16 lg:grid-cols-12 lg:gap-gutter")}>
+      <div className={cx(CONTAINER, "grid gap-12 pb-section lg:grid-cols-12 lg:gap-gutter")}>
         <div className="min-w-0 lg:col-span-7">
           {/* The form is a client component: it gets only its own namespace. */}
           <NextIntlClientProvider messages={{ Contact }}>

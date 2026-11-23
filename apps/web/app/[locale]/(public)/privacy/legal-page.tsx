@@ -6,7 +6,7 @@ import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { LanguageFallback } from "@/components/language-switch";
 import { formatMonth } from "@/components/public/home/format";
-import { CONTAINER, Ledger } from "@/components/public/parts";
+import { CONTAINER, Ledger, PAGE_TITLE } from "@/components/public/parts";
 import { ARTICLE_PROSE, contentHeadings, RichText } from "@/components/public/rich-text/rich-text";
 import { SectionIndex } from "@/components/public/section-index";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
@@ -63,7 +63,7 @@ export function legalPage(key: LegalKey) {
       <main id={MAIN_CONTENT_ID} className="flex-1">
         {/* A page with no translation sends the switch home instead (§6.1). */}
         {!page.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/" />}
-        <article className={cx(CONTAINER, "pt-8 pb-16 md:pt-12")}>
+        <article className={cx(CONTAINER, "pt-8 pb-section md:pt-12")}>
           <div className="grid gap-8 border-t-2 border-rule pt-6 lg:grid-cols-12 lg:gap-gutter">
             <aside className="flex flex-col gap-4 self-start lg:col-span-3">
               <SectionIndex
@@ -89,8 +89,9 @@ export function legalPage(key: LegalKey) {
               )}
             </aside>
             <div className="flex min-w-0 flex-col gap-5 lg:col-span-6">
-              <h1 className="type-h1 text-balance settle">{page.title}</h1>
-              <RichText doc={page.body} className={ARTICLE_PROSE} headingIds={PART_PREFIX} />
+              <h1 className={PAGE_TITLE}>{page.title}</h1>
+              {/* The contents links land each part below the sticky header. */}
+              <RichText doc={page.body} className={cx(ARTICLE_PROSE, "[&_[id]]:scroll-mt-24")} headingIds={PART_PREFIX} />
             </div>
           </div>
         </article>

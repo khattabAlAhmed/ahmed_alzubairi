@@ -1,8 +1,9 @@
 import type { ResourceKind } from "@repo/shared";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
+import { metaSeparator } from "../home/format";
 import { Heading, LIST_ROW } from "./parts";
 
 export type ResourceFileType = "pdf" | "word" | "excel";
@@ -74,6 +75,7 @@ export function ResourceCard({
   headingLevel?: 2 | 3;
   className?: string;
 }) {
+  const locale = useLocale();
   const t = useTranslations("PublicListing");
 
   return (
@@ -99,7 +101,7 @@ export function ResourceCard({
           ))}
           {size && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               <span dir="ltr" className="font-mono text-xs">
                 {size}
               </span>

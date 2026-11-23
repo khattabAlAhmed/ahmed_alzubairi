@@ -42,12 +42,20 @@ export type PageFact = { label: string; value: string };
 export type LedgerFact = { label: string; value: ReactNode };
 
 /**
+ * A page header's title: `type-h1`, a step smaller on phones and tablets where
+ * the columns stack (28px Arabic, 26px English, the mockups' size below 900px),
+ * so a three-line title reads as two. The line height stays the script's own.
+ */
+export const PAGE_TITLE = "type-h1 max-md:text-[28px] max-md:[:lang(en)_&]:text-[26px] settle";
+
+/**
  * The top of every main page (the PageHeader board): the 2px rule, then three
  * columns. The start one says where you are (the section, or the way back);
  * the middle one holds the title and one sentence of his; the end one lists
  * the page's facts as a ledger. Never a centred hero. On phones the columns
  * stack. An optional 4:5 photo of him takes the end column (the About page),
- * with the facts under it when both are given.
+ * with the facts under it when both are given. A page with no facts can put
+ * its own short block there instead (`aside`, e.g. the Documents steps).
  */
 export function PageHero({
   eyebrow,
@@ -57,6 +65,7 @@ export function PageHero({
   actions,
   facts,
   photo,
+  aside,
 }: {
   /** Where the page sits, e.g. the section's name. */
   eyebrow?: string;
@@ -68,6 +77,8 @@ export function PageHero({
   facts?: readonly LedgerFact[];
   /** A 4:5 photo in the end column. */
   photo?: { src: string; alt: string };
+  /** A short block in the end column, after the facts when both are given. Not with `photo`. */
+  aside?: ReactNode;
 }) {
   return (
     <header className={cx(CONTAINER, "mt-8 md:mt-12")}>
@@ -77,7 +88,7 @@ export function PageHero({
           {eyebrow && <p>{eyebrow}</p>}
         </div>
         <div className="flex min-w-0 flex-col gap-4 md:col-span-9 lg:col-span-6">
-          <h1 className="type-h1 settle">{title}</h1>
+          <h1 className={PAGE_TITLE}>{title}</h1>
           {intro && <div className="type-body max-w-measure text-pretty text-ink-2 settle settle-2">{intro}</div>}
           {actions && <div className="mt-2 flex flex-wrap items-center gap-4">{actions}</div>}
         </div>
@@ -94,6 +105,11 @@ export function PageHero({
               />
             </figure>
             {facts && facts.length > 0 && <Ledger facts={facts} />}
+          </div>
+        ) : aside ? (
+          <div className="flex min-w-0 flex-col gap-6 self-start md:col-span-12 lg:col-span-3">
+            {facts && facts.length > 0 && <Ledger facts={facts} />}
+            {aside}
           </div>
         ) : (
           facts && facts.length > 0 && <Ledger facts={facts} className="self-start md:col-span-12 lg:col-span-3" />

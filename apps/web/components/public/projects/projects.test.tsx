@@ -8,9 +8,12 @@ import { ProjectDetailPage } from "./project-detail";
 import { orderProjects, pageOf, ProjectsList } from "./projects-list";
 import { routeSlug, staticSlugs } from "../static-slugs";
 
+// The page language, switched by a test that checks the Arabic separator.
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
-  useLocale: () => "en",
+  useLocale: () => intl.locale,
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));
@@ -42,7 +45,10 @@ vi.mock("@/i18n/navigation", () => ({
   },
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  intl.locale = "en";
+});
 
 const areas: ExpertiseArea[] = [
   { id: "a1", slug: "governance", title: "Governance", summary: "" },
@@ -190,6 +196,17 @@ describe("ProjectsList", () => {
       "/projects?area=governance",
     );
     expect(screen.getByText("clearFilters").closest("a")?.getAttribute("href")).toBe("/projects");
+  });
+
+  it("separates the count from «clear» with a dot in English and an em dash in Arabic", () => {
+    const separator = () => screen.getByRole("status").querySelector('[aria-hidden="true"]')?.textContent;
+    render(<ProjectsList projects={projects} areas={areas} filters={{ area: "governance", orgType: null }} />);
+    expect(separator()).toBe("·");
+    cleanup();
+    // A middle dot beside Arabic-Indic digits reads as a zero.
+    intl.locale = "ar";
+    render(<ProjectsList projects={projects} areas={areas} filters={{ area: "governance", orgType: null }} />);
+    expect(separator()).toBe("—");
   });
 
   it("says so when the filters match nothing, with a way back", () => {

@@ -7,7 +7,7 @@ import { connection } from "next/server";
 import { Fragment, Suspense } from "react";
 import { NewsletterSignup } from "@/components/newsletter";
 import { contactChannels } from "@/components/public/contact";
-import { formatNumber } from "@/components/public/home/format";
+import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import { CONTAINER } from "@/components/public/parts";
 import { cx, FOCUS_RING, INLINE_LINK } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
@@ -30,8 +30,7 @@ const COLUMN_HEADING = "mb-2.5 text-[13px] font-medium text-ink-2";
  */
 export async function FooterChannels() {
   await connection();
-  const t = await getTranslations("Contact");
-  const tFooter = await getTranslations("Footer");
+  const [t, tFooter, locale] = await Promise.all([getTranslations("Contact"), getTranslations("Footer"), getLocale()]);
 
   let settings;
   try {
@@ -51,7 +50,7 @@ export async function FooterChannels() {
         <Fragment key={channel.key}>
           {index > 0 && (
             <li aria-hidden="true" className="list-none">
-              ·
+              {metaSeparator(locale).trim()}
             </li>
           )}
           <li className="min-w-0">

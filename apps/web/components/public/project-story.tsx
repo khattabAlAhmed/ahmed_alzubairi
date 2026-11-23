@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ArrowForwardIcon } from "@/components/icons";
 import { Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { Project } from "@/lib/content";
+import { metaSeparator } from "./home/format";
 
 /*
  * The record (DESIGN.md "The record: the signature pattern"): a 2px rule, a
@@ -147,6 +148,7 @@ export function ProjectStoryFeatured({
 export function ProjectStoryRow({ story, headingLevel = 2 }: { story: ProjectStoryData; headingLevel?: 2 | 3 }) {
   const t = useTranslations("ContentWork.record");
   const Heading = headingLevel === 2 ? "h2" : "h3";
+  const locale = useLocale();
   const meta = story.meta.filter((item): item is string => Boolean(item) && item !== story.area);
   return (
     <li className="border-b border-line">
@@ -157,7 +159,7 @@ export function ProjectStoryRow({ story, headingLevel = 2 }: { story: ProjectSto
           "md:grid-cols-[2fr_5fr_4fr_auto] md:items-baseline md:gap-8",
         )}
       >
-        <span className="text-ink-2 tabular-nums type-caption">{meta.join(" · ")}</span>
+        <span className="text-ink-2 tabular-nums type-caption">{meta.join(metaSeparator(locale))}</span>
         <Heading className="type-h3 group-hover:underline group-hover:decoration-1 group-hover:underline-offset-7">{story.title}</Heading>
         <span className="text-pretty text-[15px] leading-[1.8]">
           {story.whatChanged && (

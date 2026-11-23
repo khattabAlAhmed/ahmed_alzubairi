@@ -17,22 +17,30 @@ import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection, type PageF
 
 export type ProjectFact = { label: string; value: ReactNode };
 
-/** Goal, organization, role, duration: one row of facts under the 2px rule, stacked on phones. */
+/** The small label over the story's rule ("القصة"). */
+const STORY_LABEL = "mb-2 text-ink-2 type-small";
+
+/**
+ * Goal, organization, role, duration: one row of four columns under the 2px
+ * rule, two by two below 1024px (the ProjectPage board). Two or three facts
+ * keep their quarter width rather than stretching across the page, and the
+ * hairline under the row runs the full width.
+ */
 export function ProjectFacts({ facts, className }: { facts: ProjectFact[]; className?: string }) {
   if (facts.length === 0) return null;
   return (
-    <dl className={cx("grid border-t-2 border-rule sm:grid-cols-2 lg:flex", className)}>
+    <dl className={cx("grid grid-cols-2 border-t-2 border-rule lg:grid-cols-4 lg:border-b lg:border-line", className)}>
       {facts.map((fact, index) => (
         <div
           key={index}
           className={cx(
-            "flex flex-col gap-0.5 border-b border-line py-3.5 lg:min-w-0 lg:flex-1",
-            "sm:max-lg:[&:nth-child(2n)]:border-s sm:max-lg:[&:nth-child(2n)]:ps-5",
-            "lg:[&:not(:first-child)]:border-s lg:[&:not(:first-child)]:ps-5",
+            "flex min-w-0 flex-col gap-0.5 border-b border-line py-3.5 lg:border-b-0",
+            "max-lg:[&:nth-child(2n)]:border-s max-lg:[&:nth-child(2n)]:ps-5 max-lg:[&:nth-child(2n+1)]:pe-5",
+            "lg:[&:not(:first-child)]:border-s lg:[&:not(:first-child)]:ps-5 lg:pe-5",
           )}
         >
           <dt className="text-ink-2 type-caption">{fact.label}</dt>
-          <dd className="text-pretty type-small">{fact.value}</dd>
+          <dd className="break-words text-pretty type-small">{fact.value}</dd>
         </div>
       ))}
     </dl>
@@ -164,7 +172,7 @@ export function ProjectDetailPage({
 
         <section aria-labelledby="project-story" className="grid gap-8 md:grid-cols-12 md:gap-gutter">
           <div className="min-w-0 md:col-span-8">
-            <h2 id="project-story" className="mb-2 text-ink-2 type-small">
+            <h2 id="project-story" className={STORY_LABEL}>
               {tp("story")}
             </h2>
             <dl className="border-t-2 border-rule">
@@ -178,17 +186,23 @@ export function ProjectDetailPage({
             </dl>
           </div>
           {(links.length > 0 || project.organizationHidden) && (
-            <aside className="flex flex-col gap-4 md:col-span-4 md:pt-11">
-              {links.length > 0 && (
-                <ul className="border-t-2 border-rule">
-                  {links.map((link) => (
-                    <li key={link.href} className="border-b border-line py-3">
-                      <MoreLink href={link.href} label={link.label} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {project.organizationHidden && <p className="text-pretty text-ink-2 type-caption">{tp("hiddenName")}</p>}
+            <aside className="flex flex-col md:col-span-4">
+              {/* The label's line, left empty, so the links' rule meets the story's rule in both scripts. */}
+              <span aria-hidden="true" className={cx(STORY_LABEL, "block max-md:hidden")}>
+                &nbsp;
+              </span>
+              <div className="flex flex-col gap-4">
+                {links.length > 0 && (
+                  <ul className="border-t-2 border-rule">
+                    {links.map((link) => (
+                      <li key={link.href} className="border-b border-line py-3">
+                        <MoreLink href={link.href} label={link.label} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {project.organizationHidden && <p className="text-pretty text-ink-2 type-caption">{tp("hiddenName")}</p>}
+              </div>
             </aside>
           )}
         </section>

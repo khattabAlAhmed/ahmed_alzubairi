@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { LanguageFallback } from "@/components/language-switch";
-import { formatDate } from "@/components/public/home/format";
+import { formatDate, metaSeparator } from "@/components/public/home/format";
 import { SeatsMeter } from "@/components/public/listing";
 import { CONTAINER, PageHero, TextBlock } from "@/components/public/parts";
 import { ProjectFacts, type ProjectFact } from "@/components/public/projects/project-detail";
@@ -76,7 +76,7 @@ export default async function CoursePage({ params }: Props) {
     t("course.dateNotSet")
   );
   const typeLabel = recorded
-    ? `${tListing("courseType.recorded")} · ${tListing("comingSoon")}`
+    ? `${tListing("courseType.recorded")}${metaSeparator(locale)}${tListing("comingSoon")}`
     : tListing(`courseType.${course.type}`);
   const facts: ProjectFact[] = [
     { label: t("course.type"), value: typeLabel },

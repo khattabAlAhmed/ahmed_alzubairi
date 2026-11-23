@@ -4,9 +4,9 @@ import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { NewsletterSignup } from "@/components/newsletter";
 import { BlogList, parseBlogQuery } from "@/components/public/blog";
 import { ListSkeleton } from "@/components/feedback/list-skeletons";
+import { NewsletterSection } from "@/components/public/home/newsletter";
 import { CONTAINER, PageHero } from "@/components/public/parts";
 import { MAIN_CONTENT_ID } from "@/components/skip-link";
 import { routing } from "@/i18n/routing";
@@ -43,19 +43,23 @@ async function PostsFromQuery({ locale, searchParams }: { locale: Locale; search
 export default async function Blog({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-  const t = await getTranslations({ locale, namespace: "Blog" });
+  const [t, tNewsletter] = await Promise.all([
+    getTranslations({ locale, namespace: "Blog" }),
+    getTranslations({ locale, namespace: "Newsletter" }),
+  ]);
 
   return (
     <main id={MAIN_CONTENT_ID} className="flex-1 pb-section">
       <PageHero eyebrow={t("eyebrow")} title={t("heading")} intro={<p>{t("lead")}</p>} />
-      <div className={`${CONTAINER} flex flex-col gap-section`}>
+      <div className={CONTAINER}>
         <Suspense fallback={<ListSkeleton kind="articles" label={t("loading")} rows={4} />}>
           <PostsFromQuery locale={locale} searchParams={searchParams} />
         </Suspense>
-        {/* §6.15: the blog is one of the three signup places. Outside the
-            Suspense, so it shows while the list loads. */}
-        <NewsletterSignup source="blog" inline className="max-w-2xl" />
       </div>
+      {/* §6.15: the blog is one of the three signup places, set as the home
+          block (the Blog mockup). Outside the Suspense, so it shows while the
+          list loads. */}
+      <NewsletterSection source="blog" heading={tNewsletter("title")} intro={tNewsletter("intro")} />
     </main>
   );
 }

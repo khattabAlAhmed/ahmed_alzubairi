@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { PlayIcon } from "@/components/icons";
 import { Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
-import { formatDate } from "../home/format";
+import { formatDate, metaSeparator } from "../home/format";
 import { ABOVE_LINK, CardCover, Heading, LIST_ROW, LIST_RULE, MetaLine, type ListingImage } from "./parts";
 
 /**
@@ -77,7 +77,7 @@ export function MediaCard({
       <article className={cx("flex flex-col gap-2.5", className)}>
         {media ?? <CardCover image={image} fallback={<PlayIcon className="size-10" />} sizes="(min-width: 768px) 45vw, 100vw" />}
         <p className="flex justify-between gap-4 border-y border-line border-t-2 border-t-rule py-2.5 text-[13px] text-ink-2 tabular-nums">
-          <span>{[kind, outlet].filter(Boolean).join(" · ")}</span>
+          <span>{[kind, outlet].filter(Boolean).join(metaSeparator(locale))}</span>
           {when}
         </p>
         <Heading level={headingLevel} className="type-h3">

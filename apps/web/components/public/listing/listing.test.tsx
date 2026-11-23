@@ -15,9 +15,12 @@ import { ResourceCard } from "./resource-card";
 import { SearchField } from "./search-field";
 import { ShareButtons } from "./share-buttons";
 
+// The page language, switched by the test of the Arabic separator.
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
 vi.mock("next-intl", async (original) => ({
   ...(await original<typeof import("next-intl")>()),
-  useLocale: () => "en",
+  useLocale: () => intl.locale,
   useFormatter: () => ({ number: (value: number) => String(value) }),
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
@@ -50,7 +53,10 @@ vi.mock("@/i18n/navigation", () => ({
   },
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  intl.locale = "en";
+});
 
 describe("withParam", () => {
   it("sets a param, keeps the others and drops the named ones", () => {
@@ -317,6 +323,16 @@ describe("MediaCard and VideoEmbed", () => {
     expect(screen.getByRole("heading", { name: "Workshop" })).toBeTruthy();
   });
 
+  it("separates the kind and the outlet with a dot in English and an em dash in Arabic", () => {
+    const card = <MediaCard variant="featured" category="events" title="Workshop" outlet="Forum" date={null} image={null} />;
+    render(card);
+    expect(screen.getByText("mediaCategory.events · Forum")).toBeTruthy();
+    cleanup();
+    intl.locale = "ar";
+    render(card);
+    expect(screen.getByText("mediaCategory.events — Forum")).toBeTruthy();
+  });
+
   it("puts the video frame in place of the image: lazy, titled and sandboxed", () => {
     render(
       <MediaCard
@@ -380,6 +396,40 @@ describe("CourseCard", () => {
     expect(screen.queryByRole("button")).toBeNull();
     expect(screen.queryByRole("meter")).toBeNull();
     expect(container.querySelector("time")).toBeNull();
+  });
+});
+
+describe("separators on Arabic pages", () => {
+  // A middle dot beside Arabic-Indic digits reads as a zero (T20): Arabic rows use an em dash.
+  const marks = (container: HTMLElement) =>
+    [...container.querySelectorAll('[aria-hidden="true"]')].map((element) => element.textContent).filter((text) => text === "·" || text === "—");
+
+  it("uses the em dash in the article, course and resource meta lines", () => {
+    intl.locale = "ar";
+    const article = render(
+      <ArticleCard href="/blog/a" title="T" excerpt={null} category="الحوكمة" cover={null} publishedAt="2026-10-21T09:00:00Z" readingMinutes={3} />,
+    );
+    expect(marks(article.container).length).toBeGreaterThan(0);
+    expect(marks(article.container).every((mark) => mark === "—")).toBe(true);
+    cleanup();
+
+    const course = render(
+      <CourseCard href="/training/c" title="C" description={null} startsAt="2027-01-12T12:00:00Z" place="عمّان" action={null} type="in_person" seats={null} />,
+    );
+    expect(marks(course.container)).toEqual(["—"]);
+    cleanup();
+
+    render(<CourseCard href="/training/c" title="C" description={null} startsAt={null} place={null} action={null} type="recorded" seats={null} />);
+    expect(screen.getByText("courseType.recorded — comingSoon")).toBeTruthy();
+    cleanup();
+
+    const resource = render(<ResourceCard kind="guide" fileType="pdf" title="G" description={null} action={null} size="1.1 MB" />);
+    expect(marks(resource.container)).toEqual(["—"]);
+  });
+
+  it("keeps the middle dot on English pages", () => {
+    render(<CourseCard href="/training/c" title="C" description={null} startsAt={null} place={null} action={null} type="recorded" seats={null} />);
+    expect(screen.getByText("courseType.recorded · comingSoon")).toBeTruthy();
   });
 });
 
