@@ -2,7 +2,7 @@
 import type { TiptapDoc } from "@repo/shared";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { RichText, safeHref, splitLead } from "./rich-text";
+import { contentHeadings, RichText, safeHref, splitLead } from "./rich-text";
 
 afterEach(cleanup);
 
@@ -116,6 +116,45 @@ describe("RichText", () => {
     let node: Record<string, unknown> = text("deep");
     for (let i = 0; i < 200; i++) node = { type: "blockquote", content: [node] };
     expect(html(doc(node)).textContent).toBe("");
+  });
+});
+
+describe("heading ids", () => {
+  const h = (level: number, value: string) => ({ type: "heading", attrs: { level }, content: value ? [text(value)] : [] });
+  const parts = doc(
+    h(2, "What I collect"),
+    p(text("Body")),
+    h(3, "Detail"),
+    h(2, ""),
+    { type: "blockquote", content: [h(2, "Nested")] },
+    h(2, "Your rights"),
+  );
+
+  it("adds no id without a prefix, so the output is unchanged", () => {
+    const plain = render(<RichText doc={parts} />).container.innerHTML;
+    cleanup();
+    const unset = render(<RichText doc={parts} headingIds={undefined} />).container.innerHTML;
+    expect(unset).toBe(plain);
+    expect(plain).not.toContain("id=");
+  });
+
+  it("numbers only the top-level h2s with the prefix", () => {
+    const container = render(<RichText doc={parts} headingIds="part" />).container;
+    expect(Array.from(container.querySelectorAll("[id]")).map((node) => `${node.tagName}#${node.id}`)).toEqual([
+      "H2#part-1",
+      "H2#part-2",
+      "H2#part-3",
+    ]);
+    expect(container.querySelector("#part-3")?.textContent).toBe("Your rights");
+    expect(container.querySelector("h3")?.hasAttribute("id")).toBe(false);
+  });
+
+  it("lists the parts with the same ids, leaving out an empty heading", () => {
+    expect(contentHeadings(parts, "part")).toEqual([
+      { id: "part-1", label: "What I collect" },
+      { id: "part-3", label: "Your rights" },
+    ]);
+    expect(contentHeadings({ type: "paragraph" } as unknown as TiptapDoc, "part")).toEqual([]);
   });
 });
 

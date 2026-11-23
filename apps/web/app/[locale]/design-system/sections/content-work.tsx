@@ -27,6 +27,7 @@ import { RegistrationFrame, RegistrationPanel } from "@/components/training/regi
 import type { Faq } from "@/lib/content";
 import { DocumentsList, type ListedDocument } from "../../(public)/documents/documents-list";
 import { FaqList } from "../../(public)/faq/faq-list";
+import { SectionIndex } from "@/components/public/section-index";
 import { DsBlock, DsNote, DsSection } from "../parts";
 
 /*
@@ -72,6 +73,7 @@ export async function ContentWorkSection({ locale }: Props) {
         <DocumentBlock t={t} />
       </NextIntlClientProvider>
       <FaqBlock t={t} />
+      <SectionIndexBlock t={t} />
     </DsSection>
   );
 }
@@ -544,6 +546,40 @@ function FaqBlock({ t }: { t: T }) {
   return (
     <DsBlock title={t("faq.title")} intro={t("faq.intro")}>
       <FaqList faqs={faqs} bare />
+    </DsBlock>
+  );
+}
+
+/* -------------------------------------------------------- section index -- */
+
+function SectionIndexBlock({ t }: { t: T }) {
+  const pages = t.raw("sectionIndex.pages") as string[];
+  const sections = t.raw("sectionIndex.sections") as string[];
+  const counts = [4, 2, 3];
+  return (
+    <DsBlock title={t("sectionIndex.title")} intro={t("sectionIndex.intro")}>
+      <div className="grid items-start gap-10 md:grid-cols-2 lg:grid-cols-3">
+        <State label={t("sectionIndex.statePages")}>
+          <SectionIndex
+            label={t("sectionIndex.pagesLabel")}
+            items={pages.map((label, index) => ({
+              label,
+              href: index === 0 ? "/privacy" : "/terms",
+              current: index === 0,
+            }))}
+          />
+        </State>
+        <State label={t("sectionIndex.stateSections")}>
+          <SectionIndex
+            label={t("sectionIndex.sectionsLabel")}
+            items={sections.map((label, index) => ({
+              label,
+              href: `#content-work`,
+              count: counts[index],
+            }))}
+          />
+        </State>
+      </div>
     </DsBlock>
   );
 }

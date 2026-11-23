@@ -14,7 +14,7 @@ export async function getPage(key: PageKey, locale: Locale): Promise<Page | null
   const row = rowsOrThrow(
     await createServiceClient()
       .from("pages")
-      .select("key, title_ar, title_en, body_ar, body_en, status")
+      .select("key, title_ar, title_en, body_ar, body_en, status, updated_at")
       .eq("key", key)
       .eq("status", "published")
       .limit(1),
@@ -25,7 +25,7 @@ export async function getPage(key: PageKey, locale: Locale): Promise<Page | null
   const title = text(row, "title", locale);
   const body = richText(row, "body", locale);
   if (!title || !body) return null;
-  return { key, title, body, availableIn: publicLocales("pages", row) };
+  return { key, title, body, updatedAt: row.updated_at, availableIn: publicLocales("pages", row) };
 }
 
 /** Career and qualification items for About, in order (§6.3). */

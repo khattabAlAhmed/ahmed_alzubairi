@@ -33,7 +33,7 @@ vi.mock("@/components/consultation-button", () => ({
   ConsultationButton: () => <button type="button">requestConsultation</button>,
 }));
 vi.mock("@/i18n/navigation", () => ({
-  Link: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
+  Link: ({ children, ...props }: { href: string; children: ReactNode }) => <a {...props}>{children}</a>,
 }));
 vi.mock("@/components/language-switch", () => ({
   LanguageFallback: ({ href }: { href: string }) => <span data-testid="fallback">{href}</span>,
@@ -64,7 +64,7 @@ describe.each([
   ["terms", termsRoute],
 ] as const)("%s route", (key, route) => {
   it("renders the page's title and body after waiting for a request", async () => {
-    mocks.page = { key, title: `Title ${key}`, body: doc(`Body ${key}`), availableIn: ["ar", "en"] };
+    mocks.page = { key, title: `Title ${key}`, body: doc(`Body ${key}`), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar", "en"] };
     render(await route.default(params("en")));
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`Title ${key}`);
     expect(screen.getByText(`Body ${key}`)).toBeTruthy();
@@ -72,8 +72,48 @@ describe.each([
     expect(mocks.readBeforeConnection).toBe(false);
   });
 
+  it("lists both legal pages beside the text and marks this one", async () => {
+    mocks.page = { key, title: "T", body: doc("B"), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar", "en"] };
+    render(await route.default(params("en")));
+    const index = screen.getByRole("navigation", { name: "en:indexLabel" });
+    const links = Array.from(index.querySelectorAll("a"));
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/privacy", "/terms"]);
+    expect(links.map((link) => link.textContent)).toEqual(["en:privacy", "en:terms"]);
+    const current = links.filter((link) => link.getAttribute("aria-current") === "page");
+    expect(current.map((link) => link.getAttribute("href"))).toEqual([`/${key}`]);
+  });
+
+  it("shows when the text last changed, as a month in the reader's language", async () => {
+    mocks.page = { key, title: "T", body: doc("B"), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar", "en"] };
+    render(await route.default(params("ar")));
+    const time = screen.getByText("مارس ٢٠٢٦");
+    expect(time.tagName).toBe("TIME");
+    expect(time.getAttribute("datetime")).toBe("2026-03-04T10:00:00Z");
+    expect(screen.getByText("ar:lastUpdated")).toBeTruthy();
+  });
+
+  it("lists the text's parts and links each to its heading", async () => {
+    const heading = (value: string) => ({ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: value }] });
+    const body = { type: "doc", content: [heading("Collect"), heading("Rights")] } as TiptapDoc;
+    mocks.page = { key, title: "T", body, updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar", "en"] };
+    render(await route.default(params("en")));
+    const contents = screen.getByRole("navigation", { name: "en:contentsLabel" });
+    const links = Array.from(contents.querySelectorAll("a"));
+    expect(links.map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+      ["Collect", "#part-1"],
+      ["Rights", "#part-2"],
+    ]);
+    expect(document.getElementById("part-2")?.textContent).toBe("Rights");
+  });
+
+  it("leaves out the contents list for a text with one part or none", async () => {
+    mocks.page = { key, title: "T", body: doc("B"), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar", "en"] };
+    render(await route.default(params("en")));
+    expect(screen.queryByRole("navigation", { name: "en:contentsLabel" })).toBeNull();
+  });
+
   it("sends the language switch home when there's no translation", async () => {
-    mocks.page = { key, title: "T", body: doc("B"), availableIn: ["en"] };
+    mocks.page = { key, title: "T", body: doc("B"), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["en"] };
     render(await route.default(params("en")));
     expect(screen.getByTestId("fallback").textContent).toBe("/");
   });
@@ -88,7 +128,7 @@ describe.each([
   });
 
   it("titles the page from its content", async () => {
-    mocks.page = { key, title: `Title ${key}`, body: doc("B"), availableIn: ["ar"] };
+    mocks.page = { key, title: `Title ${key}`, body: doc("B"), updatedAt: "2026-03-04T10:00:00Z", availableIn: ["ar"] };
     const meta = await route.generateMetadata(params("ar"));
     expect(meta.title).toEqual({ absolute: `ar:pages.${key}.title | Ahmed Alzubairi` });
     expect(meta.description).toBe(`ar:pages.${key}.description`);

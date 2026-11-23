@@ -85,5 +85,10 @@
   },
   "factStages": "المراحل",
   "factPastProjects": "مشاريع سابقة",
-  "emptyServicesTitle": "لا خدمات هنا بعد"
+  "emptyServicesTitle": "لا خدمات هنا بعد",
+  "legal": {
+    "indexLabel": "الصفحات القانونية",
+    "lastUpdated": "آخر تحديث",
+    "contentsLabel": "في هذه الصفحة"
+  }
 }

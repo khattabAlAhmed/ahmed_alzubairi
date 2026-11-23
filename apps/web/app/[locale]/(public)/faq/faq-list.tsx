@@ -1,7 +1,7 @@
-import { FAQ_CATEGORIES, type Locale } from "@repo/shared";
-import { useLocale, useTranslations } from "next-intl";
-import { formatNumber } from "@/components/public/home/format";
+import { FAQ_CATEGORIES } from "@repo/shared";
+import { useTranslations } from "next-intl";
 import { EmptyState } from "@/components/empty-state";
+import { SectionIndex } from "@/components/public/section-index";
 import { cx } from "@/components/ui/cx";
 import type { Faq } from "@/lib/content";
 
@@ -42,7 +42,6 @@ export function FaqList({
   bare?: boolean;
 }) {
   const t = useTranslations("Catalog");
-  const locale = useLocale();
   const groups = FAQ_CATEGORIES.flatMap((category) => {
     const items = faqs.filter((faq) => faq.category === category);
     return items.length > 0 ? [{ category, items }] : [];
@@ -55,21 +54,15 @@ export function FaqList({
   return (
     <div className="grid gap-10 lg:grid-cols-12 lg:gap-gutter">
       {groups.length > 1 && (
-        <nav aria-label={t("faqSectionsLabel")} className="self-start border-t-2 border-rule lg:sticky lg:top-24 lg:col-span-3">
-          <ul>
-            {groups.map(({ category, items }) => (
-              <li key={category}>
-                <a
-                  href={`#faq-${category}`}
-                  className="flex justify-between gap-3 border-b border-line py-2.5 text-[15px] text-ink-2 no-underline transition-state hover:text-ink focus-ring focus-visible:-outline-offset-2"
-                >
-                  {t(`faqCategory.${category}`)}
-                  <span className="tabular-nums">{formatNumber(items.length, locale as Locale)}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SectionIndex
+          label={t("faqSectionsLabel")}
+          items={groups.map(({ category, items }) => ({
+            label: t(`faqCategory.${category}`),
+            href: `#faq-${category}`,
+            count: items.length,
+          }))}
+          className="self-start lg:sticky lg:top-24 lg:col-span-3"
+        />
       )}
       <div className={cx("flex min-w-0 flex-col gap-12", groups.length > 1 ? "lg:col-span-9" : "lg:col-span-12 max-w-3xl")}>
         {groups.map(({ category, items }) => (

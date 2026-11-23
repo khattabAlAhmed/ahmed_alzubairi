@@ -133,72 +133,71 @@ export function ContactForm() {
     );
   }
 
+  // ContactForm board: the page header introduces it, so no heading of its
+  // own; the form keeps its accessible name.
   return (
-    <section aria-labelledby="contact-form-title">
-      <h2 id="contact-form-title" className="type-h2">
-        {t("formTitle")}
-      </h2>
-      <form
-        key={formKey}
-        onSubmit={onSubmit}
-        noValidate
-        className="mt-5 grid gap-x-6 gap-y-5.5 border-t-2 border-rule pt-5.5 sm:grid-cols-2"
+    <form
+      key={formKey}
+      aria-label={t("formTitle")}
+      onSubmit={onSubmit}
+      noValidate
+      className="grid gap-x-6 gap-y-5.5 border-t-2 border-rule pt-5.5 sm:grid-cols-2"
+    >
+      {formError && <InlineNotice tone="danger" title={formError} className="sm:col-span-2" />}
+      <TextField
+        name="name"
+        label={t("name")}
+        autoComplete="name"
+        maxLength={MAX_SHORT_TEXT_LENGTH}
+        required
+        error={errors.name}
+      />
+      <TextField
+        name="email"
+        type="email"
+        label={t("emailField")}
+        autoComplete="email"
+        inputMode="email"
+        dir="ltr"
+        placeholder={t("emailPlaceholder")}
+        required
+        error={errors.email}
+      />
+      <fieldset
+        aria-describedby={errors.orgType ? orgTypeErrorId : undefined}
+        className="flex min-w-0 flex-col gap-2 sm:col-span-2"
       >
-        {formError && <InlineNotice tone="danger" title={formError} className="sm:col-span-2" />}
-        <TextField
-          name="name"
-          label={t("name")}
-          autoComplete="name"
-          maxLength={MAX_SHORT_TEXT_LENGTH}
-          required
-          error={errors.name}
-        />
-        <TextField
-          name="email"
-          type="email"
-          label={t("emailField")}
-          autoComplete="email"
-          inputMode="email"
-          dir="ltr"
-          required
-          error={errors.email}
-        />
-        <fieldset
-          aria-describedby={errors.orgType ? orgTypeErrorId : undefined}
-          className="flex min-w-0 flex-col gap-2 sm:col-span-2"
-        >
-          <legend className="mb-2 text-sm font-medium">{t("orgType")}</legend>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            {ORG_TYPES.map((type) => (
-              <Radio key={type} name="orgType" value={type} label={t(`orgTypes.${type}`)} required />
-            ))}
-          </div>
-          {errors.orgType && <FieldError id={orgTypeErrorId}>{errors.orgType}</FieldError>}
-        </fieldset>
-        <TextField
-          name="subject"
-          label={t("subject")}
-          maxLength={MAX_SHORT_TEXT_LENGTH}
-          required
-          error={errors.subject}
-          className="sm:col-span-2"
-        />
-        <TextArea
-          name="message"
-          label={t("message")}
-          rows={7}
-          maxLength={MAX_LONG_TEXT_LENGTH}
-          required
-          error={errors.message}
-          className="sm:col-span-2"
-        />
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
-          <p className="text-[13px] text-ink-2">{t("noAccount")}</p>
-          <Button type="submit" loading={sending} loadingLabel={t("sending")}>
-            {t("send")}
-          </Button>
+        <legend className="mb-2 text-sm font-medium">{t("orgType")}</legend>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {ORG_TYPES.map((type) => (
+            <Radio key={type} name="orgType" value={type} label={t(`orgTypes.${type}`)} required />
+          ))}
         </div>
-      </form>
-    </section>
+        {errors.orgType && <FieldError id={orgTypeErrorId}>{errors.orgType}</FieldError>}
+      </fieldset>
+      <TextField
+        name="subject"
+        label={t("subject")}
+        maxLength={MAX_SHORT_TEXT_LENGTH}
+        required
+        error={errors.subject}
+        className="sm:col-span-2"
+      />
+      <TextArea
+        name="message"
+        label={t("message")}
+        rows={7}
+        maxLength={MAX_LONG_TEXT_LENGTH}
+        required
+        hint={t("messageHint")}
+        error={errors.message}
+        className="sm:col-span-2"
+      />
+      <div className="flex justify-end sm:col-span-2">
+        <Button type="submit" loading={sending} loadingLabel={t("sending")}>
+          {t("send")}
+        </Button>
+      </div>
+    </form>
   );
 }

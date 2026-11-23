@@ -96,8 +96,8 @@
     "retry": "Try again"
   },
   "Onboarding": {
-    "title": "Complete your profile",
-    "intro": "One last step: add your details so we can serve you.",
+    "title": "One last step",
+    "intro": "I need your phone number to reach you, and whatever you choose to add about your organization. Then you return to what you were doing.",
     "nameLegend": "Full name",
     "firstName": "First name",
     "lastName": "Last name",
