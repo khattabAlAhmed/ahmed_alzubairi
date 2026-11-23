@@ -320,7 +320,9 @@ describe("ExpertiseDetailPage", () => {
     const figure = img.closest("figure")!;
     expect(img.parentElement?.className).toContain("aspect-[21/8]");
     expect(figure.querySelector("figcaption")?.textContent).toContain("Listening session");
-    expect(img.getAttribute("loading")).toBe("lazy");
+    // In the first screen at every width, so it loads at once (About's photo stays lazy).
+    expect(img.getAttribute("loading")).toBe("eager");
+    expect(img.getAttribute("fetchpriority")).toBe("high");
     const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
     const meaning = screen.getByRole("heading", { name: "areaMeaning" });
     expect(header.compareDocumentPosition(figure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

@@ -123,6 +123,7 @@ export function Figure({
   note,
   missingLabel,
   sizes = "(min-width: 768px) 50vw, 100vw",
+  priority = false,
   className,
 }: {
   image: ListingImage | null;
@@ -131,13 +132,23 @@ export function Figure({
   note?: ReactNode;
   missingLabel?: string;
   sizes?: string;
+  /** Load at once, at high priority: only for a photo that can be the page's LCP (in the first screen). */
+  priority?: boolean;
   className?: string;
 }) {
   return (
     <figure className={className}>
       {image ? (
         <div className={cx("relative bg-surface", PHOTO_CROPS[crop])}>
-          <Image src={image.src} alt={image.alt} fill sizes={sizes} className="object-cover" />
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes={sizes}
+            loading={priority ? "eager" : undefined}
+            fetchPriority={priority ? "high" : undefined}
+            className="object-cover"
+          />
         </div>
       ) : (
         <PhotoMissing crop={crop} label={missingLabel} />

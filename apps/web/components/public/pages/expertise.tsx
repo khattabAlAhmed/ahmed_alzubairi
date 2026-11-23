@@ -116,13 +116,15 @@ export function ExpertiseDetailPage({
         facts={facts}
       />
       {area.image && (
-        // The wide photo under the header (the Expertise mockup). Lazy: on phones it sits below the fold.
+        // The wide photo under the header (the Expertise mockup). It sits in the first screen at every width and is often the LCP, so it loads at once.
         <div className={CONTAINER}>
           <Figure
             image={{ src: area.image.url, alt: area.image.alt }}
             crop="band"
             caption={area.image.caption ?? undefined}
-            sizes="(min-width: 1376px) 1312px, 100vw"
+            // The page column: 100vw less the page margins (16/32/48 px), at most 1312 px.
+            sizes="(min-width: 1408px) 1312px, (min-width: 1280px) calc(100vw - 96px), (min-width: 768px) calc(100vw - 64px), calc(100vw - 32px)"
+            priority
           />
         </div>
       )}
