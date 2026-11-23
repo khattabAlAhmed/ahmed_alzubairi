@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 import { Fragment } from "react";
-import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 
 /** One step of the path. The last step is the page itself and takes no link. */
@@ -9,8 +8,8 @@ export type BreadcrumbItem = { label: string; href?: string };
 /**
  * Where a page sits ("Services / Institutional governance"), as the Service
  * and Expertise mockups draw it: small `ink-2` text, the section as a link,
- * a slash between the steps, and the page itself last, as plain text with
- * `aria-current`. An ordered list in a labelled `nav` landmark. It follows the
+ * a slash between the steps, and the page itself last, as plain text (also
+ * `ink-2`, as the mockups draw it) with `aria-current`. An ordered list in a labelled `nav` landmark. It follows the
  * page's direction: in Arabic the path reads from the right. The slash is the
  * same in both scripts and is hidden from screen readers, which announce the
  * list instead.
@@ -33,9 +32,7 @@ export function Breadcrumb({ items, className }: { items: readonly BreadcrumbIte
               )}
               <li className="min-w-0">
                 {last || !item.href ? (
-                  <span aria-current={last ? "page" : undefined} className={cx(last && "text-ink")}>
-                    {item.label}
-                  </span>
+                  <span aria-current={last ? "page" : undefined}>{item.label}</span>
                 ) : (
                   <Link
                     href={item.href}
