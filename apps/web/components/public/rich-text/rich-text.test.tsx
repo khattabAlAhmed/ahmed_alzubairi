@@ -32,6 +32,8 @@ describe("RichText", () => {
     expect(container.querySelector("strong")?.textContent).toBe("Bold");
     expect(container.querySelector("em")?.textContent).toBe("italic");
     expect(container.querySelector("ul li")?.textContent).toBe("One");
+    // Safari drops the list role when the markers are styled away (ARTICLE_PROSE).
+    expect(container.querySelector("ul")?.getAttribute("role")).toBe("list");
     expect(container.querySelector("ol")?.getAttribute("start")).toBe("3");
     expect(container.querySelector("blockquote")?.textContent).toBe("Quote");
     expect(container.querySelector("hr")).not.toBeNull();

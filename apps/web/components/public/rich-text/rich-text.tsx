@@ -125,7 +125,9 @@ function renderNode(node: JsonNode, key: number, depth: number, id?: string): Re
     }
     case "bulletList":
       return (
-        <ul key={key} className="flex list-disc flex-col gap-1.5 ps-6 marker:text-ink-2">
+        // `role="list"`: where a style drops the markers (ARTICLE_PROSE's dashes),
+        // Safari and VoiceOver stop announcing a list without it.
+        <ul key={key} role="list" className="flex list-disc flex-col gap-1.5 ps-6 marker:text-ink-2">
           {inner()}
         </ul>
       );
