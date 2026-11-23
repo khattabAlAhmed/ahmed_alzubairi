@@ -113,8 +113,19 @@ export function CardCover({
 }
 
 /**
+ * Room for the Quick contact tab (`quick-contact.tsx`), which rests fixed at
+ * the bottom start corner, 16px in: 44px wide on phones, up to 154px with its
+ * label from `sm` ("Quick contact"), plus an 8px gap. Measured from the page
+ * column, which starts `--page-margin` in.
+ */
+const QUICK_CONTACT_ROOM = "ps-[calc(68px-var(--page-margin))] sm:ps-[calc(178px-var(--page-margin))]";
+
+/**
  * Image with caption (MediaFrame board): the photo at its crop, then a caption
  * line in `ink-2`, with an optional note at the end ("Placeholder photo").
+ * `clearQuickContact` is for a full-width photo whose caption can land in the
+ * first screen where the Quick contact tab rests (the expertise band): the
+ * caption moves to the end edge, and long text wraps before reaching the tab.
  */
 export function Figure({
   image,
@@ -124,6 +135,7 @@ export function Figure({
   missingLabel,
   sizes = "(min-width: 768px) 50vw, 100vw",
   priority = false,
+  clearQuickContact = false,
   className,
 }: {
   image: ListingImage | null;
@@ -134,6 +146,7 @@ export function Figure({
   sizes?: string;
   /** Load at once, at high priority: only for a photo that can be the page's LCP (in the first screen). */
   priority?: boolean;
+  clearQuickContact?: boolean;
   className?: string;
 }) {
   return (
@@ -154,7 +167,12 @@ export function Figure({
         <PhotoMissing crop={crop} label={missingLabel} />
       )}
       {(caption || note) && (
-        <figcaption className="flex justify-between gap-3 pt-2 text-[13px] text-ink-2">
+        <figcaption
+          className={cx(
+            "flex gap-3 pt-2 text-[13px] text-ink-2",
+            clearQuickContact ? cx("justify-end text-end", QUICK_CONTACT_ROOM) : "justify-between",
+          )}
+        >
           <span>{caption}</span>
           {note && <span>{note}</span>}
         </figcaption>

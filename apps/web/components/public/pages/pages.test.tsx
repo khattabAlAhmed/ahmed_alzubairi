@@ -323,6 +323,10 @@ describe("ExpertiseDetailPage", () => {
     // In the first screen at every width, so it loads at once (About's photo stays lazy).
     expect(img.getAttribute("loading")).toBe("eager");
     expect(img.getAttribute("fetchpriority")).toBe("high");
+    // Its caption sits at the end edge, clear of the Quick contact tab at the start corner.
+    const caption = figure.querySelector("figcaption")!;
+    expect(caption.className).toContain("justify-end");
+    expect(caption.className).toContain("ps-[calc(68px-var(--page-margin))]");
     const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
     const meaning = screen.getByRole("heading", { name: "areaMeaning" });
     expect(header.compareDocumentPosition(figure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
