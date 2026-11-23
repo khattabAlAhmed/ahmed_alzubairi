@@ -77,7 +77,7 @@
     "noLanguage": "لا توجد لغة بعد",
     "comingSoon": "تحرير هذا النوع يصل في تحديث لاحق.",
     "updated": "حُدّث {date}",
-    "counts": "{total, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}} · المنشور {published}",
+    "counts": "{total, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}} — المنشور {published}",
     "backToTypes": "كل المحتوى"
   },
   "editor": {
