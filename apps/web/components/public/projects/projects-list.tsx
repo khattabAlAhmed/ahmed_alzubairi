@@ -1,7 +1,7 @@
 import { ORG_TYPES, type Locale } from "@repo/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { EmptyState } from "@/components/empty-state";
-import { formatNumber } from "@/components/public/home/format";
+import { formatNumber, metaSeparator } from "@/components/public/home/format";
 import type { ExpertiseArea, Project } from "@/lib/content";
 import { FilterChips } from "../listing/filter-chips";
 import { Pagination } from "../listing/pagination";
@@ -100,7 +100,7 @@ export function ProjectsList({
           {t("resultCount", { count: shown.length })}
           {filtered && shown.length > 0 && (
             <>
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">{metaSeparator(locale).trim()}</span>
               <MoreLink href="/projects" label={t("clearFilters")} />
             </>
           )}

@@ -63,7 +63,7 @@ export function legalPage(key: LegalKey) {
       <main id={MAIN_CONTENT_ID} className="flex-1">
         {/* A page with no translation sends the switch home instead (§6.1). */}
         {!page.availableIn.includes(otherLocale(locale)) && <LanguageFallback href="/" />}
-        <article className={cx(CONTAINER, "pt-8 pb-16 md:pt-12")}>
+        <article className={cx(CONTAINER, "pt-8 pb-section md:pt-12")}>
           <div className="grid gap-8 border-t-2 border-rule pt-6 lg:grid-cols-12 lg:gap-gutter">
             <aside className="flex flex-col gap-4 self-start lg:col-span-3">
               <SectionIndex

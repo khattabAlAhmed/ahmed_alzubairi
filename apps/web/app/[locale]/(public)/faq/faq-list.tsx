@@ -5,6 +5,9 @@ import { SectionIndex } from "@/components/public/section-index";
 import { cx } from "@/components/ui/cx";
 import type { Faq } from "@/lib/content";
 
+/** The category's small label over its questions' rule. */
+const GROUP_LABEL = "pb-3 text-ink-2 type-small";
+
 /**
  * One question (FAQ board): the question as the summary with a plus that turns
  * into a minus, the answer under it at reading measure. Every question on the
@@ -54,20 +57,25 @@ export function FaqList({
   return (
     <div className="grid gap-10 lg:grid-cols-12 lg:gap-gutter">
       {groups.length > 1 && (
-        <SectionIndex
-          label={t("faqSectionsLabel")}
-          items={groups.map(({ category, items }) => ({
-            label: t(`faqCategory.${category}`),
-            href: `#faq-${category}`,
-            count: items.length,
-          }))}
-          className="self-start lg:sticky lg:top-24 lg:col-span-3"
-        />
+        <div className="self-start lg:sticky lg:top-24 lg:col-span-3">
+          {/* A group label's line, left empty: the index's rule meets the first group's rule in both scripts. */}
+          <span aria-hidden="true" className={cx(GROUP_LABEL, "block max-lg:hidden")}>
+            &nbsp;
+          </span>
+          <SectionIndex
+            label={t("faqSectionsLabel")}
+            items={groups.map(({ category, items }) => ({
+              label: t(`faqCategory.${category}`),
+              href: `#faq-${category}`,
+              count: items.length,
+            }))}
+          />
+        </div>
       )}
       <div className={cx("flex min-w-0 flex-col gap-12", groups.length > 1 ? "lg:col-span-9" : "lg:col-span-12 max-w-3xl")}>
         {groups.map(({ category, items }) => (
           <section key={category} id={`faq-${category}`} aria-labelledby={`faq-${category}-title`} className="scroll-mt-24">
-            <h2 id={`faq-${category}-title`} className="pb-3 text-ink-2 type-small">
+            <h2 id={`faq-${category}-title`} className={GROUP_LABEL}>
               {t(`faqCategory.${category}`)}
             </h2>
             <div className="border-t-2 border-rule">
