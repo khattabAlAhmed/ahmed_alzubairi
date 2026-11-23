@@ -8,8 +8,7 @@
     "label": "Your consultations",
     "service": "Service",
     "noService": "Service no longer listed",
-    "lastActivity": "Last activity",
-    "open": "Open {title}"
+    "lastActivity": "Last activity"
   },
   "form": {
     "title": "Start a new consultation",

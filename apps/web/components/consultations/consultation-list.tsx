@@ -17,7 +17,7 @@ export function ConsultationList({ consultations }: { consultations: Consultatio
     return (
       <section className="border border-ink/10 bg-surface p-6">
         <h2 className="text-xl">{t("emptyTitle")}</h2>
-        <p className="mt-2 text-ink-2">{t("emptyText")}</p>
+        <p className="mt-2 text-pretty text-ink-2">{t("emptyText")}</p>
         <ButtonLink href={NEW_CONSULTATION_HREF} className="mt-4">
           {t("new")}
         </ButtonLink>
@@ -29,9 +29,10 @@ export function ConsultationList({ consultations }: { consultations: Consultatio
     <ul aria-label={t("label")} className="space-y-3">
       {consultations.map((item) => (
         <li key={item.id}>
+          {/* No aria-label: the card's visible text names the link, so the name
+              matches what people see and say (WCAG 2.5.3, axe label-content-name-mismatch). */}
           <Link
             href={`/account/consultations/${item.id}`}
-            aria-label={t("open", { title: item.title })}
             className={cx(
               "block border border-ink/10 bg-surface p-4 transition-colors hover:border-ink/30 motion-reduce:transition-none",
               FOCUS_RING,
