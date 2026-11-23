@@ -79,7 +79,7 @@ describe("parseMediaQuery", () => {
     for (const page of ["0", "-1", "2.5", "x", ""]) expect(parseMediaQuery({ page }).page).toBe(1);
   });
 
-  it("gives the chips the set category only, never the page", () => {
+  it("gives the tabs the set category only, never the page", () => {
     expect(listingQuery({ category: "events", page: 2 })).toEqual({ category: "events" });
     expect(listingQuery({ category: null, page: 1 })).toEqual({});
   });
@@ -227,22 +227,23 @@ describe("MediaList", () => {
     expect(container.querySelector("iframe")).toBeNull();
   });
 
-  it("has a chip per used category with its count, the open one marked", () => {
+  it("has a tab per used category with its count, All with the total, the open one marked", () => {
     render(
       <MediaList
         items={[item(), item({ id: "m2", category: "events" }), item({ id: "m3", category: "events" })]}
         query={{ category: "events", page: 1 }}
       />,
     );
-    const chips = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
-    expect(chips.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+    const tabs = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
+    expect(tabs.getAllByRole("link").map((link) => link.textContent)).toEqual(["filterAll 3", "mediaCategory.media 1", "mediaCategory.events 2"]);
+    expect(tabs.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
       "/media",
       "/media?category=media",
       "/media?category=events",
     ]);
-    const events = chips.getByText("mediaCategory.events").closest("a");
-    expect(events?.getAttribute("aria-current")).toBe("true");
-    expect(events?.textContent).toBe("mediaCategory.events2");
+    const events = tabs.getByText("mediaCategory.events").closest("a");
+    expect(events?.getAttribute("aria-current")).toBe("page");
+    expect(tabs.getByText("filterAll").closest("a")?.getAttribute("aria-current")).toBeNull();
     expect(screen.getByRole("status").textContent).toBe('resultsCount:{"count":2}');
     expect(screen.getAllByRole("article")).toHaveLength(2);
   });
@@ -254,10 +255,10 @@ describe("MediaList", () => {
 
     rerender(<MediaList items={[item()]} query={{ category: "events", page: 1 }} />);
     expect(screen.getByRole("heading", { name: "noResultsState.title" })).toBeTruthy();
-    // The chosen, empty category stays a chip and stays marked; "All" isn't.
-    const chips = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
-    expect(chips.getByText("mediaCategory.events").closest("a")?.getAttribute("aria-current")).toBe("true");
-    expect(chips.getByText("filterAll").closest("a")?.getAttribute("aria-current")).toBeNull();
+    // The chosen, empty category keeps its tab and stays marked; "All" isn't.
+    const tabs = within(screen.getByRole("navigation", { name: "categoriesLabel" }));
+    expect(tabs.getByText("mediaCategory.events").closest("a")?.getAttribute("aria-current")).toBe("page");
+    expect(tabs.getByText("filterAll").closest("a")?.getAttribute("aria-current")).toBeNull();
     expect(screen.getByRole("link", { name: "noResultsState.action" }).getAttribute("href")).toBe("/media");
   });
 

@@ -33,11 +33,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
  */
 async function PostsFromQuery({ locale, searchParams }: { locale: Locale; searchParams: Promise<SearchParams> }) {
   const query = parseBlogQuery(await searchParams);
-  const [result, areas] = await Promise.all([
+  const [result, matching, areas] = await Promise.all([
     getPosts(locale, { q: query.q ?? undefined, expertise: query.category ?? undefined, page: query.page }),
+    // Every article matching the search, any area: the tabs' counts.
+    getPosts(locale, { q: query.q ?? undefined, pageSize: Number.MAX_SAFE_INTEGER }),
     getExpertiseAreas(locale),
   ]);
-  return <BlogList result={result} areas={areas} query={query} />;
+  const byArea: Record<string, number> = {};
+  for (const post of matching.posts) if (post.expertise) byArea[post.expertise.slug] = (byArea[post.expertise.slug] ?? 0) + 1;
+  return <BlogList result={result} areas={areas} counts={{ all: matching.total, byArea }} query={query} />;
 }
 
 export default async function Blog({ params, searchParams }: Props) {

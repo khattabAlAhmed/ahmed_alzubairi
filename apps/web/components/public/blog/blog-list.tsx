@@ -1,36 +1,46 @@
-import { useTranslations } from "next-intl";
+import type { Locale } from "@repo/shared";
+import { useLocale, useTranslations } from "next-intl";
 import { EmptyState } from "@/components/empty-state";
 import type { ExpertiseArea } from "@/lib/content";
 import type { PostPage } from "@/lib/content/posts";
-import { FilterChips, Pagination, SearchField } from "../listing";
+import { formatNumber } from "../home/format";
+import { Pagination, SearchField } from "../listing";
 import { ArticleCard, ArticleList } from "../listing/article-card";
 import { MoreLink } from "../parts";
+import { CategoryTabs } from "./category-tabs";
 import { articlePath, BLOG_PATH, CATEGORY_PARAM, listingQuery, type BlogQuery } from "./query";
 
 /**
  * `/blog` under its header (§6.8): the search with its result line, the area
- * chips, the journal index (ArticleItem rows under the 2px rule) and the
+ * tabs with their counts, the journal index (ArticleItem rows under the 2px rule) and the
  * pages. `result` holds only articles public in this language. An empty list
  * says why, in his voice, with the way back (EmptyState).
  */
 export function BlogList({
   result,
   areas,
+  counts,
   query,
 }: {
   result: PostPage;
-  /** Expertise areas published in this language: the category chips. */
+  /** Expertise areas published in this language: the category tabs. */
   areas: ExpertiseArea[];
+  /** Articles matching the search (any area), per area slug, and in all: the tabs' counts. */
+  counts: { all: number; byArea: Readonly<Record<string, number>> };
   query: BlogQuery;
 }) {
   const t = useTranslations("Blog");
+  const locale = useLocale() as Locale;
+  // An area with nothing to show gets no tab, unless it's the chosen one.
+  const tabs = areas.filter((area) => (counts.byArea[area.slug] ?? 0) > 0 || area.slug === query.category);
   const kept = listingQuery(query);
   const filtered = query.q !== null || query.category !== null;
   const allWriting = (label: string) => <MoreLink href={BLOG_PATH} label={label} />;
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col gap-4">
+      {/* The search and the tabs share a row on wide screens (the Blog mockup). */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-gutter">
         <SearchField
           pathname={BLOG_PATH}
           value={query.q ?? ""}
@@ -44,15 +54,21 @@ export function BlogList({
               ? t("searchResults", { count: result.total, q: query.q })
               : t("resultsCount", { count: result.total }))
           }
-          className="max-w-3xl"
+          className="max-w-3xl lg:max-w-md lg:flex-1"
         />
-        {areas.length > 0 && (
-          <FilterChips
+        {tabs.length > 0 && (
+          <CategoryTabs
             label={t("categoriesLabel")}
             pathname={BLOG_PATH}
             param={CATEGORY_PARAM}
-            options={areas.map((area) => ({ value: area.slug, label: area.title }))}
+            allCount={formatNumber(counts.all, locale)}
+            options={tabs.map((area) => ({
+              value: area.slug,
+              label: area.title,
+              count: formatNumber(counts.byArea[area.slug] ?? 0, locale),
+            }))}
             query={kept}
+            className="min-w-0"
           />
         )}
       </div>

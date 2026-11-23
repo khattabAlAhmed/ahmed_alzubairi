@@ -78,7 +78,23 @@
     "courses": "My courses",
     "profile": "Profile",
     "empty": "Nothing here yet.",
-    "consultationsEmpty": "No consultations yet."
+    "consultationsEmpty": "No consultations yet.",
+    "states": {
+      "loading": {
+        "consultations": "Loading your consultations",
+        "documents": "Loading your documents",
+        "courses": "Loading your courses",
+        "page": "Loading the page"
+      },
+      "error": {
+        "consultations": "Your consultations didn't load",
+        "documents": "Your documents didn't load",
+        "courses": "Your courses didn't load",
+        "page": "This page didn't load",
+        "text": "The connection may be weak. The rest of your account works.",
+        "retry": "Try again"
+      }
+    }
   },
   "Dashboard": {
     "navLabel": "Dashboard menu",
