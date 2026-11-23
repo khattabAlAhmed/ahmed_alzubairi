@@ -417,6 +417,15 @@ async function FrameBlock({ t, locale }: { t: T; locale: Locale }) {
         <State label={t("states.missing")}>
           <PhotoMissing crop="work" label={tg("missing")} />
         </State>
+        <State label={t("states.band")} className="md:col-span-2 lg:col-span-3">
+          <Figure
+            image={{ src: PHOTOS.window, alt: t("frame.bandCaption") }}
+            crop="band"
+            caption={t("frame.bandCaption")}
+            note={t("placeholderPhoto")}
+            sizes="(min-width: 1376px) 1312px, 100vw"
+          />
+        </State>
       </div>
       <DsNote className="mt-4">{t("frame.note")}</DsNote>
     </DsBlock>

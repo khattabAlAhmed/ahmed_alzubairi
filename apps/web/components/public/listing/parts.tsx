@@ -25,7 +25,7 @@ export const LIST_ROW = "relative border-b border-line";
 
 export type ListingImage = { src: string; alt: string };
 
-/** The four photo crops (DESIGN.md "Imagery"). */
+/** The photo crops (DESIGN.md "Imagery"). */
 export const PHOTO_CROPS = {
   /** 4:5, for Ahmed. */
   portrait: "aspect-[4/5]",
@@ -35,6 +35,8 @@ export const PHOTO_CROPS = {
   detail: "aspect-square",
   /** 16:9, for quiet backgrounds, and listing cards. */
   wide: "aspect-video",
+  /** 21:8, the wide band under an expertise area's header. */
+  band: "aspect-[21/8]",
 } as const;
 
 export type PhotoCrop = keyof typeof PHOTO_CROPS;

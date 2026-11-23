@@ -7,6 +7,7 @@ import { cx } from "@/components/ui/cx";
 import { Link } from "@/i18n/navigation";
 import type { ExpertiseArea, ExpertiseAreaDetail, Project, Service } from "@/lib/content";
 import { RichText } from "../rich-text";
+import { Figure } from "../listing/parts";
 import { CONTAINER, ConsultationCta, MoreLink, PageHero, PageSection } from "../parts";
 import { ProjectStoryList, ProjectStoryRow, storyFromProject } from "../project-story";
 import { ExpertiseChapters, OrganizationRegister } from "./identity";
@@ -114,6 +115,17 @@ export function ExpertiseDetailPage({
         intro={<p>{area.summary}</p>}
         facts={facts}
       />
+      {area.image && (
+        // The wide photo under the header (the Expertise mockup). Lazy: on phones it sits below the fold.
+        <div className={CONTAINER}>
+          <Figure
+            image={{ src: area.image.url, alt: area.image.alt }}
+            crop="band"
+            caption={area.image.caption ?? undefined}
+            sizes="(min-width: 1376px) 1312px, 100vw"
+          />
+        </div>
+      )}
       <div className={cx(CONTAINER, "mt-section grid gap-section")}>
         {(area.body || services.length > 0) && (
           <section aria-labelledby="area-meaning" className="grid gap-x-gutter gap-y-6 md:grid-cols-12">

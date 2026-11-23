@@ -232,6 +232,29 @@ describe("AboutPage", () => {
     expect(screen.queryByRole("img", { name: "portraitAlt" })).toBeNull();
   });
 
+  it("shows the work photo beside the career, with its alt and caption, only when set", () => {
+    const image = { url: "https://example.supabase.co/work.jpg", alt: "Ahmed in a working session", caption: "Working session" };
+    render(<AboutPage page={{ ...page, image }} timeline={timeline} stats={[]} cvUrl={null} portrait={null} />);
+    const career = screen.getByRole("heading", { name: "career" }).closest("section")!;
+    const img = screen.getByRole("img", { name: "Ahmed in a working session" });
+    expect(career.contains(img)).toBe(true);
+    expect(img.closest("figure")?.querySelector("figcaption")?.textContent).toContain("Working session");
+    expect(img.parentElement?.className).toContain("aspect-[4/5]");
+    expect(img.getAttribute("loading")).toBe("lazy");
+    cleanup();
+
+    render(<AboutPage page={{ ...page, image: null }} timeline={timeline} stats={[]} cvUrl={null} portrait={null} />);
+    const bare = screen.getByRole("heading", { name: "career" }).closest("section")!;
+    expect(bare.querySelector("figure")).toBeNull();
+    expect(bare.querySelector("ol")?.closest(".md\\:w-2\\/3")).not.toBeNull();
+  });
+
+  it("leaves the caption out when the work photo has none", () => {
+    const image = { url: "https://example.supabase.co/work.jpg", alt: "Ahmed at work", caption: null };
+    render(<AboutPage page={{ ...page, image }} timeline={timeline} stats={[]} cvUrl={null} portrait={null} />);
+    expect(screen.getByRole("img", { name: "Ahmed at work" }).closest("figure")?.querySelector("figcaption")).toBeNull();
+  });
+
   it("shows the CV link only when site settings give a URL", () => {
     render(<AboutPage page={page} timeline={[]} stats={[]} cvUrl={null} portrait={null} />);
     expect(screen.queryByRole("link", { name: "cv" })).toBeNull();
@@ -289,6 +312,27 @@ describe("ExpertiseDetailPage", () => {
     availableIn: ["ar", "en"],
   };
   const areaService: Service = { ...service, id: "svc-2", slug: "protection", title: "Protection", expertiseId: "a1" };
+
+  it("shows the wide photo between the header and the body, with its alt and caption, only when set", () => {
+    const image = { url: "https://example.supabase.co/field.jpg", alt: "A listening session", caption: "Listening session" };
+    const { container } = render(<ExpertiseDetailPage area={{ ...area, image }} services={[]} projects={[]} />);
+    const img = screen.getByRole("img", { name: "A listening session" });
+    const figure = img.closest("figure")!;
+    expect(img.parentElement?.className).toContain("aspect-[21/8]");
+    expect(figure.querySelector("figcaption")?.textContent).toContain("Listening session");
+    expect(img.getAttribute("loading")).toBe("lazy");
+    const header = screen.getByRole("heading", { level: 1 }).closest("header")!;
+    const meaning = screen.getByRole("heading", { name: "areaMeaning" });
+    expect(header.compareDocumentPosition(figure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(figure.compareDocumentPosition(meaning) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(container.querySelectorAll("figure").length).toBe(1);
+    cleanup();
+
+    const { container: bare } = render(<ExpertiseDetailPage area={{ ...area, image: null }} services={[]} projects={[]} />);
+    expect(bare.querySelector("figure")).toBeNull();
+    const after = screen.getByRole("heading", { level: 1 }).closest("header")!.nextElementSibling;
+    expect(after?.className).toContain("mt-section");
+  });
 
   it("shows the area's counts as a ledger and its services beside the body", () => {
     const projects = [project("1", { organization: "Org A" }), project("2", { organization: "Org A" })];

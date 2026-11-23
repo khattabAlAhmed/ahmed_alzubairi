@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
 import type { HomeStat, Page, TimelineItem } from "@/lib/content";
+import { Figure } from "../listing/parts";
 import { RichText, splitLead } from "../rich-text";
 import { CONTAINER, ConsultationCta, PageHero, PageSection } from "../parts";
 import { CareerTimeline, CvLink, isOngoing, QualificationList, StatLedger, ValueList } from "./identity";
@@ -15,8 +16,9 @@ const VALUES = ["listen", "doable", "leave"] as const;
  * short" holds the rest of the body (the long bio) beside the quick stats as
  * a ledger. Then the career as a spine, and the qualifications with the CV
  * beside his values. Facts all come from the dashboard: the body, the
- * timeline, the stats, the CV switch and the portrait (the home hero's
- * photo). His sentence and his values are voice copy in `messages/`. A part
+ * timeline, the stats, the CV switch, the portrait (the home hero's
+ * photo) and the work photo beside the career (`page.image`; no photo, no
+ * figure). His sentence and his values are voice copy in `messages/`. A part
  * with nothing to show isn't rendered.
  */
 export function AboutPage({
@@ -69,9 +71,25 @@ export function AboutPage({
         )}
         {career.length > 0 && (
           <PageSection id="about-career" title={t("career")} intro={t("careerIntro")}>
-            <div className="md:w-2/3">
-              <CareerTimeline items={career} label={t("career")} />
-            </div>
+            {page.image ? (
+              // The work photo beside the spine (the About mockup): 8 + 4 columns, under it on phones.
+              <div className="grid gap-x-gutter gap-y-8 md:grid-cols-12">
+                <div className="min-w-0 md:col-span-8">
+                  <CareerTimeline items={career} label={t("career")} />
+                </div>
+                <Figure
+                  image={{ src: page.image.url, alt: page.image.alt }}
+                  crop="portrait"
+                  caption={page.image.caption ?? undefined}
+                  sizes="(min-width: 1376px) 416px, (min-width: 768px) 33vw, 100vw"
+                  className="self-start md:col-span-4"
+                />
+              </div>
+            ) : (
+              <div className="md:w-2/3">
+                <CareerTimeline items={career} label={t("career")} />
+              </div>
+            )}
           </PageSection>
         )}
         <PageSection
